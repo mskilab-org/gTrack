@@ -33,6 +33,10 @@ Installation
   install_github('mskilab/gTrack')
   ````
 
+See documentation
+
+[doc](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
+
 Description
 -----------
 
