@@ -38,7 +38,7 @@ Description
 
 Attributions
 ------------
-> Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College . Developed while a fellow in the Matthew Meyerson Lab, Dana Farber Cancer Institute, Broad Institute
+> Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College. Developed while a fellow in the Matthew Meyerson Lab, Dana Farber Cancer Institute, Broad Institute
 
 > Jeremiah Wala - Harvard MD-PhD candidate, Bioinformatics and Integrative Genomics, Rameen Beroukhim Lab, Dana Farber Cancer Institute
 
