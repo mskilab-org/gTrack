@@ -35,7 +35,7 @@ Installation
 
 See documentation
 
-[doc](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
+[R Dodcumentation](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
 
 Description
 -----------
