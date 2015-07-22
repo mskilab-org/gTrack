@@ -14,10 +14,22 @@ Installation
 install.packages('devtools')
 ```
 
-2. Install gTrack
+2. Load devtools
 
 ```
-librarydevtools)
+library(devtools)
+````
+
+3. Install gUtils (if you don't have it already)
+
+```
+install_github('mskilab/gUtils')
+````
+
+
+4. Install gTrack
+
+```
 install_github('mskilab/gTrack')
 ````
 
