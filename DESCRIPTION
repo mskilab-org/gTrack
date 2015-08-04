@@ -2,14 +2,14 @@ Package: gTrack
 Title: Plotting multiple tracks of complex genomic data across multiple genomic
     windows.
 Version: 0.0.0.9000
-Authors@R: c(person(given = "Marcin", family = "Imielinski", role = c("aut",
-    'cre')), person(given = "Jeremiah", family = "Wala", role = c("aut",
-    "cre"), email = "jwala@broadinstitute.org"))
+Maintainer: Marcin Imielinski <mimielinski@nygenome.org>
+Author: Marcin Imielinski <mimielinski@nygenome.org>, Jeremiah Wala <jwala@broadinstitute.org>>
+Authors@R: c(person(given = "Marcin", family = "Imielinski", role = c("aut", "cre")), person(given = "Jeremiah", family = "Wala", role = c("aut"), email = "jwala@broadinstitute.org"))
 Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
 Depends:
     R (>= 3.1.0),
     GenomicRanges (>= 1.8),
-    grUtils
+    gUtils
 License: GNU GPLv3
 LazyData: true
