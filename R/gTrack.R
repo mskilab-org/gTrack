@@ -17,11 +17,6 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
-#require('RColorBrewer')
-#require('GenomicRanges')
-TRACKDATA.HOME = paste(Sys.getenv('GIT_HOME'), '/trackData/', sep = "/");
-TRACKDATA.DB = paste(TRACKDATA.HOME, '/DB/', sep = "/");
-
 #' S4 class for \code{gTrack}
 #'
 #' Class \code{gTrack} defines a subsettable object that wraps formatting information around
@@ -39,6 +34,7 @@ TRACKDATA.DB = paste(TRACKDATA.HOME, '/DB/', sep = "/");
 #' @name gTrack-class
 #' @rdname gTrack-class
 #' @exportClass gTrack
+#' @author Marcin Imielinski 
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 setMethod('initialize', 'gTrack', function(.Object,
@@ -478,6 +474,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @name gTrack
 #' @rdname gTrack-class
 #' @export
+#' @author Marcin Imielinski 
 gTrack = function(...) new('gTrack', ...)
 
 setValidity('gTrack', function(object)
@@ -595,14 +592,17 @@ setValidity('gTrack', function(object)
 
 #suppressWarnings(removeMethod('[', 'gTrack')) ## takes care of stupid R 2.15 bug
 
+
+#' @name [
+#' @title [
+#' @description
+#' 
 #' Subsetting tracks of gTrack gt
 #' gt[1]
 #' gt[ix] # where ix is an integer vector
 #'
-#' @aliases [,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('[', 'gTrack', function(x, i)
           {
               if (is.logical(i))
@@ -622,19 +622,22 @@ setMethod('[', 'gTrack', function(x, i)
               return(x)
           })
 
-#' @aliases mdata,gTrack-class
-#' @docType method
+
+#' @export
+#' @author Jeremiah Wala
 setGeneric('mdata', function(x, ...) standardGeneric('mdata'))
 
+#' @name mdata
+#' @title mdata
+#' @description
+#' 
 #' Accessing submatrices of mdata object for length 1 gTrack gt
 #' 
 #' Usage: (igr, jgr are GRanges objects corresponding to slices of matrix to be accessed from gt)
 #' mdata(gt, igr, jgr)
 #' 
-#' @aliases $,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Jeremiah Wala
 setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
           {
               if (is.null(igr) & is.null(jgr))
@@ -679,18 +682,23 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
               return(out)
           })
 
+#' @name $
+#' @title $
+#' @description
+#' 
 #' Accessing columns of gTrack formatting data.frame
 #'
-#' @aliases $,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
-#' 
+#' @author Marcin Imielinski 
 setMethod('$', 'gTrack', function(x, name)
           {
             return(x@formatting[, name])
           })
 
+#' @name $<-
+#' @title $<-
+#' @description
+#'
 #' Setting formats of gTrack object - ie modifying the formatting(gt) data frame after
 #' an object has already been instantiated
 #'
@@ -698,40 +706,41 @@ setMethod('$', 'gTrack', function(x, name)
 #' gt$y.field = 'score'
 #' gt$gr.colorfield[1] = 'readtype'
 #' 
-#' @aliases $<-,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('$<-', 'gTrack', function(x, name, value)
           {
             x@formatting[, name] = value
             return(x)
           })
 
+#' @name length
+#' @title length
+#' @description
+#' 
 #' Getting length of gTrack object gt
 #' Usage:
 #' length(gt)
 #' 
-#' @aliases length,gTrack-class
-#' @rdname length-method
-#' @docType methods
 #' @export
-#' 
+#' @author Marcin Imielinski 
 setMethod('length', 'gTrack', function(x)
           {
             return(length(x@data))
           })
 
+#' @name reduce
+#' @title reduce
+#' @description
+#' 
 #' Computing the GRanges footprint of the gTrack object on the genome
 #' usage:
 #' reduce(gt) # outputs a GRanges
 #' 
 #' @param ... additional arguments to GRanges reduce function
-#' @aliases reduce,gTrack-class
-#' @rdname reduce-method
-#' @docType methods
 #' @importMethodsFrom GenomicRanges reduce
 #' @export
+#' @author Marcin Imielinski 
 setMethod('reduce', 'gTrack', function(x, ... )
           {
             if (length(x)==0)
@@ -759,32 +768,37 @@ setMethod('reduce', 'gTrack', function(x, ... )
 
 #uppressWarnings(removeMethod('seqinfo', 'gTrack')) ## takes care of stupid R 2.15 bug
 
+
+#' @name seqinfo
+#' @title seqinfo
+#' @description
+#' 
 #' returns Seqinfo of gTrack object gt
 #' Usage:
 #' seqinfo(gt)
 #' 
-#' @aliases seqinfo,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @importMethodsFrom GenomicRanges seqinfo
 #' @export
+#' @author Marcin Imielinski 
 setMethod("seqinfo", signature(x = "gTrack"), function(x)
           {
             return(x@seqinfo)
           })
 
-#' @aliases seqinfo<-,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+
+#' @export
+#' @author Marcin IMielinski
 setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 
+
+#' @name seqinfo<-
+#' @title seqinfo,-
+#' @description
+#'
+#' set seqinfo property of gTrack
 #' 
-#' 
-#' @aliases seqinfo,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
-#' @importMethodsFrom GenomicRanges seqinfo
 #' @export
+#' @author Marcin Imielinski 
 setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
                  {
                    .Object@seqinfo = value;
@@ -793,30 +807,34 @@ setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
                    return(.Object)
                  });
 
-#' @aliases lengths,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+
+#' @export
 setGeneric('lengths', function(x) standardGeneric('lengths'))
 
+
+#' @name lengths
+#' @title lengths
+#' @description
+#' 
 #' gets lengths of data objects inside gTrack object gt
 #' usage:
 #' lengths(gt) # returns vector of lengths
 #'
-#' @aliases lengths,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod("lengths", signature(x = "gTrack"), function(x)
           { sapply(dat(x), length) } )
 
+#' @name c
+#' @title c
+#' @description
+#' 
 #' Concatenate gTrack objects gt1, gt2, gt3
 #' usage:
 #' c(gt1, gt2, gt3) # returns a gTrack object with the component tracks "stacked"
 #'
-#' @aliases c,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('c', 'gTrack', function(x, ...)
           {
             args = list(x, ...)
@@ -850,30 +868,35 @@ setMethod('c', 'gTrack', function(x, ...)
             return(out)
           })
 
-#' @aliases formatting,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+#' @export
 setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
 
+#' @name formatting
+#' @title formatting
+#' @description
+#' 
 #' Get data frame specifying formatting of gTrack object gt
 #' usage:
 #' formatting(gt)
-#' gt # will just display the formatting data.frame 
+#' gt # will just display the formatting data.frame
 #'
-#' @aliases formatting,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+#' If you want to access particular fields of the formatting data.frame, just use the "$" accessor like you would for a data.frame
+#'
 #' @export
+#' @author Marcin Imielinski
 setMethod('formatting', 'gTrack', function(.Object)
           {
             return(.Object@formatting)
           })
 
-#' @aliases edgs,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+
+#' @export
 setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 
+#' @name edgs
+#' @title edgs
+#' @description
+#' 
 #' Get edges list associated with gTrack object, is is a list of data.frames
 #' each which contains a data.frame specifying formatted edges, as pairs of indices into the
 #' underlying GRanges object $from, $to and additional formats $col $lwd $lty
@@ -881,10 +904,8 @@ setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 #' usage:
 #' edgs(gt)
 #'
-#' @aliases edgs,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('edgs', 'gTrack', function(.Object)
            {
 #             .Object = list(...)[[1]]
@@ -892,28 +913,28 @@ setMethod('edgs', 'gTrack', function(.Object)
            })
 
 
-#' @aliases vars,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 setGeneric('vars', function(.Object) standardGeneric('vars'))
 
+#' @name vars
+#' @title vars
+#' @description
+#' 
+#' Get variants associated with track
 #'
-#' @aliases vars,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
-#' @export
+#' @keywords internal
+#' @author Marcin Imielinski 
 setMethod('vars', 'gTrack', function(.Object)
            {
 #             .Object = list(...)[[1]]
              return(.Object@vars)
            })
 
-#' @aliases edgs<-,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
-#'
+
 setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 
+#' @name edgs<-
+#' @title edgs<-
+#' @description
 #' Set edges data.frame associated with associated with gTrack object, the data.frame
 #' that is being used to replace must have fields $from, $to, and can have optional fields $lwd
 #' $lty, $col specifyign color and line type. 
@@ -921,10 +942,8 @@ setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 #' usage:
 #' edgs(gt)[[1]] <- new.edges.
 #'
-#' @aliases edgs<-,gTrack-class
-#' @rdname gTrack-methods
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('edgs<-', 'gTrack', function(.Object, value)
           {
             if (!all(sapply(value, is.data.frame)))
@@ -941,18 +960,20 @@ setMethod('edgs<-', 'gTrack', function(.Object, value)
             return(.Object)
           })
 
-#' @rdname gTrack-class
-#' @docType methods
-#' Export
+
+#' @export
 setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
 
+#' @name clear
+#' @title clear
+#' @description
+#'
 #' Clear data from gTrack object (makes into an empty container with the same seqinfo and display features)
 #' usage:
 #' clear(gTrack)
 #' 
-#' @aliases clear,gTrack-class
-#' @rdname gTrack-methods
-#' @docType methods
+#' 
+#' @author Marcin Imielinski
 #' @export
 setMethod('clear', 'gTrack', function(.Object)
           {
@@ -962,47 +983,44 @@ setMethod('clear', 'gTrack', function(.Object)
             return(.Object);
           })
 
-#' @rdname gTrack-class
-#' @docType methods
+
 #' @export
 setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
 
+#' @name dat
+#' @title dat
+#' @description
+#' 
 #' Extract list of data contained inside a gTrack object gt.  Each list item will contain
 #' either a GRanges, RleList, or path to a file.
 #' 
 #' usage
 #' dat(gt)
 #' 
-#' @aliases dat,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('dat', 'gTrack', function(.Object)
           {
             return(.Object@data)
           })
-
-#' Formatting
-#'
-#' @aliases formatting<-,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
 #' @export
 setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<-'))
 
+
+#' @name formatting<-
+#' @title formatting<-
+#' @description
+#'
 #' Set formatting of gTrack object  gt
 #'
 #' usage:
 #' #gt is a gTrack object
 #' formatting(td)$height <- 2
 #'
-#' #can also just use $ directly
-#' td$height <- 2  
-#'
-#' @aliases formatting,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+#' #can also just use $ directly, like for a data frame, which is more convenient
+#' td$height <- 2
 #' @export
+#' @author Marcin Imielinski
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
                  {
                    REQUIRED.COLUMNS = c('height', 'col', 'lift', 'format', 'ygap');
@@ -1018,34 +1036,34 @@ setReplaceMethod('formatting', 'gTrack', function(.Object, value)
                    return(.Object)
                  });
 
-#' @aliases colormap,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
-#' 
+
+#' @export 
 setGeneric('colormap', function(.Object, value) standardGeneric('colormap'))
 
+#' @name colormap
+#' @title colormap
+#' @description
 #' Access colormap of gTrack object, this is a named list of named character vectors that specifies
 #' the field of the underlying GRanges object that will be used to map a set of values
 #' to a set of colors.
 #' usage:
 #' colormap(gt)
 #'
-#' @aliases colormap,gTrack-class
-#' @rdname gTrack-methods
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setMethod('colormap', 'gTrack', function(.Object)
           {
             return(.Object@colormap)
           })
 
-#' @aliases colormap,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
-#' 
+#' @export
 setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 
 
+
+#' @name colormap
+#' @title colormap
+#' @description
 #' Set colormap of gTrack object, this is a named list of named character vectors that specifies
 #' the field of the underlying GRanges object that will be used to map a set of values
 #' to a set of colors.
@@ -1053,10 +1071,8 @@ setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 #' usage:
 #' colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
 #'
-#' @aliases colormap,gTrack-class
-#' @rdname gTrack-methods
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski 
 setReplaceMethod('colormap', 'gTrack', function(.Object, value)
                  {
                    .Object@colormap = value;
@@ -1064,11 +1080,9 @@ setReplaceMethod('colormap', 'gTrack', function(.Object, value)
                    return(.Object)
                  });
 
-#' @aliases show,gTrack-class
-#' @rdname gTrack-class
-#' @docType methods
+
 #' @export
-#'
+#' @author Marcin Imielinski 
 setMethod('show', 'gTrack', function(object)
           {
             cat(sprintf('gTrack object with %s tracks with formatting:\n', length(object)))
@@ -1095,11 +1109,9 @@ setMethod('show', 'gTrack', function(object)
 if (!isGeneric("plot"))
     setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
-#' @docType methods
-#' @rdname gTrack-class
-#' @aliases display,gTrack-class
-setGeneric('display', function(.Object, ...) standardGeneric('display'))
-
+#' @name plot
+#' @title plot
+#' @description
 #' Plot gTrack object in multi-track genome browser view.  gTracks will appear as stacked interval
 #' plots, line / bar / scatter plots, node-edge graphs, or triangle plots depending on the formatting
 #' settings and additional data (eg mdata) provided.  gTracks can be drawn across several non-contiguous
@@ -1128,11 +1140,9 @@ setGeneric('display', function(.Object, ...) standardGeneric('display'))
 #' @param max.ranges scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.
 #' @param ..., additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')
 #' 
-#' @aliases plot,gTrack-class
-#' @rdname gTrack-class
 #' @import GenomicRanges
-#' @docType methods
 #' @export
+#' @author Marcin Imielinski, Jeremiah Wala
 setMethod('plot', 'gTrack', function(x, ## gTrack object,
                                      y = seqinfo2gr(seinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
@@ -1850,16 +1860,19 @@ setMethod('plot', 'gTrack', function(x, ## gTrack object,
 #
 ###############
 
-#' Returns gTrack displaying colormap for ucsc hg18 or hg19 karyotype
+#' @name karyogram
+#' @title karyogram
+#' @description
+#'
+#' Returns gTrack displaying band pattern for hg18 or hg19 karyotype
 #'
 #' @param hg19 logical scalar flag, if T returns gTrack for hg19
 #' @param bands logical scalar, if T returns gTrack with colored giemsa bands
 #' @param arms logical scalar, if T and bands F, returns chromosome arms with different colors and centromeres and telomeres marked, if arms is F and bands F returns chromosomes, each with a different color
 #' @param tel.width numeric scalar, specifies telomere width in bases (only relevant if arms = T, bands = F)
 #'
-#' @aliases td.karyogram,gTrack-class
-#' @rdname karyogram
 #' @export
+#' @author Marcin Imielinski 
 karyogram = function(hg19 = T,
   bands = T,
   arms = T,
@@ -1952,6 +1965,10 @@ karyogram = function(hg19 = T,
   }
 
 
+#' @name karyogram
+#' @title karyogram
+#' @description
+#' 
 #' Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cahced data objects but can also be built from provided GRangesList
 #'
@@ -1974,9 +1991,8 @@ karyogram = function(hg19 = T,
 #' @param stack.gap stack.gap argument to gTrack
 #' @param ... additional arguments passed down to gTrack
 #'
-#' @aliases track.refgene,gTrack-class
-#' @rdname track.refgene
 #' @export
+#' @author Marcin Imielinski
 track.refgene = function(rg = NULL, 
   gene.collapse = T,
   genes = NULL,
@@ -2100,6 +2116,11 @@ track.refgene = function(rg = NULL,
                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
   }
 
+
+#' @name track.gencode
+#' @title track.gencode
+#' 
+#' @description
 #' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cached data objects but can also be built from provided GRangesList
 #'
@@ -2120,9 +2141,8 @@ track.refgene = function(rg = NULL,
 #' @param stack.gap stack.gap argument to gTrack
 #' @param ... additional arguments passed down to gTrack
 #'
-#' @aliases track.gencode,gTrack-class
-#' @rdname track.gencode
 #' @export
+#' @author Marcin Imielinski 
 track.gencode = function(gencode = NULL, 
   gene.collapse = T,
   genes = NULL,
@@ -2242,7 +2262,9 @@ track.gencode = function(gencode = NULL,
   }
 
 
-
+#' @name track.splice
+#' @title track.splice
+#' 
 #' Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object 
 #' of splicing graph
 #'
@@ -2250,8 +2272,8 @@ track.gencode = function(gencode = NULL,
 #' @param bam path to indexed RNA seq bam
 #' @param verbose 
 #' @import Rsamtools
-#' @aliases track.splice,gTrack-class
 #' @export
+#' @author Marcin Imielinski 
 track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
     infer.exons = FALSE,
     min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
@@ -2390,7 +2412,9 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
     }
 
 ##########################
-#' draw.ranges
+#' @name draw.ranges
+#' @title draw.ranges
+#' @description
 #'
 #' Draws (genomic, Iranges, Rle, or df with start and end field) intervals
 #' as rectangles of thickness "lwd", col "col".
@@ -2399,8 +2423,8 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
 #'
 #' Adds optional backbone between beginning of first range
 #' and end of last on existing plot
-#' @name draw.ranges
 #' @keywords internal
+#' @author Marcin Imielinski
 ##########################
 draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, label = NULL,
   draw.backbone = F, # if TRUE lines will be drawn linking all ranges at a single y-level +/- (a single y x group level if group is specified),
@@ -2604,7 +2628,9 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   
 }
 
-#' draw.grl
+#' @name draw.grl
+#' @title  draw.grl
+#' @description
 #'
 #' wrapper function around draw.ranges to draw GRangesList across a set of genomic windows 
 #' By default, these windows correspond to the smallest set of "covered" regions (ie containing at least one
@@ -2629,8 +2655,8 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 #' var.col = c(XA = 'blue', S = 'yellow', 'I' = green') would replace the default variant coloring of
 #' "A" substitutions, soft clipped regions, and insertions with blue, yellow, and green colors, respectively.
 #'
-#' @name draw.grl
 #' @keywords internal
+#' @author Marcin IMielinski
 ##########################
 draw.grl = function(grl,
   y = NULL,  # can be either vector of length grl, or data.frame row / list with fields $start and $end
@@ -3895,6 +3921,9 @@ draw.grl = function(grl,
 
 
 ######################################
+#' @name pencils
+#' @title pencils
+#' @description
 #' pencils
 #'
 #' pencils = hexa-penta-rectagonal like pointy shapes often used to represent NGS read directionality (eg IGV)
@@ -3904,8 +3933,9 @@ draw.grl = function(grl,
 #' on the right / left side.  Values of 0 for leftpoint and rightpoint will yield a diamond, and values of 1 will yield a "classic" rectangle.
 #'
 #' all arguments except leftpoint and rightpoint can be vectors (of length n) specifying n different barbs with different positions / parameters.
-#' @name pencils
+
 #' @keywords internal
+#' @author Marcin Imielinski
 ######################################
 pencils = function(x0, y0, x1, y1,
   leftpoint = 1, # this is a scalar value (see above).. clipped to be between 0 and 1
@@ -3959,7 +3989,9 @@ pencils = function(x0, y0, x1, y1,
 }
 
 #####################################
-#' barbs
+#' @name barbs
+#' @title barbs
+#' @description
 #'
 #' (improvement over pencils)
 #' used to represent directional ranges.  Shape consists of two horizontally reflected parallelograms
@@ -3972,7 +4004,7 @@ pencils = function(x0, y0, x1, y1,
 #'    angle of -45 = leftward pointing barb
 #'
 #' Note: the shape will NOT be necessarily contained inside the box outlined by x0, x1, y0, y1
-#' @name barbs
+#' @author Marcin Imielinski
 #' @keywords internal
 barbs = function(x0, y0, x1, y1, angle = 0, ...)
   {
@@ -4003,6 +4035,9 @@ barbs = function(x0, y0, x1, y1, angle = 0, ...)
     do.call('polygon', c(list(x=as.numeric(x.vertices), y=as.numeric(y.vertices)), other.args))
   }
 
+#' @name bernsteinp
+#' @title bernsteinp
+#' @description
 #' bernsteinp
 #'
 #' computes matrix of bernstein polynomials of degree n at m points t in the
@@ -4013,7 +4048,7 @@ barbs = function(x0, y0, x1, y1, angle = 0, ...)
 #'
 #' this matrix can be multiplied by a n x 2 matrix of control points to yield
 #' an m x 2 matrix of m equally spaced points along the curve
-#' @name bernsteinp
+#' @author Marcin Imielinski
 #' @keywords internal
 bernsteinp = function(n, m)
   {
@@ -4025,6 +4060,10 @@ bernsteinp = function(n, m)
     return(out)
   }
 
+#' @name connectors
+#' @title connectors
+#' @description
+#' 
 #' connectors
 #'
 #' draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
@@ -4048,7 +4087,8 @@ bernsteinp = function(n, m)
 #' nsteps determines how many segments used to approximate the curve
 #'
 #' all args except nsteps can be vecorized
-#' @name connectors
+#' 
+#' @name Marcin Imielinski
 #' @keywords internal
 connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
   type = "S", f.arrow = T, b.arrow = F, nsteps = 20,
@@ -4165,7 +4205,10 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
   }
 
 
-#' affine.map
+#' @name affine.map
+#' @title affine.map
+#' @description
+#' 
 #'
 #' affinely maps 1D points in vector x from interval xlim to interval ylim,
 #' ie takes points that lie in 
@@ -4177,7 +4220,7 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
 #'
 #' if cap.max or cap.min == T then values outside of the range will be capped at min or max
 #' 
-#' @aliases affine.map,gTrack-class
+#' @author Marcin Imielinski
 #' @keywords internal
 affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.min = cap, cap.max = cap, clip = T, clip.min = clip, clip.max = clip)
   {
@@ -4202,10 +4245,14 @@ affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.m
     return(y)
   }
 
+#' @name alpha
+#' @title alpha
+#' @description
 #' Give transparency value to colors
 #'
 #' Takes provided colors and gives them the specified alpha (ie transparency) value
 #'
+#' @author Marcin Imielinski
 #' @param col RGB color
 #' @keywords internal
 alpha = function(col, alpha)
@@ -4228,6 +4275,10 @@ blend = function(cols)
   }
 
 
+#' @name col.scale
+#' @title col.scale
+#' @description
+#' 
 #' Assign rgb colors to numeric data
 #'
 #' Assigns rgb colors to numeric data values in vector "x".. maps scalar values
@@ -4235,7 +4286,7 @@ blend = function(cols)
 #' and col.max (default black), each which are length 3 vectors or characters.  RGB values are scaled between 0 and 1. 
 #' Values below and above val.min and val.max are mapped to col.max and col.max respectively
 #'
-#' @name col.scale
+#' @author Marcin Imielinski
 #' @keywords internal
 ##########################
 col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black', na.col = 'white',
@@ -4278,6 +4329,9 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
     return(out)           
   }
 
+#' @name brewer.master
+#' @title brewer.master
+#' @description
 #' Make brewer colors using entire palette
 #'
 #' Makes a lot of brewer colors using entire brewer palette
@@ -4286,6 +4340,7 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
 #'
 #' @export
 #' @keywords internal
+#' @author Marcin Imielinski 
 brewer.master = function(n, palette = 'Accent')
 {
   palettes = list(
@@ -4327,9 +4382,13 @@ brewer.master = function(n, palette = 'Accent')
 }
 
 
+#' @name lighten
+#' @title lighten
+#' @description
 #' lighten
 #'
 #' lightens / darkens colors by brighness factor f (in -255 .. 255) that will make lighter if > 0 and darker < 0
+#' @author Marcin Imielinski
 #' @keywords internal
 lighten = function(col, f)
   {
@@ -4338,9 +4397,13 @@ lighten = function(col, f)
   }
 
 
+#' @name plot.blank
+#' @title plot.blank
+#' @description
 #' Make a blank plot
 #'
 #' Shortcut for making blank plot with no axes
+#' @author Marcin Imielinski
 #' @keywords internal
 plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes = F, ...)
   {
@@ -4348,9 +4411,13 @@ plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes 
 #    par(usr = c(xlim, ylim))
   }
 
+#' @name draw.triangle
+#' @title draw.triangle
+#' @description
 #' internal draw.triangle function
 #'
 #' Shortcut for making blank plot with no axes
+#' @author Jeremiah Wala
 #' @keywords internal
 draw.triangle <- function(grl,
     mdata=NA,
@@ -4743,7 +4810,12 @@ draw.triangle <- function(grl,
   return(window.segs)
 }
 
-#' internal draw.triangle function
+
+#' @name .clip.polys
+#' @title .clip.polys
+#' @description
+#' Clip polygons
+#' @author Jeremiah Wala 
 #' @keywords internal
 .clip.polys <- function(dt, y0, y1) {
 
@@ -4818,7 +4890,11 @@ draw.triangle <- function(grl,
 
 }
 
+#' @name diamond
+#' @title diamond
+#' @description
 #' internal draw.triangle function
+#' @author Jeremiah Wala
 #' @keywords internal
 diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
 
@@ -4851,7 +4927,11 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
      return(list(x=out.x, y=out.y, col=dt$col))
 }
 
+#' @name triangle
+#' @title triangle
+#' @description
 #' internal draw.triangle function
+#' @author Marcin Imielinski
 #' @keywords internal
 triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 
@@ -4882,9 +4962,10 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 }
 
 
+#' @description
 #' internal draw.triangle function
 #' @keywords internal
-  .geti <- function(x1, x2) {
+.geti <- function(x1, x2) {
      if (length(x1) != length(x2))
        stop('x1 and x2 need to be same length')
      dt = data.frame(x1, x2)
