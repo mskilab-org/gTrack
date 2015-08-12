@@ -5,7 +5,7 @@
 \alias{[}
 \title{[}
 \usage{
-\S4method{[}{gTrack,ANY,ANY}(x, i)
+\S4method{[}{gTrack,ANY,ANY,ANY}(x, i)
 }
 \description{
 Subsetting tracks of gTrack gt
