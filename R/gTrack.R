@@ -1104,10 +1104,9 @@ setMethod('show', 'gTrack', function(object)
     return(identical(df.a, df.b))    
   }
 
-
 #' @importMethodsFrom graphics plot
 if (!isGeneric("plot"))
-    setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
+    setGeneric("plot", function(x, ...) standardGeneric("plot"))
 
 #' @name plot
 #' @title plot
@@ -1392,26 +1391,6 @@ setMethod('plot', 'gTrack', function(x, ## gTrack object,
                         tmp.dat = GRanges()
                       }
 
-
-                    if (!is.na(formatting(.Object)$y.field[j]) & is(tmp.dat, 'GRanges'))
-                      {
-                        if (!is.null(formatting(.Object)$smooth))
-                          if (!is.na(formatting(.Object)$smooth[j]))
-                            {                            
-                              tmp = runmean(coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]]),
-                                k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant')
-                              if (!is.na(formatting(.Object)$round[j]))
-                                tmp = round(tmp, formatting(.Object)$round[j])
-                              
-                              tmp = as(tmp, 'GRanges')
-                              tmp = tmp[gr.in(tmp, tmp.dat)]
-                              tmp.val = tmp$score
-                              values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
-                              values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-                              tmp.dat = tmp                                                                
-                            }                        
-                      }
-
                     if (.Object@formatting$triangle[j])
                       pre.filtered = T
                                         
@@ -1447,6 +1426,26 @@ setMethod('plot', 'gTrack', function(x, ## gTrack object,
                               tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))                             
                             }
                         }
+
+                    if (!is.na(formatting(.Object)$y.field[j]) & is(tmp.dat, 'GRanges'))
+                      {
+                        if (!is.null(formatting(.Object)$smooth))
+                          if (!is.na(formatting(.Object)$smooth[j]))
+                            {
+                              tmp = runmean(coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]]),
+                                k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant', na.rm = TRUE)
+                              if (!is.na(formatting(.Object)$round[j]))
+                                  tmp = round(tmp, formatting(.Object)$round[j])
+                              
+                              tmp = as(tmp, 'GRanges')
+                              tmp = tmp[gr.in(tmp, tmp.dat)]
+                              tmp.val = tmp$score
+                              values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+                              values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
+                              browser()
+                              tmp.dat = tmp                                                                
+                            }                        
+                      }
                     
                     ## fix y limits 
                     if (!is.na(formatting(.Object)$y.field[j]))
