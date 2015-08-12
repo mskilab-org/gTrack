@@ -1142,8 +1142,8 @@ if (!isGeneric("plot"))
 #' @import GenomicRanges
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
-setMethod('plot', 'gTrack', function(x, ## gTrack object,
-                                     y = seqinfo2gr(seinfo(x)), ## windows to plot can be Granges or GRangesList
+setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,                                             
+                                              windows = seqinfo2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
                                      gap = NULL,  ## spacing betwen windows (in bp)
                                      
@@ -1153,7 +1153,6 @@ setMethod('plot', 'gTrack', function(x, ## gTrack object,
                                      cex.ylabel = 1,
                                      max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
                                      links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
-                                     windows = NULL, ## can be Granges or GRangesList 
                                      verbose=FALSE,
                                      ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                                      )
@@ -1162,8 +1161,6 @@ setMethod('plot', 'gTrack', function(x, ## gTrack object,
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
         
-        if (is.null(windows))
-            windows = y
               
             if (is(windows, 'character'))
               windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
