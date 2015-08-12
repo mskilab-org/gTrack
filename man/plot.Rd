@@ -5,12 +5,14 @@
 \alias{plot}
 \title{plot}
 \usage{
-\S4method{plot}{gTrack,ANY}(x, y = seqinfo2gr(seinfo(x)), links = NULL,
-  gap = NULL, y.heights = NULL, y.gaps = NULL, cex.xlabel = 1,
-  cex.ylabel = 1, max.ranges = NA, links.feat = NULL, windows = NULL,
+\S4method{plot}{gTrack,ANY}(x, windows = seqinfo2gr(seqinfo(x)),
+  links = NULL, gap = NULL, y.heights = NULL, y.gaps = NULL,
+  cex.xlabel = 1, cex.ylabel = 1, max.ranges = NA, links.feat = NULL,
   verbose = FALSE, ...)
 }
 \arguments{
+\item{windows}{GRanges specifying windows to view (can also be GRangesList), default is whole genome}
+
 \item{links}{GRangesList of signed locus pairs specifying links to draw above the plot,
 optional GRangesList values meta data specify formatting of individual links:
 $label (text label), $col (line color), $lwd (line weight), $lty (line style),
@@ -19,8 +21,6 @@ $arrow (arrow flag), $col.arrow (arrow color), $v (vertical spline bulge), $w (h
 \item{gap}{scalar numeric specifying gap between windows (only relevant if windows has length>1). Units of the gap are in genome coordinates}
 
 \item{max.ranges}{scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.}
-
-\item{windows}{GRanges specifying windows to view (can also be GRangesList), default is whole genome}
 
 \item{...,}{additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')}
 
