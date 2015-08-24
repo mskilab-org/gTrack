@@ -1439,12 +1439,11 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                               tmp.val = tmp$score
                               values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
                               values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-                              browser()
                               tmp.dat = tmp                                                                
                             }                        
                       }
                     
-                    ## fix y limits 
+                    ## fix y limits and apply log transform if needed                     
                     if (!is.na(formatting(.Object)$y.field[j]))
                       if (is.na(formatting(.Object)$y0[j]) | is.na(formatting(.Object)$y1[j]))
                         {
@@ -1532,7 +1531,20 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                         if (is.na(this.y.field) | !(this.y.field %in% names(values(tmp.dat))))
                           this.y = this.ylim.subplot[j, ]
                         else
-                          {                              
+                          {
+                            if (is.null(formatting(.Object)$log[j]))
+                                formatting(.Object)$log[j] = NA               
+
+                            if (!is.na(formatting(.Object)$log[j]))
+                                if (formatting(.Object)$log[j])
+                                    {
+                                        if (!is.null(tmp.dat$ywid))
+                                            tmp.dat$ywid = log10(tmp.dat$ywid)
+                                        values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
+                                        formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
+                                        formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
+                            
+                                }
                             range.y = NULL;
                             if (all(c('y0', 'y1') %in% names(formatting(.Object))))
                               {
@@ -1562,6 +1574,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                 }
                             
                             this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
+                            
                             if (!is.null(formatting(.Object)$y.cap)) ## cap values from top and bottom
                               this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
                             else
@@ -1582,6 +1595,10 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                               {
                                         # make pretty grid in range.y
                                 this.y.grid = structure(affine.map(this.y.ticks, ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks)), names = this.y.ticks)
+                                                            
+                                if (!is.na(formatting(.Object)$log[j]))
+                                    if (formatting(.Object)$log[j])
+                                        names(this.y.grid) = signif(10^this.y.ticks)
                               }
                             
                             ## ## fix ywids if necessary 
