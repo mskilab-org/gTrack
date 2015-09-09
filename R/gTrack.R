@@ -17,6 +17,8 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
 
+#' @import data.table
+
 #' S4 class for \code{gTrack}
 #'
 #' Class \code{gTrack} defines a subsettable object that wraps formatting information around
@@ -36,6 +38,8 @@
 #' @exportClass gTrack
 #' @author Marcin Imielinski 
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
+
+setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
 setMethod('initialize', 'gTrack', function(.Object,
                                            data = NULL, ##
@@ -1143,7 +1147,8 @@ if (!isGeneric("plot"))
 #' @import GenomicRanges
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
-setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,                                             
+setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
+                                              y,
                                               windows = seqinfo2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
                                      gap = NULL,  ## spacing betwen windows (in bp)
@@ -1158,6 +1163,9 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                      ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                                      )
     {
+        if (!missing(y))
+            windows = y
+        
         .Object = x
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
@@ -3203,7 +3211,11 @@ draw.grl = function(grl,
                     {
 
                                         # find lowest level at which there is no clash with this and previously stacked segments
-                      clash = which(seg.on.seg(contig.lim[1:(i-1), ], contig.lim[i, ], pad = path.stack.x.gap))
+
+
+                        ir1 = IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
+                        ir2 = IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
+                      clash = which(ir1 %over% (ir2 + path.stack.x.gap))
                       pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
                       contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]                      
                     }
@@ -4527,7 +4539,7 @@ draw.triangle <- function(grl,
     grl.segs = mapped$grl.segs;        
     window.segs = mapped$window.segs;
     winlim = range(c(window.segs$start, window.segs$end))
-    mdata = as.matrix(mdata[grl.segs$query.id, grl.segs$query.id])
+    mdata = as.matrix(mdata[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)])
 
     if (!is.na(sigma)) ## MARCIN: if blur use spatstat library to blur matrix for n base pairs but making sure we don't bleed across windows
         {
@@ -4731,10 +4743,12 @@ draw.triangle <- function(grl,
 
     ## set the color scale
     if (is.null(cmap.min))
-      cmap.min = min(mdata)
+                                        #      cmap.min = min(mdata)
+        cmap.min = quantile(mdata, 0.01)
     
     if(is.null(cmap.max))
-      cmap.max = max(mdata)
+                                        #cmap.max = max(mdata)
+        cmap.max = quantile(mdata, 0.99)
       
     #cs <- col.scale(seq(cmap.min, cmap.max), val.range=c(cmap.min, cmap.max), col.min=col.min, col.max=col.max)
     if (is.null(palette.colors))
@@ -4948,7 +4962,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
       col <- i1$x
    
    dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
-                     y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
+                    y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
    dt <- .clip.polys(dt, y0, y1)
    iN <- rep(NA, nrow(dt))
      
@@ -5047,4 +5061,4 @@ readData = function(..., environment = NULL)
         return(as.list(my.env))
     }
 
-setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
+

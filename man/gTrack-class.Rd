@@ -4,7 +4,7 @@
 \name{gTrack-class}
 \alias{gTrack}
 \alias{gTrack-class}
-\title{S4 class for \code{gTrack}}
+\title{constructor for gTrack}
 \usage{
 gTrack(...)
 }
@@ -155,10 +155,6 @@ in which draw.paths = T)  (formatting)}
 \item{cmap.max}{maximum saturating data value of color map for triangle plot}
 }
 \description{
-Class \code{gTrack} defines a subsettable object that wraps formatting information around
-genomic data (GRanges, GRangesList, RleLists, UCSC formats, ffTrack) and can be displayed
-in a "genome browser" style plot.
-
 Arguments described as "formatting" are vectors.  They are replicated (if necessary) to match the length of the object.
 }
 \section{Slots}{
