@@ -1026,19 +1026,18 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 #' @export
 #' @author Marcin Imielinski
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
-                 {
-                   REQUIRED.COLUMNS = c('height', 'col', 'lift', 'format', 'ygap');
-                   if (nrow(value) != length(.Object))
-                     stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
-                   
-                   if (length(setdiff(REQUIRED.COLUMNS, colnames(value))))
-                     stop('Replacement data frame is missing some columns')
-                   
-                   .Object@formatting = value;
-
-                   validObject(.Object)
-                   return(.Object)
-                 });
+    {
+        REQUIRED.COLUMNS = c('height', 'col', 'lift', 'format', 'ygap');
+        if (nrow(value) != length(.Object))
+            stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
+        
+        if (length(setdiff(REQUIRED.COLUMNS, colnames(value))))
+            stop('Replacement data frame is missing some columns')
+        .Object@formatting = value;
+        
+        validObject(.Object)
+        return(.Object)
+    });
 
 
 #' @export 
@@ -1539,21 +1538,21 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                         if (is.na(this.y.field) | !(this.y.field %in% names(values(tmp.dat))))
                           this.y = this.ylim.subplot[j, ]
                         else
-                          {
-                            if (is.null(formatting(.Object)$log[j]))
-                                formatting(.Object)$log[j] = NA               
-
-                            if (!is.na(formatting(.Object)$log[j]))
-                                if (formatting(.Object)$log[j])
-                                    {
-                                        if (!is.null(tmp.dat$ywid))
-                                            tmp.dat$ywid = log10(tmp.dat$ywid)
-                                        values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
-                                        formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
-                                        formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
-                            
-                                }
-                            range.y = NULL;
+                            {
+                                if (is.null(formatting(.Object)$log))
+                                    formatting(.Object)$log = NA
+                                
+                                if (!is.na(formatting(.Object)$log[j]))
+                                    if (formatting(.Object)$log[j])
+                                        {
+                                            if (!is.null(tmp.dat$ywid))
+                                                tmp.dat$ywid = log10(tmp.dat$ywid)
+                                            values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
+                                            formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
+                                            formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
+                                            
+                                        }
+                                range.y = NULL;
                             if (all(c('y0', 'y1') %in% names(formatting(.Object))))
                               {
                                 if (!is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
@@ -3581,54 +3580,55 @@ draw.grl = function(grl,
         ## if draw.paths, will now draw connectors
         ##
         if (draw.paths)
-          {
-            ix.l = split(1:nrow(grl.segs), grl.segs$group)
-            grl.segs$ctype = NA;  ## connector type
-
-            # keep track to see if next index is missing --> will allow us to draw dotted connectors for these ..
-            # "missing" indices occur when we are focusing on windows and potentially removing some of the
-            # ranges in the contig
-            grl.segs$next.missing = !((grl.segs$query.id+1) %in% grl.segs$query.id) & !grl.segs$last
-            grl.segs$prev.missing = !((grl.segs$query.id-1) %in% grl.segs$query.id) & !grl.segs$first
-            
-            if (is.null(grl.segs$is.cycle))
-              grl.segs$is.cycle = FALSE;
-                        
-            connector.args = do.call('rbind', lapply(ix.l, function(ix)
-                      {
-                        # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
-                        # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'
+            {
+                grl.segs = grl.segs[order(grl.segs$grl.ix, grl.segs$grl.iix), ]
+                ix.l = split(1:nrow(grl.segs), grl.segs$group)
+                grl.segs$ctype = NA;  ## connector type
+                
+                                        # keep track to see if next index is missing --> will allow us to draw dotted connectors for these ..
+                                        # "missing" indices occur when we are focusing on windows and potentially removing some of the
+                                        # ranges in the contig
+                grl.segs$next.missing = !((grl.segs$query.id+1) %in% grl.segs$query.id) & !grl.segs$last
+                grl.segs$prev.missing = !((grl.segs$query.id-1) %in% grl.segs$query.id) & !grl.segs$first
+                
+                if (is.null(grl.segs$is.cycle))
+                    grl.segs$is.cycle = FALSE;
+                
+                connector.args = do.call('rbind', lapply(ix.l, function(ix)
+                    {
+                                        # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
+                                        # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'
                         out = NULL;
                         if (length(ix)>1)
-                          {
-                            out = data.frame(ix0 = ix[-length(ix)], ix1 = ix[-1], type = 'U', sign = '+', cyclic = F, stringsAsFactors = F);
-                            discordant = grl.segs$y.bin[ix[-length(ix)]] != grl.segs$y.bin[ix[-1]]
-                            out$type[discordant & grl.segs$strand[ix[-1]] == grl.segs$strand[ix[-length(ix)]]] = 'S'
-                            out$type[discordant & grl.segs$strand[ix[-1]] != grl.segs$strand[ix[-length(ix)]]] = 'S'
-                          }
+                            {
+                                out = data.frame(ix0 = ix[-length(ix)], ix1 = ix[-1], type = 'U', sign = '+', cyclic = F, stringsAsFactors = F);
+                                discordant = grl.segs$y.bin[ix[-length(ix)]] != grl.segs$y.bin[ix[-1]]
+                                out$type[discordant & grl.segs$strand[ix[-1]] == grl.segs$strand[ix[-length(ix)]]] = 'S'
+                                out$type[discordant & grl.segs$strand[ix[-1]] != grl.segs$strand[ix[-length(ix)]]] = 'S'
+                            }
                         
                         if (grl.segs$next.missing[ix[length(ix)]]) ## make bridge to nowhere
-                          out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = NA, type = 'S', cyclic = F,
-                            sign = grl.segs$strand[ix[length(ix)]], stringsAsFactors = F))
+                            out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = NA, type = 'S', cyclic = F,
+                                sign = grl.segs$strand[ix[length(ix)]], stringsAsFactors = F))
                         if (grl.segs$prev.missing[ix[1]]) ## make bridge from nowhere
-                          out = rbind(out, data.frame(ix0 = NA, ix1 = ix[1], type = 'S', cyclic = F,
-                            sign = grl.segs$strand[ix[1]], stringsAsFactors = F))
-                            
+                            out = rbind(out, data.frame(ix0 = NA, ix1 = ix[1], type = 'S', cyclic = F,
+                                sign = grl.segs$strand[ix[1]], stringsAsFactors = F))
+                        
                         if (grl.segs$is.cycle[ix[length(ix)]])                         
-                          {
-                            if (grl.segs$y.bin[ix[length(ix)]] == grl.segs$y.bin[ix[1]])
-                              out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'U', cyclic = T, sign = '-', stringsAsFactors = F))
-                            else if (grl.segs$strand[ix[length(ix)]] == '-' & grl.segs$strand[ix[1]] == '+')
-                              out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '+', stringsAsFactors = F))
-                            else if (grl.segs$strand[ix[length(ix)]] == '+' & grl.segs$strand[ix[1]] == '-')
-                              out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '-', stringsAsFactors = F))
-                            else if (grl.segs$strand[ix[length(ix)]] == '-' & grl.segs$strand[ix[1]] == '-')
-                              out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '+', stringsAsFactors = F))
-                            else if (grl.segs$strand[ix[length(ix)]] == '+' & grl.segs$strand[ix[1]] == '+')
-                              out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '-', stringsAsFactors = F))
-                          }
+                            {
+                                if (grl.segs$y.bin[ix[length(ix)]] == grl.segs$y.bin[ix[1]])
+                                    out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'U', cyclic = T, sign = '-', stringsAsFactors = F))
+                                else if (grl.segs$strand[ix[length(ix)]] == '-' & grl.segs$strand[ix[1]] == '+')
+                                    out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '+', stringsAsFactors = F))
+                                else if (grl.segs$strand[ix[length(ix)]] == '+' & grl.segs$strand[ix[1]] == '-')
+                                    out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '-', stringsAsFactors = F))
+                                else if (grl.segs$strand[ix[length(ix)]] == '-' & grl.segs$strand[ix[1]] == '-')
+                                    out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '+', stringsAsFactors = F))
+                                else if (grl.segs$strand[ix[length(ix)]] == '+' & grl.segs$strand[ix[1]] == '+')
+                                    out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '-', stringsAsFactors = F))
+                            }
                         return(out)
-                      }))
+                    }))
 
             if (!is.null(connector.args))
               {
@@ -3707,6 +3707,7 @@ draw.grl = function(grl,
                              h = path.h[lty1], v = path.v[lty1],
                              lty = connector.args$lty[lty1], col = path.col, col.arrow = path.col.arrow,
                              cex.arrow = grl.segs$ywid[1]*path.cex.arrow, f.arrow = T)
+
                 
                                         #text(connector.args$x1, connector.args$y1, paste(connector.args$ix0, ' (', grl.segs$group[connector.args$ix0], '), ', connector.args$ix1, ' (', grl.segs$group[connector.args$ix1], '), ', connector.args$type, ' ', connector.args$sign, sep = ''))
                                         #            text(connector.args$x1, connector.args$y1-path.v, paste(grl.segs$group[connector.args$ix0], connector.args$type, ' ', connector.args$sign, sep = ''), )
