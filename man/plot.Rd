@@ -5,7 +5,7 @@
 \alias{plot}
 \title{plot}
 \usage{
-\S4method{plot}{gTrack,ANY}(x, windows = seqinfo2gr(seqinfo(x)),
+\S4method{plot}{gTrack,ANY}(x, y, windows = seqinfo2gr(seqinfo(x)),
   links = NULL, gap = NULL, y.heights = NULL, y.gaps = NULL,
   cex.xlabel = 1, cex.ylabel = 1, max.ranges = NA, links.feat = NULL,
   verbose = FALSE, ...)
