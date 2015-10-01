@@ -18,12 +18,6 @@
 ###############################################################################
 
 #' @import data.table
-
-#' S4 class for \code{gTrack}
-#'
-#' Class \code{gTrack} defines a subsettable object that wraps formatting information around
-#' genomic data (GRanges, GRangesList, RleLists, UCSC formats, ffTrack) and can be displayed
-#' in a "genome browser" style plot. 
 #'
 #' @section Slots:
 #' \describe{
@@ -35,6 +29,13 @@
 #' 
 #' @name gTrack-class
 #' @rdname gTrack-class
+#' @description
+#' S4 class for \code{gTrack}
+#'
+#' Class \code{gTrack} defines a subsettable object that wraps formatting information around
+#' genomic data (GRanges, GRangesList, RleLists, UCSC formats, ffTrack) and can be displayed
+#' in a "genome browser" style plot. 
+#'
 #' @exportClass gTrack
 #' @author Marcin Imielinski 
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
@@ -4556,7 +4557,7 @@ draw.triangle <- function(grl,
     grl.segs = mapped$grl.segs;        
     window.segs = mapped$window.segs;
     winlim = range(c(window.segs$start, window.segs$end))
-    mdata = as.matrix(mdata[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)])
+    mdata = as.matrix(mdata)[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)]
 
     if (!is.na(sigma)) ## MARCIN: if blur use spatstat library to blur matrix for n base pairs but making sure we don't bleed across windows
         {
