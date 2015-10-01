@@ -1063,8 +1063,6 @@ setMethod('colormap', 'gTrack', function(.Object)
 #' @export
 setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 
-
-
 #' @name colormap
 #' @title colormap
 #' @description
@@ -1166,9 +1164,11 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
             windows = y
         
         .Object = x
+        if (!missing(y))
+            windows = y
+        
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
-        
               
             if (is(windows, 'character'))
               windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
