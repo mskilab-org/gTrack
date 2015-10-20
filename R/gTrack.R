@@ -2959,11 +2959,12 @@ draw.grl = function(grl,
             ## ghetto solution if we get GRanges names snafu
             gr = unlist(grl);
             c = textConnection(names(gr));
-#            cat('budget .. \n')
+            cat('budget .. \n')
             if (length(gr)>0)
                 {
                     gr$grl.ix = read.delim(c, sep = '.', header = F)[,1];
-                    gr$grl.iix = levapply(rep(1, length(gr)), gr$grl.ix, FUN = function(x) 1:length(x))
+        #            gr$grl.iix = levapply(rep(1, length(gr)), gr$grl.ix, FUN = function(x) 1:length(x))
+                    gr$grl.iix = data.table(ix = gr$grl.ix)[, iix := 1:length(ix), by = ix][, iix]
                 }
             close(c)            
             return(gr)
@@ -2972,9 +2973,10 @@ draw.grl = function(grl,
         gr$group = grl.props$group[gr$grl.ix]
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
-
-        if (length(gr)>0)
-          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
+        
+        if (length(gr)>0)            
+            gr$last = data.table(iix = gr$grl.iix, ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
+#          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
 
         grl.props$group = as.character(grl.props$group)
 
