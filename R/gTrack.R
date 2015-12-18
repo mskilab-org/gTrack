@@ -2458,6 +2458,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   angle = 0, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb
   circles = FALSE, # if TRUE will draw circles at range midpoints instead of polygons
   bars = FALSE, # if TRUE will draw bars from y0.bar to the y locations
+  points = NA, # if integer then will draw points at the midpoint with lty value "points"
   lines = FALSE, # if TRUE will connect endpoints of ranges with lines
   y0.bar = NULL, # only relevant if bars = T, will default to pars('usr')[3] if not specified
   strand.dir = T,  # if so, will interpret strand field as "direction sign" for interval, + -> right, - -> left, only makes difference if draw.pencils = T
@@ -2598,9 +2599,14 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
         }
       else
         {
+          if (!is.na(points))
+            {                
+               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, border = x$border, col = x$col, cex = x$lwd.border)
+            }
+            
           if (circles)
             {                
-              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 16, col = x$col, cex = x$lwd.border)
+              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = pch, col = x$col, cex = x$lwd.border)
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
             }
 
