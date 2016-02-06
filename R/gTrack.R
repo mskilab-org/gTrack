@@ -1290,7 +1290,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     if (length(cmap)==0)
                       cmap = NULL
 
-                    tmp.dat = dat(.Object)[[j]]
+                    tmp.dat = dat(.Object)[[j]]                    
 
                     if (is.null(formatting(.Object)$source.file.chrsub))
                       formatting(.Object)$source.file.chrsub = T
@@ -1371,7 +1371,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                 }
                             }
                           else
-                            {
+                              {
                               tmp.dat = import(f, asRangedData = F)
 
                               if (formatting(.Object)[j, 'source.file.chrsub'])
@@ -1387,7 +1387,12 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                         tmp.dat = tmp.dat[this.windows, gr = T]
                         formatting(.Object)$y.field[j] = 'score'
                         pre.filtered = T
-                      }
+                    }
+                    else
+                        {
+                            if (formatting(.Object)[j, 'source.file.chrsub'])
+                                tmp.dat = gr.sub(tmp.dat, 'chr', '')
+                        }
 
 
                     if (is.character(tmp.dat)) ## file was not found
@@ -1398,7 +1403,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 
                     if (.Object@formatting$triangle[j])
                       pre.filtered = T
-                                        
+
                     ## enforce max.ranges
                     ## (everything should be a GRanges at this point)
                     if (!is.na(formatting(.Object)$max.ranges[j]))
@@ -1430,7 +1435,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                             {
                               tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))                             
                             }
-                        }
+                      }
 
                     if (!is.na(formatting(.Object)$y.field[j]) & is(tmp.dat, 'GRanges'))
                       {
@@ -1449,7 +1454,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                               values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
                               tmp.dat = tmp                                                                
                             }                        
-                      }
+                    }
+
                     
                     ## fix y limits and apply log transform if needed                     
                     if (!is.na(formatting(.Object)$y.field[j]))
@@ -1457,11 +1463,10 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                         {
                           if (!(formatting(.Object)$y.field[j] %in% names(values(tmp.dat))))
                               stop('y.field missing from input granges')
-
-
+                          
                           y0.global = min(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
                           y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
-                              
+
                           if (!pre.filtered)
                             tmp.dat.r <- tmp.dat[gr.in(tmp.dat, this.windows)]
                           else
@@ -1498,7 +1503,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                           r[2] + diff(c(formatting(.Object)$y0[j], r[1]))*0.05
                               }
                         }
-                    
+
                     if (format == 'ranges') ## TODO: remove "format" specification, useless at this point
                       {
                         plot.track.formats = list(
@@ -1542,7 +1547,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                             {
                                 if (is.null(formatting(.Object)$log))
                                     formatting(.Object)$log = NA
-                                
+
                                 if (!is.na(formatting(.Object)$log[j]))
                                     if (formatting(.Object)$log[j])
                                         {
@@ -1554,16 +1559,16 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                             
                                         }
                                 range.y = NULL;
-                            if (all(c('y0', 'y1') %in% names(formatting(.Object))))
-                              {
+                                if (all(c('y0', 'y1') %in% names(formatting(.Object))))
+                                    {                                    
                                 if (!is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
-                                  range.y = c(formatting(.Object)[j, 'y0'], formatting(.Object)[j, 'y1'])
+                                    range.y = c(formatting(.Object)[j, 'y0'], formatting(.Object)[j, 'y1'])
                                 else if (!is.na(formatting(.Object)[j, 'y0']) & is.na(formatting(.Object)[j, 'y1']))
-                                  range.y = c(formatting(.Object)[j, 'y0'], max(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T))
+                                    range.y = c(formatting(.Object)[j, 'y0'], max(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T))
                                 else if (is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
-                                  range.y = c(min(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T), formatting(.Object)[j, 'y1'])
-                              }
-
+                                    range.y = c(min(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T), formatting(.Object)[j, 'y1'])
+                            }
+                                
                             if (!is.null(tmp.dat$ywid)) ## remove any weird infinite ywids
                                 if (any(ix <- is.infinite(tmp.dat$ywid)))
                                     tmp.dat$ywid[ix] = NA
@@ -2732,7 +2737,8 @@ draw.grl = function(grl,
   sep.draw = T, # draw separator between windows, will only draw when new.plot = T or new.axis = T
   sep.lty = 2, 
   sep.lwd = 1,
-  bg.col = 'gray95',
+  #  bg.col = 'gray95',
+  bg.col = 'gray99',  
   y.pad = 0.05,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair
   xaxis.prefix = 'chr',
   xaxis.suffix = "MB",
@@ -2974,8 +2980,8 @@ draw.grl = function(grl,
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
         
-        if (length(gr)>0)            
-            gr$last = data.table(iix = gr$grl.iix, ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
+        if (length(gr)>0)           
+            gr$last = data.table(iix = as.vector(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
 #          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
 
         grl.props$group = as.character(grl.props$group)
@@ -3074,13 +3080,6 @@ draw.grl = function(grl,
             windows = unlist(windows)
           else  ## assume it's a seqinfo object or an object that has a seq
             windows = seqinfo2gr(windows)
-
-##        ## find overlap with gr.colorpoint JEREMIAH
-##         gr.colorpoint <- GRanges(seqnames=colorpoint.seqname, IRanges(start=colorpoint.pos, width=1))
-##         fo <- gr.findoverlaps(windows, gr.colorpoint)
-##         windows$bgcol <- bg.col
-##         windows$bgcol[fo$query.id] <- bgcol.point
-##         windows$bgcol <- as.character(windows$bgcol)
 
         if (is.null(win.gap))
           win.gap = mean(width(windows))*0.2
