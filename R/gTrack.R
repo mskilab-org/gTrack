@@ -2611,7 +2611,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
             
           if (circles)
             {                
-              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = pch, col = x$col, cex = x$lwd.border)
+              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
             }
 
@@ -3195,11 +3195,11 @@ draw.grl = function(grl,
                     }
             }
             else  ## draw.paths = T -->  will treat each grl as a sequence, which will be joined by connectors
-              {
-                ix.l = split(1:nrow(grl.segs), grl.segs$group)
-                grl.segs$y.relbin = NA
-
-                ## we want to layout paths so that we prevent collissions between different paths 
+                {
+                    ix.l = lapply(split(1:nrow(grl.segs), grl.segs$group), function(x) x[order(grl.segs$group.ord[x])])
+                    grl.segs$y.relbin = NA
+                    
+                    ## we want to layout paths so that we prevent collissions between different paths 
                 grl.segs$y.relbin[unlist(ix.l)] = unlist(lapply(ix.l, function(ix)
                                    {
                                         # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
@@ -3211,7 +3211,6 @@ draw.grl = function(grl,
                                                         & grl.segs$strand[ix[iix+1]] != '-' & grl.segs$strand[ix[iix]] != '-') |
                                                        (grl.segs$pos1[ix[iix+1]] <= grl.segs$pos2[ix[iix]]
                                                         & grl.segs$strand[ix[iix+1]] == '-' & grl.segs$strand[ix[iix]] == '-'))
-
                                          return(c(0, cumsum(!concordant)))
                                        }
                                      else
@@ -4856,8 +4855,8 @@ draw.triangle <- function(grl,
 .clip.polys <- function(dt, y0, y1) {
 
   ## leave early if not necessary
-  miny = min(dt[, c(y1, y2, y3, y4, y5, y6)])
-  maxy = max(dt[, c(y1, y2, y3, y4, y5, y6)])
+  miny = min(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
+  maxy = max(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
   print(paste('MinY:', miny, 'MaxY:', maxy, "Y0:", y0, 'Y1:', y1))
   if (y0 <= miny && y1 >= maxy)
     return(dt)
