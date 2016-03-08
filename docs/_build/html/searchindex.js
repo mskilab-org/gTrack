@@ -1,0 +1,1 @@
+Search.setIndex({envversion:46,filenames:["index"],objects:{},objnames:{},objtypes:{},terms:{complic:0,content:[],explain:0,hello:0,here:0,index:0,modul:0,page:0,print:0,search:0,some:0,stuff:0,text:0,veri:0},titles:["Simple Documentation Tutorial: Doctut"],titleterms:{anoth:0,doctut:0,document:0,guid:0,header:0,indic:0,simpl:0,sphinxtool:[],tabl:0,tutori:0,welcom:[]}})
