@@ -2463,7 +2463,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   angle = 0, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb
   circles = FALSE, # if TRUE will draw circles at range midpoints instead of polygons
   bars = FALSE, # if TRUE will draw bars from y0.bar to the y locations
-  points = NA, # if integer then will draw points at the midpoint with lty value "points"
+  points = NA, # if integer then will draw points at the midpoint with pch value "points"
   lines = FALSE, # if TRUE will connect endpoints of ranges with lines
   y0.bar = NULL, # only relevant if bars = T, will default to pars('usr')[3] if not specified
   strand.dir = T,  # if so, will interpret strand field as "direction sign" for interval, + -> right, - -> left, only makes difference if draw.pencils = T
@@ -2518,7 +2518,13 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 
   if (!is.null(bars) & is.null(x$bars))
     x$bars = bars
+
+  if (is.null(x$points))
+      x$points = NA
   
+  if (!is.na(points) & all(is.na(x$points)))
+      x$points = points
+
   if (!is.null(clip))
     {
       clip = standardize_segs(clip);
@@ -2584,8 +2590,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
               segments(seg.coord$x0, seg.coord$y, seg.coord$x1, seg.coord$y, col = col.backbone, lwd = lwd.backbone);
             }
         }                          
-      
-        
+              
       if (is.null(x$direction))
         x$direction = "*"
 
@@ -2611,7 +2616,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
             
           if (circles)
             {                
-              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = pch, col = x$col, cex = x$lwd.border)
+              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
             }
 
@@ -2620,13 +2625,24 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
               if (is.null(y0.bar))
                 y0.bar = par('usr')[3]
               
-#              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$border, lwd = x$lwd.border)
-              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
+              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$col, lwd = x$lwd.border/2)
+#              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
             }
 
           if (lines)
             lines(as.vector(t(cbind(x$pos1, x$pos2))), as.vector(t(cbind(x$y, x$y))), col = as.vector(t(cbind(x$col, x$col))),
                   lwd = as.vector(t(cbind(x$lwd.border, x$lwd.border))))
+          
+          if (any(!is.na(x$points)))
+              {               
+                  points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = x$points, col = x$col, cex = x$lwd.border)
+              }
+          
+          if (circles)
+              {
+              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 19, col = x$col, cex = x$lwd.border)
+              points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
+            }
         }
 
       if (!is.null(x$label))
@@ -2776,7 +2792,8 @@ draw.grl = function(grl,
   path.cex.h = 1, 
   draw.backbone = NULL,
   return.windows = F, # return data frame of input windows (in plot coordinates) - helpful for overlaying and linking plots
-  xlim = c(0, 20000), # xlim of canvas
+    xlim = c(0, 20000), # xlim of canvas
+    points = NA, ## if non NA then will draw a given point with pch style
   circles = F, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
   bars = F,
   y0.bar = NULL,
@@ -2985,9 +3002,15 @@ draw.grl = function(grl,
         gr$group = grl.props$group[gr$grl.ix]
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
+<<<<<<< HEAD
+
+        if (length(gr)>0)            
+            gr$last = data.table(iix = as.numeric(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
+=======
         
         if (length(gr)>0)           
             gr$last = data.table(iix = as.vector(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
+>>>>>>> 04105e1e2c1a7d5a65df12c9a532c104c1262355
 #          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
 
         grl.props$group = as.character(grl.props$group)
@@ -3195,11 +3218,11 @@ draw.grl = function(grl,
                     }
             }
             else  ## draw.paths = T -->  will treat each grl as a sequence, which will be joined by connectors
-              {
-                ix.l = split(1:nrow(grl.segs), grl.segs$group)
-                grl.segs$y.relbin = NA
-
-                ## we want to layout paths so that we prevent collissions between different paths 
+                {
+                    ix.l = lapply(split(1:nrow(grl.segs), grl.segs$group), function(x) x[order(grl.segs$group.ord[x])])
+                    grl.segs$y.relbin = NA
+                    
+                    ## we want to layout paths so that we prevent collissions between different paths 
                 grl.segs$y.relbin[unlist(ix.l)] = unlist(lapply(ix.l, function(ix)
                                    {
                                         # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
@@ -3211,7 +3234,6 @@ draw.grl = function(grl,
                                                         & grl.segs$strand[ix[iix+1]] != '-' & grl.segs$strand[ix[iix]] != '-') |
                                                        (grl.segs$pos1[ix[iix+1]] <= grl.segs$pos2[ix[iix]]
                                                         & grl.segs$strand[ix[iix+1]] == '-' & grl.segs$strand[ix[iix]] == '-'))
-
                                          return(c(0, cumsum(!concordant)))
                                        }
                                      else
@@ -3482,7 +3504,7 @@ draw.grl = function(grl,
           line.loc = seq(floor(ylim.grid[1]/y.grid)*y.grid, ceiling(ylim.grid[2]/y.grid)*y.grid, y.grid)
         else ## specific grid lines are specified
           line.loc = y.grid
-        
+
         if (is.null(names(line.loc)))
               names(line.loc) = line.loc;
         
@@ -3583,7 +3605,7 @@ draw.grl = function(grl,
           if (lines)
             grl.segs = grl.segs[order(grl.segs$pos1), ]
 
-        draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, new.plot = F, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
+        draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, new.plot = F, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, points = points, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
 
         ## if draw.paths, will now draw connectors
         ##
@@ -4856,8 +4878,8 @@ draw.triangle <- function(grl,
 .clip.polys <- function(dt, y0, y1) {
 
   ## leave early if not necessary
-  miny = min(dt[, c(y1, y2, y3, y4, y5, y6)])
-  maxy = max(dt[, c(y1, y2, y3, y4, y5, y6)])
+  miny = min(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
+  maxy = max(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
   print(paste('MinY:', miny, 'MaxY:', maxy, "Y0:", y0, 'Y1:', y1))
   if (y0 <= miny && y1 >= maxy)
     return(dt)
