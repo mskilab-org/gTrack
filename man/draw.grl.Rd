@@ -19,7 +19,7 @@ draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   1), cex.label = 1, cex.tick = 1, cex.ticklen = 1, gr.cex.label = 0.8 *
   cex.label, gr.srt.label = 0, gr.adj.label = c(0, 0.5), new.plot = T,
   new.axis = F, sep.draw = T, sep.lty = 2, sep.lwd = 1,
-  bg.col = "gray95", y.pad = 0.05, xaxis.prefix = "chr",
+  bg.col = "gray99", y.pad = 0.05, xaxis.prefix = "chr",
   xaxis.suffix = "MB", xaxis.unit = 1e+06, xaxis.round = 3,
   xaxis.interval = NULL, xaxis.pos = NULL, xaxis.nticks = 40,
   xaxis.pos.label = NULL, xaxis.cex = 0.8, xaxis.cex.label = 1,
