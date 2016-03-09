@@ -1,23 +1,4 @@
-###############################################################################
-## Marcin Imielinski
-## The Broad Institute of MIT and Harvard / Cancer program.
-## marcin@broadinstitute.org
-
-## This program is free software: you can redistribute it and/or modify it
-## under the terms of the GNU Lesser General Public License as published by
-## the Free Software Foundation, either version 3 of the License, or
-## (at your option) any later version.
-
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU Lesser General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
-###############################################################################
-
-#' @import data.table
+#' @importFrom data.table data.table
 #'
 #' @section Slots:
 #' \describe{
@@ -25,8 +6,9 @@
 #'   \item{seqinfo}{Seqinfo object}
 #'   \item{colormap}{length(.Object) length named list of named vectors whose entry i specifies the colormap for the meta data field of object entry i (specified by the name) and maps unique value of that data field to colors (specified by the named vector)}
 #'   \item{edges}{list of data.frames of length length(.Object) which has columns $from, $to, and optional fields $col, $lwd, and $lty to specify splined edges joining data items in the corresponding track}
+#'   \item{formatting}{\code{data.frame} holding all of the formatting options}
 #' }
-#' 
+#'
 #' @name gTrack-class
 #' @rdname gTrack-class
 #' @description
@@ -34,10 +16,10 @@
 #'
 #' Class \code{gTrack} defines a subsettable object that wraps formatting information around
 #' genomic data (GRanges, GRangesList, RleLists, UCSC formats, ffTrack) and can be displayed
-#' in a "genome browser" style plot. 
+#' in a "genome browser" style plot.
 #'
 #' @exportClass gTrack
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
@@ -65,19 +47,19 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            gr.colorfield = NA,
                                            y0 = NA,
                                            y1 = NA,
-                                           y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data 
+                                           y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                                            y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
                                            cex.tick = 0.8,
                                            xaxis.suffix = 'MB',
                                            xaxis.interval = NA,
                                            lwd.border = 1,
-                                           cex.label = 1, 
+                                           cex.label = 1,
                                            hadj.label = 1,
                                            vadj.label = 0.5,
                                            smooth = NA, ## smooth with running mean with this window
                                            round = NA, ## round the output of running mean to this precision
                                            ywid = NA,
-                                           ypad = 0, 
+                                           ypad = 0,
                                            seqinfo = NULL,
                                            circles = NA,
                                            lines = NA,
@@ -85,7 +67,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            triangle = !is.null(mdata),
                                            max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
                                            source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
-                                           y0.bar = NA, 
+                                           y0.bar = NA,
                                            legend = T,# logical whether to print legend
                                            yaxis = !is.na(y.field), # logical whether to print yaxis
                                            yaxis.pretty = 5, # how many ticks to optimally draw on yaxis
@@ -101,52 +83,52 @@ setMethod('initialize', 'gTrack', function(.Object,
                     .Object@data = list(GRanges())
                     is.null = T
                 }
-            else if (!is.list(data))              
+            else if (!is.list(data))
               .Object@data = list(data)
             else
               .Object@data = data;
-              
+
               if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'character', 'RleList', 'ffTrack'))))
                 stop('check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
 
 
-              ## replicate if length y.field > 1 and length dat is 1 
+              ## replicate if length y.field > 1 and length dat is 1
               if (length(y.field)>1 & length(.Object)==1)
                   .Object@data = rep(.Object@data, length(y.field))
-                 
+
             if (is.null(mdata))
               .Object@mdata = rep(list(matrix()), length(.Object@data))
             else if (is.matrix(mdata) | inherits(mdata, 'Matrix'))
               .Object@mdata = list(mdata)
             else if (is.list(mdata))
               .Object@mdata = mdata
-            else 
+            else
               stop('optional arg mdata must be a square matrix of same dimensions as data GRanges')
-                        
+
             for (i in 1:length(.Object))
               if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix'))
-                stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')            
+                stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
               else if (!identical(.Object@mdata[[i]], matrix()))
                 {
                   if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2)))
                     stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
                   .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-                }                
+                }
 
-            if (is.null(edges))              
+            if (is.null(edges))
               .Object@edges = rep(list(data.frame()), length(.Object@data))
             else if (!is.list(edges) | inherits(edges, 'data.frame'))
               .Object@edges = list(edges)
             else
               .Object@edges = edges
 
-            if (is.null(vars))              
+            if (is.null(vars))
               .Object@vars = rep(list(list()), length(.Object@data))
             else if (!is.list(edgevars) | inherits(vars, 'data.frame'))
               .Object@vars = list(vars)
             else
               .Object@vars = vars
-            
+
             null.ix = sapply(.Object@data, is.null)
             .Object@data[null.ix] = GRanges()
 
@@ -178,22 +160,22 @@ setMethod('initialize', 'gTrack', function(.Object,
                        tmp.edges = which(y>0, arr.ind = T)
                        return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
                      })
-              
+
             if (is.null(colormaps))
                 .Object@colormap = list(list())
             else if (!is.list(colormaps))
               .Object@colormap = list(colormaps)
             else
               .Object@colormap = colormaps;
-            
-            if (length(.Object@colormap)==1)                
+
+            if (length(.Object@colormap)==1)
               .Object@colormap = rep(.Object@colormap, length(.Object@data))
 
             if (is.null(names(.Object@colormap)))
               names(.Object@colormap) = NA
 
             if (length(setdiff(c(length(height), length(col), length(lift), length(format)), c(1, length(.Object@data))))>0)
-              stop('Length of formatting attributes (height, lift, format, col) have to be either 1 or the gTrack object length');            
+              stop('Length of formatting attributes (height, lift, format, col) have to be either 1 or the gTrack object length');
 
             ## figure out seqinfo from provided tracks, make sure that all the seqinfos are compatible
             ## if only Rle's provided
@@ -204,16 +186,16 @@ setMethod('initialize', 'gTrack', function(.Object,
                 }
             else
                 t.name = name
-              
+
               if (is.null(t.name))
                   if (!all(is.na(y.field)))
                       t.name = y.field
-              
+
               if (is.null(t.name))
                   t.name = rep(NA, length(.Object@data))
-              
-          
-              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, xaxis.cex.label = xaxis.cex.label, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit, xaxis.suffix = xaxis.suffix, xaxis.interval = xaxis.interval, ypad = ypad,  ywid = ywid, border = border, cex.label = cex.label, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y0 = y0, y1 = y1, y.quantile = y.quantile, triangle = triangle, is.null = is.null, 
+
+
+              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, xaxis.cex.label = xaxis.cex.label, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit, xaxis.suffix = xaxis.suffix, xaxis.interval = xaxis.interval, ypad = ypad,  ywid = ywid, border = border, cex.label = cex.label, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y0 = y0, y1 = y1, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
                   stringsAsFactors = F)
 
             other.args = list(...)
@@ -228,7 +210,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 
             if (any(cix))
               .Object@formatting$col[cix] = NA
-            
+
             if (any(nix <- !cix & is.na(.Object@formatting$col)))
                 .Object@formatting$col[nix] = alpha('black', 0.5)
 
@@ -245,9 +227,9 @@ setMethod('initialize', 'gTrack', function(.Object,
                     if (is(x, 'GRanges') | is(x, 'GRangesList'))
                       {
                         if (is.null(slen))
-                          {                              
+                          {
                             slen = seqlengths(x)
-                            
+
                             if (any(is.na(slen)))
                               {
                                 if (is(x, 'GRanges'))
@@ -256,14 +238,14 @@ setMethod('initialize', 'gTrack', function(.Object,
                                   slen = seqlengths(gr.fix(unlist(x)))
                               }
                           }
-                        else 
+                        else
                           slen[seqlevels(x)] = pmax(slen[seqlevels(x)], seqlengths(x), na.rm = T)
                       }
                     else if (is(x, 'ffTrack'))
                       {
                           if (is.null(slen))
-                              slen = seqlengths(x)                                                   
-                          else 
+                              slen = seqlengths(x)
+                          else
                               slen[seqlevels(x)] = pmax(slen[seqlevels(x)], seqlengths(x), na.rm = T)
                           formatting(.Object)[i, 'yaxis'] = T
                       }
@@ -305,7 +287,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                                 if (.Object@formatting$source.file.chrsub)
                                   .Object@data[[i]] = gr.sub(tmp.out, 'chr', '')
                                 else
-                                  .Object@data[[i]] = tmp.out                                  
+                                  .Object@data[[i]] = tmp.out
                               }
 
                             slen = seqlengths(tmp.out)
@@ -338,15 +320,15 @@ setMethod('initialize', 'gTrack', function(.Object,
                                 if (.Object@formatting$source.file.chrsub)
                                   .Object@data[[i]] = gr.sub(tmp.out, 'chr', '')
                                 else
-                                  .Object@data[[i]] = tmp.out                                  
+                                  .Object@data[[i]] = tmp.out
                               }
 
                             slen = seqlengths(tmp.out)
                           }
                         else if (grepl('\\.rds', x, ignore.case = T)) ## assume this is GRanges or GRangesList
                           {
-                            tmp.out = tryCatch(readRDS(x), error = function(x) NULL)                            
-                            
+                            tmp.out = tryCatch(readRDS(x), error = function(x) NULL)
+
                             if (is.null(tmp.out))
                               stop('External file must be a valid and existing .rds file containing GRanges or GRangesList')
                             else if (!inherits(tmp.out, 'GRanges') | !inherits(tmp.out, 'GRangesList'))
@@ -356,23 +338,23 @@ setMethod('initialize', 'gTrack', function(.Object,
                                 if (.Object@formatting$source.file.chrsub)
                                   .Object@data[[i]] = gr.sub(tmp.out, 'chr', '')
                                 else
-                                  .Object@data[[i]] = tmp.out                                  
+                                  .Object@data[[i]] = tmp.out
                               }
 
                             slen = seqlengths(tmp.out)
                           }
                       }
-                    else                      
+                    else
                       if (is.null(slen))
                         slen= structure(sapply(x, length), names = names(x))
-                      else                        
+                      else
                         slen[names(x)] = pmax(slen[x], sapply(x, length), na.rm = T)
                   }
 
                 if (chr.sub)
                     names(slen) = gsub('chr', '', names(slen))
-                
-                
+
+
                 .Object@seqinfo = Seqinfo(seqnames = names(slen), seqlengths = slen);
               }
             else
@@ -390,9 +372,9 @@ setMethod('initialize', 'gTrack', function(.Object,
                     .Object@data = lapply(.Object@data, gr.fix, seqinfo)
                   }
               }
-            
+
             validObject(.Object)
-            return(.Object)            
+            return(.Object)
           })
 
 #' constructor for gTrack
@@ -421,7 +403,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param stack.gap vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)
 #' @param ywid vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)
 #' @param col vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object
-#' @param border vector or scalar character specifying static border for polygons in track(s), if NA then $border is determine duing gr.colorfield / colormap or meta field $border of GRanges / GRangesList 
+#' @param border vector or scalar character specifying static border for polygons in track(s), if NA then $border is determine duing gr.colorfield / colormap or meta field $border of GRanges / GRangesList
 #' @param max.ranges vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)
 #' @param angle vector of scalar numeric specifying angle of polygons that represent signed range'
 #' @param lift vector or scalar logical flag specifying whether to lift this track to other chainedTrack
@@ -479,7 +461,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @name gTrack
 #' @rdname gTrack-class
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 gTrack = function(...) new('gTrack', ...)
 
 setValidity('gTrack', function(object)
@@ -529,10 +511,10 @@ setValidity('gTrack', function(object)
                        }
                 }
 
-                                                                         
+
             if (length(object@data) != length(object@colormap))
               problems = c(problems, 'Length of object is not the same length as colormap')
-            
+
             if (any(ix <- sapply(object@data, class) == 'character'))
               {
                 for (iix in which(ix))
@@ -574,7 +556,7 @@ setValidity('gTrack', function(object)
                         slen = tryCatch(seqlengths(f), error = function(x) NULL)
                         if (is.null(slen))
                           problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
-                        
+
                       }
                     else if (grepl('\\.bedgraph', x, ignore.case = T))
                       {
@@ -584,10 +566,10 @@ setValidity('gTrack', function(object)
  #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
                       }
                     else
-                      problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))                    
+                      problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
                   }
               }
-            
+
             if (length(problems)==0)
               TRUE
             else
@@ -601,13 +583,13 @@ setValidity('gTrack', function(object)
 #' @name [
 #' @title [
 #' @description
-#' 
+#'
 #' Subsetting tracks of gTrack gt
 #' gt[1]
 #' gt[ix] # where ix is an integer vector
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('[', 'gTrack', function(x, i)
           {
               if (is.logical(i))
@@ -623,7 +605,7 @@ setMethod('[', 'gTrack', function(x, i)
                   x@mdata = x@mdata[i]
               else
                   x@mdata = rep(list(matrix()), lengtth(x))
-              
+
               return(x)
           })
 
@@ -635,12 +617,12 @@ setGeneric('mdata', function(x, ...) standardGeneric('mdata'))
 #' @name mdata
 #' @title mdata
 #' @description
-#' 
+#'
 #' Accessing submatrices of mdata object for length 1 gTrack gt
-#' 
+#'
 #' Usage: (igr, jgr are GRanges objects corresponding to slices of matrix to be accessed from gt)
 #' mdata(gt, igr, jgr)
-#' 
+#'
 #' @export
 #' @author Jeremiah Wala
 setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
@@ -650,7 +632,7 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
 
               if (is.null(igr))
                   igr = seqinfo2gr(x)
-              
+
               if (is.null(jgr))
                   jgr = seqinfo2gr(x)
 
@@ -658,8 +640,8 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
                   igr = as.character(igr)
 
               if (is(jgr, 'Rle'))
-                  jgr = as.character(jgr)              
-              
+                  jgr = as.character(jgr)
+
               if (is.character(igr))
                   igr = seqinfo2gr(x)[igr]
 
@@ -690,11 +672,11 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
 #' @name $
 #' @title $
 #' @description
-#' 
+#'
 #' Accessing columns of gTrack formatting data.frame
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('$', 'gTrack', function(x, name)
           {
             return(x@formatting[, name])
@@ -710,9 +692,9 @@ setMethod('$', 'gTrack', function(x, name)
 #' Usage:
 #' gt$y.field = 'score'
 #' gt$gr.colorfield[1] = 'readtype'
-#' 
+#'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('$<-', 'gTrack', function(x, name, value)
           {
             x@formatting[, name] = value
@@ -722,13 +704,13 @@ setMethod('$<-', 'gTrack', function(x, name, value)
 #' @name length
 #' @title length
 #' @description
-#' 
+#'
 #' Getting length of gTrack object gt
 #' Usage:
 #' length(gt)
-#' 
+#'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('length', 'gTrack', function(x)
           {
             return(length(x@data))
@@ -737,20 +719,20 @@ setMethod('length', 'gTrack', function(x)
 #' @name reduce
 #' @title reduce
 #' @description
-#' 
+#'
 #' Computing the GRanges footprint of the gTrack object on the genome
 #' usage:
 #' reduce(gt) # outputs a GRanges
-#' 
+#'
 #' @param ... additional arguments to GRanges reduce function
 #' @importMethodsFrom GenomicRanges reduce
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('reduce', 'gTrack', function(x, ... )
           {
             if (length(x)==0)
               return(GRanges(seqlengths = seqlengths(x)))
-                        
+
             .dat2gr = function(y)
               {
                 if (is(y, 'Rle'))
@@ -777,14 +759,14 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' @name seqinfo
 #' @title seqinfo
 #' @description
-#' 
+#'
 #' returns Seqinfo of gTrack object gt
 #' Usage:
 #' seqinfo(gt)
-#' 
+#'
 #' @importMethodsFrom GenomicRanges seqinfo
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod("seqinfo", signature(x = "gTrack"), function(x)
           {
             return(x@seqinfo)
@@ -801,9 +783,9 @@ setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 #' @description
 #'
 #' set seqinfo property of gTrack
-#' 
+#'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
                  {
                    .Object@seqinfo = value;
@@ -820,44 +802,44 @@ setGeneric('lengths', function(x) standardGeneric('lengths'))
 #' @name lengths
 #' @title lengths
 #' @description
-#' 
+#'
 #' gets lengths of data objects inside gTrack object gt
 #' usage:
 #' lengths(gt) # returns vector of lengths
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod("lengths", signature(x = "gTrack"), function(x)
           { sapply(dat(x), length) } )
 
 #' @name c
 #' @title c
 #' @description
-#' 
+#'
 #' Concatenate gTrack objects gt1, gt2, gt3
 #' usage:
 #' c(gt1, gt2, gt3) # returns a gTrack object with the component tracks "stacked"
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('c', 'gTrack', function(x, ...)
           {
             args = list(x, ...)
 
             if (any(ix <- sapply(args, inherits, 'trackData')))
                 args[ix] = lapply(args[ix], function(y) {class(y) = 'gTrack'; return(y)})
-            
+
             if (any(!sapply(args, inherits, 'gTrack')))
               stop('some objects in gTrack concatenation are not gTrack')
 
             has.mdata = sapply(args, .hasSlot, 'mdata')
 
             if (any(!has.mdata))
-              for (j in which(!has.mdata))                  
+              for (j in which(!has.mdata))
                 args[[j]]@mdata = rep(list(matrix()), length(args[[j]]))
 
             args = args[!sapply(args, is.null)]
-            out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),                          
+            out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),
 #                             seqinfo = do.call('c', lapply(1:length(args), function(y) args[[y]]@seqinfo)),
                       colormap = do.call('c', lapply(args, function(y) y@colormap)), edges = do.call('c', lapply(args, function(y) y@edges)))
 
@@ -879,7 +861,7 @@ setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
 #' @name formatting
 #' @title formatting
 #' @description
-#' 
+#'
 #' Get data frame specifying formatting of gTrack object gt
 #' usage:
 #' formatting(gt)
@@ -901,16 +883,16 @@ setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 #' @name edgs
 #' @title edgs
 #' @description
-#' 
+#'
 #' Get edges list associated with gTrack object, is is a list of data.frames
 #' each which contains a data.frame specifying formatted edges, as pairs of indices into the
 #' underlying GRanges object $from, $to and additional formats $col $lwd $lty
-#' 
+#'
 #' usage:
 #' edgs(gt)
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('edgs', 'gTrack', function(.Object)
            {
 #             .Object = list(...)[[1]]
@@ -923,11 +905,11 @@ setGeneric('vars', function(.Object) standardGeneric('vars'))
 #' @name vars
 #' @title vars
 #' @description
-#' 
+#'
 #' Get variants associated with track
 #'
 #' @keywords internal
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('vars', 'gTrack', function(.Object)
            {
 #             .Object = list(...)[[1]]
@@ -942,13 +924,13 @@ setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 #' @description
 #' Set edges data.frame associated with associated with gTrack object, the data.frame
 #' that is being used to replace must have fields $from, $to, and can have optional fields $lwd
-#' $lty, $col specifyign color and line type. 
-#' 
+#' $lty, $col specifyign color and line type.
+#'
 #' usage:
 #' edgs(gt)[[1]] <- new.edges.
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('edgs<-', 'gTrack', function(.Object, value)
           {
             if (!all(sapply(value, is.data.frame)))
@@ -959,9 +941,9 @@ setMethod('edgs<-', 'gTrack', function(.Object, value)
             if (any(non.empty) )
               if (!all(sapply(value[non.empty], function(x) all(c('from', 'to') %in% colnames(x)))))
                 stop('data.frames of edges field of gTrack must be either empty or have $from and $to fields specified')
-                        
+
             .Object@edges = value
-            validObject(.Object)            
+            validObject(.Object)
             return(.Object)
           })
 
@@ -976,8 +958,8 @@ setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
 #' Clear data from gTrack object (makes into an empty container with the same seqinfo and display features)
 #' usage:
 #' clear(gTrack)
-#' 
-#' 
+#'
+#'
 #' @author Marcin Imielinski
 #' @export
 setMethod('clear', 'gTrack', function(.Object)
@@ -995,15 +977,15 @@ setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
 #' @name dat
 #' @title dat
 #' @description
-#' 
+#'
 #' Extract list of data contained inside a gTrack object gt.  Each list item will contain
 #' either a GRanges, RleList, or path to a file.
-#' 
+#'
 #' usage
 #' dat(gt)
-#' 
+#'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('dat', 'gTrack', function(.Object)
           {
             return(.Object@data)
@@ -1031,17 +1013,17 @@ setReplaceMethod('formatting', 'gTrack', function(.Object, value)
         REQUIRED.COLUMNS = c('height', 'col', 'lift', 'format', 'ygap');
         if (nrow(value) != length(.Object))
             stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
-        
+
         if (length(setdiff(REQUIRED.COLUMNS, colnames(value))))
             stop('Replacement data frame is missing some columns')
         .Object@formatting = value;
-        
+
         validObject(.Object)
         return(.Object)
     });
 
 
-#' @export 
+#' @export
 setGeneric('colormap', function(.Object, value) standardGeneric('colormap'))
 
 #' @name colormap
@@ -1054,7 +1036,7 @@ setGeneric('colormap', function(.Object, value) standardGeneric('colormap'))
 #' colormap(gt)
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('colormap', 'gTrack', function(.Object)
           {
             return(.Object@colormap)
@@ -1069,12 +1051,12 @@ setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 #' Set colormap of gTrack object, this is a named list of named character vectors that specifies
 #' the field of the underlying GRanges object that will be used to map a set of values
 #' to a set of colors.
-#' 
+#'
 #' usage:
 #' colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setReplaceMethod('colormap', 'gTrack', function(.Object, value)
                  {
                    .Object@colormap = value;
@@ -1084,26 +1066,26 @@ setReplaceMethod('colormap', 'gTrack', function(.Object, value)
 
 
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 setMethod('show', 'gTrack', function(object)
           {
             cat(sprintf('gTrack object with %s tracks with formatting:\n', length(object)))
             print(formatting(object))
           })
 
-#' utility function to allow "softer" matching of seqinfo's of genomes in chains
+### utility function to allow "softer" matching of seqinfo's of genomes in chains
 .identical.seqinfo = function(a, b)
   {
     df.a = data.frame(seqnames = seqnames(a), seqlengths = seqlengths(a), stringsAsFactors = F);
     df.b = data.frame(seqnames = seqnames(b), seqlengths = seqlengths(b), stringsAsFactors = F);
-    
+
     df.a = df.a[order(df.a$seqnames), ]
     df.b = df.b[order(df.b$seqnames), ]
 
     rownames(df.a) = NULL
     rownames(df.b) = NULL
-    
-    return(identical(df.a, df.b))    
+
+    return(identical(df.a, df.b))
   }
 
 #' @importMethodsFrom graphics plot
@@ -1121,26 +1103,26 @@ if (!isGeneric("plot"))
 #' Additional argument "links" takes a GRangesList of signed interval pairs (ie each item is length 2)
 #' representing genomic junctions as input. The junctions will be pointing right for + intervals and
 #' left for - intervals.  The meta data of the links GRangesList ($lwd $col $lty) can be set
-#' to modulate the color, witwidth, and line style of the junction links . 
-#' 
+#' to modulate the color, witwidth, and line style of the junction links .
+#'
 #' usage:
-#' display(gt, win) # where win is a GRanges object 
+#' display(gt, win) # where win is a GRanges object
 #' display(gt) # this will show the entire span of seqinfo(gt)
 #' display(gt, '3:1e6-2e6') ## can use UCSC style strings
 #' display(gt, GRanges(20, IRanges(20e6, 21e6)))
 #' display(gt, '2', links = ra) # here, the entire chromosome 2 is shown, with rearrangements on top
 #'
-#' 
+#'
 #' @param windows GRanges specifying windows to view (can also be GRangesList), default is whole genome
 #' @param links GRangesList of signed locus pairs specifying links to draw above the plot,
 #' optional GRangesList values meta data specify formatting of individual links:
 #' $label (text label), $col (line color), $lwd (line weight), $lty (line style),
 #' $arrow (arrow flag), $col.arrow (arrow color), $v (vertical spline bulge), $w (horizontal spline bulge)
 #' @param cex.tick vector specifying relative heights of gaps below and above (stacked) windows, only relevant if windows is GRangesList
-#' @param gap scalar numeric specifying gap between windows (only relevant if windows has length>1). Units of the gap are in genome coordinates 
+#' @param gap scalar numeric specifying gap between windows (only relevant if windows has length>1). Units of the gap are in genome coordinates
 #' @param max.ranges scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.
 #' @param ..., additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')
-#' 
+#'
 #' @import GenomicRanges
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
@@ -1149,7 +1131,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                               windows = seqinfo2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
                                      gap = NULL,  ## spacing betwen windows (in bp)
-                                     
+
                                      y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
                                      y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
                                      cex.xlabel = 1,
@@ -1162,23 +1144,23 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
     {
         if (!missing(y))
             windows = y
-        
+
         .Object = x
         if (!missing(y))
             windows = y
-        
+
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
-              
+
             if (is(windows, 'character'))
               windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
-            
+
             if (is(windows, 'Seqinfo'))
               windows = seqinfo2gr(windows)
 
             if (is.list(windows))
               windows = do.call(GRangesList, windows)
-            
+
             if (!inherits(windows, 'GRangesList'))
               windows = GRangesList(windows)
 
@@ -1187,7 +1169,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     warning("Empty windows provided, drawing whole genome")
                     windows = seqinfo2gr(seqinfo(.Object))
                 }
-            
+
             window.segs = list();
 
             dotdot.args = list(...);
@@ -1206,12 +1188,12 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
               y.gaps = y.heights*0.8
             else if (length(y.gaps) != length(windows))
               y.gaps = rep(y.gaps[1], length(windows))
-            
+
             if (is.null(.Object@formatting$triangle))
               .Object@formatting$triangle = NA
 
             if (any(ix <- is.na(.Object@formatting$triangle)))
-              .Object@formatting$triangle[ix] = F                
+              .Object@formatting$triangle[ix] = F
 
             # layout legends if colorfield or colormap is NA and legends have no xpos set
             leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
@@ -1220,14 +1202,14 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 
              if (is.null(.Object@formatting$legend.xjust))
                  .Object@formatting$legend.xjust = NA
-                 
+
             if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
                 {
                     .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
                     .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
                 }
-            
-            # layout y coordinates                    
+
+            # layout y coordinates
             sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
             formatting(.Object)$height  = formatting(.Object)$height/sumh
             formatting(.Object)$ygap  = formatting(.Object)$ygap/sumh
@@ -1236,21 +1218,21 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 
             if (is.null(formatting(.Object)$max.ranges))
               formatting(.Object)$max.ranges = NA
-            
+
             if (!is.na(max.ranges))
               formatting(.Object)$max.ranges = pmin(max.ranges, formatting(.Object)$max.ranges, na.rm = T)
-            
+
             oth.ix = 1:(length(windows)-1);
             top.gaps = 0.5*y.gaps
-            bottom.gaps = 0.5*y.gaps           
-            if (length(windows)==1) oth.ix = c()            
+            bottom.gaps = 0.5*y.gaps
+            if (length(windows)==1) oth.ix = c()
             ylim.stacks = data.frame(start = c(bottom.gaps[1], bottom.gaps[1] + cumsum(y.heights[oth.ix] + top.gaps[oth.ix] + bottom.gaps[oth.ix+1])),
               end = cumsum(y.heights + top.gaps + bottom.gaps) - top.gaps)
-            
+
             oth.ix = 1:(length(.Object)-1);
-            
+
             if (length(.Object)==1) oth.ix = c()
-            
+
             tmp.top.gaps = 0.5 * formatting(.Object)$ygap
             tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
             tmp.ylim.subplot = data.frame(start = c(tmp.bottom.gaps[1], tmp.bottom.gaps[1] +
@@ -1267,16 +1249,16 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                 this.windows = gr.stripstrand(GenomicRanges::trim(windows[[i]]))
                 if (!inherits(this.windows, 'GRanges'))
                   this.windows = seqinfo2gr(this.windows)
-                
+
                 this.ylim.subplot = tmp.ylim.subplot;
                 this.ylim.subplot$start = affine.map(pmin(1, this.ylim.subplot$start), ylim = unlist(ylim.stacks[i, c('start', 'end')]), xlim = c(0, 1))
                 this.ylim.subplot$end = affine.map(pmin(1, this.ylim.subplot$end), ylim = unlist(ylim.stacks[i, c('start', 'end')]), xlim = c(0, 1))
-                this.tmp.bottom.gap = tmp.bottom.gaps[1]*(ylim.stacks$end[i]-ylim.stacks$start[i])                
-                
+                this.tmp.bottom.gap = tmp.bottom.gaps[1]*(ylim.stacks$end[i]-ylim.stacks$start[i])
+
                 this.xaxis.pos = this.ylim.subplot$start[1]-bottom.gaps[i]*0-this.tmp.bottom.gap
                 this.xaxis.pos.label = this.ylim.subplot$start[1]-5*bottom.gaps[i]/6-this.tmp.bottom.gap
                 ylim.stacks[i, 'xaxis.pos'] = this.xaxis.pos
-                
+
                 for (j in 1:length(.Object))
                   {
                     par(xpd = NA);
@@ -1290,7 +1272,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     if (length(cmap)==0)
                       cmap = NULL
 
-                    tmp.dat = dat(.Object)[[j]]                    
+                    tmp.dat = dat(.Object)[[j]]
 
                     if (is.null(formatting(.Object)$source.file.chrsub))
                       formatting(.Object)$source.file.chrsub = T
@@ -1298,20 +1280,20 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     pre.filtered = F; ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist
 
                     if (inherits(tmp.dat, 'RleList'))
-                      {                        
+                      {
                         tmp.score = rle.query(tmp.dat, this.windows)
                         tmp.dat = gr.dice(this.windows)
                         tmp.dat$score = as.numeric(tmp.score)
-                        
+
                         if (is.na(formatting(.Object)$y0[j]))
                           formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
-                        
+
                         if (is.na(formatting(.Object)$y1[j]))
                           formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
-                        
+
                         formatting(.Object)$y.field[j] = 'score'
-                        pre.filtered = T                                              
-                      }                                        
+                        pre.filtered = T
+                      }
                     else if (is.character(tmp.dat))
                       {
                         if (file.exists(tmp.dat))
@@ -1354,20 +1336,20 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                             {
                               si = tryCatch(seqinfo(f), error = function(x) '')
                               pre.filtered = T
-                              
+
                               if (!is.character(si))
-                                {                            
+                                {
                                   if (formatting(.Object)[j, 'source.file.chrsub'])
                                     sel = gr.fix(gr.chr(this.windows), si, drop = T)
-                                  
+
                                   tmp.dat = import(f, selection = sel, asRangedData = F)
-                                  
+
                                   if (formatting(.Object)[j, 'source.file.chrsub'])
                                     tmp.dat = gr.sub(tmp.dat, 'chr', '')
 
                                   if (is.na(formatting(.Object)$y.field[j]))
                                     formatting(.Object)$y.field[j] = 'score'
-                          
+
                                 }
                             }
                           else
@@ -1376,7 +1358,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 
                               if (formatting(.Object)[j, 'source.file.chrsub'])
                                 tmp.dat = gr.sub(tmp.dat, 'chr', '')
-                              
+
                               if (is.na(formatting(.Object)$y.field[j]))
                                 formatting(.Object)$y.field[j] = 'score'
                             }
@@ -1408,7 +1390,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     ## (everything should be a GRanges at this point)
                     if (!is.na(formatting(.Object)$max.ranges[j]))
                       if (formatting(.Object)$max.ranges[j]>0)
-                        {                          
+                        {
                           if (!pre.filtered & nrow(edgs(.Object)[[j]])==0 & length(.Object@vars[[j]])==0) ## assume any track associated with edges is pre-filtered
                             {
                               if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
@@ -1424,16 +1406,16 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                   }
                                 else if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
                                   {
-                                      
+
                                       tmp.dat = tmp.dat[gr.in(tmp.dat, this.windows)]
                                       pre.filtered = T
                                   }
-                            }                                  
-                          
+                            }
+
                           if (length(tmp.dat)>formatting(.Object)$max.ranges[j] &
                               nrow(edgs(.Object)[[j]])==0 & !.Object@formatting$triangle[j]) ## don't sample if there are edges or triangle
                             {
-                              tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))                             
+                              tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))
                             }
                       }
 
@@ -1446,24 +1428,24 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                 k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant', na.rm = TRUE)
                               if (!is.na(formatting(.Object)$round[j]))
                                   tmp = round(tmp, formatting(.Object)$round[j])
-                              
+
                               tmp = as(tmp, 'GRanges')
                               tmp = tmp[gr.in(tmp, tmp.dat)]
                               tmp.val = tmp$score
                               values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
                               values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-                              tmp.dat = tmp                                                                
-                            }                        
+                              tmp.dat = tmp
+                            }
                     }
 
-                    
-                    ## fix y limits and apply log transform if needed                     
+
+                    ## fix y limits and apply log transform if needed
                     if (!is.na(formatting(.Object)$y.field[j]))
                       if (is.na(formatting(.Object)$y0[j]) | is.na(formatting(.Object)$y1[j]))
                         {
                           if (!(formatting(.Object)$y.field[j] %in% names(values(tmp.dat))))
                               stop('y.field missing from input granges')
-                          
+
                           y0.global = min(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
                           y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
 
@@ -1479,12 +1461,12 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                           if (!is.null(formatting(.Object)$y.quantile[j]))
                               if (!is.na(formatting(.Object)$y.quantile[j]))
                                   p.quantile = pmin(pmax(pmin(formatting(.Object)$y.quantile[j], 1-formatting(.Object)$y.quantile[j]), 0), 1)
-                                                                    
+
                           r = quantile(val[!is.infinite(val)], probs = c(p.quantile, 1-p.quantile), na.rm = T)
 
                           if (is.na(diff(r)))
                               r = c(0, 0)
-                          
+
                           if (is.na(formatting(.Object)$y0[j])) ## adjust y limits here if not specified
                               {
                                   formatting(.Object)$y0[j] =  pmax(y0.global, r[1] - diff(r)*0.05)
@@ -1492,9 +1474,9 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                   if (diff(r) == 0 & !is.na(formatting(.Object)$y1[j]))
                                       formatting(.Object)$y0[j] =
                                          r[1] - diff(c(r[1], formatting(.Object)$y1[j]))*0.05
-                                  
+
                               }
-                          
+
                           if (is.na(formatting(.Object)$y1[j])) ## adjust y limits here if not specified
                               {
                                   formatting(.Object)$y1[j] = pmin(y1.global, r[2] + diff(r)*0.05)
@@ -1525,22 +1507,22 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                           circles = formatting(.Object)$circles[j],
                           lines = formatting(.Object)$lines[j],
                           bars = formatting(.Object)$bars[j],
-                          y.grid.cex = formatting(.Object)$yaxis.cex[j],                            
+                          y.grid.cex = formatting(.Object)$yaxis.cex[j],
                           edges = edgs(.Object)[[j]],
-                          y0.bar = formatting(.Object)$y0.bar[j],                          
+                          y0.bar = formatting(.Object)$y0.bar[j],
                           stack.gap = formatting(.Object)$stack.gap[j])
                         na.fields = names(formatting(.Object))[sapply(1:ncol(formatting(.Object)), function(field) is.na(formatting(.Object)[j, field]))]
                         other.fields = setdiff(names(formatting(.Object)), c('track.name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'xaxis.prefix', 'xaxis.unit', 'xaxis.suffix', 'source.file', 'source.file.chrsub', 'xaxis.interval', 'ypad', 'ywid', 'border', 'col', 'cex.label', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(plot.track.formats))) ## remove na fields and anything else that might mess up draw.grl
-                        
+
                         other.formats = structure(names = other.fields,
                           lapply(other.fields, function(x) formatting(.Object)[j, x]))
                         plot.track.formats[names(other.formats)] = other.formats;
 
                         plot.track.formats = plot.track.formats[setdiff(names(plot.track.formats), setdiff(na.fields, c('col')))]
-                                                
+
                         this.y.field = formatting(.Object)$y.field[j]
                         this.y.grid = NA;
-                        
+
                         if (is.na(this.y.field) | !(this.y.field %in% names(values(tmp.dat))))
                           this.y = this.ylim.subplot[j, ]
                         else
@@ -1556,11 +1538,11 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                             values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
                                             formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
                                             formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
-                                            
+
                                         }
                                 range.y = NULL;
                                 if (all(c('y0', 'y1') %in% names(formatting(.Object))))
-                                    {                                    
+                                    {
                                 if (!is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
                                     range.y = c(formatting(.Object)[j, 'y0'], formatting(.Object)[j, 'y1'])
                                 else if (!is.na(formatting(.Object)[j, 'y0']) & is.na(formatting(.Object)[j, 'y1']))
@@ -1568,16 +1550,16 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                 else if (is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
                                     range.y = c(min(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T), formatting(.Object)[j, 'y1'])
                             }
-                                
+
                             if (!is.null(tmp.dat$ywid)) ## remove any weird infinite ywids
                                 if (any(ix <- is.infinite(tmp.dat$ywid)))
                                     tmp.dat$ywid[ix] = NA
-                            
+
                             if (is.null(range.y)) ## if y range is empty then pull from data
                                 range.y = range(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T);
 #                              range.y = range(setdiff(values(dat(.Object)[[j]])[, this.y.field], c(Inf, -Inf)), na.rm = T);
 
-                            ## however if there is a single data value, then we need to scale appropriately                            
+                            ## however if there is a single data value, then we need to scale appropriately
                             if (diff(range.y)==0)
                                 {
                                     if (any(ix <- !is.na(tmp.dat$ywid))) ## use ywid
@@ -1585,40 +1567,40 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                     else # otherwise use some arbitrary proportion around the value
                                         range.y = range.y + abs(range.y)*0.2*c(-1, 1)
                                 }
-                            
+
                             this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
-                            
+
                             if (!is.null(formatting(.Object)$y.cap)) ## cap values from top and bottom
                               this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
                             else
                               this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = T)
 #                            this.y = affine.map(values(dat(.Object)[[j]])[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
 
-                            
+
                             ## adjust y0 .bar
                             if (is.null((formatting(.Object)$y0.bar[j])))
                                 formatting(.Object)$y0.bar[j] = NA
-                            
-                            if (is.na((formatting(.Object)$y0.bar[j])))
-                                formatting(.Object)$y0.bar[j] = 0                            
 
-                            
+                            if (is.na((formatting(.Object)$y0.bar[j])))
+                                formatting(.Object)$y0.bar[j] = 0
+
+
                             plot.track.formats$y0.bar = affine.map(formatting(.Object)$y0.bar[j], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
                             if (formatting(.Object)$yaxis[j])
                               {
                                         # make pretty grid in range.y
                                 this.y.grid = structure(affine.map(this.y.ticks, ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks)), names = this.y.ticks)
-                                                            
+
                                 if (!is.na(formatting(.Object)$log[j]))
                                     if (formatting(.Object)$log[j])
                                         names(this.y.grid) = signif(10^this.y.ticks)
                               }
-                            
-                            ## ## fix ywids if necessary 
-                            ## if (!is.null(values(tmp.dat)$ywid))                                
-                            ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)                            
+
+                            ## ## fix ywids if necessary
+                            ## if (!is.null(values(tmp.dat)$ywid))
+                            ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)
                           }
-                        
+
                         if (!is.null(plot.track.formats$bars))
                           if (plot.track.formats$bars)
                             if (is.null(plot.track.formats$y0.bar))
@@ -1645,7 +1627,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                ));
 
                         main.args = c(main.args, plot.track.formats[setdiff(names(plot.track.formats), names(main.args))]);
-                        
+
                         other.args = dotdot.args
                         other.args = other.args[setdiff(names(other.args), names(main.args))]
 
@@ -1654,7 +1636,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                             blank.main.args = main.args;
                             blank.main.args[[1]] = blank.main.args[[1]][c()]
                             #blank.main.args$y = list(start = min(this.ylim.subplot$start), end = max(this.ylim.subplot$end))
-                              
+
                             if (any(is.na(.Object@formatting$triangle)) & any(.Object@formatting$triangle))
                               blank.main.args$y = list(start = min(this.ylim.subplot$start[is.na(.Object@formatting$triangle)]), end = max(this.ylim.subplot$end[is.na(.Object@formatting$triangle)])) ## JEREMIAH
                             else
@@ -1667,24 +1649,24 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                           }
 
                         new.plot = F; new.axis = F
-                        window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))                        
+                        window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
                       }
-                    
+
                     this.tname = formatting(.Object[j])$track.name
-                    
+
                     if (!is.na(this.tname))
                       {
                         this.cex.ylabel = ifelse(!is.null(formatting(.Object[j])$cex.ylabel), formatting(.Object[j])$cex.ylabel, cex.ylabel)
                         text(par('usr')[2], mean(unlist(this.ylim.subplot[j, c('start', 'end')])),
                              this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
                       }
-                    
-                  }                
+
+                  }
               }
 
             if (is.null(links))
               links = GRangesList()
-            
+
             if (length(links)>0) # draw rearrangement links
               {
                 # first map rearrangements to various windows>
@@ -1693,7 +1675,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                 window.segs.u = do.call(rbind, window.segs)
                 window.segs.u$width = window.segs.u$end - window.segs.u$start + 1
                 window.segs.xlim = do.call('rbind', lapply(window.segs, function(x) data.frame(start = min(x$start), end = max(x$end))))
-                
+
                 links.u = grl.unlist(links)
 
                 if (any(table(links.u$grl.ix)!=2))
@@ -1714,46 +1696,46 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                 l1$y.pos = ylim.stacks$xaxis.pos[l1$stack.id]
                 l1$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l1$subject.id,]$start, y = start(l1),
                   z = start(win.u[l1$subject.id]), a = window.segs.u$width[l1$subject.id] / width(win.u)[l1$subject.id])
-               
+
                 l2 = gr.findoverlaps(links.p[[2]], win.u)
                 values(l2) = cbind(as.data.frame(values(l2)), as.data.frame(values(links)[l2$query.id, , drop = FALSE]))
-                strand(l2) = strand(links.p[[2]])[l2$query.id]                
+                strand(l2) = strand(links.p[[2]])[l2$query.id]
                 l2$stack.id = win.u$grl.ix[l2$subject.id]
                 l2$y.pos = ylim.stacks$xaxis.pos[l2$stack.id]
                 l2$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l2$subject.id,]$start, y = start(l2),
                   z = start(win.u[l2$subject.id]), a = window.segs.u$width[l2$subject.id] / width(win.u)[l2$subject.id])
 
-                
+
                 .fix.l = function(ll)
                   {
                     if (!is.null(links.feat))
                       for (col in names(links.feat))
                         values(ll)[, col] = links.feat[ll$query.id, col]
-                    
-                    # set up connectors                
+
+                    # set up connectors
                     if (is.null(ll$v))
                       ll$v = y.gaps[ll$stack.id]/4
                     else
                       ll$v = y.gaps[ll$stack.id]*ll$v/2
-                    
+
                     if (is.null(ll$h))
                       ll$h = (window.segs.xlim$end[ll$stack.id] - window.segs.xlim$start[ll$stack.id])/20
                     else
                       ll$h = (window.segs.xlim$end[ll$stack.id] - window.segs.xlim$start[ll$stack.id])*ll$h
-                    
+
                     if (is.null(ll$arrow))
                       ll$arrow = TRUE
-                    
+
                     if (is.null(ll$cex.arrow))
-                      ll$cex.arrow = 1                        
-                    
+                      ll$cex.arrow = 1
+
                     if (is.null(ll$lwd))
                       ll$lwd = 1
 
-                    
+
                     if (is.null(ll$lty))
                       ll$lty = 3
-                    
+
 
                     if (is.null(ll$col))
                       ll$col = 'red'
@@ -1761,30 +1743,30 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     if (is.null(ll$col.arrow))
                       ll$col.arrow = ll$col
 
-                    return(ll)                    
+                    return(ll)
                   }
-                
+
                 if (length(l1)>0)
                   l1 = .fix.l(l1)
 
                 if (length(l2)>0)
                   l2 = .fix.l(l2)
-                
-                
+
+
                 ## now pair up / merge l1 and l2 using query.id as primary key
                 if (length(l1)>0 & length(l2)>0)
                   {
-                    pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]                    
-                    l1.paired = as.data.frame(l1)[pairs[,1], ]                
+                    pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]
+                    l1.paired = as.data.frame(l1)[pairs[,1], ]
                     l2.paired = as.data.frame(l2)[pairs[,2], ]
                   }
                 else
                   {
                     l2.paired = l1.paired = data.frame()
-                    pairs = data.frame()                    
+                    pairs = data.frame()
                   }
-                    
-                
+
+
                 ## some l1 and l2 will be unpaired
                 l.unpaired = GRanges(seqlengths = seqlengths(links));
                 p1 = p2 = c();
@@ -1793,13 +1775,13 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     p1 = pairs[,1]
                     p2 = pairs[,2]
                   }
-                
+
                 if (length(l1)>0)
                   l.unpaired = c(l.unpaired, l1[setdiff(1:length(l1), p1)])
-                
+
                 if (length(l2)>0)
                   l.unpaired = c(l.unpaired, l2[setdiff(1:length(l2), p2)])
-                
+
                 if (length(l.unpaired)>0)
                   {
                     l.unpaired$v = l.unpaired$v/4
@@ -1818,61 +1800,61 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                                cex.arrow = 0.2*l.unpaired$cex.arrow,
                                col.arrow = l.unpaired$col.arrow,
                                lwd = l.unpaired$lwd, lty = l.unpaired$lty, col = l.unpaired$col)
-                    
+
                     if (!is.null(l.unpaired$label))
                       {
                         cex = 0.5;
                         if (!is.null(l.unpaired$cex.label))
                           cex = l.unpaired$cex.label
-                        
+
 #                        text(l.unpaired$x.pos, l.unpaired$y.pos2, l.unpaired$label, adj = c(0.5, 0.5), cex = cex)
                         l.unpaired$text.y.pos =l.unpaired$y.pos - (ylim.stacks$end[l.unpaired$stack.id]-ylim.stacks$start[l.unpaired$stack.id])/100
                         text(l.unpaired$x.pos, l.unpaired$text.y.pos, l.unpaired$label, adj = c(0.5, 1), cex = cex)
-                      }                    
+                      }
                   }
 
                 ## now draw connectors for paired links
-                ## pairs on the same level will get a "U" link,                
+                ## pairs on the same level will get a "U" link,
                 ## pairs on different levels will get "S" links
-                
-                ## fix y distances so that connections go from topmost part of bottom most connection to the bottom most part of 
+
+                ## fix y distances so that connections go from topmost part of bottom most connection to the bottom most part of
                 ## top connection (ie the xaxis position)
 
                 if (nrow(l1.paired)>0)
-                  {                
+                  {
                     l1.paired$bottom = l1.paired$y.pos < l2.paired$y.pos
-                    
+
                     if (any(l1.paired$bottom))
                       l1.paired$y.pos[l1.paired$bottom] = ylim.stacks$end[l1.paired$stack.id[l1.paired$bottom]]
-                    
+
                     if (any(!l1.paired$bottom))
                       l2.paired$y.pos[!l1.paired$bottom] = ylim.stacks$end[l2.paired$stack.id[!l1.paired$bottom]]
-                        
+
                                         # also make all c type connections top connections with positive v
                     ctype = ifelse(l1.paired$stack.id == l2.paired$stack.id, 'U', 'S')
                     l1.paired$y.pos[ctype == 'U'] = ylim.stacks$end[l1.paired$stack.id[ctype == 'U']]
                     l2.paired$y.pos[ctype == 'U'] = ylim.stacks$end[l2.paired$stack.id[ctype == 'U']]
                     l1.paired$v[ctype == 'U'] = abs(l1.paired$v[ctype == 'U'])
-                    
+
                     win.width = diff(par('usr')[1:2])
                     l1.paired$v = l1.paired$v * affine.map(abs(l2.paired$x.pos - l1.paired$x.pos)/diff(par('usr')[1:2]), xlim = c(0, 1), ylim = c(0.5, 1)) ## make longer links taller
                     connectors(l1.paired$x.pos, l1.paired$y.pos, l1.paired$strand, l2.paired$x.pos, l2.paired$y.pos, l2.paired$strand,
                                v = l1.paired$v, h = l1.paired$h, type = ctype,
                                f.arrow = l1.paired$arrow, b.arrow = l1.paired$arrow, cex.arrow = 0.2*l1.paired$cex.arrow, col.arrow = l1.paired$col.arrow,
                                lwd = l1.paired$lwd, lty = l1.paired$lty, col = l1.paired$col)
-                    
+
                     if (!is.null(l1.paired$label))
                       {
                         cex = 0.5;
                         if (!is.null(l1.paired$cex.label))
                           cex = l1.paired$cex.label
-                        
+
 ##                         text(l1.paired$x.pos, l1.paired$y.pos+l1.paired$v/2, l1.paired$label, adj = c(0.5, 0.5), cex = cex)
 ##                         text(l2.paired$x.pos, l2.paired$y.pos+l1.paired$v/2, l2.paired$label, adj = c(0.5, 0.5), cex = cex)
 
                         l1.paired$text.y.pos = l1.paired$y.pos - (ylim.stacks$end[l1.paired$stack.id]-ylim.stacks$start[l1.paired$stack.id])/100
                         l2.paired$text.y.pos = l2.paired$y.pos - (ylim.stacks$end[l2.paired$stack.id]-ylim.stacks$start[l2.paired$stack.id])/100
-                                               
+
                         text(l1.paired$x.pos, l1.paired$text.y.pos, l1.paired$label, adj = c(0.5, 1), cex = cex)
                         text(l2.paired$x.pos, l2.paired$text.y.pos, l2.paired$label, adj = c(0.5, 1), cex = cex)
                       }
@@ -1898,7 +1880,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 #' @param tel.width numeric scalar, specifies telomere width in bases (only relevant if arms = T, bands = F)
 #'
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 karyogram = function(hg19 = T,
   bands = T,
   arms = T,
@@ -1911,14 +1893,14 @@ karyogram = function(hg19 = T,
         ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg19.rds", package = 'gTrack'))
     else
         ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg18.rds", package = 'gTrack'))
-    
+
     if (bands)
       {
         si = seqinfo2gr(ucsc.bands);
         si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
         si = Seqinfo(as.character(seqnames(si)), width(si)+1)
         ucsc.bands = sort(gr.fix(ucsc.bands, si, drop = T))
-        
+
         ucsc.bands = split(ucsc.bands, seqnames(ucsc.bands))
         td = gTrack(list(ucsc.bands), colormap = list(stain = c('gneg' = 'white', 'gpos25' = 'gray25', 'gpos50' = 'gray50', 'gpos75'= 'gray75', 'gpos100' = 'black', 'acen' = 'red', 'gvar' = 'pink', 'stalk' = 'blue')), border = 'black', ...)
         formatting(td)$stack.gap[1] = 0
@@ -1933,9 +1915,9 @@ karyogram = function(hg19 = T,
           qtel = rep('black', length(tmp)),
           qarm = lighten(tmp, col.adjust),
           centro = rep('gray', length(tmp)),
-          parm = lighten(tmp, -col.adjust), 
+          parm = lighten(tmp, -col.adjust),
           ptel = rep('black', length(tmp)), stringsAsFactors = F)
-        
+
         if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
           {
             tmp.tel = aggregate(formula = end ~ seqnames, data = as.data.frame(ucsc.bands), FUN = max)
@@ -1944,7 +1926,7 @@ karyogram = function(hg19 = T,
               seqlengths = seqlengths(seqinfo(ucsc.bands))),
               GRanges(names(tmp.tel), IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = seqlengths(seqinfo(ucsc.bands))))
             values(telomeres)$lwd.border = 1;
-            values(telomeres)$border = 'black';            
+            values(telomeres)$border = 'black';
             centromeres = reduce(ucsc.bands[values(ucsc.bands)$stain=='acen'])
             values(centromeres)$lwd.border = 1;
             values(centromeres)$border = 'black';
@@ -1963,7 +1945,7 @@ karyogram = function(hg19 = T,
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
             karyotype = gr.fix(karyotype, si, drop = T)
-            names(karyotype) = NULL;            
+            names(karyotype) = NULL;
             td = gTrack(list(karyotype), colormaps = list(region= colmap), border = 'black',
               stack.gap = 0, xaxis.interval = 1e7, ...)
           }
@@ -1977,16 +1959,16 @@ karyogram = function(hg19 = T,
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
             karyotype = gr.fix(karyotype, si, drop = T)
-            names(karyotype) = NULL;            
+            names(karyotype) = NULL;
             td = gTrack(list(karyotype), colormaps = list(region = colmap),
               border = 'black', stack.gap = 0, xaxis.interval = 1e7, ...)
-          }        
+          }
 
       }
-    
+
     formatting(td)$angle = 10
     formatting(td)$ywid = 2
-    
+
     return(td)
   }
 
@@ -1994,12 +1976,12 @@ karyogram = function(hg19 = T,
 #' @name karyogram
 #' @title karyogram
 #' @description
-#' 
+#'
 #' Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cahced data objects but can also be built from provided GRangesList
 #'
 #' @param rg (optional) GRangesList representing transcript models obtained from refgene, with
-#' GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot, 
+#' GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot,
 #' @param genes (optional) character vector specifying genes to limit gTrack object to
 #' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
 #' @param bg.col scalar character representing background color for genespan
@@ -2019,7 +2001,7 @@ karyogram = function(hg19 = T,
 #'
 #' @export
 #' @author Marcin Imielinski
-track.refgene = function(rg = NULL, 
+track.refgene = function(rg = NULL,
   gene.collapse = T,
   genes = NULL,
   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
@@ -2028,9 +2010,9 @@ track.refgene = function(rg = NULL,
   genespan = T, ## flags determining whether to include ranges for these features
   utr = T, ## show utr?
   cds = T, ## show cds start / end?
-  
+
   grl.labelfield, ## Don't touch these
-  gr.labelfield,  
+  gr.labelfield,
   col,
   cached = T, ## if true will use cached version
   cached.path = system.file("extdata", "refgene.composite.rds", package = 'gTrack'),  ## location of cached copy
@@ -2038,7 +2020,7 @@ track.refgene = function(rg = NULL,
   gr.srt.label = 0,
   gr.cex.label = 0.8,
   labels.suppress.gr = T,
-  stack.gap = 1e6,    
+  stack.gap = 1e6,
   ...)
   {
 
@@ -2046,23 +2028,23 @@ track.refgene = function(rg = NULL,
       {
         if (is.null(rg))
           rg = read_refGene(grl = T)
-                
+
         values(rg)$label = values(rg)$gene_sym
         ix.pos = values(rg)$str == '+'
 #         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'border', 'col', 'type')
         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'type', 'is.exon')
-        
+
         rg.exons = grl.unlist(rg)
         rg.exons$rg.id = rg.exons$grl.ix
         rg.exons$border = rg.exons$col = cds.col
         rg.exons$is.exon = T;
         rg.exons$type = 'exon'
-        
+
         if (genespan)
           rg.genespan = GRanges(values(rg)$chr, IRanges(values(rg)$s1, values(rg)$e1), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = bg.col, type = 'genespan')
         else
           rg.genespan = NULL
-        
+
         if (utr)
           {
             type1 = ifelse(ix.pos, 'utr.5', 'utr.3')
@@ -2070,24 +2052,24 @@ track.refgene = function(rg = NULL,
             tmp.utr = c(
               GRanges(values(rg)$chr, IRanges(values(rg)$s1, pmax(values(rg)$s1, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type1),
               GRanges(values(rg)$chr, IRanges(values(rg)$e1, pmax(values(rg)$e1, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type2))
-            
+
             utr.ix = which(rg.exons %over% tmp.utr)
             utr.exons = rg.exons[utr.ix]
             utr.exons$gr.ix = utr.ix
-            ix.check = merge(data.frame(i = 1:length(utr.exons), key = utr.exons$grl.ix), data.frame(j = 1:length(tmp.utr), key = tmp.utr$rg.id))     
+            ix.check = merge(data.frame(i = 1:length(utr.exons), key = utr.exons$grl.ix), data.frame(j = 1:length(tmp.utr), key = tmp.utr$rg.id))
             rg.utr.exons = pintersect(utr.exons[ix.check$i, ], tmp.utr[ix.check$j, ], resolve.empty = 'start')
             non.empty = width(rg.utr.exons)!=0
             rg.utr.exons = rg.utr.exons[non.empty]
             values(rg.utr.exons) = values(utr.exons)[ix.check$i[non.empty], ]
             rg.utr.exons$type = tmp.utr$type[ix.check$j[non.empty]]
             rg.utr.exons$rg.id = rg.utr.exons$grl.ix
-            ranges(rg.exons[rg.utr.exons$gr.ix]) = ranges(psetdiff(rg.exons[rg.utr.exons$gr.ix], rg.utr.exons)) ## trim rg.exons by rg.utr.exons        
+            ranges(rg.exons[rg.utr.exons$gr.ix]) = ranges(psetdiff(rg.exons[rg.utr.exons$gr.ix], rg.utr.exons)) ## trim rg.exons by rg.utr.exons
             ## remove width 0 rg.exons
-            rg.exons = rg.exons[width(rg.exons)>0]                           
+            rg.exons = rg.exons[width(rg.exons)>0]
           }
         else
           rg.utr.exons = NULL
-        
+
         if (cds)
           {
             sten.col1 = ifelse(ix.pos, st.col, en.col)
@@ -2099,16 +2081,16 @@ track.refgene = function(rg = NULL,
               GRanges(values(rg)$chr, IRanges(values(rg)$e2, pmax(values(rg)$e2, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col2, border = sten.col2, type = type2))
           }
         else
-          rg.sten = NULL          
-                
+          rg.sten = NULL
+
         tmp = grbind(rg.genespan, rg.exons, rg.utr.exons, rg.sten)[, OUT.COLS]
         tmp$label = NULL;
-        
+
         ## compute tx ord of intervals
         ord.ix = order(tmp$rg.id, match(tmp$type, c('genespan', 'utr.5', 'cds.start', 'exon', 'cds.end', 'utr.3')))
         tmp.rle = rle(tmp$rg.id[ord.ix])
         tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
-        
+
         if (gene.collapse)
           {
             tmp = tmp[order(match(tmp$type, c('genespan', 'exon', 'utr.5', 'utr.3', 'cds.start', 'cds.end')))]
@@ -2131,13 +2113,13 @@ track.refgene = function(rg = NULL,
         {
             rg.composite = readRDS(cached.path)
         }
-        
+
 
     if (!is.null(genes))
       rg.composite = rg.composite[values(rg.composite)$gene_sym %in% genes]
 
     cmap = list(type = c(genespan = bg.col, exon = cds.col, cds.start = st.col, cds.end = en.col, utr.5 = utr.col, utr.3 = utr.col))
-    
+
     return(gTrack(rg.composite, col = NA, grl.labelfield = 'gene_sym', gr.labelfield = 'exon_id',
                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
   }
@@ -2145,7 +2127,7 @@ track.refgene = function(rg = NULL,
 
 #' @name track.gencode
 #' @title track.gencode
-#' 
+#'
 #' @description
 #' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cached data objects but can also be built from provided GRangesList
@@ -2168,27 +2150,27 @@ track.refgene = function(rg = NULL,
 #' @param ... additional arguments passed down to gTrack
 #'
 #' @export
-#' @author Marcin Imielinski 
-track.gencode = function(gencode = NULL, 
+#' @author Marcin Imielinski
+track.gencode = function(gencode = NULL,
   gene.collapse = T,
   genes = NULL,
   grep = NULL,
   grepe = NULL, ## which to exclude
   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
   st.col = 'green',
-  en.col = 'red',  
+  en.col = 'red',
   grl.labelfield, ## Don't touch these
-  gr.labelfield,  
+  gr.labelfield,
   col,
   cached = T, ## if true will use cached version
   cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack'),  ## location of cached copy
-  cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'), 
+  cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'),
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
   labels.suppress.gr = T,
-  drop.rp11 = TRUE, 
-  stack.gap = 1e6,    
+  drop.rp11 = TRUE,
+  stack.gap = 1e6,
   ...)
   {
 
@@ -2200,19 +2182,19 @@ track.gencode = function(gencode = NULL,
 
             cat('loaded gencode rds\n')
 
-            tx = gencode[gencode$type =='transcript']        
+            tx = gencode[gencode$type =='transcript']
             genes = gencode[gencode$type =='gene']
             exons = gencode[gencode$type == 'exon']
             utr = gencode[gencode$type == 'UTR']
             ## ut = unlist(utr$tag)
             ## utix = rep(1:length(utr), sapply(utr$tag, length))
             ## utr5 = utr[unique(utix[grep('5_UTR',ut)])]
-            ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]        
+            ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]
             ## utr5$type = 'UTR5'
             ## utr3$type = 'UTR3'
             startcodon = gencode[gencode$type == 'start_codon']
-            stopcodon = gencode[gencode$type == 'stop_codon']               
-            OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')        
+            stopcodon = gencode[gencode$type == 'stop_codon']
+            OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
             tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
 
             cat('extracted intervals\n')
@@ -2222,9 +2204,9 @@ track.gencode = function(gencode = NULL,
             tmp.rle = rle(tmp$transcript_id[ord.ix])
             tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
             tmp = tmp[order(match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))]
-            
+
             cat('reordered intervals\n')
-            
+
             tmp.g = tmp[tmp$type != 'transcript']
             gencode.composite = split(tmp.g, tmp.g$gene_name)
             ix = sapply(split(1:length(tmp.g), tmp.g$gene_name), function(x) x[1])
@@ -2246,7 +2228,7 @@ track.gencode = function(gencode = NULL,
             saveRDS(gencode.composite, cached.path)
 
             genes = NULL
-            
+
             cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
     }
 
@@ -2255,32 +2237,32 @@ track.gencode = function(gencode = NULL,
     else
         gencode.composite = readRDS(cached.path)
 
-    
+
     if (drop.rp11)
         gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
-    
+
     if (!is.null(genes))
         gencode.composite = gencode.composite[values(gencode.composite)$gene_sym %in% genes]
 
     if (!is.null(grep))
         {
             ix = rep(FALSE, length(gencode.composite))
-            for (g in grep)                
+            for (g in grep)
                 ix = ix | grepl(g, values(gencode.composite)$gene_sym)
 
             gencode.composite = gencode.composite[ix]
         }
-    
+
     if (!is.null(grepe))
         {
             ix = rep(TRUE, length(gencode.composite))
-            for (g in grepe)                
+            for (g in grepe)
                 ix = ix & !grepl(g, values(gencode.composite)$gene_sym)
-            
+
             gencode.composite = gencode.composite[ix]
         }
-    
-    
+
+
     cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
 
     return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
@@ -2290,20 +2272,20 @@ track.gencode = function(gencode = NULL,
 
 #' @name track.splice
 #' @title track.splice
-#' 
-#' Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object 
+#'
+#' Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object
 #' of splicing graph
 #'
 #' @param ex GRanges of candidate exons
 #' @param bam path to indexed RNA seq bam
-#' @param verbose 
+#' @param verbose
 #' @import Rsamtools
 #' @export
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
     infer.exons = FALSE,
     min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
-    min.exon.width = 10, 
+    min.exon.width = 10,
     max.exon.width = 1000 ## only relevant if ex is null
     )
     {
@@ -2312,7 +2294,7 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
                 ex = gr.stripstrand(ex)
                 ex.ov = gr.findoverlaps(ex, ex)
             }
-       
+
         if (is.null(region))
             reads = read.bam(bam, intervals = ex, pairs.grl = FALSE, verbose = verbose)
         else
@@ -2320,19 +2302,19 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
 
         if (verbose)
             cat(length(reads), 'reads\n')
-       
+
         if (length(reads)==0)
             {
                 if (!is.null(ex))
                     {
                         ex$expr = 0
-                        ex$log.expr = log(ex$expr)                    
+                        ex$log.expr = log(ex$expr)
                         return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
                     }
-                else                    
+                else
                     return(gTrack(region[c()]))
             }
-            
+
         sp.reads = splice.cigar(reads, return.grl = FALSE)
 
         if (verbose)
@@ -2340,11 +2322,11 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
 
         if (is.null(ex))
             infer.exons = TRUE
-        
+
         if (infer.exons)
             {
                 sp.reads = sp.reads[seqnames(sp.reads)==seqnames(region) & ranges(sp.reads) %over% ranges(region), ]
-                tmp = grdt(sp.reads)                
+                tmp = grdt(sp.reads)
                 m.reads = tmp[type != 'N']
                 n.reads = tmp[type == 'N']
                 ustart = c(min(start(sp.reads)), n.reads[, length(seqnames), by = end][V1>=min.reads, end]+1)
@@ -2352,10 +2334,10 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
 
                 ustart.maxwidth = m.reads[, max(end-start), keyby = start]
                 uend.maxwidth = m.reads[, max(end-start), keyby = end]
-                
+
                 new.ex = data.table(seqnames = n.reads$seqnames[1], start = rep(ustart, length(uend)), end = rep(uend, each = length(ustart)))[ (end-start) <= max.exon.width & (end-start) >= min.exon.width, ]
 
-                ## we will get exon overload unless we cull a bit 
+                ## we will get exon overload unless we cull a bit
                 ## to be parsimonious we only keep enough exons for all the matching parts of reads to "land on"
                 ## ie if they start in an exon they will end up in the same one
                 ## rather than computing all the overlaps necessary for this
@@ -2368,32 +2350,32 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
                 new.ex[ , shorter.end.exists := !(1:length(seqnames) %in% which.min(end-start)), by = end]
 
                 new.ex = seg2gr(new.ex[!shorter.start.exists | !shorter.end.exists, ], seqlengths = seqlengths(sp.reads))[, c()]
-                
+
                 new.ex$type = 'inferred'
                 if (verbose)
                     cat(sprintf('inferred %s total unique exons with min.reads %s, min.exon.width %s, and max.exon.width %s\n', length(new.ex), min.reads, min.exon.width, max.exon.width))
                 if (!is.null(ex))
                     {
                         old.ex = ex;
-                        ex = sort(unique(grbind(ex, new.ex)))                        
+                        ex = sort(unique(grbind(ex, new.ex)))
                         if (verbose)
                             cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
                     }
                 else
                    ex = sort(new.ex)
-                
-                ex.ov = gr.findoverlaps(ex, ex)                        
+
+                ex.ov = gr.findoverlaps(ex, ex)
             }
-            
+
         sp.reads = sort(sp.reads[sp.reads$type != 'N'])
         sp.reads = sp.reads[order(sp.reads$rid), ]
-        
+
         tmp =  grdt(sp.reads)
         tmp[, spid := 1:length(sp.reads)]
         tmp[, riid := 1:length(seqnames), by = rid]
         setkey(tmp, spid)
         sp.reads$riid = tmp[list(1:length(sp.reads)), riid]
-        
+
         ov = gr.findoverlaps(ex, sp.reads, scol = c('rid', 'riid'), verbose = verbose, return.type = 'data.table')
         if (length(ov)==0)
             {
@@ -2408,17 +2390,17 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
         ov[, match.right.read := as.numeric(end == end(sp.reads)[subject.id])]
         ov = ov[(match.left.read | match.left.exon) & (match.right.read | match.right.exon), ]
         setkeyv(ov, c('rid', 'riid'))
-        
+
         sp.rid = unique(ov$rid[ov$riid>1])
         ij = ov[list(sp.rid), list(from = rep(query.id, each = length(query.id)), to = rep(query.id, length(query.id)),
             val = width[rep(1:length(query.id), each = length(query.id))] + width[rep(1:length(query.id), length(query.id))],
             from.riid = rep(riid*match.right.exon*match.right.read, each = length(query.id)),
             to.riid = rep(riid*match.left.exon*match.left.read, length(query.id))), by = rid]
-        
+
         ij = ij[(ij$to.riid - ij$from.riid) == 1 & ij$to.riid !=0 & ij$from.riid != 0, ]
         setkeyv(ij, c('from', 'to'))
         ij = ij[!list(ex.ov$query.id, ex.ov$subject.id), ]
-        
+
 #        edges = ij[, list(val = sum(val)/(width(ex)[from] + width(ex)[to])), keyby = list(from, to)]
         edges = ij[, list(val = sum(val)), keyby = list(from, to)]
                                         #edges = edges[, val := 0]
@@ -2428,7 +2410,7 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
         edges = edges[, col := alpha('gray10', affine.map(log(val+1), c(0.1,0.8), cap = TRUE))]
         edges = edges[, cex.arrow := 0]
         ex$expr = ov[(match.right.exon*match.right.read + match.left.exon*match.right.read) | (match.left.read==1 & match.right.read==1), sum(width), keyby = query.id][list(1:length(ex)), V1]/width(ex)
-        
+
         ex$log.expr = round(log10(ex$expr), 1)
         ex$ywid = 0.8
         ex$border = 'black'
@@ -2455,7 +2437,7 @@ track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
 draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, label = NULL,
   draw.backbone = F, # if TRUE lines will be drawn linking all ranges at a single y-level +/- (a single y x group level if group is specified),
   group = NULL, # a vector of group labels same size as x (char or numeric), non-NA groups with more than 1 member will be connected by backbone (if draw.backbone = T)
-  col.backbone = col[1], 
+  col.backbone = col[1],
   cex.label = 1,
   srt.label = 45,
   adj.label = c(0.5, 0),
@@ -2467,10 +2449,10 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   lines = FALSE, # if TRUE will connect endpoints of ranges with lines
   y0.bar = NULL, # only relevant if bars = T, will default to pars('usr')[3] if not specified
   strand.dir = T,  # if so, will interpret strand field as "direction sign" for interval, + -> right, - -> left, only makes difference if draw.pencils = T
-  xlim = NULL, # only relevant if new.plot = T, can be ranges object 
+  xlim = NULL, # only relevant if new.plot = T, can be ranges object
   ylim = NULL, # only relevant if new.plot = T
   clip = NULL, # GRanges / IRanges or 1 row df with $start, $end denoting single region to clip to .. will not draw outside of this region
-  
+
   lwd.border = 1,
   lwd.backbone = 1,
   verbose=FALSE,
@@ -2483,45 +2465,45 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
       y = stack_segs(x)
     else
       y = disjointBins(ranges(x))
-  
+
   if (inherits(x, 'Rle'))
     x = RangedData(x)
-    
+
   if (inherits(x, 'GappedAlignments'))
     x = as(x, 'GRanges')
-  
+
   if (inherits(x, 'Ranges') | inherits(x, 'GRanges') | inherits(x, 'RangedData'))
     x = standardize_segs(x)
 
   if (nrow(x)==0)
     return()
-  
+
   if (!is.null(y))
     x$y = y;
-  
+
   x$group = group;
 
   if (!is.null(col) & is.null(x$col))
     x$col = col;
 
-  if (!is.null(border) & is.null(x$border)) 
+  if (!is.null(border) & is.null(x$border))
     x$border = border;
 
-  if (!is.null(lwd.border) & is.null(x$lwd.border)) 
+  if (!is.null(lwd.border) & is.null(x$lwd.border))
     x$lwd.border = lwd.border;
-  
-  if (!is.null(label) & is.null(x$label)) 
+
+  if (!is.null(label) & is.null(x$label))
     x$label = label;
 
   if (!is.null(circles) & is.null(x$circles))
-    x$circles = circles      
+    x$circles = circles
 
   if (!is.null(bars) & is.null(x$bars))
     x$bars = bars
 
   if (is.null(x$points))
       x$points = NA
-  
+
   if (!is.na(points) & all(is.na(x$points)))
       x$points = points
 
@@ -2533,16 +2515,16 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 
   if (is.null(srt.label))
     srt.label = NA
-  
+
   if (is.na(srt.label))
     srt.label = 45
- 
-  
-  if (strand.dir & !is.null(strand))    
+
+
+  if (strand.dir & !is.null(strand))
     x$direction = x$strand
-  
+
   x$lwd = lwd
-  
+
   if (new.plot)
     {
       if (is.null(xlim))
@@ -2554,43 +2536,43 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 
       if (is.null(ylim))
         ylim = c(min(x$y), max(x$y))
-      
+
       xrange = diff(xlim)
       yrange = max(diff(ylim), 1)
       X.PAD = 0.05;
       Y.PAD = 0.05;
       plot.blank(xlim = xlim + X.PAD*xrange*c(-1, 1), ylim = ylim + Y.PAD*max(0.1, yrange)*c(-1, 1))
     }
-  
+
   if (nrow(x)>0)
-    {              
-      x$group = paste(x$group, x$y);     
-      
+    {
+      x$group = paste(x$group, x$y);
+
       if (draw.backbone)
         {
           gcount = table(x$group);
           x2 = x[x$group %in% names(gcount)[gcount>1], ]
-          
+
           if (nrow(x2)>0)
             {
               b.st = aggregate(formula = pos1 ~ group, data = x2, FUN = min)
               b.en = aggregate(formula = pos2 ~ group, data = x2, FUN = max)
               b.y = aggregate(formula = y ~ group, data = x2, FUN = function(x) x[1])
-              
+
               seg.coord = data.frame(x0 = b.st[,2], x1 = b.en[,2], y = b.y[,2]);
-              
+
               if (!is.null(clip))
                 {
                   seg.coord$x0 = pmax(seg.coord$x0, clip$pos1)
-                  seg.coord$x1 = pmin(seg.coord$x1, clip$pos2)                                                     
+                  seg.coord$x1 = pmin(seg.coord$x1, clip$pos2)
                 }
 
               if (verbose)
                 print('Finished computing backbones')
               segments(seg.coord$x0, seg.coord$y, seg.coord$x1, seg.coord$y, col = col.backbone, lwd = lwd.backbone);
             }
-        }                          
-              
+        }
+
       if (is.null(x$direction))
         x$direction = "*"
 
@@ -2610,12 +2592,12 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
       else
         {
           if (!is.na(points))
-            {                
+            {
                points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, border = x$border, col = x$col, cex = x$lwd.border)
             }
-            
+
           if (circles)
-            {                
+            {
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
             }
@@ -2624,7 +2606,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
             {
               if (is.null(y0.bar))
                 y0.bar = par('usr')[3]
-              
+
               rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$col, lwd = x$lwd.border/2)
 #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
             }
@@ -2632,12 +2614,12 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
           if (lines)
             lines(as.vector(t(cbind(x$pos1, x$pos2))), as.vector(t(cbind(x$y, x$y))), col = as.vector(t(cbind(x$col, x$col))),
                   lwd = as.vector(t(cbind(x$lwd.border, x$lwd.border))))
-          
+
           if (any(!is.na(x$points)))
-              {               
+              {
                   points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = x$points, col = x$col, cex = x$lwd.border)
               }
-          
+
           if (circles)
               {
               points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 19, col = x$col, cex = x$lwd.border)
@@ -2650,39 +2632,39 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
           has.label = !is.na(x$label)
           if (any(has.label))
             {
-              if (nrow(x)>1)                 
+              if (nrow(x)>1)
                   OFFSET = min(diff(sort(x$y)))/2
               else
                   OFFSET = diff(par('usr')[3:4])/100
-              
+
               if (adj.label[2] == 1)
                 {
                   text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]+x$lwd[has.label]/2+OFFSET, as.character(x$label[has.label]),
                        adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-                }              
+                }
               else if (adj.label[2] == 0.5)
                 {
                   text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label], as.character(x$label[has.label]),
                        adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-                }              
-              else 
+                }
+              else
                 {
                   text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]-x$lwd[has.label]/2-OFFSET, as.character(x$label[has.label]),
                        adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-                }              
+                }
             }
-        }      
+        }
     }
-  
+
 }
 
 #' @name draw.grl
 #' @title  draw.grl
 #' @description
 #'
-#' wrapper function around draw.ranges to draw GRangesList across a set of genomic windows 
+#' wrapper function around draw.ranges to draw GRangesList across a set of genomic windows
 #' By default, these windows correspond to the smallest set of "covered" regions (ie containing at least one
-#' grl in their span, but can also be specified as an argument. 
+#' grl in their span, but can also be specified as an argument.
 #'
 #' basically same idea as draw.granges, except can more compactly draw / stack paired / group reads or
 #' gene models / alignments and deal with "grouped" intervals
@@ -2721,18 +2703,18 @@ draw.grl = function(grl,
               # corresponding to each grl item
   var.col = NULL, # named vector with variant colors to override - valid names are XA, XT, XG, XC, S, D, I
   var.soft = T, ## whether to draw soft clips for varbase
-  views = NULL, ## deprecated alias for windows 
+  views = NULL, ## deprecated alias for windows
   windows = views,  # windows specifies windows, can have optional meta data features $col and $border
   win.gap = NULL,
   stack.gap = 100,
   min.gapwidth = 1, # only applies if windows is not specified
   col = NULL, border = NA, # all of these variables can be scalar or vectors of length(grl),
                                # can be over-ridden by values / columns in grl
-  col.backbone = alpha('gray', 0.8), 
+  col.backbone = alpha('gray', 0.8),
   gr.colorfield = NULL, ## values field in the gr from which colors can be mapped
   gr.colormap = NULL, ## named vector mapping fields in the gr.colorfield to colors, if unspecified brewer.master() will be applied
   gr.labelfield = NULL, ## field of gr labels to draw.
-  grl.labelfield = NULL, ## field of grl to draw as label  
+  grl.labelfield = NULL, ## field of grl to draw as label
   legend = F, ## if gr.colorfield and/or gr.colormap specified then will draw legend in top right corner of plot mapping colors and unique values
   legend.xpos = 1,
   legend.ypos = 1,
@@ -2743,13 +2725,13 @@ draw.grl = function(grl,
   legend.yjust = 1,
   legend.maxitems = Inf,  ## max items in legend
   labels = NULL, # vector of length(grl)
-  labels.suppress = F, 
+  labels.suppress = F,
   labels.suppress.grl = labels.suppress,
-  labels.suppress.gr = labels.suppress, 
+  labels.suppress.gr = labels.suppress,
   spc.label = 0.05, # number between 0 and 1 indicating spacing of label
-  adj.label = c(0, 1),  
+  adj.label = c(0, 1),
   cex.label = 1,
-  cex.tick = 1, 
+  cex.tick = 1,
   cex.ticklen = 1,
   gr.cex.label = 0.8 * cex.label,
   gr.srt.label = 0,
@@ -2757,14 +2739,14 @@ draw.grl = function(grl,
   new.plot = T,
   new.axis = F, # if T will draw even on existing plot
   sep.draw = T, # draw separator between windows, will only draw when new.plot = T or new.axis = T
-  sep.lty = 2, 
+  sep.lty = 2,
   sep.lwd = 1,
   #  bg.col = 'gray95',
-  bg.col = 'gray99',  
+  bg.col = 'gray99',
   y.pad = 0.05,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair
   xaxis.prefix = 'chr',
   xaxis.suffix = "MB",
-  xaxis.unit = 1e6, 
+  xaxis.unit = 1e6,
   xaxis.round = 3,
   xaxis.interval = NULL,
   xaxis.pos = NULL,
@@ -2779,7 +2761,7 @@ draw.grl = function(grl,
   ylim.grid = ylim, # can be also specified directly for plots with multiple axes and/or non-numeric tracks
   y.grid = NA, # if non NA, then the number specifies the spacing between y grid (drawn from ylim[1] to ylim[2]), can also be named vector mapping grid.tick labels to plot locations
   y.grid.col = alpha('gray', 0.5),
-  y.grid.pretty = 5, 
+  y.grid.pretty = 5,
   y.grid.cex = 1,
   y.grid.lty = 2,
   y.grid.lwd = 1,
@@ -2787,9 +2769,9 @@ draw.grl = function(grl,
   path.col.arrow = 'black',
   path.cex.arrow = 1,
   path.stack.y.gap = 1,
-  path.stack.x.gap = 0, 
-  path.cex.v = 1, 
-  path.cex.h = 1, 
+  path.stack.x.gap = 0,
+  path.cex.v = 1,
+  path.cex.h = 1,
   draw.backbone = NULL,
   return.windows = F, # return data frame of input windows (in plot coordinates) - helpful for overlaying and linking plots
     xlim = c(0, 20000), # xlim of canvas
@@ -2810,10 +2792,10 @@ draw.grl = function(grl,
   m.bg.col = 'gray80',
   smooth = NA, ## passed down to draw triangle
   islog = FALSE, ## if the input data is 10*log(mat), set TRUE to make colormap legend good
-  ...)      
+  ...)
   {
 
-    
+
     ## call to matrix function, skip the rest. this is budget, but keeps draw.grl integration
     if (triangle) {
       palette.colors = NULL
@@ -2822,15 +2804,15 @@ draw.grl = function(grl,
           palette.colors = names(gr.colormap)
         else
           palette.colors = gr.colormap
-          
+
       return(draw.triangle(grl=grl,y=y,mdata=mdata,ylim=ylim,ylim.parent=ylim.parent,windows=windows,win.gap=win.gap,sep.lty=sep.lty,sep.lwd=sep.lwd,
                   xaxis.nticks=xaxis.nticks,xaxis.interval=xaxis.interval,xaxis.unit=xaxis.unit,
                   xaxis.suffix=xaxis.suffix,cex.tick=cex.tick,xaxis.newline=xaxis.newline,xaxis.width=xaxis.width,
-                  xaxis.round=xaxis.round,xaxis.chronly=xaxis.chronly,xaxis.cex.label=xaxis.cex.label, sigma = smooth,                  
+                  xaxis.round=xaxis.round,xaxis.chronly=xaxis.chronly,xaxis.cex.label=xaxis.cex.label, sigma = smooth,
                   xaxis.prefix=xaxis.prefix,new.axis=new.axis,new.plot=new.plot,cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
                   bg.col=m.bg.col, legend.cex=legend.cex, islog=islog, palette.colors = palette.colors,  ...))
     }
-    
+
     now = Sys.time();
     ylim.subplot = NULL
     empty.plot = F
@@ -2841,7 +2823,7 @@ draw.grl = function(grl,
         if (is.null(draw.backbone))
 #          draw.backbone = is.null(y)
           draw.backbone = T
-          
+
         if (inherits(grl, 'GappedAlignments'))
           grl = ga2gr(grl)
 
@@ -2868,7 +2850,7 @@ draw.grl = function(grl,
                   if (!is.list(y))
                     if (length(y)!=1)
                       y = y[ix]
-                
+
                 if (!is.null(labels))
                   if (!is.list(labels))
                     if (length(labels)!=1)
@@ -2879,11 +2861,11 @@ draw.grl = function(grl,
                     {
                       if (is.data.table(edges))
                           edges = as.data.frame(edges)
-                      
+
                       ix.i = which(ix)
                       edges = edges[edges$from %in% ix.i | edges$to %in% ix.i,];
                       edges$from = match(edges$from, ix.i)
-                      edges$to = match(edges$to, ix.i)                      
+                      edges$to = match(edges$to, ix.i)
                     }
               }
             gr.names = names(grl);
@@ -2893,7 +2875,7 @@ draw.grl = function(grl,
               grl = split(grl, 1:length(grl))
             else
               grl = GRangesList(grl)
-            
+
             names(grl) = gr.names;
           }
 
@@ -2902,16 +2884,16 @@ draw.grl = function(grl,
             labels = names(grl)
           else
             labels = values(grl)$labels
-        
+
         # make sure names are unique
         names(grl) = 1:length(grl);
 
         if (is.na(labels.suppress.grl))
           labels.suppress.grl = F
-        
+
         if (is.na(labels.suppress.gr))
           labels.suppress.gr = F
-        
+
         if (is.na(draw.var))
           draw.var = F
 
@@ -2951,12 +2933,12 @@ draw.grl = function(grl,
 
         if (is.null(border))
           border = col
-        
+
         grl.props = cbind(data.frame(group = names(grl), col = col, stringsAsFactors = F), as.data.frame(values(grl)))
         grl.props$border = border;
         grl.props$ywid = ywid;
 
-        if (!is.null(y) & !is.list(y) & length(y)>0) ## if y coordinate is specified for the ranges 
+        if (!is.null(y) & !is.list(y) & length(y)>0) ## if y coordinate is specified for the ranges
           {
             grl.props$y = y;
             bad = is.na(y)
@@ -2964,12 +2946,12 @@ draw.grl = function(grl,
             if (any(bad))
               {
                 grl.props = grl.props[!bad, ]
-                grl = grl[!bad]                
+                grl = grl[!bad]
 
                 if (!is.null(labels))
                   labels = labels[!bad]
 
-                y = grl.props$y   
+                y = grl.props$y
               }
           }
 
@@ -2978,7 +2960,7 @@ draw.grl = function(grl,
             if (!is.na(grl.labelfield))
               if (grl.labelfield %in% names(grl.props))
                 grl.props$grl.labels = grl.props[, grl.labelfield]
-          }            
+          }
         else if (!is.null(labels))
           if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
             grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
@@ -2995,22 +2977,17 @@ draw.grl = function(grl,
         #            gr$grl.iix = levapply(rep(1, length(gr)), gr$grl.ix, FUN = function(x) 1:length(x))
                     gr$grl.iix = data.table(ix = gr$grl.ix)[, iix := 1:length(ix), by = ix][, iix]
                 }
-            close(c)            
+            close(c)
             return(gr)
           })
 
         gr$group = grl.props$group[gr$grl.ix]
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
-<<<<<<< HEAD
 
-        if (length(gr)>0)            
+        if (length(gr)>0)
             gr$last = data.table(iix = as.numeric(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
-=======
-        
-        if (length(gr)>0)           
-            gr$last = data.table(iix = as.vector(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
->>>>>>> 04105e1e2c1a7d5a65df12c9a532c104c1262355
+
 #          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
 
         grl.props$group = as.character(grl.props$group)
@@ -3023,7 +3000,7 @@ draw.grl = function(grl,
         ####
 
         if (draw.var & is.null(var))
-          var = varbase(gr, soft = var.soft)       
+          var = varbase(gr, soft = var.soft)
 
         if (!is.null(var))
           {
@@ -3032,16 +3009,16 @@ draw.grl = function(grl,
             if (!is.null(var.col))
               VAR.COL[names(var.col)] = var.col;
 
-            names(var) = NULL            
+            names(var) = NULL
             var.group = as.numeric(as.data.frame(var)$element)
 #            var.gr = gr.stripstrand(unlist(var))
             var.gr = grl.unlist(var)
 
-            # inherit properties from gr 
+            # inherit properties from gr
             values(var.gr) = cbind(as.data.frame(values(var.gr)),
                     as.data.frame(values(gr)[var.group, setdiff(names(values(gr)), c('labels'))]))
 
-            var.gr$col.sig = as.character(var.gr$type);            
+            var.gr$col.sig = as.character(var.gr$type);
             xix = var.gr$type == 'X'
             var.gr$col.sig[xix] = paste(var.gr$col.sig[xix], var.gr$varbase[xix], sep = '')
             var.gr$col = VAR.COL[var.gr$col.sig]
@@ -3082,7 +3059,7 @@ draw.grl = function(grl,
                 new.ix = unlist(lapply(new.ord, function(x) ((1:length(x))-1)/length(x)))
                 new.gr$grl.iix[unlist(new.ord)] = new.gr$grl.iix[unlist(new.ord)] + new.ix
 
-                gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]              
+                gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]
 
               }
 
@@ -3126,7 +3103,7 @@ draw.grl = function(grl,
 
         mapped = gr.flatmap(gr, windows, win.gap, pintersect=pintersect);
 
-        grl.segs = mapped$grl.segs;        
+        grl.segs = mapped$grl.segs;
         window.segs = mapped$window.segs;
 
         if (verbose) {
@@ -3142,7 +3119,7 @@ draw.grl = function(grl,
         if (!is.null(gr.labelfield))
           if (!is.na(gr.labelfield))
             if (gr.labelfield %in% names(grl.segs))
-              grl.segs$label = grl.segs[, gr.labelfield]        
+              grl.segs$label = grl.segs[, gr.labelfield]
 
         if (nrow(grl.segs)==0)
           {
@@ -3158,7 +3135,7 @@ draw.grl = function(grl,
             ylim.subplot = c(y[[1]], y[[length(y)]])
 
         if (nrow(grl.segs)>0)
-          {            
+          {
             if (!draw.paths)
               {
                 if (is.null(y) | !is.null(ylim.subplot))
@@ -3179,20 +3156,20 @@ draw.grl = function(grl,
                       {
                         m = max(c(pos1,pos2));
                         pos1 = ceiling(pos1/m*2e9)
-                        pos2 = floor(pos2/m*2e9);            
+                        pos2 = floor(pos2/m*2e9);
                       }
 
                                         # bin ranges
                     y.bin = disjointBins(IRanges(pos1, pos2))
 
-                    m.y.bin = max(y.bin)                
+                    m.y.bin = max(y.bin)
                     if (is.null(ylim))
                       ylim = c(1, m.y.bin) + c(-0.5*m.y.bin, 0.5*m.y.bin)
 
-                    ## squeeze y coordinates into provided (or inferred) ylim 
+                    ## squeeze y coordinates into provided (or inferred) ylim
                     if (!is.null(ylim.subplot))
                       tmp.ylim = ylim.subplot
-                    else                  
+                    else
                       tmp.ylim = ylim
 
                     ## provide bottom and top padding of y.bin
@@ -3221,12 +3198,12 @@ draw.grl = function(grl,
                 {
                     ix.l = lapply(split(1:nrow(grl.segs), grl.segs$group), function(x) x[order(grl.segs$group.ord[x])])
                     grl.segs$y.relbin = NA
-                    
-                    ## we want to layout paths so that we prevent collissions between different paths 
+
+                    ## we want to layout paths so that we prevent collissions between different paths
                 grl.segs$y.relbin[unlist(ix.l)] = unlist(lapply(ix.l, function(ix)
                                    {
                                         # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
-                                        # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'                        
+                                        # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'
                                      if (length(ix)>1)
                                        {
                                          iix = 1:(length(ix)-1)
@@ -3237,14 +3214,14 @@ draw.grl = function(grl,
                                          return(c(0, cumsum(!concordant)))
                                        }
                                      else
-                                       return(0)                        
+                                       return(0)
                                    }))
 
                 contig.lim = data.frame(
                   group = names(vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)),
                   pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,
                   pos2  = vaggregate(formula = pos2~ group, data = grl.segs, FUN = max) + round(stack.gap)/2,
-                  height = vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)              
+                  height = vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)
                   );
                 contig.lim$width = contig.lim$pos2 - contig.lim$pos1
                 contig.lim$y.bin = 0;
@@ -3262,35 +3239,35 @@ draw.grl = function(grl,
                         ir2 = IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
                       clash = which(ir1 %over% (ir2 + path.stack.x.gap))
                       pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
-                      contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]                      
+                      contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
                     }
 
-                grl.segs$y.bin = contig.lim$y.bin[match(grl.segs$group, contig.lim$group)] + grl.segs$y.relbin + 1                               
+                grl.segs$y.bin = contig.lim$y.bin[match(grl.segs$group, contig.lim$group)] + grl.segs$y.relbin + 1
 
-                    m.y.bin = max(grl.segs$y.bin)               
+                    m.y.bin = max(grl.segs$y.bin)
                     if (is.null(ylim))
                       ylim = c(1, m.y.bin) + c(-0.5*m.y.bin, 0.5*m.y.bin)
 
-                    ## squeeze y coordinates into provided (or inferred) ylim 
+                    ## squeeze y coordinates into provided (or inferred) ylim
                     if (!is.null(ylim.subplot))
                       tmp.ylim = ylim.subplot
-                    else                  
+                    else
                       tmp.ylim = ylim
 
                     ## provide bottom and top padding of y.bin
-#                   
+#
                     y.pad = 1/(m.y.bin+1)/2
                 y.pad = pmin(1/(m.y.bin+1)/2, 0.125)
                     tmp.ylim = tmp.ylim + c(1, -1)*y.pad*diff(tmp.ylim);
 
                 ## make final y coordinates by squeezing y.bin into tmp.ylim
                 grl.segs$y = affine.map(grl.segs$y.bin, tmp.ylim)
-                
+
               }
             if (verbose) {
               print('After agg')
               print(Sys.time() - now)
-            }              #        xlim = c(min(window.segs$start), max(window.segs$end));        
+            }              #        xlim = c(min(window.segs$start), max(window.segs$end));
           }
         else
           empty.plot = T
@@ -3312,7 +3289,7 @@ draw.grl = function(grl,
       {
         if (is.null(windows))
           stop('Either nonempty range data or windows must be provided')
-        
+
         mapped = gr.flatmap(GRanges(), windows, win.gap, pintersect=pintersect)
         window.segs = mapped$window.segs
         winlim = range(c(window.segs$start, window.segs$end))
@@ -3322,7 +3299,7 @@ draw.grl = function(grl,
 
         if (is.null(ylim))
           ylim = c(0, 1)
-        
+
         if (is.list(y) & is.null(ylim.subplot))
           if (all(c('start', 'end') %in% names(y)))
             ylim.subplot = c(y$start[1], y$end[1])
@@ -3332,8 +3309,8 @@ draw.grl = function(grl,
         if (is.null(ylim.subplot))
           ylim.subplot = ylim
       }
-    
-    
+
+
     # if new plot will add (optional) axes and vertical lines separating windows
     if (new.plot)
       {
@@ -3344,15 +3321,15 @@ draw.grl = function(grl,
         plot.blank(xlim = xlim, ylim = ylim);
         new.axis = T
       }
-    
-    if (new.plot | new.axis)      
+
+    if (new.plot | new.axis)
       {
         if (is.null(xaxis.pos))
           if (!is.null(ylim.subplot))
             xaxis.pos = ylim.subplot[1]-0.05*diff(ylim.subplot)
           else
             xaxis.pos = ylim[1]+0.12*diff(ylim)
-                                  
+
         if (is.null(xaxis.pos.label))
           if (!is.null(ylim.subplot))
             xaxis.pos.label = xaxis.pos - 0.04*diff(ylim.subplot)
@@ -3365,7 +3342,7 @@ draw.grl = function(grl,
                                         #window.segs$start[2:(nrow(window.segs))], rep(ylim[2], nrow(window.segs)-1), border = 'white', col = sep.col)
             if (any(width(windows)<=0))
               warning('Some windows are width 0')
-            
+
 		sep.loc = c(window.segs$start, window.segs$end);
             if (!is.null(ylim.subplot)) ## limit separator drawing to actual data limits
               {
@@ -3374,7 +3351,7 @@ draw.grl = function(grl,
 
                 if (is.null(window.segs$border))
                   window.segs$border = 'white'
-                
+
                 sep.x0 = window.segs$start[1:(nrow(window.segs))]
                 sep.x1 = window.segs$end[1:(nrow(window.segs))]
                 sep.y0 = rep(xaxis.pos, nrow(window.segs))
@@ -3382,7 +3359,7 @@ draw.grl = function(grl,
                 bgborder.l <- as.character(window.segs$border) ## JEREMIAH
                 #rep(min(xaxis.pos.label, xaxis.pos, ylim.subplot[1]), nrow(window.segs))
                 sep.y1 = rep(ylim.subplot[2], nrow(window.segs))
-                
+
                 rect(sep.x0, sep.y0, sep.x1, sep.y1, border = bgborder.l, col = bgcol.l) ## JEREMIAH added bgcol.l
                 segments(sep.x0, sep.y0, sep.x0, sep.y1, lty = sep.lty, lwd = sep.lwd)
                 segments(sep.x1, sep.y0, sep.x1, sep.y1, lty = sep.lty, lwd = sep.lwd)
@@ -3395,14 +3372,14 @@ draw.grl = function(grl,
                 abline(v = sep.loc, col = 'gray', lty = sep.lty, lwd = sep.lwd);
               }
           }
-                          
+
         if (new.axis)
           {
             nwin = length(windows);
-            
+
             if (is.null(xaxis.interval))
               xaxis.interval = NA
-            
+
             if (is.na(xaxis.interval))
               xaxis.interval = 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks)))
 
@@ -3427,17 +3404,17 @@ draw.grl = function(grl,
 
             segments(window.segs$start, rep(xaxis.pos[1], nwin), window.segs$end, rep(xaxis.pos[1], nwin));
 
-            if (!is.null(xaxis.suffix))              
+            if (!is.null(xaxis.suffix))
               if (is.na(xaxis.suffix) | nchar(xaxis.suffix)==0)
                 xaxis.suffix = NULL
-            
-            
+
+
             # then ticks
             tick.len = 0.01*diff(ylim)*cex.ticklen
             y0.tick = rep(xaxis.pos, length(seq.at))
             y1.tick = rep(xaxis.pos, length(seq.at)) - tick.len
             segments(seq.at, y0.tick, seq.at, y1.tick)
-            
+
             # then (tick) text
             if (xaxis.unit == 1)
               tick.text = prettyNum(paste(seq.at.og, xaxis.suffix), big.mark = ',')
@@ -3461,11 +3438,11 @@ draw.grl = function(grl,
                   width.text = paste('(', prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
                     width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','),  ')', sep = '')
               }
-            
+
             begin.text = prettyNum(pmax(floor(1/xaxis.unit),
               ifelse(rep(xaxis.unit == 1, length(windows)), start(windows), round(start(windows)/xaxis.unit, xaxis.round))),
               big.mark = ',')
-            
+
             end.text = prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)), end(windows),
               round(end(windows)/xaxis.unit, xaxis.round)), big.mark = ',')
 
@@ -3498,7 +3475,7 @@ draw.grl = function(grl,
     line.loc = NULL
     if (!is.na(y.grid[1]))
       {
-        if (is.logical(y.grid)) 
+        if (is.logical(y.grid))
           line.loc = pretty(ylim.grid,y.grid.pretty)
         else if (length(y.grid)==1) ## only interval is specified
           line.loc = seq(floor(ylim.grid[1]/y.grid)*y.grid, ceiling(ylim.grid[2]/y.grid)*y.grid, y.grid)
@@ -3507,28 +3484,28 @@ draw.grl = function(grl,
 
         if (is.null(names(line.loc)))
               names(line.loc) = line.loc;
-        
+
 #        abline(h = line.loc, col = y.grid.col, lty = y.grid.lty, lwd = y.grid.lwd)
         segments(xlim[1], line.loc,  xlim[2], line.loc, col = y.grid.col, lty = y.grid.lty, lwd = y.grid.lwd)
 
         if (is.null(y.grid.cex))
             y.grid.cex = NA
-        
+
         if (is.na(y.grid.cex))
             y.grid.cex = 1
-        
+
         axis(2, at = line.loc, labels = names(line.loc), tick = TRUE, pos = line.loc[1], las = 2, cex.axis = y.grid.cex)
       }
 
     if (length(grl)>0)
-      {        
-        if (is.null(grl.segs$ywid))            
+      {
+        if (is.null(grl.segs$ywid))
           grl.segs$ywid = 1
 
         if (any(nix <- is.na(grl.segs$ywid)))
             grl.segs$ywid[nix] = 1
-        
-        if (!is.null(ylim.subplot))                          
+
+        if (!is.null(ylim.subplot))
             tmp.ydiff = diff(ylim.subplot)*(1-2*y.pad)
         else if (!is.null(line.loc))
             tmp.ydiff = diff(range(line.loc))
@@ -3546,41 +3523,41 @@ draw.grl = function(grl,
 #            grl.segs$ywid = pmin(tmp.ydiff / fact, min(diff(line.loc))/2) * grl.segs$ywid
 #            grl.segs$ywid = pmin(tmp.ydiff / fact, min(diff(line.loc))/2) * grl.segs$ywid
 #        else
-        
+
         ywid = tmp.ydiff / fact
 
         if (!is.null(line.loc))
             ywid = pmin(ywid, min(c(1, diff(sort(unique(grl.segs$y))))*2)) ## want to be able to see a minimal difference between data points
-        
+
         if (!is.null(line.loc)) ## don't want segments to be fatter than a grid unit
             ywid = pmin(min(diff(line.loc))/2, ywid)
-        
+
         grl.segs$ywid  = ywid * grl.segs$ywid
 
 #            grl.segs$ywid[na.ix] = min((max(grl.segs$y[na.ix])-min(grl.segs$y[na.ix]))/length(unique(grl.segs$y))/1.25, diff(ylim.subplot)/5)
 #          }
-        
+
         if (!is.null(gr.colorfield))
           if (gr.colorfield %in% names(grl.segs))
             {
-             
+
               if (is.null(gr.colormap))
                 {
                   uval = unique(as.character(grl.segs[, gr.colorfield]))
                   gr.colormap = structure(alpha(brewer.master(length(uval)), 0.5), names = uval)
                 }
-              
+
               cols = gr.colormap[as.character(grl.segs[, gr.colorfield])];
               grl.segs$col[!is.na(cols)] = cols[!is.na(cols)]
-              
+
               if (is.null(grl.segs$border))
                 grl.segs$border[!is.na(cols)] = cols[!is.na(cols)]
               else if (any(is.na(grl.segs$border))) ## only override border if unspecified
                 {
-                  ix = !is.na(cols) & is.na(grl.segs$border)                
+                  ix = !is.na(cols) & is.na(grl.segs$border)
                   grl.segs$border[ix] = cols[ix]
                 }
-              
+
               if (legend & length(gr.colormap)>0)
                 {
                   if (length(gr.colormap)>legend.maxitems & legend.maxitems > 0)
@@ -3592,7 +3569,7 @@ draw.grl = function(grl,
                   else
                       legend(legend.pos[1]*diff(xlim) + xlim[1], legend.pos[2]*diff(par('usr')[3:4]) + par('usr')[3], legend = names(gr.colormap), fill = gr.colormap, border = gr.colormap, cex = legend.cex * 0.5, ncol = legend.ncol, xjust = legend.xjust, yjust = legend.yjust)
               }
-                  
+
             }
 
         if (draw.paths)
@@ -3600,7 +3577,7 @@ draw.grl = function(grl,
 
         if (labels.suppress.gr)
           grl.segs$label = NULL
-        
+
         if (!is.na(lines))
           if (lines)
             grl.segs = grl.segs[order(grl.segs$pos1), ]
@@ -3614,16 +3591,16 @@ draw.grl = function(grl,
                 grl.segs = grl.segs[order(grl.segs$grl.ix, grl.segs$grl.iix), ]
                 ix.l = split(1:nrow(grl.segs), grl.segs$group)
                 grl.segs$ctype = NA;  ## connector type
-                
+
                                         # keep track to see if next index is missing --> will allow us to draw dotted connectors for these ..
                                         # "missing" indices occur when we are focusing on windows and potentially removing some of the
                                         # ranges in the contig
                 grl.segs$next.missing = !((grl.segs$query.id+1) %in% grl.segs$query.id) & !grl.segs$last
                 grl.segs$prev.missing = !((grl.segs$query.id-1) %in% grl.segs$query.id) & !grl.segs$first
-                
+
                 if (is.null(grl.segs$is.cycle))
                     grl.segs$is.cycle = FALSE;
-                
+
                 connector.args = do.call('rbind', lapply(ix.l, function(ix)
                     {
                                         # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
@@ -3636,15 +3613,15 @@ draw.grl = function(grl,
                                 out$type[discordant & grl.segs$strand[ix[-1]] == grl.segs$strand[ix[-length(ix)]]] = 'S'
                                 out$type[discordant & grl.segs$strand[ix[-1]] != grl.segs$strand[ix[-length(ix)]]] = 'S'
                             }
-                        
+
                         if (grl.segs$next.missing[ix[length(ix)]]) ## make bridge to nowhere
                             out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = NA, type = 'S', cyclic = F,
                                 sign = grl.segs$strand[ix[length(ix)]], stringsAsFactors = F))
                         if (grl.segs$prev.missing[ix[1]]) ## make bridge from nowhere
                             out = rbind(out, data.frame(ix0 = NA, ix1 = ix[1], type = 'S', cyclic = F,
                                 sign = grl.segs$strand[ix[1]], stringsAsFactors = F))
-                        
-                        if (grl.segs$is.cycle[ix[length(ix)]])                         
+
+                        if (grl.segs$is.cycle[ix[length(ix)]])
                             {
                                 if (grl.segs$y.bin[ix[length(ix)]] == grl.segs$y.bin[ix[1]])
                                     out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'U', cyclic = T, sign = '-', stringsAsFactors = F))
@@ -3665,10 +3642,10 @@ draw.grl = function(grl,
                 path.h = path.cex.h * rep(diff(par('usr')[1:2])/50, nrow(connector.args))
                 if (any(connector.args$type == 'S'))
                   path.h[connector.args$type == 'S'] = 2*path.h[connector.args$type == 'S']
-                
+
                 path.v = rep(path.cex.v, nrow(connector.args))
                 path.v[is.na(connector.args$ix0) | is.na(connector.args$ix1)] = path.cex.v*2*grl.segs$ywid[connector.args$ix0[is.na(connector.args$ix0) | is.na(connector.args$ix1)]]
-                
+
 #                path.v[!is.na(connector.args$ix0)] = path.cex.v*2*grl.segs$ywid[connector.args$ix0[!is.na(connector.args$ix0)]]
  #               path.v[!is.na(connector.args$ix1)] = pmax(path.v[!is.na(connector.args$ix1)],
   #                      path.cex.v*2*grl.segs$ywid[connector.args$ix1[!is.na(connector.args$ix1)]])
@@ -3680,16 +3657,16 @@ draw.grl = function(grl,
 
                 connector.args$strand0 = ifelse(connector.args$strand0 == '*', '+', connector.args$strand0)
                 connector.args$strand1 = ifelse(connector.args$strand1 == '*', '+', connector.args$strand1)
-                
+
                 connector.args$x0[!is.na(connector.args$ix0) & connector.args$strand0=='+'] =
                   grl.segs$pos2[connector.args$ix0[!is.na(connector.args$ix0) & connector.args$strand0=='+']]
                 connector.args$x0[!is.na(connector.args$ix0) & connector.args$strand0=='-'] =
                   grl.segs$pos1[connector.args$ix0[!is.na(connector.args$ix0) & connector.args$strand0=='-']]
                 connector.args$x1[!is.na(connector.args$ix1) & connector.args$strand1=='+'] =
                   grl.segs$pos1[connector.args$ix1[!is.na(connector.args$ix1) & connector.args$strand1=='+']]
-                connector.args$x1[!is.na(connector.args$ix1) & connector.args$strand1=='-'] = 
+                connector.args$x1[!is.na(connector.args$ix1) & connector.args$strand1=='-'] =
                   grl.segs$pos2[connector.args$ix1[!is.na(connector.args$ix1) & connector.args$strand1=='-']]
-                
+
                                         # bridges from  nowhere
                 connector.args$x0[is.na(connector.args$ix0) & connector.args$strand1=='+'] =
                   grl.segs$pos1[connector.args$ix1[is.na(connector.args$ix0) & connector.args$strand1=='+']] - path.h[is.na(connector.args$ix0) & connector.args$strand1=='+']
@@ -3706,50 +3683,50 @@ draw.grl = function(grl,
                 connector.args$y1[!is.na(connector.args$ix1)] = grl.segs$y[connector.args$ix1[!is.na(connector.args$ix1)]]
                 connector.args$y0[is.na(connector.args$ix0)] = grl.segs$y[connector.args$ix1[is.na(connector.args$ix0)]] - 0.25*path.v[is.na(connector.args$ix0)]
                 connector.args$y1[is.na(connector.args$ix1)] = grl.segs$y[connector.args$ix0[is.na(connector.args$ix1)]] + 0.25*path.v[is.na(connector.args$ix1)]
-                
+
                 connector.args$lty = 1;
-                
+
                 connector.args$lty[grl.segs$next.missing[connector.args$ix0[!is.na(connector.args$ix0)]] &
                                    !connector.args$cyclic[!is.na(connector.args$ix0)]] = 3
                 connector.args$lty[grl.segs$prev.missing[connector.args$ix1[!is.na(connector.args$ix1)]] &
                                    connector.args$cyclic[!is.na(connector.args$ix1)]] = 3
                 connector.args$lty[is.na(connector.args$ix0) | is.na(connector.args$ix1)] = 3; ## label all bridge to / from nowhere with dotted line
-                
+
                 ##
                 path.v[connector.args$y0 == connector.args$y1] = 0
                 path.h[connector.args$y0 == connector.args$y1] = 0
                 path.v[connector.args$cyclic] = path.cex.v*2*grl.segs$ywid[connector.args$ix1[connector.args$cyclic]]
                 path.h[connector.args$cyclic] = path.cex.h * diff(par('usr')[1:2])/20
-                
+
                 ## workaround current lines() limitation in connectors
                 if (any(lty3 <- connector.args$lty == 3))
                   connectors(connector.args$x0[lty3], connector.args$y0[lty3], connector.args$strand0[lty3],
-                             connector.args$x1[lty3], connector.args$y1[lty3], ifelse(connector.args$strand1[lty3] == '+', '-', '+'), 
-                             type = connector.args$type[lty3], 
+                             connector.args$x1[lty3], connector.args$y1[lty3], ifelse(connector.args$strand1[lty3] == '+', '-', '+'),
+                             type = connector.args$type[lty3],
                              h = path.h[lty3], v = path.v[lty3],
                              lty = connector.args$lty[lty3], col = path.col, col.arrow = path.col.arrow,
                              cex.arrow = grl.segs$ywid[1]*path.cex.arrow, f.arrow = T)
 
                 if (any(lty1 <- connector.args$lty == 1))
-                  connectors(connector.args$x0[lty1], connector.args$y0[lty1], connector.args$strand0[lty1], 
+                  connectors(connector.args$x0[lty1], connector.args$y0[lty1], connector.args$strand0[lty1],
                              connector.args$x1[lty1], connector.args$y1[lty1], ifelse(connector.args$strand1[lty1] == '+', '-', '+'),
                              type = connector.args$type[lty1],
                              h = path.h[lty1], v = path.v[lty1],
                              lty = connector.args$lty[lty1], col = path.col, col.arrow = path.col.arrow,
                              cex.arrow = grl.segs$ywid[1]*path.cex.arrow, f.arrow = T)
 
-                
+
                                         #text(connector.args$x1, connector.args$y1, paste(connector.args$ix0, ' (', grl.segs$group[connector.args$ix0], '), ', connector.args$ix1, ' (', grl.segs$group[connector.args$ix1], '), ', connector.args$type, ' ', connector.args$sign, sep = ''))
                                         #            text(connector.args$x1, connector.args$y1-path.v, paste(grl.segs$group[connector.args$ix0], connector.args$type, ' ', connector.args$sign, sep = ''), )
               }
           }
-        
+
         if (!is.null(edges))
           if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
             {
               if (is.data.table(edges))
                   edges = as.data.frame(edges)
-                  
+
               if (is.null(edges$col))
                 edges$col = NA
 
@@ -3761,13 +3738,13 @@ draw.grl = function(grl,
 
               if (is.null(edges$h))
                 edges$h = 1
-              
+
               if (is.null(edges$cex.arrow))
                 edges$cex.arrow = 1
 
               edges.og = edges
               edges = edges[edges$to %in% grl.segs$group | edges$from %in% grl.segs$group, ]
-              
+
               if (nrow(edges)>0)
                 {
                   if (any(ix <- is.na(edges$col)))
@@ -3775,7 +3752,7 @@ draw.grl = function(grl,
 
                   if (any(ix <- is.na(edges$lwd)))
                     edges$lwd[ix] = 1
-                  
+
                   if (any(ix <- is.na(edges$lty)))
                     edges$lty[ix] = 1
 
@@ -3790,7 +3767,7 @@ draw.grl = function(grl,
                   edges = merge(merge(edges, grl.segs[last.ix, c('group', 'from.gr')], by.x = 'from', by.y = 'group', all.x = T),
                     grl.segs[first.ix, c('group', 'to.gr')], by.x = 'to', by.y = 'group', all.x = T)
 
-#                  edges$to.gr = first.ix[match(edges$to, grl.segs[first.ix, ]$group)]                  
+#                  edges$to.gr = first.ix[match(edges$to, grl.segs[first.ix, ]$group)]
 #                  edges$from.gr = last.ix[match(edges$from, grl.segs[last.ix, ]$group)]
 
                   ## replicate edges that connect input gr's that have multiple instantiations
@@ -3810,7 +3787,7 @@ draw.grl = function(grl,
                   to.ix = !is.na(edges$to.gr) & !clipped.to
                   from.ix = !is.na(edges$from.gr) & !clipped.from
 
-#                  from.ix = !is.na(edges$fromx.gr) 
+#                  from.ix = !is.na(edges$fromx.gr)
 #                  to.ix = !is.na(edges$to.gr)
 
                   if (any(to.ix)) ## connect to left end if + and right end if -
@@ -3821,7 +3798,7 @@ draw.grl = function(grl,
                       edges$dir.to[to.ix] = ifelse(grl.segs$strand[edges$to.gr[to.ix]] != '-',
                        '-', '+')
                     }
-                  
+
                   if (any(from.ix)) ## connect from right end if + and left end if -
                     {
                       edges$x.pos.from[from.ix] = ifelse(grl.segs$strand[edges$from.gr[from.ix]] != '-',
@@ -3831,7 +3808,7 @@ draw.grl = function(grl,
                        '+', '-')
                     }
 
-                  
+
                   ## now let NA endpoints "dangle"
                   dangle.w = diff(par('usr')[1:2])/100
                   edges$dangle = F
@@ -3844,7 +3821,7 @@ draw.grl = function(grl,
                   if (any(!from.ix))
                     {
                       edges$x.pos.from[!from.ix] = edges$x.pos.to[!from.ix] + ifelse(grl.segs$strand[edges$to.gr[!from.ix]] != '-', -1, 1)*edges$dangle.w[!from.ix]
-                      edges$y.pos.from[!from.ix] = edges$y.pos.to[!from.ix]  
+                      edges$y.pos.from[!from.ix] = edges$y.pos.to[!from.ix]
                       edges$from.gr[!from.ix] =  edges$from.gr[!from.ix]
                       edges$dir.from[!from.ix] =  ifelse(edges$dir.to[!from.ix] != '-', '-', '+')
                       edges$dangle[!from.ix] = T
@@ -3852,44 +3829,44 @@ draw.grl = function(grl,
 
                   if (any(!to.ix))
                     {
-                      edges$x.pos.to[!to.ix] = edges$x.pos.from[!to.ix] + ifelse(grl.segs$strand[edges$from.gr[!to.ix]] != '-', 1, -1)*edges$dangle.w[!to.ix]                  
-                      edges$y.pos.to[!to.ix] = edges$y.pos.from[!to.ix]                  
+                      edges$x.pos.to[!to.ix] = edges$x.pos.from[!to.ix] + ifelse(grl.segs$strand[edges$from.gr[!to.ix]] != '-', 1, -1)*edges$dangle.w[!to.ix]
+                      edges$y.pos.to[!to.ix] = edges$y.pos.from[!to.ix]
                       edges$to.gr[!to.ix] =  edges$to.gr[!to.ix]
                       edges$dir.to[!to.ix] =  ifelse(edges$dir.from[!to.ix] != '-', '-', '+')
-                      edges$dangle[!to.ix] = T           
+                      edges$dangle[!to.ix] = T
                     }
 
                   edges$from.ix = from.ix
                   edges$to.ix = to.ix
                   edges = edges[order(edges$dangle), ]; ## hack to make sure we prefer non-dangling versions of edges when we have a choice (TODO: MAKE NON HACKY)
-                  dup = duplicated(cbind(edges$edge.id, edges$from.gr)) | duplicated(cbind(edges$edge.id, edges$to.gr))                                  
+                  dup = duplicated(cbind(edges$edge.id, edges$from.gr)) | duplicated(cbind(edges$edge.id, edges$to.gr))
                   edges = edges[(edges$from.ix | edges$to.ix) & !dup, ]
 
                   if (nrow(edges)>0)
                     {
 
-                        if (!is.null(ylim.subplot))                          
+                        if (!is.null(ylim.subplot))
                             tmp.ydiff = diff(ylim.subplot)*(1-2*y.pad)
                         else
-                            tmp.ydiff = diff(range(grl.segs$y, na.rm = T)) 
-                        
+                            tmp.ydiff = diff(range(grl.segs$y, na.rm = T))
+
 #                      edges$type = ifelse(edges$y.pos.from == edges$y.pos.to, 'U', 'S')
                        uthresh = max(grl.segs$ywid)
                         edges$type = ifelse(abs(edges$y.pos.from - edges$y.pos.to) <= uthresh, 'U', 'S')
-                        
+
                       edges$f.arrow = T
                       edges$b.arrow = F
                       if (is.null(edges$v))
                         edges$v = 1
 
-                        
+
                       edges$v = ifelse(abs(edges$y.pos.from - edges$y.pos.to)<=uthresh,
                           2*uthresh*affine.map(abs(edges$x.pos.to-edges$x.pos.from), xlim = c(0, diff(par('usr')[1:2])), ylim = c(0.5, 1.0)),
                           abs(edges$y.pos.from-edges$y.pos.to)/2)*edges$v
                                         #                  edges$v[is.na(edges$v)] = 0
-                      edges$h = dangle.w*edges$h * affine.map(abs(edges$x.pos.to-edges$x.pos.from), xlim = c(0, diff(par('usr')[1:2])), ylim = c(0.5, 1.0))                  
+                      edges$h = dangle.w*edges$h * affine.map(abs(edges$x.pos.to-edges$x.pos.from), xlim = c(0, diff(par('usr')[1:2])), ylim = c(0.5, 1.0))
                       make.flat = edges$type == 'U' & edges$dir.to != edges$dir.from
-                      
+
                       if (!is.null(edges$not.flat)) ## allow edges specified as $not.flat to have height, unless dangling
                         if (any(ix <- edges$not.flat & !edges$dangle))
                           make.flat[ix] = F
@@ -3902,8 +3879,8 @@ draw.grl = function(grl,
 
                       if (!is.null(edges$v.override))
                         if (any(ix <- (!is.na(edges$v.override) & edges$to.ix & edges$from.ix)))
-                          edges$v[ix] = edges$v.override[ix]                  
-                      
+                          edges$v[ix] = edges$v.override[ix]
+
                       if (!is.null(edges$h.override))
                         if (any(ix <- (!is.na(edges$h.override) & edges$to.ix & edges$from.ix)))
                           edges$h[ix] = dangle.w*edges$h.override[ix]
@@ -3915,22 +3892,22 @@ draw.grl = function(grl,
                                  f.arrow = T, b.arrow = F,
                                  cex.arrow = 0.2*edges$cex.arrow,
                                  col.arrow = edges$col,
-                                 lwd = edges$lwd, lty = edges$lty, col = edges$col)                     
+                                 lwd = edges$lwd, lty = edges$lty, col = edges$col)
 
                       if (!is.null(edges$label))
                         {
                             text((edges$x.pos.from + edges$x.pos.to)/2, edges$y.pos.from + 0.5*edges$v*sign(edges$y.pos.to - edges$y.pos.from + 0.01),
-                                 edges$label, adj = c(0.5, 0.5), col = 'black')                            
+                                 edges$label, adj = c(0.5, 0.5), col = 'black')
                         }
                   }
-              }                         
+              }
           }
 
         if (verbose) {
           print('After draw')
           print(Sys.time() - now)
-        } 
-        
+        }
+
         if (nrow(grl.segs)>0 & !is.null(grl.props$grl.labels) & !labels.suppress.grl)
           {
             if (!draw.paths)
@@ -3953,7 +3930,7 @@ draw.grl = function(grl,
                   text(grl.segs.u$pos1, grl.segs.u$y-grl.segs.u$ywid - 0.005*diff(ylim),
                        grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
               }
-            else              
+            else
               {
                 pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min);
                 pos2  = vaggregate(formula = pos2 ~ group, data = grl.segs, FUN = max);
@@ -3961,12 +3938,12 @@ draw.grl = function(grl,
                 y1  = vaggregate(formula = y ~ group, data = grl.segs, FUN = max);
                 grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y0, y1);
                 grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
-                
+
                 text(adj.label[1]*grl.segs.u$pos1 + (1-adj.label[1])*grl.segs.u$pos2, adj.label[2]*grl.segs.u$y0 + (1-adj.label[2])*grl.segs.u$y1,
                        grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
 
               }
-            
+
           }
       }
 
@@ -3999,7 +3976,7 @@ pencils = function(x0, y0, x1, y1,
   lwd = 1,
   lty = par("lty"),
   col = 'gray',
-  border = col, 
+  border = col,
   col.head = col # if different from 'col' will draw additional arrowhead polygons
   )
 {
@@ -4007,7 +3984,7 @@ pencils = function(x0, y0, x1, y1,
   dummyleft = dummyright = 0.5;
   prim.leftind = c(2,6);
   prim.rightind = c(3,5);
-  prim.x = c(0, dummyleft, dummyright, 1, dummyright, dummyleft, NA);  
+  prim.x = c(0, dummyleft, dummyright, 1, dummyright, dummyleft, NA);
   prim.y = c(0.5, 0, 0, 0.5, 1, 1,  NA)
 
   # coord has nrow number of polygons
@@ -4016,10 +3993,10 @@ pencils = function(x0, y0, x1, y1,
   ## translate provided leftpoint / rightpoint params into polygon params
   coord$leftpoint = 0.5 - 0.5*pmax(0, pmin(1, coord$leftpoint))
   coord$rightpoint = 0.5 + 0.5*pmax(0, pmin(1, coord$rightpoint))
-    
+
   ## replicate prim.x and populate leftpoint and rightpoint in vectorized way
   rep.x = rep(prim.x, nrow(coord));
-  
+
   rep.x[rep(prim.leftind, nrow(coord)) + length(prim.x)*rep(-1+1:nrow(coord), each = 2)] = rep(coord$leftpoint, each = 2)
   rep.x[rep(prim.rightind, nrow(coord)) + length(prim.x)*rep(-1+1:nrow(coord), each = 2)] = rep(coord$rightpoint, each = 2)
   rep.y = rep(prim.y, nrow(coord));
@@ -4029,7 +4006,7 @@ pencils = function(x0, y0, x1, y1,
   t.x = rep(coord$x0, each = length(prim.x))
   scale.y = rep(coord$y1-coord$y0, each = length(prim.y))
   t.y = rep(coord$y0, each = length(prim.y))
-    
+
   ##
   if (all(col.head != col)) # draw the "outer" barb shapes in col.head, and then the "inner" rectangles using col
     {
@@ -4069,14 +4046,14 @@ barbs = function(x0, y0, x1, y1, angle = 0, ...)
     angle = pmax(-80, pmin(80, angle))/180*pi;
 
     # to make the angle visible irrespective of plot coordinates
-    # we need to compute the x.offset in viewer coordinates (ie inches)   
+    # we need to compute the x.offset in viewer coordinates (ie inches)
     x.wid = diff(par('usr')[1:2])
     y.wid = diff(par('usr')[3:4])
     x.offset = tan(angle)*y.thick/y.wid*par('pin')[2]*x.wid/par('pin')[1]
-       
+
     x.vertices = rbind(x0, x0-x.offset, x1-x.offset, x1, x1-x.offset, x0-x.offset, x0, NA)
     y.vertices = rbind(y.midpoint, y1, y1, y.midpoint, y0, y0, y.midpoint, NA);
-    
+
     if (ncol(x.vertices)==1)
       x.vertices = rep(x.vertices, ncol(y.vertices))
     else if (ncol(y.vertices)==1)
@@ -4119,7 +4096,7 @@ bernsteinp = function(n, m)
 #' @name connectors
 #' @title connectors
 #' @description
-#' 
+#'
 #' connectors
 #'
 #' draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
@@ -4130,7 +4107,7 @@ bernsteinp = function(n, m)
 #'
 #' type can be "U" or "S", if "S", then sign of corresponding v value is ignored (ie control points will always
 #' be vertically in between a and b, in addition, neither intermeidate control will never be more than 1/3 of the y distance
-#' between a and b 
+#' between a and b
 #'
 #' The sign of the endpoints refers to the direction from which the connector approaches the point, s0 = 1 (or '+') means from the right
 #' and s0 = 0 means from the left, similarly for s1
@@ -4138,28 +4115,28 @@ bernsteinp = function(n, m)
 #' h = horizonal "bulge" of signed connector, ie depending on the sign the extent to which the connector will extend to the left
 #' or the right of points an and b
 #' v = vertical bulge (only applies to U connectors), how far above max(y0, y1) the U connector will bulge if v>0 or how far below min(y0, y1)
-#' the connector will bulge. 
+#' the connector will bulge.
 #'
 #' nsteps determines how many segments used to approximate the curve
 #'
 #' all args except nsteps can be vecorized
-#' 
+#'
 #' @name Marcin Imielinski
 #' @keywords internal
 connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
   type = "S", f.arrow = T, b.arrow = F, nsteps = 20,
   cex.arrow = 1, col.arrow = 'black', lwd = 1, lty = 1, col = 'black')
 
-  {    
+  {
     B = rbind(bernsteinp(6, nsteps), NA); # bernstein basis for bezier with 6 control points
 
     dat = data.frame(x0, y0, s0, x1, y1, s1, type, v, h, f.arrow, b.arrow, cex.arrow, lwd, lty, stringsAsFactors = F, col = col, col.arrow = col.arrow)
-    
+
     cpoints.names =
       matrix(paste('c', rep(1:ncol(B), each = 2), c('.x', '.y'), sep = ''), nrow = 2, ncol = ncol(B)-2, dimnames = list(c('x', 'y'), 1:(ncol(B)-2)))
-    
+
     dat[, as.vector(cpoints.names)] = NA
-        
+
     if (length(dat) == 0)
       return(NULL)
 
@@ -4168,41 +4145,41 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
 
     if (is.numeric(dat$s0))
       dat$s0 = sign(dat$s0)
-    else      
+    else
       dat$s0 = sign((dat$s0 == '+')-0.5)
-    
+
     if (is.numeric(dat$s1))
       dat$s1 = sign(dat$s1)
-    else      
+    else
       dat$s1 = sign((dat$s1 == '+')-0.5)
-    
+
     if (any(scon))
-      {        
+      {
         dat.s = dat[scon, , drop = FALSE]
-        
+
         dat.s$v = pmin(abs(dat.s$v), abs(dat.s$y1-dat.s$y0)/2)
         dat.s$h = abs(dat.s$h)
-        
+
         dat.s[, cpoints.names['x', 1]] = dat.s$x0 + dat.s$s0*dat.s$h
         dat.s[, cpoints.names['y', 1]] = dat.s$y0
 
-        ## middle control points will form an "S" or "C" depending on s0 and s1        
-        dat.s[, cpoints.names['x', 2]] = dat.s[, cpoints.names['x', 1]] 
+        ## middle control points will form an "S" or "C" depending on s0 and s1
+        dat.s[, cpoints.names['x', 2]] = dat.s[, cpoints.names['x', 1]]
         dat.s[, cpoints.names['y', 2]] = dat.s[, cpoints.names['y', 1]] + ifelse(dat.s$y0>dat.s$y1, -1, 1)*dat.s$v
-        
+
         dat.s[, cpoints.names['x', 4]] = dat.s$x1 + dat.s$s1*dat.s$h
         dat.s[, cpoints.names['y', 4]] = dat.s$y1
 
         dat.s[, cpoints.names['x', 3]] = dat.s[, cpoints.names['x', 4]]
         dat.s[, cpoints.names['y', 3]] = dat.s[, cpoints.names['y', 4]] + ifelse(dat.s$y0>dat.s$y1, 1, -1)*dat.s$v
-        
+
         dat[scon, ] = dat.s
       }
 
     if (any(ucon))
-      {        
+      {
         dat.u = dat[ucon, , drop = FALSE]
-        
+
 #        dat.u$h = pmin(abs(dat.u$h), abs(dat.u$x1-dat.u$x0)/3)
         dat.u$h = abs(dat.u$h)
 
@@ -4213,7 +4190,7 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
         ## middle control points will form verticle bubble portion of U (if v<0) or upside down U (if v>0)
         dat.u[, cpoints.names['x', 2]] = dat.u$x0
         dat.u[, cpoints.names['y', 2]] = ifelse(dat.u$v>=0, pmax(dat.u$y0, dat.u$y1) + dat.u$v, pmin(dat.u$y0, dat.u$y1) + dat.u$v)
-       
+
         dat.u[, cpoints.names['x', 3]] = dat.u$x1
         dat.u[, cpoints.names['y', 3]] = dat.u[, cpoints.names['y', 2]]
 
@@ -4223,7 +4200,7 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
 
         dat[ucon, ] = dat.u
       }
-           
+
     ## draw bezier around control points .. draw separately for each unique combo of lwd, lty, col
     formats = factor(paste(dat$lwd, dat$lty, dat$col))
 
@@ -4231,43 +4208,43 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
            {
              lev.ix = which(formats == lev)
              x = as.vector(t(as.matrix(dat[lev.ix, c('x0', cpoints.names['x', ], 'x1')])))
-             y = as.vector(t(as.matrix(dat[lev.ix, c('y0', cpoints.names['y', ], 'y1')])))    
+             y = as.vector(t(as.matrix(dat[lev.ix, c('y0', cpoints.names['y', ], 'y1')])))
              ix = seq(1, length(x), ncol(B))
              XY = do.call('rbind', lapply(ix, function(i) B %*% cbind(x[i:(i+ncol(B)-1)], y[i:(i+ncol(B)-1)])))
              lines(XY, lwd = dat$lwd[lev.ix], lty = dat$lty[lev.ix], col = as.character(dat$col)[lev.ix])
            })
-    
+
     x.wid = diff(par('usr')[1:2])
     y.wid = diff(par('usr')[3:4])
     arrow.height = cex.arrow*0.05*y.wid
     x.offset = tan(120)*arrow.height/y.wid*par('pin')[2]*x.wid/par('pin')[1]
-    
+
     ## add forward arrow heads if any
     if (any(dat$f.arrow))
       {
-        tmp = dat$x1[dat$f.arrow] + dat$s1[dat$f.arrow]*x.offset                
+        tmp = dat$x1[dat$f.arrow] + dat$s1[dat$f.arrow]*x.offset
         xcoord = rbind(dat$x1[dat$f.arrow], tmp, tmp, NA);
         ycoord = rbind(dat$y1[dat$f.arrow], dat$y1[dat$f.arrow] + arrow.height/2, dat$y1[dat$f.arrow] - arrow.height/2, NA);
         polygon(xcoord, ycoord, col = as.character(dat$col.arrow[dat$f.arrow]), border = as.character(dat$col.arrow[dat$f.arrow]))
       }
-    
+
     if (any(dat$b.arrow))
       {
-        tmp = dat$x0[dat$b.arrow] + dat$s0[dat$b.arrow]*x.offset                
+        tmp = dat$x0[dat$b.arrow] + dat$s0[dat$b.arrow]*x.offset
         xcoord = rbind(dat$x0[dat$b.arrow], tmp, tmp, NA);
         ycoord = rbind(dat$y0[dat$b.arrow], dat$y0[dat$b.arrow] + arrow.height/2, dat$y0[dat$b.arrow] - arrow.height/2, NA);
         polygon(xcoord, ycoord, col = as.character(dat$col.arrow[dat$b.arrow]), border = as.character(dat$col.arrow[dat$b.arrow]))
-      }    
+      }
   }
 
 
 #' @name affine.map
 #' @title affine.map
 #' @description
-#' 
+#'
 #'
 #' affinely maps 1D points in vector x from interval xlim to interval ylim,
-#' ie takes points that lie in 
+#' ie takes points that lie in
 #' interval xlim and mapping onto interval ylim using linear / affine map defined by:
 #' (x0,y0) = c(xlim(1), ylim(1)),
 #' (x1,y1) = c(xlim(2), ylim(2))
@@ -4275,14 +4252,14 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
 #' useful for plotting.
 #'
 #' if cap.max or cap.min == T then values outside of the range will be capped at min or max
-#' 
+#'
 #' @author Marcin Imielinski
 #' @keywords internal
 affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.min = cap, cap.max = cap, clip = T, clip.min = clip, clip.max = clip)
   {
   #  xlim[2] = max(xlim);
   #  ylim[2] = max(ylim);
-    
+
     if (xlim[2]==xlim[1])
       y = rep(mean(ylim), length(x))
     else
@@ -4292,12 +4269,12 @@ affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.m
       y[x<min(xlim)] = ylim[which.min(xlim)]
     else if (clip.min)
       y[x<min(xlim)] = NA;
-    
+
     if (cap.max)
       y[x>max(xlim)] = ylim[which.max(xlim)]
     else if (clip.max)
       y[x>max(xlim)] = NA;
-    
+
     return(y)
   }
 
@@ -4312,7 +4289,7 @@ affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.m
 #' @param col RGB color
 #' @keywords internal
 alpha = function(col, alpha)
-  {    
+  {
     col.rgb = col2rgb(col)
     out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
     names(out) = names(col)
@@ -4334,12 +4311,12 @@ blend = function(cols)
 #' @name col.scale
 #' @title col.scale
 #' @description
-#' 
+#'
 #' Assign rgb colors to numeric data
 #'
 #' Assigns rgb colors to numeric data values in vector "x".. maps scalar values
 #' in val.range (default c(0,1)) to a linear color scale of between col.min (default white)
-#' and col.max (default black), each which are length 3 vectors or characters.  RGB values are scaled between 0 and 1. 
+#' and col.max (default black), each which are length 3 vectors or characters.  RGB values are scaled between 0 and 1.
 #' Values below and above val.min and val.max are mapped to col.max and col.max respectively
 #'
 #' @author Marcin Imielinski
@@ -4376,13 +4353,13 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
       }
 
     nna = !is.na(x);
-    
+
     out = rep(na.col, length(x))
     out[nna] = rgb((col.max[1]-col.min[1])*x[nna] + col.min[1],
         (col.max[2]-col.min[2])*x[nna] + col.min[2],
         (col.max[3]-col.min[3])*x[nna] + col.min[3])
-    
-    return(out)           
+
+    return(out)
   }
 
 #' @name brewer.master
@@ -4396,7 +4373,7 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
 #'
 #' @export
 #' @keywords internal
-#' @author Marcin Imielinski 
+#' @author Marcin Imielinski
 brewer.master = function(n, palette = 'Accent')
 {
   palettes = list(
@@ -4412,7 +4389,7 @@ brewer.master = function(n, palette = 'Accent')
     i = match(palette, names(palettes))
   else
     i = ((max(c(1, suppressWarnings(as.integer(palette))), na.rm = T)-1) %% length(palettes))+1
-    
+
   col = c();
   col.remain = n;
 
@@ -4501,16 +4478,16 @@ draw.triangle <- function(grl,
     xaxis.pos.label=NULL,
     xaxis.pos=NULL,
     new.axis = TRUE,
-    sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs                          
-    new.plot = TRUE,                          
+    sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs
+    new.plot = TRUE,
     col.min='white',
     col.max='red',
-    palette.colors = NULL,                          
+    palette.colors = NULL,
     cmap.min=NULL,
     cmap.max=NULL,
     msep.lwd=1,
     legend.cex = 1,
-    islog = FALSE,                         
+    islog = FALSE,
     ...) {
 
   now = Sys.time();
@@ -4518,7 +4495,7 @@ draw.triangle <- function(grl,
   ylim.subplot = NULL
 
   print('...draw.triangle started')
-  
+
   xlim = c(0, 20000)
   if (is.list(y))
     if (all(c('start', 'end') %in% names(y)))
@@ -4531,7 +4508,7 @@ draw.triangle <- function(grl,
   } else {
     gr <- grl
   }
-  
+
   if (length(grl) > 0)
     if (is.null(mdata)) {
       mdata = matrix(nrow=length(gr), ncol=length(gr), 0)
@@ -4547,7 +4524,7 @@ draw.triangle <- function(grl,
   {
     if (is.null(windows))
       stop('Either nonempty range data or windows must be provided')
-    
+
     pintersect=TRUE
     mapped = gr.flatmap(GRanges(), windows, win.gap, pintersect=pintersect)
     window.segs = mapped$window.segs
@@ -4558,7 +4535,7 @@ draw.triangle <- function(grl,
 
     if (is.null(ylim))
       ylim = c(0, 1)
-    
+
     if (is.list(y) & is.null(ylim.subplot))
       if (all(c('start', 'end') %in% names(y)))
         ylim.subplot = c(y$start[1], y$end[1])
@@ -4568,7 +4545,7 @@ draw.triangle <- function(grl,
     if (is.null(ylim.subplot))
       ylim.subplot = ylim
   }
-  
+
   ## find covered windows in provided grl
   if (is.null(windows)) {
             seqlevels(gr) = seqlevels(gr)[seqlevels(gr) %in% as.character(seqnames(gr))]
@@ -4583,7 +4560,7 @@ draw.triangle <- function(grl,
   ## calculate the background
   if (!empty.plot) {
     mapped = gr.flatmap(gr, windows, win.gap, pintersect=TRUE);
-    grl.segs = mapped$grl.segs;        
+    grl.segs = mapped$grl.segs;
     window.segs = mapped$window.segs;
     winlim = range(c(window.segs$start, window.segs$end))
     mdata = as.matrix(mdata)[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)]
@@ -4598,14 +4575,14 @@ draw.triangle <- function(grl,
                 {
                     print(paste('...blurring', p, 'of', nrow(uwin.pairs), 'windows'))
                     tmp.i = win.map[[uwin.pairs[p, 1]]]
-                    tmp.j = win.map[[uwin.pairs[p, 2]]]                        
+                    tmp.j = win.map[[uwin.pairs[p, 2]]]
                     mdata[tmp.i, tmp.j] = as.matrix(blur(im(mdata[tmp.i, tmp.j], xcol = grl.segs$start[tmp.j], yrow = grl.segs$end[tmp.i]), sigma = sigma))
                 }
         }
     if (nrow(mdata) != nrow(grl.segs))
       warning('problem after flatmap. Should have trimmed matrix to len(gr)')
   }
-  
+
   if (nrow(grl.segs) > 0)
     if (nrow(grl.segs) != nrow(mdata)) {
       warning('problemo')
@@ -4614,7 +4591,7 @@ draw.triangle <- function(grl,
   ## transform into plot coordinates
   grl.segs$pos1 = affine.map(grl.segs$pos1, winlim, ylim = xlim) #d 4 down
   grl.segs$pos2 = affine.map(grl.segs$pos2, winlim, ylim = xlim)
-  
+
   window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
   window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
 
@@ -4624,11 +4601,11 @@ draw.triangle <- function(grl,
       xaxis.pos = ylim.subplot[1]-0.05*diff(ylim.subplot)
     else
       xaxis.pos = ylim[1]+0.12*diff(ylim)
-  
+
     nwin = length(windows);
     if (is.null(xaxis.interval) && xaxis.nticks > 0)
       xaxis.interval = 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks)))
-    
+
     if (is.null(xaxis.pos.label))
       if (!is.null(ylim.subplot))
         xaxis.pos.label = xaxis.pos - 0.04*diff(ylim.subplot)
@@ -4642,28 +4619,28 @@ draw.triangle <- function(grl,
           floor(end(windows)[x]/xaxis.interval))*xaxis.interval, end(windows)[x])
       out[out>=start(windows)[x] & out<=end(windows)[x]]
       });
-    
+
       seq.at = lapply(1:length(seq.at.og), function(x) affine.map(seq.at.og[[x]]-start(windows)[x]+mapped$window.segs$start[x],
-        xlim = winlim, ylim = xlim)) 
+        xlim = winlim, ylim = xlim))
       seq.at.og = unlist(seq.at.og)
       seq.at = unlist(seq.at);
       dup.ix = duplicated(seq.at);
       seq.at.og = seq.at.og[!dup.ix]
       seq.at = seq.at[!dup.ix]
-    
+
       ## calculate ticks
-      cex.ticklen <- 1 
+      cex.ticklen <- 1
       tick.len = 0.01*diff(ylim)*cex.ticklen
       y0.tick = rep(xaxis.pos, length(seq.at))
       y1.tick = rep(xaxis.pos, length(seq.at)) - tick.len
-      
+
       # then (tick) text
       if (xaxis.unit == 1)
         tick.text = prettyNum(paste(seq.at.og, xaxis.suffix), big.mark = ',')
       else
         tick.text = paste(round(seq.at.og/xaxis.unit, xaxis.round), xaxis.suffix)
     }
-    
+
        # then (label) text
       newline <- ifelse(xaxis.newline, '\n', '')
     width.text = ''
@@ -4679,7 +4656,7 @@ draw.triangle <- function(grl,
       big.mark = ',')
     end.text = prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)), end(windows),
       round(end(windows)/xaxis.unit, xaxis.round)), big.mark = ',')
-    
+
   #####################
   ## send to plotting device
   #####################
@@ -4707,7 +4684,7 @@ draw.triangle <- function(grl,
   ## draw blank background
   rect(xlim[1]-diff(xlim)*0.1, ylim.subplot[1], xlim[2], ylim.subplot[2], border = NA, col = 'white')
 
-  
+
   if (!empty.plot) {
 
     ## draw the background BOXES
@@ -4721,19 +4698,19 @@ draw.triangle <- function(grl,
       if (msep.lwd > 0)
         polygon(out$x, out$y, col=bg.col, lwd=msep.lwd)
       else
-        polygon(out$x, out$y, col=bg.col, border=NA)        
+        polygon(out$x, out$y, col=bg.col, border=NA)
     }
 
     ## draw the background triangles
     out = triangle(x1=window.segs$start, x2=window.segs$end, y=y0, y0=y0, y1=y1)
     ###out$y[seq(from=2, to=length(out$y), by=4)] <- affine.map(out$y[seq(from=2, to=length(out$y), by=4)], xlim=xlim, ylim=ylim.parent) + xaxis.pos
 
-    out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)    
+    out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     #out$y[seq(from=2, to=length(out$y), by=4)] <- affine.map(out$y[seq(from=2, to=length(out$y), by=4)], xlim=dlim, ylim=ylim.subplot)
     if (msep.lwd > 0)
       polygon(out$x, out$y, col=bg.col, lwd=msep.lwd)
     else
-      polygon(out$x, out$y, col=bg.col, border=NA)      
+      polygon(out$x, out$y, col=bg.col, border=NA)
 
     print('...finished background')
     print(Sys.time() - now)
@@ -4757,19 +4734,19 @@ draw.triangle <- function(grl,
       p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
       segments(window.segs$start[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
       p = .geti(window.segs$end[i], xend)
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)    
+      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
       segments(window.segs$end[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
     }
-    
+
     # draw the guide lines facing right
     if (nrow(window.segs) > 1 && FALSE)
-    for (i in 2:nrow(window.segs)) {  
+    for (i in 2:nrow(window.segs)) {
       xstart = window.segs$start[1]
       p = .geti(xstart, window.segs$start[i])
       p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
       segments(window.segs$start[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
       p = .geti(xstart, window.segs$end[i])
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)    
+      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
       segments(window.segs$end[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
     }
 
@@ -4778,7 +4755,7 @@ draw.triangle <- function(grl,
 
 
   }
-  
+
   ## plot the data
   if (nrow(grl.segs) > 0) {
 
@@ -4786,30 +4763,30 @@ draw.triangle <- function(grl,
     print('...plotting the data')
     bgx = .all.xpairs(grl.segs$pos1, grl.segs$pos2)
     col = mdata[matrix(nrow=nrow(bgx), ncol=2, c(bgx[,5], bgx[,6]))]
-    out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)    
+    out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)
 
     ## set the color scale
     if (is.null(cmap.min))
                                         #      cmap.min = min(mdata)
         cmap.min = quantile(mdata, 0.01)
-    
+
     if(is.null(cmap.max))
                                         #cmap.max = max(mdata)
         cmap.max = quantile(mdata, 0.99)
-      
+
     #cs <- col.scale(seq(cmap.min, cmap.max), val.range=c(cmap.min, cmap.max), col.min=col.min, col.max=col.max)
     if (is.null(palette.colors))
       palette.colors = c("light green", "yellow", "orange", "red")
     else if (is.list(palette.colors))
         palette.colors = unlist(palette.colors)
-    
-    cs <- colorRampPalette(palette.colors)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))    
+
+    cs <- colorRampPalette(palette.colors)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))
 
     ## affine map to local coorinates
     print('...plotting data polygons')
     out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     ix.min <- out$col < cmap.min
-    ix.max <- out$col > cmap.max    
+    ix.max <- out$col > cmap.max
     out$col[ix.min | ix.max] <- NA
     cr <- rep('black', length(out$col))
     cr[!is.na(out$col)] <- cs[floor(affine.map(out$col[!is.na(out$col)], xlim = c(cmap.min, cmap.max), ylim=c(1,100)))]
@@ -4817,7 +4794,7 @@ draw.triangle <- function(grl,
     cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
 
     ## plot the triangles part
-    polygon(out$x, out$y, col=cr, border=NA)   
+    polygon(out$x, out$y, col=cr, border=NA)
 
     ## plot the triangles part
     col = diag(mdata)
@@ -4825,9 +4802,9 @@ draw.triangle <- function(grl,
     out.t$y[!is.na(out.t$y)] <-
       affine.map(out.t$y[!is.na(out.t$y)], xlim=dlim, ylim=ylim.subplot)
     ix.min <- out.t$col < cmap.min
-    ix.max <- out.t$col > cmap.max    
+    ix.max <- out.t$col > cmap.max
     out.t$col[ix.min | ix.max] <- NA
-    cr <- rep('black', length(out.t$col))    
+    cr <- rep('black', length(out.t$col))
     cr[!is.na(out.t$col)] <- cs[floor(affine.map(out.t$col[!is.na(out.t$col)], xlim = c(cmap.min, cmap.max), ylim=c(1,100)))]
     cr[ix.min] <- 'white' ## deal with cmap.min and cmap.max
     cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
@@ -4839,7 +4816,7 @@ draw.triangle <- function(grl,
     ## plot the legend
     if (!islog)
       txt = format(c(cmap.min, 0.5*(cmap.max-cmap.min) + cmap.min, cmap.max), digits=1)
-    else 
+    else
       txt = format(c(10^cmap.min, 10^(0.3333*((cmap.max-cmap.min) + cmap.min)), 10^(0.66667*((cmap.max-cmap.min) + cmap.min)), 10^(cmap.max)), digits=1)
     color.bar(lut = cs, xpos=0, ypos=ylim.subplot[1] + diff(ylim.subplot)*0.3, width=500, height=diff(ylim.subplot)*0.3,
               text=txt, cex=legend.cex)
@@ -4847,7 +4824,7 @@ draw.triangle <- function(grl,
   }
 
   if (new.axis) {
-    
+
     ## write the tick text
     if (xaxis.nticks > 0)
       text(seq.at, y1.tick-tick.len, tick.text, cex = cex.tick*0.8, srt = 90, adj = c(1, 0.5))
@@ -4869,12 +4846,12 @@ draw.triangle <- function(grl,
 }
 
 
-#' @name .clip.polys
-#' @title .clip.polys
-#' @description
-#' Clip polygons
-#' @author Jeremiah Wala 
-#' @keywords internal
+# @name .clip.polys
+# @title .clip.polys
+# @description
+# Clip polygons
+# @author Jeremiah Wala
+# @keywords internal
 .clip.polys <- function(dt, y0, y1) {
 
   ## leave early if not necessary
@@ -4927,10 +4904,10 @@ draw.triangle <- function(grl,
   ## clip to only top corner
   ix <- dt$y6 <= y0
   dt$x3[ix] <- dt$x3[ix] + dt$lean.sign[ix] * (y0 - dt$y3[ix])
-  dt$x6[ix] <- dt$x6[ix] - dt$lean.sign[ix] * (y0 - dt$y6[ix])     
+  dt$x6[ix] <- dt$x6[ix] - dt$lean.sign[ix] * (y0 - dt$y6[ix])
   dt$y3[ix] <- dt$y6[ix] <- y0
   dt$y1[ix] <- dt$y2[ix] <- dt$y3[ix]
-  dt$x1[ix] <- dt$x2[ix] <- dt$x3[ix]     
+  dt$x1[ix] <- dt$x2[ix] <- dt$x3[ix]
   ## clip off 1,2,3
   ix <- dt$y3 < y0 & !ix
   dt$x3[ix] <- dt$x3[ix] + dt$lean.sign[ix] * (y0 - dt$y3[ix])
@@ -4959,9 +4936,9 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
 
      print('...get 1')
      i1 = i2 = .geti(x12, x21)
-     print('...get 2')     
+     print('...get 2')
      i3 = .geti(x11, x21)
-     print('...get 3')     
+     print('...get 3')
      i4 = i5 = .geti(x11, x22)
      print('...get 4')
      i6 = .geti(x12, x22)
@@ -4969,19 +4946,19 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
      ## dummy
      if (is.null(col))
        col <- i1$x
-     
+
      ## setup the data table
-     print('...data.table')     
+     print('...data.table')
      dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                       y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
-     print('...clip polys')          
+     print('...clip polys')
      dt <- .clip.polys(dt, y0, y1)
      iN <- rep(NA, nrow(dt))
 
      print('...matrix')
      out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
      out.y <- as.numeric(t(matrix(c(dt$y1, dt$y2, dt$y3, dt$y4, dt$y5, dt$y6, iN), nrow=nrow(dt))))
-     
+
      return(list(x=out.x, y=out.y, col=dt$col))
 }
 
@@ -5007,12 +4984,12 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
    ## dummy
   if (is.null(col))
       col <- i1$x
-   
+
    dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                     y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
    dt <- .clip.polys(dt, y0, y1)
    iN <- rep(NA, nrow(dt))
-     
+
    out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
    out.y <- as.numeric(t(matrix(c(dt$y1, dt$y2, dt$y3, dt$y4, dt$y5, dt$y6, iN), nrow=nrow(dt))))
 
@@ -5020,9 +4997,9 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 }
 
 
-#' @description
-#' internal draw.triangle function
-#' @keywords internal
+# @description
+# internal draw.triangle function
+# @keywords internal
 .geti <- function(x1, x2) {
      if (length(x1) != length(x2))
        stop('x1 and x2 need to be same length')
@@ -5035,18 +5012,18 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 
 #' @keywords internal
   .getpoints <- function (b1, b2) {
-    
+
      i1 = .geti(b1[1], b2[1])
      i2 = .geti(b1[1], b2[2])
      i3 = .geti(b1[2], b2[2])
      i4 = .geti(b1[2], b2[1])
-     
+
      return(list(x=c(i1[1], i2[1], i3[1], i4[1]), y=c(i1[2], i2[2], i3[2], i4[2])))
   }
 
-#' internal draw.triangle function
-#' @keywords internal
-  .all.xpairs <- function(start, end) {
+# internal draw.triangle function
+# @keywords internal
+.all.xpairs <- function(start, end) {
 
     if (length(start) != length(end)) {
        warning('.all.diamonds: lengths of input need to be same. Reducing')
@@ -5057,7 +5034,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
     if (length(start) == 1) {
        return(matrix())
     }
-    
+
     num.boxes = sum(seq(1, length(start)-1))
 
     sr = seq(1, length(start)-1)
@@ -5066,9 +5043,9 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
     jr = unlist(lapply(seq(2,length(start)), function(x) seq(x,length(start))))
 
     bgx = matrix(c(start[ir], end[ir], start[jr], end[jr], ir, jr), nrow=num.boxes, ncol=6)
-    
+
     return(bgx)
-    
+
   }
 
 
@@ -5084,7 +5061,7 @@ color.bar <- function(lut, nticks=11, ticks=seq(min, max, len=nticks), title='',
   #axis(2, ticks, las=1)
   rect(xpos, ypos, xpos+width, ypos + height, lwd=2)
   #text(xpos+width, ypos, text[1])
-  #text(xpos+width, ypos+height, text[2])  
+  #text(xpos+width, ypos+height, text[2])
   for (i in 1:(length(lut)-1)) {
       y = (i-1)/scale + ypos
       rect(xpos, y, width, y+1/scale, col=lut[i], border=NA)
@@ -5107,5 +5084,94 @@ readData = function(..., environment = NULL)
         data(..., envir = my.env);
         return(as.list(my.env))
     }
+#' gr.flatmap
+#'
+#' Takes \code{GRanges} pile and maps onto a flattened coordinate system defined by windows (GRanges object)
+#' a provided "gap" (in sequence units).  If squeeze == TRUE then will additionally squeeze ranges into xlim.
+#'
+#' output is list with two fields corresponding to data frames:
+#' $grl.segs = data frame of input gr's "lifted" onto new flattened coordinate space (NOTE: nrow of this not necessarily equal to length(gr))
+#' $window.segs = the coordinates of input windows in the new flattened (and squeezed) space
+#' @param gr \code{GRanges} pile to flatten
+#' @param windows \code{GRanges} pile of windows defining the coordinate system
+#' @param gap TODO
+#' @param strand.agnostic TODO
+#' @param squeeze TODO
+#' @param xlim TODO
+#' @param pintersect TODO
+#' @return TODO
+#' @name gr.flatmap
+#' @keywords internal
+gr.flatmap = function(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FALSE, xlim = c(0, 1), pintersect=FALSE)
+{
+  if (strand.agnostic)
+    strand(windows) = "*"
 
+  ## now flatten "window" coordinates, so we first map gr to windows
+  ## (replicating some gr if necessary)
+  #    h = findOverlaps(gr, windows)
+
+  h = gr.findoverlaps(gr, windows, pintersect=pintersect);
+
+  window.segs = gr.flatten(windows, gap = gap)
+
+  grl.segs = as.data.frame(gr);
+  grl.segs = grl.segs[values(h)$query.id, ];
+  grl.segs$query.id = values(h)$query.id;
+  grl.segs$window = values(h)$subject.id
+  grl.segs$start = start(h);
+  grl.segs$end = end(h);
+  grl.segs$pos1 = pmax(window.segs[values(h)$subject.id, ]$start,
+                       window.segs[values(h)$subject.id, ]$start + grl.segs$start - start(windows)[values(h)$subject.id])
+  grl.segs$pos2 = pmin(window.segs[values(h)$subject.id, ]$end,
+                       window.segs[values(h)$subject.id, ]$start + grl.segs$end - start(windows)[values(h)$subject.id])
+  grl.segs$chr = grl.segs$seqnames
+
+  if (squeeze)
+  {
+    min.win = min(window.segs$start)
+    max.win = max(window.segs$end)
+    grl.segs$pos1 = affine.map(grl.segs$pos1, xlim = c(min.win, max.win), ylim = xlim)
+    grl.segs$pos2 = affine.map(grl.segs$pos2, xlim = c(min.win, max.win), ylim = xlim)
+    window.segs$start = affine.map(window.segs$start, xlim = c(min.win, max.win), ylim = xlim)
+    window.segs$end = affine.map(window.segs$end, xlim = c(min.win, max.win), ylim = xlim)
+  }
+
+  return(list(grl.segs = grl.segs, window.segs = window.segs))
+}
+
+#' affine.map
+#'
+#' affinely maps 1D points in vector x from interval xlim to interval ylim,
+#' ie takes points that lie in
+#' interval xlim and mapping onto interval ylim using linear / affine map defined by:
+#' (x0,y0) = c(xlim(1), ylim(1)),
+#' (x1,y1) = c(xlim(2), ylim(2))
+#' (using two point formula for line)
+#' useful for plotting.
+#'
+#' if cap.max or cap.min == TRUE then values outside of the range will be capped at min or max
+#' @keywords internal
+affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = FALSE, cap.min = cap, cap.max = cap)
+{
+  #  xlim[2] = max(xlim);
+  #  ylim[2] = max(ylim);
+
+  if (xlim[2]==xlim[1])
+    y = rep(mean(ylim), length(x))
+  else
+    y = (ylim[2]-ylim[1]) / (xlim[2]-xlim[1])*(x-xlim[1]) + ylim[1]
+
+  if (cap.min)
+    y[x<min(xlim)] = ylim[which.min(xlim)]
+  else
+    y[x<min(xlim)] = NA;
+
+  if (cap.max)
+    y[x>max(xlim)] = ylim[which.max(xlim)]
+  else
+    y[x>max(xlim)] = NA;
+
+  return(y)
+}
 
