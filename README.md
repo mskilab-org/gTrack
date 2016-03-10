@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/mskilab/gTrack.svg?branch=master)](https://travis-ci.org/mskilab/gTrack)
+[![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
+[![Coverage Status](https://coveralls.io/repos/github/mskilab/gTrack/badge.svg?branch=master)](https://coveralls.io/github/mskilab/gTrack?branch=master)
+
 gTrack
 ======
 
@@ -35,6 +39,7 @@ Installation
 
 See documentation
 
+[Read the docs](http://gtrack.readthedocs.org/en/latest/)
 [R Documentation](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
 
 Tutorial 
