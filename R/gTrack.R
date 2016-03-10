@@ -42,7 +42,6 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            lift = FALSE, ## whether to lift this track to other chainedTrack items
                                            split = FALSE, ## whether to split when lifting
                                            xaxis.unit = 1e6,
-                                           xaxis.prefix = 'chr',
                                            xaxis.cex.label = 1,
                                            gr.colorfield = NA,
                                            y0 = NA,
@@ -50,7 +49,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                                            y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
                                            cex.tick = 0.8,
-                                           xaxis.suffix = 'MB',
+                                           ##xaxis.suffix = 'MB',
                                            xaxis.interval = NA,
                                            lwd.border = 1,
                                            cex.label = 1,
@@ -195,7 +194,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                   t.name = rep(NA, length(.Object@data))
 
 
-              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, xaxis.cex.label = xaxis.cex.label, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit, xaxis.suffix = xaxis.suffix, xaxis.interval = xaxis.interval, ypad = ypad,  ywid = ywid, border = border, cex.label = cex.label, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y0 = y0, y1 = y1, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
+              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, xaxis.cex.label = xaxis.cex.label, xaxis.unit = xaxis.unit, xaxis.interval = xaxis.interval, ypad = ypad,  ywid = ywid, border = border, cex.label = cex.label, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y0 = y0, y1 = y1, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
                   stringsAsFactors = F)
 
             other.args = list(...)
@@ -380,9 +379,13 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' constructor for gTrack
 #'
 #' Arguments described as "formatting" are vectors.  They are replicated (if necessary) to match the length of the object.
-#' @param data This is an instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
+#' @param data Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
 #' (4) character representing Bed, Wig, BigWig, or .rds GRanges file.  It can also be a list of the above (if specifying multiplying
 #'  tracks.
+#' @param mdata Square matrix representing values at connections between genomic elements (e.g. chr8:1,000-2,000 to chr3:5,000-6,000). The number of
+#' rows (and thus columns) must be equal to the length of the \code{data} element. The value of the (i,j) element of this matrix represents a value
+#' for the intersection of \code{data[i]} and \code{data[j]}. Note that all connections are assumed to be symmetric, and only the upper triangle
+#' will be read. Displays a \code{warning} if the matrix is non-symmetric
 #' @param y.field vector or scalar character specifying meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
 #' numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks
 #' @param name vector or scalar character specifying name of this track, which will be displayed on label to the left of the track
@@ -1126,7 +1129,7 @@ if (!isGeneric("plot"))
 #' @import GenomicRanges
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
-setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
+setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (for easy search)
                                               y,
                                               windows = seqinfo2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
@@ -1151,81 +1154,44 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
 
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
+        new.plot = TRUE
+        window.segs = list();
+        dotdot.args = list(...);
 
-            if (is(windows, 'character'))
-              windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+        ## parse the windows into GRanges
+        windows = format_windows(windows, .Object)
 
-            if (is(windows, 'Seqinfo'))
-              windows = seqinfo2gr(windows)
+        ## make sure gTrack has all fields that are expected later
+        .Object <- prep_defaults_for_plotting(.Object)
 
-            if (is.list(windows))
-              windows = do.call(GRangesList, windows)
+        ## add last minute formatting changes to gTrack
+        if (length(dotdot.args)>0)
+          for (f in intersect(names(dotdot.args), names(formatting(.Object))))
+            formatting(.Object)[, f] = dotdot.args[[f]]
 
-            if (!inherits(windows, 'GRangesList'))
-              windows = GRangesList(windows)
+        ## set the window gap
+        if (is.null(win.gap))
+          win.gap = sapply(windows, function(x) {wx = width(x); min(sum(as.numeric(wx))/length(wx)/10, sum(as.numeric(wx))/20)})
 
-            if (sum(as.numeric(width(unlist(windows))))==0)
-                {
-                    warning("Empty windows provided, drawing whole genome")
-                    windows = seqinfo2gr(seqinfo(.Object))
-                }
+        ## get the height of the stacks
+        if (is.null(y.heights) | length(y.heights) != length(windows))
+          y.heights = rep(1, length(windows))
 
-            window.segs = list();
+        ## set the gaps between the gTracks
+        if (is.null(y.gaps) )
+          y.gaps = y.heights*0.8
+        else if (length(y.gaps) != length(windows))
+          y.gaps = rep(y.gaps[1], length(windows))
 
-            dotdot.args = list(...);
-
-            if (length(dotdot.args)>0)
-              for (f in intersect(names(dotdot.args), names(formatting(.Object))))
-                  formatting(.Object)[, f] = dotdot.args[[f]]
-
-            if (is.null(win.gap))
-              win.gap = sapply(windows, function(x) {wx = width(x); min(sum(as.numeric(wx))/length(wx)/10, sum(as.numeric(wx))/20)})
-
-            if (is.null(y.heights) | length(y.heights) != length(windows))
-              y.heights = rep(1, length(windows)) # heights of stacks
-
-            if (is.null(y.gaps) )
-              y.gaps = y.heights*0.8
-            else if (length(y.gaps) != length(windows))
-              y.gaps = rep(y.gaps[1], length(windows))
-
-            if (is.null(.Object@formatting$triangle))
-              .Object@formatting$triangle = NA
-
-            if (any(ix <- is.na(.Object@formatting$triangle)))
-              .Object@formatting$triangle[ix] = F
-
-            # layout legends if colorfield or colormap is NA and legends have no xpos set
-            leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
-            if (is.null(.Object@formatting$legend.xpos))
-                .Object@formatting$legend.xpos = NA
-
-             if (is.null(.Object@formatting$legend.xjust))
-                 .Object@formatting$legend.xjust = NA
-
-            if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
-                {
-                    .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
-                    .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
-                }
-
-            # layout y coordinates
-            sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
-            formatting(.Object)$height  = formatting(.Object)$height/sumh
-            formatting(.Object)$ygap  = formatting(.Object)$ygap/sumh
-#            formatting(.Object)$ywid  = formatting(.Object)$ywid/sumh
-            new.plot = T;
-
-            if (is.null(formatting(.Object)$max.ranges))
-              formatting(.Object)$max.ranges = NA
-
-            if (!is.na(max.ranges))
-              formatting(.Object)$max.ranges = pmin(max.ranges, formatting(.Object)$max.ranges, na.rm = T)
+        ## ensure that we don't plot too much
+        if (!is.na(max.ranges))
+          formatting(.Object)$max.ranges = pmin(max.ranges, formatting(.Object)$max.ranges, na.rm = TRUE)
 
             oth.ix = 1:(length(windows)-1);
             top.gaps = 0.5*y.gaps
             bottom.gaps = 0.5*y.gaps
-            if (length(windows)==1) oth.ix = c()
+            if (length(windows)==1)
+              oth.ix = c()
             ylim.stacks = data.frame(start = c(bottom.gaps[1], bottom.gaps[1] + cumsum(y.heights[oth.ix] + top.gaps[oth.ix] + bottom.gaps[oth.ix+1])),
               end = cumsum(y.heights + top.gaps + bottom.gaps) - top.gaps)
 
@@ -1243,9 +1209,9 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
             window.ylims = data.frame(start = rep(NA, length(windows)), end = NA);
 
             ## put the triangles on the top
-            for (i in 1:length(windows))
+            for (i in 1:length(windows)) ## loop through the windows
               {
-                new.axis = T;
+                new.axis = TRUE;
                 this.windows = gr.stripstrand(GenomicRanges::trim(windows[[i]]))
                 if (!inherits(this.windows, 'GRanges'))
                   this.windows = seqinfo2gr(this.windows)
@@ -1259,7 +1225,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                 this.xaxis.pos.label = this.ylim.subplot$start[1]-5*bottom.gaps[i]/6-this.tmp.bottom.gap
                 ylim.stacks[i, 'xaxis.pos'] = this.xaxis.pos
 
-                for (j in 1:length(.Object))
+                for (j in 1:length(.Object)) ## loop through the gTracks
                   {
                     par(xpd = NA);
                     format = formatting(.Object[j])$format;
@@ -1272,119 +1238,17 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                     if (length(cmap)==0)
                       cmap = NULL
 
-                    tmp.dat = dat(.Object)[[j]]
-
                     if (is.null(formatting(.Object)$source.file.chrsub))
-                      formatting(.Object)$source.file.chrsub = T
+                      formatting(.Object)$source.file.chrsub = TRUE
 
-                    pre.filtered = F; ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist
+                    pre.filtered = FALSE; ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist
 
-                    if (inherits(tmp.dat, 'RleList'))
-                      {
-                        tmp.score = rle.query(tmp.dat, this.windows)
-                        tmp.dat = gr.dice(this.windows)
-                        tmp.dat$score = as.numeric(tmp.score)
-
-                        if (is.na(formatting(.Object)$y0[j]))
-                          formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
-
-                        if (is.na(formatting(.Object)$y1[j]))
-                          formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
-
-                        formatting(.Object)$y.field[j] = 'score'
-                        pre.filtered = T
-                      }
-                    else if (is.character(tmp.dat))
-                      {
-                        if (file.exists(tmp.dat))
-                        {
-                          bed.style = F
-                          if (grepl('(\\.bw)|(\\.bigwig)', tmp.dat, ignore.case = T))
-                          {
-                            f = BigWigFile(normalizePath(tmp.dat))
-                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                          }
-                        else if (grepl('\\.wig', tmp.dat, ignore.case = T))
-                          {
-                            f = WIGFile(normalizePath(tmp.dat))
-                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                          }
-                        else if (grepl('\\.bed', tmp.dat, ignore.case = T))
-                          {
-                            f = BEDFile(normalizePath(tmp.dat))
-#                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                            bed.style = T
-                          }
-                        else if (grepl('\\.gff', tmp.dat, ignore.case = T))
-                          {
-                            f = GFFFile(normalizePath(tmp.dat))
-                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                          }
-                        else if (grepl('\\.2bit', tmp.dat, ignore.case = T))
-                          {
-                            f = TwoBitFile(normalizePath(tmp.dat))
-                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                          }
-                        else if (grepl('\\.bedgraph', tmp.dat, ignore.case = T))
-                          {
-                            f = BEDGraphFile(normalizePath(tmp.dat))
- #                           si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-                            bed.style = T
-                          }
-
-                          if (!bed.style) ## bed.style file objects do not have seqinfo option
-                            {
-                              si = tryCatch(seqinfo(f), error = function(x) '')
-                              pre.filtered = T
-
-                              if (!is.character(si))
-                                {
-                                  if (formatting(.Object)[j, 'source.file.chrsub'])
-                                    sel = gr.fix(gr.chr(this.windows), si, drop = T)
-
-                                  tmp.dat = import(f, selection = sel, asRangedData = F)
-
-                                  if (formatting(.Object)[j, 'source.file.chrsub'])
-                                    tmp.dat = gr.sub(tmp.dat, 'chr', '')
-
-                                  if (is.na(formatting(.Object)$y.field[j]))
-                                    formatting(.Object)$y.field[j] = 'score'
-
-                                }
-                            }
-                          else
-                              {
-                              tmp.dat = import(f, asRangedData = F)
-
-                              if (formatting(.Object)[j, 'source.file.chrsub'])
-                                tmp.dat = gr.sub(tmp.dat, 'chr', '')
-
-                              if (is.na(formatting(.Object)$y.field[j]))
-                                formatting(.Object)$y.field[j] = 'score'
-                            }
-                        }
-                      }
-                    else if (is(tmp.dat, 'ffTrack'))
-                      {
-                        tmp.dat = tmp.dat[this.windows, gr = T]
-                        formatting(.Object)$y.field[j] = 'score'
-                        pre.filtered = T
-                    }
-                    else
-                        {
-                            if (formatting(.Object)[j, 'source.file.chrsub'])
-                                tmp.dat = gr.sub(tmp.dat, 'chr', '')
-                        }
-
-
-                    if (is.character(tmp.dat)) ## file was not found
-                      {
-                        warnings('Track bigwig file not found')
-                        tmp.dat = GRanges()
-                      }
+                    tt <- extract_data_from_tmp_dat(.Object, j, this.windows)
+                    .Object = tt$o
+                    tmp.dat = tt$t
 
                     if (.Object@formatting$triangle[j])
-                      pre.filtered = T
+                      pre.filtered = TRUE
 
                     ## enforce max.ranges
                     ## (everything should be a GRanges at this point)
@@ -1498,9 +1362,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                           gr.adj.label = c(0.5,
                             formatting(.Object)$vadj.label[j]),
                           xaxis.unit = formatting(.Object)$xaxis.unit[j],
-                          xaxis.prefix = formatting(.Object)$xaxis.prefix[j],
                           cex.label = formatting(.Object)$cex.label[j],
-                          xaxis.suffix = formatting(.Object)$xaxis.suffix[j],
+                          ##xaxis.suffix = formatting(.Object)$xaxis.suffix[j],
                           xaxis.interval = formatting(.Object)$xaxis.interval[j],
                           angle = formatting(.Object)$angle[j],
                           y.pad = formatting(.Object)$ypad[j],
@@ -1512,7 +1375,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
                           y0.bar = formatting(.Object)$y0.bar[j],
                           stack.gap = formatting(.Object)$stack.gap[j])
                         na.fields = names(formatting(.Object))[sapply(1:ncol(formatting(.Object)), function(field) is.na(formatting(.Object)[j, field]))]
-                        other.fields = setdiff(names(formatting(.Object)), c('track.name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'xaxis.prefix', 'xaxis.unit', 'xaxis.suffix', 'source.file', 'source.file.chrsub', 'xaxis.interval', 'ypad', 'ywid', 'border', 'col', 'cex.label', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(plot.track.formats))) ## remove na fields and anything else that might mess up draw.grl
+                        other.fields = setdiff(names(formatting(.Object)), c('track.name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'xaxis.unit', 'source.file', 'source.file.chrsub', 'xaxis.interval', 'ypad', 'ywid', 'border', 'col', 'cex.label', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(plot.track.formats))) ## remove na fields and anything else that might mess up draw.grl
 
                         other.formats = structure(names = other.fields,
                           lapply(other.fields, function(x) formatting(.Object)[j, x]))
@@ -2744,8 +2607,8 @@ draw.grl = function(grl,
   #  bg.col = 'gray95',
   bg.col = 'gray99',
   y.pad = 0.05,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair
-  xaxis.prefix = 'chr',
-  xaxis.suffix = "MB",
+  xaxis.prefix = '',  ### DEFAULT GOES HERE
+  xaxis.suffix = "MBasdf",  ### DEFAULT GOES HERE
   xaxis.unit = 1e6,
   xaxis.round = 3,
   xaxis.interval = NULL,
@@ -2807,9 +2670,11 @@ draw.grl = function(grl,
 
       return(draw.triangle(grl=grl,y=y,mdata=mdata,ylim=ylim,ylim.parent=ylim.parent,windows=windows,win.gap=win.gap,sep.lty=sep.lty,sep.lwd=sep.lwd,
                   xaxis.nticks=xaxis.nticks,xaxis.interval=xaxis.interval,xaxis.unit=xaxis.unit,
-                  xaxis.suffix=xaxis.suffix,cex.tick=cex.tick,xaxis.newline=xaxis.newline,xaxis.width=xaxis.width,
+                  ##xaxis.suffix=xaxis.suffix,
+                  cex.tick=cex.tick,xaxis.newline=xaxis.newline,xaxis.width=xaxis.width,
                   xaxis.round=xaxis.round,xaxis.chronly=xaxis.chronly,xaxis.cex.label=xaxis.cex.label, sigma = smooth,
-                  xaxis.prefix=xaxis.prefix,new.axis=new.axis,new.plot=new.plot,cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
+                  ##xaxis.prefix=xaxis.prefix,
+                  new.axis=new.axis,new.plot=new.plot,cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
                   bg.col=m.bg.col, legend.cex=legend.cex, islog=islog, palette.colors = palette.colors,  ...))
     }
 
@@ -3446,17 +3311,18 @@ draw.grl = function(grl,
             end.text = prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)), end(windows),
               round(end(windows)/xaxis.unit, xaxis.round)), big.mark = ',')
 
-            if (!xaxis.chronly)
+            if (!xaxis.chronly) {
                text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
                  paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
                        begin.text,'-', newline,
                        end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
                 cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
-            else
+            } else {
                text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
                  paste(xaxis.prefix, ' ',  seqnames(windows),
                        sep = ''),
                 cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
+            }
           }
       }
 
@@ -4474,7 +4340,6 @@ draw.triangle <- function(grl,
     xaxis.chronly=FALSE,
     xaxis.label.angle=0,
     xaxis.cex.label=1,
-    xaxis.prefix = '',
     xaxis.pos.label=NULL,
     xaxis.pos=NULL,
     new.axis = TRUE,
@@ -4493,8 +4358,6 @@ draw.triangle <- function(grl,
   now = Sys.time();
   empty.plot = FALSE
   ylim.subplot = NULL
-
-  print('...draw.triangle started')
 
   xlim = c(0, 20000)
   if (is.list(y))
@@ -4663,14 +4526,14 @@ draw.triangle <- function(grl,
 
   ## make the plot
   if (new.plot) {
-    print('...sending blank plot')
-    print(Sys.time() - now)
+    ##print('...sending blank plot')
+    ##print(Sys.time() - now)
 
     plot.blank(xlim=xlim, ylim=ylim)
     new.axis = TRUE
   } else {
-    print('...sending NON blank plot')
-    print(Sys.time() - now)
+    ##print('...sending NON blank plot')
+    ##print(Sys.time() - now)
   }
 
   wid = 20000
@@ -4712,8 +4575,8 @@ draw.triangle <- function(grl,
     else
       polygon(out$x, out$y, col=bg.col, border=NA)
 
-    print('...finished background')
-    print(Sys.time() - now)
+    ###print('...finished background')
+    ###print(Sys.time() - now)
   }
 
   ## draw the guide lines facing left
@@ -4750,8 +4613,8 @@ draw.triangle <- function(grl,
       segments(window.segs$end[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
     }
 
-    print('... finished guides')
-    print(Sys.time() - now)
+    ###print('... finished guides')
+    ###print(Sys.time() - now)
 
 
   }
@@ -4760,7 +4623,7 @@ draw.triangle <- function(grl,
   if (nrow(grl.segs) > 0) {
 
     ## set the color scale
-    print('...plotting the data')
+    ##print('...plotting the data')
     bgx = .all.xpairs(grl.segs$pos1, grl.segs$pos2)
     col = mdata[matrix(nrow=nrow(bgx), ncol=2, c(bgx[,5], bgx[,6]))]
     out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)
@@ -4783,7 +4646,7 @@ draw.triangle <- function(grl,
     cs <- colorRampPalette(palette.colors)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))
 
     ## affine map to local coorinates
-    print('...plotting data polygons')
+    ###print('...plotting data polygons')
     out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     ix.min <- out$col < cmap.min
     ix.max <- out$col > cmap.max
@@ -4811,8 +4674,8 @@ draw.triangle <- function(grl,
     #cr <- cs[ceiling(out.t$col) - cmap.min + 1]
     polygon(out.t$x, out.t$y, col=cr, border=NA)
 
-    print('... finished data')
-    print(Sys.time() - now)
+    ###print('... finished data')
+    ###print(Sys.time() - now)
     ## plot the legend
     if (!islog)
       txt = format(c(cmap.min, 0.5*(cmap.max-cmap.min) + cmap.min, cmap.max), digits=1)
@@ -4823,24 +4686,26 @@ draw.triangle <- function(grl,
 
   }
 
-  if (new.axis) {
-
-    ## write the tick text
-    if (xaxis.nticks > 0)
-      text(seq.at, y1.tick-tick.len, tick.text, cex = cex.tick*0.8, srt = 90, adj = c(1, 0.5))
-
-    ## write the label
-    if (!xaxis.chronly)
-      text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
-           paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
-                 begin.text,'-', newline,
-                 end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
-           cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
-    else
-      text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
-           paste(xaxis.prefix, ' ',  seqnames(windows), sep = ''),
-           cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
-  }
+  ## JEREMIAH 3/9/16 -- I don't think this ever gets reached (new.axis is always false)
+  # if (new.axis) {
+  #
+  #   ## write the tick text
+  #   if (xaxis.nticks > 0)
+  #     text(seq.at, y1.tick-tick.len, tick.text, cex = cex.tick*0.8, srt = 90, adj = c(1, 0.5))
+  #
+  #   ## write the label
+  #   if (!xaxis.chronly) {
+  #     text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
+  #          paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
+  #                begin.text,'-', newline,
+  #                end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
+  #          cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
+  #   } else {
+  #     text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
+  #          paste(xaxis.prefix, ' ',  seqnames(windows), sep = ''),
+  #          cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
+  #   }
+  # }
   ######################
   return(window.segs)
 }
@@ -4857,7 +4722,7 @@ draw.triangle <- function(grl,
   ## leave early if not necessary
   miny = min(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
   maxy = max(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
-  print(paste('MinY:', miny, 'MaxY:', maxy, "Y0:", y0, 'Y1:', y1))
+  ##print(paste('MinY:', miny, 'MaxY:', maxy, "Y0:", y0, 'Y1:', y1))
   if (y0 <= miny && y1 >= maxy)
     return(dt)
 
@@ -4875,7 +4740,7 @@ draw.triangle <- function(grl,
   yc0 = y0
   dt <- subset(dt, y1 < yc1 & y4 > yc0)
 
-  print('...top clip')
+  ##print('...top clip')
   #############
   # deal with the top clip
   #############
@@ -4897,7 +4762,7 @@ draw.triangle <- function(grl,
   dt$x4[ix] <- dt$x3[ix] + dt$lean.sign[ix] * (y1 - dt$y3[ix])
   dt$x5[ix] <- dt$x6[ix] - dt$lean.sign[ix] * (y1 - dt$y6[ix])
 
-  print('...bottom clip')
+  ##print('...bottom clip')
   ##################
   # deal with the bottom clip
   ##################
@@ -4934,13 +4799,13 @@ draw.triangle <- function(grl,
 diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
 
 
-     print('...get 1')
+     ##print('...get 1')
      i1 = i2 = .geti(x12, x21)
-     print('...get 2')
+     ##print('...get 2')
      i3 = .geti(x11, x21)
-     print('...get 3')
+     ##print('...get 3')
      i4 = i5 = .geti(x11, x22)
-     print('...get 4')
+     ##print('...get 4')
      i6 = .geti(x12, x22)
 
      ## dummy
@@ -4948,14 +4813,14 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
        col <- i1$x
 
      ## setup the data table
-     print('...data.table')
+     ##print('...data.table')
      dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                       y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
-     print('...clip polys')
+     ##print('...clip polys')
      dt <- .clip.polys(dt, y0, y1)
      iN <- rep(NA, nrow(dt))
 
-     print('...matrix')
+     ##print('...matrix')
      out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
      out.y <- as.numeric(t(matrix(c(dt$y1, dt$y2, dt$y3, dt$y4, dt$y5, dt$y6, iN), nrow=nrow(dt))))
 
@@ -5175,3 +5040,184 @@ affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = FALSE, c
   return(y)
 }
 
+gr.stripstrand = function(gr)
+{
+  strand(gr) = "*"
+  return(gr)
+}
+
+#' gr.sub
+#'
+#' will apply gsub to seqlevels of gr, by default removing 'chr', and "0.1" suffixes, and replacing "MT" with "M"
+#' @name gr.sub
+#' @keywords internal
+gr.sub = function(gr, a = c('(^chr)(\\.1$)', 'MT'), b= c('', 'M'))
+{
+  tmp = mapply(function(x, y) seqlevels(gr) <<- gsub(x, y, seqlevels(gr)), a, b)
+  return(gr)
+}
+
+format_windows <- function(windows, .Object) {
+  if (is(windows, 'character'))
+    windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+
+  if (is(windows, 'Seqinfo'))
+    windows = seqinfo2gr(windows)
+
+  if (is.list(windows))
+    windows = do.call('GRangesList', windows)
+
+  if (!inherits(windows, 'GRangesList'))
+    windows = GRangesList(windows)
+
+  if (sum(as.numeric(width(unlist(windows))))==0)
+  {
+    warning("Empty windows provided, drawing whole genome")
+    windows = seqinfo2gr(seqinfo(.Object))
+  }
+  return (windows)
+}
+
+prep_defaults_for_plotting <- function(.Object) {
+  if (is.null(.Object@formatting$triangle))
+    .Object@formatting$triangle = NA
+
+  if (any(ix <- is.na(.Object@formatting$triangle)))
+    .Object@formatting$triangle[ix] = FALSE
+
+  # layout legends if colorfield or colormap is NA and legends have no xpos set
+  leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
+  if (is.null(.Object@formatting$legend.xpos))
+    .Object@formatting$legend.xpos = NA
+
+  if (is.null(.Object@formatting$legend.xjust))
+    .Object@formatting$legend.xjust = NA
+
+  if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
+  {
+    .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
+    .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
+  }
+
+  # layout y coordinates
+  sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
+  formatting(.Object)$height  = formatting(.Object)$height/sumh
+  formatting(.Object)$ygap  = formatting(.Object)$ygap/sumh
+  #            formatting(.Object)$ywid  = formatting(.Object)$ywid/sumh
+
+  if (is.null(formatting(.Object)$max.ranges))
+    formatting(.Object)$max.ranges = NA
+
+  return(.Object)
+}
+
+extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
+
+  tmp.dat = dat(.Object)[[j]]
+
+  if (inherits(tmp.dat, 'RleList'))
+  {
+    tmp.score = rle.query(tmp.dat, this.windows)
+    tmp.dat = gr.dice(this.windows)
+    tmp.dat$score = as.numeric(tmp.score)
+
+    if (is.na(formatting(.Object)$y0[j]))
+      formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
+
+    if (is.na(formatting(.Object)$y1[j]))
+      formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
+
+    formatting(.Object)$y.field[j] = 'score'
+    pre.filtered = TRUE
+  }
+  else if (is.character(tmp.dat))
+  {
+    if (file.exists(tmp.dat))
+    {
+      bed.style = FALSE
+      if (grepl('(\\.bw)|(\\.bigwig)', tmp.dat, ignore.case = TRUE))
+      {
+        f = BigWigFile(normalizePath(tmp.dat))
+        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+      }
+      else if (grepl('\\.wig', tmp.dat, ignore.case = TRUE))
+      {
+        f = WIGFile(normalizePath(tmp.dat))
+        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+      }
+      else if (grepl('\\.bed', tmp.dat, ignore.case = TRUE))
+      {
+        f = BEDFile(normalizePath(tmp.dat))
+        #                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+        bed.style = TRUE
+      }
+      else if (grepl('\\.gff', tmp.dat, ignore.case = TRUE))
+      {
+        f = GFFFile(normalizePath(tmp.dat))
+        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+      }
+      else if (grepl('\\.2bit', tmp.dat, ignore.case = TRUE))
+      {
+        f = TwoBitFile(normalizePath(tmp.dat))
+        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+      }
+      else if (grepl('\\.bedgraph', tmp.dat, ignore.case = TRUE))
+      {
+        f = BEDGraphFile(normalizePath(tmp.dat))
+        #                           si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+        bed.style = TRUE
+      }
+
+      if (!bed.style) ## bed.style file objects do not have seqinfo option
+      {
+        si = tryCatch(seqinfo(f), error = function(x) '')
+        pre.filtered = T
+
+        if (!is.character(si))
+        {
+          if (formatting(.Object)[j, 'source.file.chrsub'])
+            sel = gr.fix(gr.chr(this.windows), si, drop = TRUE)
+
+          tmp.dat = import(f, selection = sel, asRangedData = FALSE)
+
+          if (formatting(.Object)[j, 'source.file.chrsub'])
+            tmp.dat = gr.sub(tmp.dat, 'chr', '')
+
+          if (is.na(formatting(.Object)$y.field[j]))
+            formatting(.Object)$y.field[j] = 'score'
+
+        }
+      }
+      else
+      {
+        tmp.dat = import(f, asRangedData = FALSE)
+
+        if (formatting(.Object)[j, 'source.file.chrsub'])
+          tmp.dat = gr.sub(tmp.dat, 'chr', '')
+
+        if (is.na(formatting(.Object)$y.field[j]))
+          formatting(.Object)$y.field[j] = 'score'
+      }
+    }
+  }
+  else if (is(tmp.dat, 'ffTrack'))
+  {
+    tmp.dat = tmp.dat[this.windows, gr = TRUE]
+    formatting(.Object)$y.field[j] = 'score'
+    pre.filtered = T
+  }
+  else
+  {
+    if (formatting(.Object)[j, 'source.file.chrsub'])
+      tmp.dat = gr.sub(tmp.dat, 'chr', '')
+  }
+
+
+  if (is.character(tmp.dat)) ## file was not found
+  {
+    warnings('Track bigwig file not found')
+    tmp.dat = GRanges()
+  }
+
+  return(list(o=.Object, t=tmp.dat))
+}
