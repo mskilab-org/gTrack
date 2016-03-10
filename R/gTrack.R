@@ -35,24 +35,16 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            ygap = 2,
                                            stack.gap = 20,
                                            col = NA,
-                                           bg.col = 'gray95',
                                            border = col, #'gray30',
                                            angle = 15,
                                            name = NULL,
                                            lift = FALSE, ## whether to lift this track to other chainedTrack items
                                            split = FALSE, ## whether to split when lifting
-                                           xaxis.unit = 1e6,
-                                           xaxis.cex.label = 1,
                                            gr.colorfield = NA,
-                                           y0 = NA,
-                                           y1 = NA,
                                            y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                                            y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
                                            cex.tick = 0.8,
-                                           ##xaxis.suffix = 'MB',
-                                           xaxis.interval = NA,
                                            lwd.border = 1,
-                                           cex.label = 1,
                                            hadj.label = 1,
                                            vadj.label = 0.5,
                                            smooth = NA, ## smooth with running mean with this window
@@ -194,8 +186,8 @@ setMethod('initialize', 'gTrack', function(.Object,
                   t.name = rep(NA, length(.Object@data))
 
 
-              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, xaxis.cex.label = xaxis.cex.label, xaxis.unit = xaxis.unit, xaxis.interval = xaxis.interval, ypad = ypad,  ywid = ywid, border = border, cex.label = cex.label, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y0 = y0, y1 = y1, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
-                  stringsAsFactors = F)
+              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
+                  stringsAsFactors = FALSE)
 
             other.args = list(...)
             if (length(other.args)>0)
@@ -1197,7 +1189,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 
             oth.ix = 1:(length(.Object)-1);
 
-            if (length(.Object)==1) oth.ix = c()
+            if (length(.Object)==1)
+              oth.ix = c()
 
             tmp.top.gaps = 0.5 * formatting(.Object)$ygap
             tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
@@ -1208,27 +1201,26 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
             ylim.parent=ylim
             window.ylims = data.frame(start = rep(NA, length(windows)), end = NA);
 
-            ## put the triangles on the top
-            for (i in 1:length(windows)) ## loop through the windows
-              {
                 new.axis = TRUE;
-                this.windows = gr.stripstrand(GenomicRanges::trim(windows[[i]]))
-                if (!inherits(this.windows, 'GRanges'))
-                  this.windows = seqinfo2gr(this.windows)
-
+                this.windows = windows
+                #this.windows = gUtils::streduce(windows[[i]]) ##gr.stripstrand(GenomicRanges::trim(windows[[i]]))
+                ##if (!inherits(this.windows, 'GRanges'))
+                ##  this.windows = seqinfo2gr(this.windows)
+            i=1
                 this.ylim.subplot = tmp.ylim.subplot;
                 this.ylim.subplot$start = affine.map(pmin(1, this.ylim.subplot$start), ylim = unlist(ylim.stacks[i, c('start', 'end')]), xlim = c(0, 1))
                 this.ylim.subplot$end = affine.map(pmin(1, this.ylim.subplot$end), ylim = unlist(ylim.stacks[i, c('start', 'end')]), xlim = c(0, 1))
                 this.tmp.bottom.gap = tmp.bottom.gaps[1]*(ylim.stacks$end[i]-ylim.stacks$start[i])
 
+
                 this.xaxis.pos = this.ylim.subplot$start[1]-bottom.gaps[i]*0-this.tmp.bottom.gap
                 this.xaxis.pos.label = this.ylim.subplot$start[1]-5*bottom.gaps[i]/6-this.tmp.bottom.gap
                 ylim.stacks[i, 'xaxis.pos'] = this.xaxis.pos
 
-                for (j in 1:length(.Object)) ## loop through the gTracks
+                ## loop through the gTracks
+                for (j in 1:length(.Object))
                   {
                     par(xpd = NA);
-                    format = formatting(.Object[j])$format;
                     cmap = colormap(.Object)[[j]];
                     cfield = names(colormap(.Object))[j]
 
@@ -1238,121 +1230,36 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                     if (length(cmap)==0)
                       cmap = NULL
 
-                    if (is.null(formatting(.Object)$source.file.chrsub))
-                      formatting(.Object)$source.file.chrsub = TRUE
-
-                    pre.filtered = FALSE; ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist
-
+                    ## get the data into GRanges or GRangesList format
                     tt <- extract_data_from_tmp_dat(.Object, j, this.windows)
                     .Object = tt$o
                     tmp.dat = tt$t
 
+                    ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist)
+                    pre.filtered = FALSE;
                     if (.Object@formatting$triangle[j])
                       pre.filtered = TRUE
 
-                    ## enforce max.ranges
-                    ## (everything should be a GRanges at this point)
-                    if (!is.na(formatting(.Object)$max.ranges[j]))
-                      if (formatting(.Object)$max.ranges[j]>0)
-                        {
-                          if (!pre.filtered & nrow(edgs(.Object)[[j]])==0 & length(.Object@vars[[j]])==0) ## assume any track associated with edges is pre-filtered
-                            {
-                              if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
-                                if (inherits(tmp.dat, 'GRangesList'))
-                                  {
-                                    vals = values(tmp.dat)
-                                    nm = names(tmp.dat)
-                                    tmp2 = grl.unlist(tmp.dat)
-                                    tmp2 = tmp2[gr.in(tmp2, this.windows)]
-                                    tmp.dat = split(tmp2, tmp2$grl.ix)
-                                    values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
-                                    names(tmp.dat) = nm[as.numeric(names(tmp.dat))]
-                                  }
-                                else if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
-                                  {
-
-                                      tmp.dat = tmp.dat[gr.in(tmp.dat, this.windows)]
-                                      pre.filtered = T
-                                  }
-                            }
-
-                          if (length(tmp.dat)>formatting(.Object)$max.ranges[j] &
-                              nrow(edgs(.Object)[[j]])==0 & !.Object@formatting$triangle[j]) ## don't sample if there are edges or triangle
-                            {
-                              tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))
-                            }
-                      }
-
-                    if (!is.na(formatting(.Object)$y.field[j]) & is(tmp.dat, 'GRanges'))
-                      {
-                        if (!is.null(formatting(.Object)$smooth))
-                          if (!is.na(formatting(.Object)$smooth[j]))
-                            {
-                              tmp = runmean(coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]]),
-                                k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant', na.rm = TRUE)
-                              if (!is.na(formatting(.Object)$round[j]))
-                                  tmp = round(tmp, formatting(.Object)$round[j])
-
-                              tmp = as(tmp, 'GRanges')
-                              tmp = tmp[gr.in(tmp, tmp.dat)]
-                              tmp.val = tmp$score
-                              values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
-                              values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-                              tmp.dat = tmp
-                            }
+                    ## subsample if we need to for enforcing max.ranges
+                    if (!is.na(formatting(.Object)$max.ranges[j]) && formatting(.Object)$max.ranges[j] > 0) {
+                       tt <- enforce_max_ranges(.Object, pre.filtered, j, tmp.dat, this.windows)
+                       tmp.dat = tt$t
+                       pre.filtered = tt$p
                     }
 
+                    ## smooth the y.field data
+                    if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') &&
+                        !is.null(formatting(.Object$smooth)) && !is.na(formatting(.Object)$smooth[j]))
+                      tmp.dat <- smooth_yfield(.Object, j, tmp.dat)
 
                     ## fix y limits and apply log transform if needed
-                    if (!is.na(formatting(.Object)$y.field[j]))
-                      if (is.na(formatting(.Object)$y0[j]) | is.na(formatting(.Object)$y1[j]))
-                        {
-                          if (!(formatting(.Object)$y.field[j] %in% names(values(tmp.dat))))
-                              stop('y.field missing from input granges')
+                    if (!is.na(formatting(.Object)$y.field[j]) && (is.na(formatting(.Object)$y0[j]) || is.na(formatting(.Object)$y1[j])))
+                      .Object <- format_yfield_limits(.Object, j, tmp.dat, pre.filtered)
 
-                          y0.global = min(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
-                          y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
+                    if (formatting(.Object[j])$format != 'ranges')
+                      stop("violated assumption. need to fix")
 
-                          if (!pre.filtered)
-                            tmp.dat.r <- tmp.dat[gr.in(tmp.dat, this.windows)]
-                          else
-                            tmp.dat.r = tmp.dat
-
-                          val = values(tmp.dat.r)[, formatting(.Object)$y.field[j]]
-#                          r = range(val[!is.infinite(val)], na.rm = TRUE)
-
-                          p.quantile = 0.01
-                          if (!is.null(formatting(.Object)$y.quantile[j]))
-                              if (!is.na(formatting(.Object)$y.quantile[j]))
-                                  p.quantile = pmin(pmax(pmin(formatting(.Object)$y.quantile[j], 1-formatting(.Object)$y.quantile[j]), 0), 1)
-
-                          r = quantile(val[!is.infinite(val)], probs = c(p.quantile, 1-p.quantile), na.rm = T)
-
-                          if (is.na(diff(r)))
-                              r = c(0, 0)
-
-                          if (is.na(formatting(.Object)$y0[j])) ## adjust y limits here if not specified
-                              {
-                                  formatting(.Object)$y0[j] =  pmax(y0.global, r[1] - diff(r)*0.05)
-
-                                  if (diff(r) == 0 & !is.na(formatting(.Object)$y1[j]))
-                                      formatting(.Object)$y0[j] =
-                                         r[1] - diff(c(r[1], formatting(.Object)$y1[j]))*0.05
-
-                              }
-
-                          if (is.na(formatting(.Object)$y1[j])) ## adjust y limits here if not specified
-                              {
-                                  formatting(.Object)$y1[j] = pmin(y1.global, r[2] + diff(r)*0.05)
-                                  if (diff(r) == 0 & !is.na(formatting(.Object)$y0[j]))
-                                      formatting(.Object)$y1[j] =
-                                          r[2] + diff(c(formatting(.Object)$y0[j], r[1]))*0.05
-                              }
-                        }
-
-                    if (format == 'ranges') ## TODO: remove "format" specification, useless at this point
-                      {
-                        plot.track.formats = list(
+                                            plot.track.formats = list(
                           col = formatting(.Object)$col[j],
                           ywid = formatting(.Object)$ywid[j],
                           border = formatting(.Object)$border[j],
@@ -1361,10 +1268,6 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                             formatting(.Object)$vadj.label[j]),
                           gr.adj.label = c(0.5,
                             formatting(.Object)$vadj.label[j]),
-                          xaxis.unit = formatting(.Object)$xaxis.unit[j],
-                          cex.label = formatting(.Object)$cex.label[j],
-                          ##xaxis.suffix = formatting(.Object)$xaxis.suffix[j],
-                          xaxis.interval = formatting(.Object)$xaxis.interval[j],
                           angle = formatting(.Object)$angle[j],
                           y.pad = formatting(.Object)$ypad[j],
                           circles = formatting(.Object)$circles[j],
@@ -1375,7 +1278,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                           y0.bar = formatting(.Object)$y0.bar[j],
                           stack.gap = formatting(.Object)$stack.gap[j])
                         na.fields = names(formatting(.Object))[sapply(1:ncol(formatting(.Object)), function(field) is.na(formatting(.Object)[j, field]))]
-                        other.fields = setdiff(names(formatting(.Object)), c('track.name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'xaxis.unit', 'source.file', 'source.file.chrsub', 'xaxis.interval', 'ypad', 'ywid', 'border', 'col', 'cex.label', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(plot.track.formats))) ## remove na fields and anything else that might mess up draw.grl
+                        other.fields = setdiff(names(formatting(.Object)), c('track.name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'source.file', 'source.file.chrsub', 'ypad', 'ywid', 'border', 'col', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(plot.track.formats))) ## remove na fields and anything else that might mess up draw.grl
 
                         other.formats = structure(names = other.fields,
                           lapply(other.fields, function(x) formatting(.Object)[j, x]))
@@ -1441,12 +1344,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 
 
                             ## adjust y0 .bar
-                            if (is.null((formatting(.Object)$y0.bar[j])))
-                                formatting(.Object)$y0.bar[j] = NA
-
-                            if (is.na((formatting(.Object)$y0.bar[j])))
+                            if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j])))
                                 formatting(.Object)$y0.bar[j] = 0
-
 
                             plot.track.formats$y0.bar = affine.map(formatting(.Object)$y0.bar[j], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
                             if (formatting(.Object)$yaxis[j])
@@ -1462,7 +1361,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                             ## ## fix ywids if necessary
                             ## if (!is.null(values(tmp.dat)$ywid))
                             ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)
-                          }
+                            }
 
                         if (!is.null(plot.track.formats$bars))
                           if (plot.track.formats$bars)
@@ -1494,7 +1393,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                         other.args = dotdot.args
                         other.args = other.args[setdiff(names(other.args), names(main.args))]
 
-                        if (new.plot) ## make empty plot
+                        ## make empty plot
+                        if (new.plot)
                           {
                             blank.main.args = main.args;
                             blank.main.args[[1]] = blank.main.args[[1]][c()]
@@ -1511,9 +1411,10 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                             main.args$new.axis = F
                           }
 
-                        new.plot = F; new.axis = F
+                        new.plot = FALSE
+                        new.axis = FALSE
+
                         window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
-                      }
 
                     this.tname = formatting(.Object[j])$track.name
 
@@ -1525,7 +1426,6 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                       }
 
                   }
-              }
 
             if (is.null(links))
               links = GRangesList()
@@ -1533,7 +1433,9 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
             if (length(links)>0) # draw rearrangement links
               {
                 # first map rearrangements to various windows>
-                win.u = gr.stripstrand(grl.unlist(windows))
+                win.u = this.windows
+                win.u$grl.ix = 1  ##holdover from grangeslist windows
+                ##win.u = gr.stripstrand(grl.unlist(windows))
 
                 window.segs.u = do.call(rbind, window.segs)
                 window.segs.u$width = window.segs.u$end - window.segs.u$start + 1
@@ -1744,11 +1646,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 #'
 #' @export
 #' @author Marcin Imielinski
-karyogram = function(hg19 = T,
-  bands = T,
-  arms = T,
-  tel.width = 2e6, ...
-  )
+karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
   {
 #    ucsc.bands = get_ucsc_bands(hg19 = hg19)
 
@@ -1759,7 +1657,7 @@ karyogram = function(hg19 = T,
 
     if (bands)
       {
-        si = seqinfo2gr(ucsc.bands);
+        si = gUtils::si2gr(ucsc.bands);
         si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
         si = Seqinfo(as.character(seqnames(si)), width(si)+1)
         ucsc.bands = sort(gr.fix(ucsc.bands, si, drop = T))
@@ -2608,8 +2506,8 @@ draw.grl = function(grl,
   bg.col = 'gray99',
   y.pad = 0.05,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair
   xaxis.prefix = '',  ### DEFAULT GOES HERE
-  xaxis.suffix = "MBasdf",  ### DEFAULT GOES HERE
-  xaxis.unit = 1e6,
+  xaxis.suffix = "",  ### DEFAULT GOES HERE
+  xaxis.unit = 1, ##1e6,
   xaxis.round = 3,
   xaxis.interval = NULL,
   xaxis.pos = NULL,
@@ -2658,7 +2556,6 @@ draw.grl = function(grl,
   ...)
   {
 
-
     ## call to matrix function, skip the rest. this is budget, but keeps draw.grl integration
     if (triangle) {
       palette.colors = NULL
@@ -2668,14 +2565,9 @@ draw.grl = function(grl,
         else
           palette.colors = gr.colormap
 
-      return(draw.triangle(grl=grl,y=y,mdata=mdata,ylim=ylim,ylim.parent=ylim.parent,windows=windows,win.gap=win.gap,sep.lty=sep.lty,sep.lwd=sep.lwd,
-                  xaxis.nticks=xaxis.nticks,xaxis.interval=xaxis.interval,xaxis.unit=xaxis.unit,
-                  ##xaxis.suffix=xaxis.suffix,
-                  cex.tick=cex.tick,xaxis.newline=xaxis.newline,xaxis.width=xaxis.width,
-                  xaxis.round=xaxis.round,xaxis.chronly=xaxis.chronly,xaxis.cex.label=xaxis.cex.label, sigma = smooth,
-                  ##xaxis.prefix=xaxis.prefix,
-                  new.axis=new.axis,new.plot=new.plot,cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
-                  bg.col=m.bg.col, legend.cex=legend.cex, islog=islog, palette.colors = palette.colors,  ...))
+        return(draw.triangle(grl=grl,y=y,mdata=mdata,ylim.parent=ylim.parent,windows=windows,win.gap=win.gap,sigma = smooth,
+                             cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
+                             bg.col=m.bg.col, legend.cex=legend.cex, islog=islog, palette.colors = palette.colors))
     }
 
     now = Sys.time();
@@ -3818,75 +3710,6 @@ draw.grl = function(grl,
   }
 
 
-
-######################################
-#' @name pencils
-#' @title pencils
-#' @description
-#' pencils
-#'
-#' pencils = hexa-penta-rectagonal like pointy shapes often used to represent NGS read directionality (eg IGV)
-#'
-#' parameterized like rect() function to represent horizontal (x0 and x1) and vertical (y0 and y1) extent of each object, however depending on the
-#' value of rightpoint (0-1), leftpoint (0-1) will connect the top and bottom edges of the rectangle to the vertical midpoint of the rectangle
-#' on the right / left side.  Values of 0 for leftpoint and rightpoint will yield a diamond, and values of 1 will yield a "classic" rectangle.
-#'
-#' all arguments except leftpoint and rightpoint can be vectors (of length n) specifying n different barbs with different positions / parameters.
-
-#' @keywords internal
-#' @author Marcin Imielinski
-######################################
-pencils = function(x0, y0, x1, y1,
-  leftpoint = 1, # this is a scalar value (see above).. clipped to be between 0 and 1
-  rightpoint = 1,
-  lwd = 1,
-  lty = par("lty"),
-  col = 'gray',
-  border = col,
-  col.head = col # if different from 'col' will draw additional arrowhead polygons
-  )
-{
-  ## create "primitive shape" that we will replicate and transform based on x0,x1,y0,y1 parameters
-  dummyleft = dummyright = 0.5;
-  prim.leftind = c(2,6);
-  prim.rightind = c(3,5);
-  prim.x = c(0, dummyleft, dummyright, 1, dummyright, dummyleft, NA);
-  prim.y = c(0.5, 0, 0, 0.5, 1, 1,  NA)
-
-  # coord has nrow number of polygons
-  coord = data.frame(x0, x1, y0, y1, border, col, lwd, col.head, lty, leftpoint, rightpoint, stringsAsFactors = F);
-
-  ## translate provided leftpoint / rightpoint params into polygon params
-  coord$leftpoint = 0.5 - 0.5*pmax(0, pmin(1, coord$leftpoint))
-  coord$rightpoint = 0.5 + 0.5*pmax(0, pmin(1, coord$rightpoint))
-
-  ## replicate prim.x and populate leftpoint and rightpoint in vectorized way
-  rep.x = rep(prim.x, nrow(coord));
-
-  rep.x[rep(prim.leftind, nrow(coord)) + length(prim.x)*rep(-1+1:nrow(coord), each = 2)] = rep(coord$leftpoint, each = 2)
-  rep.x[rep(prim.rightind, nrow(coord)) + length(prim.x)*rep(-1+1:nrow(coord), each = 2)] = rep(coord$rightpoint, each = 2)
-  rep.y = rep(prim.y, nrow(coord));
-
-  ## make scaling and translation vectors
-  scale.x = rep(coord$x1-coord$x0, each = length(prim.x))
-  t.x = rep(coord$x0, each = length(prim.x))
-  scale.y = rep(coord$y1-coord$y0, each = length(prim.y))
-  t.y = rep(coord$y0, each = length(prim.y))
-
-  ##
-  if (all(col.head != col)) # draw the "outer" barb shapes in col.head, and then the "inner" rectangles using col
-    {
-      polygon(rep.x*scale.x + t.x, rep.y*scale.y + t.y, border = coord$col.head, col = coord$col.head, lwd = coord$lwd, lty = coord$lty)
-      coord$midpoint = (coord$x1+coord$x0)/2;
-      coord$width = (coord$x1-coord$x0);
-      coord$leftpoint = coord$midpoint - 0.5*pmax(0, pmin(1, leftpoint))*coord$width;
-      coord$rightpoint = coord$midpoint + 0.5*pmax(0, pmin(1, rightpoint))*coord$width;
-      rect(coord$leftpoint, coord$y0, coord$rightpoint, coord$y1, border = coord$border, col = coord$col, lwd = coord$lwd, lty = coord$lty)
-    }
-  else # draw pencils only
-    polygon(rep.x*scale.x + t.x, rep.y*scale.y + t.y, border = coord$border, col = coord$col, lwd = coord$lwd, lty = coord$lty)
-}
-
 #####################################
 #' @name barbs
 #' @title barbs
@@ -4144,6 +3967,7 @@ affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.m
     return(y)
   }
 
+
 #' @name alpha
 #' @title alpha
 #' @description
@@ -4321,30 +4145,11 @@ plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes 
 draw.triangle <- function(grl,
     mdata=NA,
     y = NULL,
-    ylim=NULL,
     ylim.parent=NULL,
     windows = NULL,
     win.gap = NULL,
     bg.col = 'gray95',
-    bgborder = 'red',
-    sep.lty = 2,
-    sep.lwd = 1,
-    xaxis.nticks = 2,
-    xaxis.interval = NULL,
-    xaxis.unit = 1,
-    xaxis.suffix = '',
-    cex.tick = 1,
-    xaxis.newline = TRUE,
-    xaxis.width = TRUE,
-    xaxis.round=3,
-    xaxis.chronly=FALSE,
-    xaxis.label.angle=0,
-    xaxis.cex.label=1,
-    xaxis.pos.label=NULL,
-    xaxis.pos=NULL,
-    new.axis = TRUE,
     sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs
-    new.plot = TRUE,
     col.min='white',
     col.max='red',
     palette.colors = NULL,
@@ -4352,11 +4157,8 @@ draw.triangle <- function(grl,
     cmap.max=NULL,
     msep.lwd=1,
     legend.cex = 1,
-    islog = FALSE,
-    ...) {
+    islog = FALSE) {
 
-  now = Sys.time();
-  empty.plot = FALSE
   ylim.subplot = NULL
 
   xlim = c(0, 20000)
@@ -4372,42 +4174,12 @@ draw.triangle <- function(grl,
     gr <- grl
   }
 
-  if (length(grl) > 0)
+  ##assume grl is always non zero
     if (is.null(mdata)) {
       mdata = matrix(nrow=length(gr), ncol=length(gr), 0)
     } else if (nrow(mdata) != length(gr)) {
       warning('draw.triangle: square matrix should be same dim as gr')
     }
-
-  ## make the empty plot
-  if (length(grl) == 0)
-    empty.plot = TRUE
-
-  if (empty.plot)
-  {
-    if (is.null(windows))
-      stop('Either nonempty range data or windows must be provided')
-
-    pintersect=TRUE
-    mapped = gr.flatmap(GRanges(), windows, win.gap, pintersect=pintersect)
-    window.segs = mapped$window.segs
-    winlim = range(c(window.segs$start, window.segs$end))
-    window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
-    window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
-                                    #        xlim = c(min(window.segs$start), max(window.segs$end));
-
-    if (is.null(ylim))
-      ylim = c(0, 1)
-
-    if (is.list(y) & is.null(ylim.subplot))
-      if (all(c('start', 'end') %in% names(y)))
-        ylim.subplot = c(y$start[1], y$end[1])
-      else
-        ylim.subplot = c(y[[1]], y[[2]])
-
-    if (is.null(ylim.subplot))
-      ylim.subplot = ylim
-  }
 
   ## find covered windows in provided grl
   if (is.null(windows)) {
@@ -4421,7 +4193,6 @@ draw.triangle <- function(grl,
     win.gap = mean(width(windows))*0.2
 
   ## calculate the background
-  if (!empty.plot) {
     mapped = gr.flatmap(gr, windows, win.gap, pintersect=TRUE);
     grl.segs = mapped$grl.segs;
     window.segs = mapped$window.segs;
@@ -4444,7 +4215,6 @@ draw.triangle <- function(grl,
         }
     if (nrow(mdata) != nrow(grl.segs))
       warning('problem after flatmap. Should have trimmed matrix to len(gr)')
-  }
 
   if (nrow(grl.segs) > 0)
     if (nrow(grl.segs) != nrow(mdata)) {
@@ -4458,83 +4228,12 @@ draw.triangle <- function(grl,
   window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
   window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
 
-  ## always calculate a new xaxis.pos
-  if (is.null(xaxis.pos))
-    if (!is.null(ylim.subplot))
-      xaxis.pos = ylim.subplot[1]-0.05*diff(ylim.subplot)
-    else
-      xaxis.pos = ylim[1]+0.12*diff(ylim)
-
-    nwin = length(windows);
-    if (is.null(xaxis.interval) && xaxis.nticks > 0)
-      xaxis.interval = 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks)))
-
-    if (is.null(xaxis.pos.label))
-      if (!is.null(ylim.subplot))
-        xaxis.pos.label = xaxis.pos - 0.04*diff(ylim.subplot)
-      else
-        xaxis.pos.label = xaxis.pos - 0.04*diff(ylim)
-
-    if (xaxis.nticks > 0) {
-      xaxis.interval = max(xaxis.interval, 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks))))
-      seq.at.og = lapply(1:length(windows), function(x) {
-        out = c(start(windows)[x], seq(ceiling(start(windows)[x]/xaxis.interval),
-          floor(end(windows)[x]/xaxis.interval))*xaxis.interval, end(windows)[x])
-      out[out>=start(windows)[x] & out<=end(windows)[x]]
-      });
-
-      seq.at = lapply(1:length(seq.at.og), function(x) affine.map(seq.at.og[[x]]-start(windows)[x]+mapped$window.segs$start[x],
-        xlim = winlim, ylim = xlim))
-      seq.at.og = unlist(seq.at.og)
-      seq.at = unlist(seq.at);
-      dup.ix = duplicated(seq.at);
-      seq.at.og = seq.at.og[!dup.ix]
-      seq.at = seq.at[!dup.ix]
-
-      ## calculate ticks
-      cex.ticklen <- 1
-      tick.len = 0.01*diff(ylim)*cex.ticklen
-      y0.tick = rep(xaxis.pos, length(seq.at))
-      y1.tick = rep(xaxis.pos, length(seq.at)) - tick.len
-
-      # then (tick) text
-      if (xaxis.unit == 1)
-        tick.text = prettyNum(paste(seq.at.og, xaxis.suffix), big.mark = ',')
-      else
-        tick.text = paste(round(seq.at.og/xaxis.unit, xaxis.round), xaxis.suffix)
-    }
-
-       # then (label) text
-      newline <- ifelse(xaxis.newline, '\n', '')
-    width.text = ''
-    if (xaxis.width)
-      if (!is.null(xaxis.suffix))
-        width.text = paste('(', paste(prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
-          width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','), xaxis.suffix),  ')', sep = '')
-      else
-        width.text = paste('(', prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
-          width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','),  ')', sep = '')
-    begin.text = prettyNum(pmax(floor(1/xaxis.unit),
-      ifelse(rep(xaxis.unit == 1, length(windows)), start(windows), round(start(windows)/xaxis.unit, xaxis.round))),
-      big.mark = ',')
-    end.text = prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)), end(windows),
-      round(end(windows)/xaxis.unit, xaxis.round)), big.mark = ',')
-
   #####################
   ## send to plotting device
   #####################
 
+  ## should have already called draw.grl!
   ## make the plot
-  if (new.plot) {
-    ##print('...sending blank plot')
-    ##print(Sys.time() - now)
-
-    plot.blank(xlim=xlim, ylim=ylim)
-    new.axis = TRUE
-  } else {
-    ##print('...sending NON blank plot')
-    ##print(Sys.time() - now)
-  }
 
   wid = 20000
   hgt.subp = abs(diff(ylim.subplot))
@@ -4547,16 +4246,12 @@ draw.triangle <- function(grl,
   ## draw blank background
   rect(xlim[1]-diff(xlim)*0.1, ylim.subplot[1], xlim[2], ylim.subplot[2], border = NA, col = 'white')
 
-
-  if (!empty.plot) {
-
     ## draw the background BOXES
     if (nrow(window.segs) > 1) {
       bgx = .all.xpairs(window.segs$start, window.segs$end)
       out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1)
 
       ## affine map to local coorinates
-      #out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=xlim, ylim=ylim.parent) + xaxis.pos
       out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
       if (msep.lwd > 0)
         polygon(out$x, out$y, col=bg.col, lwd=msep.lwd)
@@ -4566,7 +4261,6 @@ draw.triangle <- function(grl,
 
     ## draw the background triangles
     out = triangle(x1=window.segs$start, x2=window.segs$end, y=y0, y0=y0, y1=y1)
-    ###out$y[seq(from=2, to=length(out$y), by=4)] <- affine.map(out$y[seq(from=2, to=length(out$y), by=4)], xlim=xlim, ylim=ylim.parent) + xaxis.pos
 
     out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     #out$y[seq(from=2, to=length(out$y), by=4)] <- affine.map(out$y[seq(from=2, to=length(out$y), by=4)], xlim=dlim, ylim=ylim.subplot)
@@ -4575,78 +4269,35 @@ draw.triangle <- function(grl,
     else
       polygon(out$x, out$y, col=bg.col, border=NA)
 
-    ###print('...finished background')
-    ###print(Sys.time() - now)
-  }
+    if (nrow(grl.segs) == 0)
+      return(window.segs)
 
-  ## draw the guide lines facing left
-  if (!empty.plot) {
-
-    ## Draw the axes
-    #segments(window.segs$start, rep(xaxis.pos, nwin), window.segs$end, rep(xaxis.pos, nwin), col='black');
-
-    ## draw the ticks
-    #if (xaxis.nticks > 0)
-    #  segments(seq.at, y0.tick, seq.at, y1.tick)
-
-    ## draw the guide lines facing left
-    if (nrow(window.segs) > 1 && FALSE)
-    for (i in 1:(nrow(window.segs)-1)) {
-      xend = window.segs$end[length(window.segs$end)]
-      p = .geti(window.segs$start[i], xend)
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
-      segments(window.segs$start[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
-      p = .geti(window.segs$end[i], xend)
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
-      segments(window.segs$end[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
-    }
-
-    # draw the guide lines facing right
-    if (nrow(window.segs) > 1 && FALSE)
-    for (i in 2:nrow(window.segs)) {
-      xstart = window.segs$start[1]
-      p = .geti(xstart, window.segs$start[i])
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
-      segments(window.segs$start[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
-      p = .geti(xstart, window.segs$end[i])
-      p$y = affine.map(p$y, xlim=xlim, ylim=ylim.parent)
-      segments(window.segs$end[i], xaxis.pos, p$x, p$y + xaxis.pos, lty = sep.lty, lwd = sep.lwd)
-    }
-
-    ###print('... finished guides')
-    ###print(Sys.time() - now)
-
-
-  }
-
-  ## plot the data
-  if (nrow(grl.segs) > 0) {
+    ################
+    ## plot the data
+    ################
 
     ## set the color scale
-    ##print('...plotting the data')
     bgx = .all.xpairs(grl.segs$pos1, grl.segs$pos2)
     col = mdata[matrix(nrow=nrow(bgx), ncol=2, c(bgx[,5], bgx[,6]))]
     out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)
 
     ## set the color scale
     if (is.null(cmap.min))
-                                        #      cmap.min = min(mdata)
-        cmap.min = quantile(mdata, 0.01)
+      #      cmap.min = min(mdata)
+      cmap.min = quantile(mdata, 0.01)
 
     if(is.null(cmap.max))
-                                        #cmap.max = max(mdata)
-        cmap.max = quantile(mdata, 0.99)
+      cmap.max = quantile(mdata, 0.99)
 
     #cs <- col.scale(seq(cmap.min, cmap.max), val.range=c(cmap.min, cmap.max), col.min=col.min, col.max=col.max)
     if (is.null(palette.colors))
       palette.colors = c("light green", "yellow", "orange", "red")
     else if (is.list(palette.colors))
-        palette.colors = unlist(palette.colors)
+      palette.colors = unlist(palette.colors)
 
     cs <- colorRampPalette(palette.colors)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))
 
     ## affine map to local coorinates
-    ###print('...plotting data polygons')
     out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     ix.min <- out$col < cmap.min
     ix.max <- out$col > cmap.max
@@ -4674,8 +4325,6 @@ draw.triangle <- function(grl,
     #cr <- cs[ceiling(out.t$col) - cmap.min + 1]
     polygon(out.t$x, out.t$y, col=cr, border=NA)
 
-    ###print('... finished data')
-    ###print(Sys.time() - now)
     ## plot the legend
     if (!islog)
       txt = format(c(cmap.min, 0.5*(cmap.max-cmap.min) + cmap.min, cmap.max), digits=1)
@@ -4684,29 +4333,6 @@ draw.triangle <- function(grl,
     color.bar(lut = cs, xpos=0, ypos=ylim.subplot[1] + diff(ylim.subplot)*0.3, width=500, height=diff(ylim.subplot)*0.3,
               text=txt, cex=legend.cex)
 
-  }
-
-  ## JEREMIAH 3/9/16 -- I don't think this ever gets reached (new.axis is always false)
-  # if (new.axis) {
-  #
-  #   ## write the tick text
-  #   if (xaxis.nticks > 0)
-  #     text(seq.at, y1.tick-tick.len, tick.text, cex = cex.tick*0.8, srt = 90, adj = c(1, 0.5))
-  #
-  #   ## write the label
-  #   if (!xaxis.chronly) {
-  #     text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
-  #          paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
-  #                begin.text,'-', newline,
-  #                end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
-  #          cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
-  #   } else {
-  #     text(rowMeans(window.segs[, c('start', 'end')]), rep(ylim[1], nwin),
-  #          paste(xaxis.prefix, ' ',  seqnames(windows), sep = ''),
-  #          cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
-  #   }
-  # }
-  ######################
   return(window.segs)
 }
 
@@ -4740,7 +4366,6 @@ draw.triangle <- function(grl,
   yc0 = y0
   dt <- subset(dt, y1 < yc1 & y4 > yc0)
 
-  ##print('...top clip')
   #############
   # deal with the top clip
   #############
@@ -4762,7 +4387,6 @@ draw.triangle <- function(grl,
   dt$x4[ix] <- dt$x3[ix] + dt$lean.sign[ix] * (y1 - dt$y3[ix])
   dt$x5[ix] <- dt$x6[ix] - dt$lean.sign[ix] * (y1 - dt$y6[ix])
 
-  ##print('...bottom clip')
   ##################
   # deal with the bottom clip
   ##################
@@ -4799,13 +4423,9 @@ draw.triangle <- function(grl,
 diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
 
 
-     ##print('...get 1')
      i1 = i2 = .geti(x12, x21)
-     ##print('...get 2')
      i3 = .geti(x11, x21)
-     ##print('...get 3')
      i4 = i5 = .geti(x11, x22)
-     ##print('...get 4')
      i6 = .geti(x12, x22)
 
      ## dummy
@@ -4813,14 +4433,11 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
        col <- i1$x
 
      ## setup the data table
-     ##print('...data.table')
      dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                       y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
-     ##print('...clip polys')
      dt <- .clip.polys(dt, y0, y1)
      iN <- rep(NA, nrow(dt))
 
-     ##print('...matrix')
      out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
      out.y <- as.numeric(t(matrix(c(dt$y1, dt$y2, dt$y3, dt$y4, dt$y5, dt$y6, iN), nrow=nrow(dt))))
 
@@ -5005,41 +4622,6 @@ gr.flatmap = function(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FA
   return(list(grl.segs = grl.segs, window.segs = window.segs))
 }
 
-#' affine.map
-#'
-#' affinely maps 1D points in vector x from interval xlim to interval ylim,
-#' ie takes points that lie in
-#' interval xlim and mapping onto interval ylim using linear / affine map defined by:
-#' (x0,y0) = c(xlim(1), ylim(1)),
-#' (x1,y1) = c(xlim(2), ylim(2))
-#' (using two point formula for line)
-#' useful for plotting.
-#'
-#' if cap.max or cap.min == TRUE then values outside of the range will be capped at min or max
-#' @keywords internal
-affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = FALSE, cap.min = cap, cap.max = cap)
-{
-  #  xlim[2] = max(xlim);
-  #  ylim[2] = max(ylim);
-
-  if (xlim[2]==xlim[1])
-    y = rep(mean(ylim), length(x))
-  else
-    y = (ylim[2]-ylim[1]) / (xlim[2]-xlim[1])*(x-xlim[1]) + ylim[1]
-
-  if (cap.min)
-    y[x<min(xlim)] = ylim[which.min(xlim)]
-  else
-    y[x<min(xlim)] = NA;
-
-  if (cap.max)
-    y[x>max(xlim)] = ylim[which.max(xlim)]
-  else
-    y[x>max(xlim)] = NA;
-
-  return(y)
-}
-
 gr.stripstrand = function(gr)
 {
   strand(gr) = "*"
@@ -5075,7 +4657,7 @@ format_windows <- function(windows, .Object) {
     warning("Empty windows provided, drawing whole genome")
     windows = seqinfo2gr(seqinfo(.Object))
   }
-  return (windows)
+  return (unlist(windows))
 }
 
 prep_defaults_for_plotting <- function(.Object) {
@@ -5084,6 +4666,9 @@ prep_defaults_for_plotting <- function(.Object) {
 
   if (any(ix <- is.na(.Object@formatting$triangle)))
     .Object@formatting$triangle[ix] = FALSE
+
+  if (is.null(formatting(.Object)$source.file.chrsub))
+    formatting(.Object)$source.file.chrsub = TRUE
 
   # layout legends if colorfield or colormap is NA and legends have no xpos set
   leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
@@ -5221,3 +4806,100 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
 
   return(list(o=.Object, t=tmp.dat))
 }
+
+enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) {
+
+  ## enforce max.ranges (everything should be a GRanges at this point)
+  if (!pre.filtered & nrow(edgs(.Object)[[j]])==0 & length(.Object@vars[[j]])==0) ## assume any track associated with edges is pre-filtered
+  {
+    if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
+      if (inherits(tmp.dat, 'GRangesList'))
+      {
+        vals = values(tmp.dat)
+        nm = names(tmp.dat)
+        tmp2 = grl.unlist(tmp.dat)
+        tmp2 = tmp2[gr.in(tmp2, this.windows)]
+        tmp.dat = split(tmp2, tmp2$grl.ix)
+        values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
+        names(tmp.dat) = nm[as.numeric(names(tmp.dat))]
+      }
+    else if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
+    {
+      tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+      pre.filtered = TRUE
+    }
+  }
+
+  if (length(tmp.dat)>formatting(.Object)$max.ranges[j] &
+      nrow(edgs(.Object)[[j]])==0 & !.Object@formatting$triangle[j]) ## don't sample if there are edges or triangle
+  {
+    tmp.dat = sample(tmp.dat, ceiling(formatting(.Object)$max.ranges[j]))
+  }
+
+  return(list(p=pre.filtered, t=tmp.dat))
+
+}
+
+smooth_yfield <- function(.Object, j, tmp.dat) {
+
+  tmp = S4Vectors::runmean(GenomicRanges::coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]]),
+                           k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant', na.rm = TRUE)
+
+  if (!is.na(formatting(.Object)$round[j]))
+    tmp = round(tmp, formatting(.Object)$round[j])
+
+  tmp = as(tmp, 'GRanges')
+  tmp = tmp[gr.in(tmp, tmp.dat)]
+  tmp.val = tmp$score
+  values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+  values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
+  tmp.dat = tmp
+
+}
+
+format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered) {
+  if (!(formatting(.Object)$y.field[j] %in% names(values(tmp.dat))))
+    stop('y.field missing from input granges')
+
+  y0.global = min(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
+  y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
+
+  if (!pre.filtered)
+    tmp.dat.r <- tmp.dat[gr.in(tmp.dat, this.windows)]
+  else
+    tmp.dat.r = tmp.dat
+
+  val = values(tmp.dat.r)[, formatting(.Object)$y.field[j]]
+  #                          r = range(val[!is.infinite(val)], na.rm = TRUE)
+
+  p.quantile = 0.01
+  if (!is.null(formatting(.Object)$y.quantile[j]) && !is.na(formatting(.Object)$y.quantile[j]))
+    p.quantile = pmin(pmax(pmin(formatting(.Object)$y.quantile[j], 1-formatting(.Object)$y.quantile[j]), 0), 1)
+
+  r = quantile(val[!is.infinite(val)], probs = c(p.quantile, 1-p.quantile), na.rm = T)
+
+  if (is.na(diff(r)))
+    r = c(0, 0)
+
+  if (is.na(formatting(.Object)$y0[j])) ## adjust y limits here if not specified
+  {
+    formatting(.Object)$y0[j] =  pmax(y0.global, r[1] - diff(r)*0.05)
+
+    if (diff(r) == 0 & !is.na(formatting(.Object)$y1[j]))
+      formatting(.Object)$y0[j] =
+        r[1] - diff(c(r[1], formatting(.Object)$y1[j]))*0.05
+
+  }
+
+  if (is.na(formatting(.Object)$y1[j])) ## adjust y limits here if not specified
+  {
+    formatting(.Object)$y1[j] = pmin(y1.global, r[2] + diff(r)*0.05)
+    if (diff(r) == 0 & !is.na(formatting(.Object)$y0[j]))
+      formatting(.Object)$y1[j] =
+        r[2] + diff(c(formatting(.Object)$y0[j], r[1]))*0.05
+  }
+
+  return(.Object)
+}
+
+
