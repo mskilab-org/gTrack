@@ -21,7 +21,7 @@ Tutorial
    # plot gTrack object 
    plot(tcgagt)
 
-.. figure:: figures/tcga too many windows.png
+.. figure:: figures/tcgatoomanywindows.png
    :alt:
    :scale: 125%
    
