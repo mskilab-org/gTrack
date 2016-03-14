@@ -21,7 +21,7 @@ Tutorial
    # plot gTrack object 
    plot(tcgagt)
 
-.. figure:: inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt
+.. figure:: figures/tcga\ too\ many\ windows.png
    :alt:
    :scale: 125%
    
