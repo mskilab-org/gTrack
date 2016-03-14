@@ -23,5 +23,5 @@ Tutorial
 
 .. figure:: figures/tcgatoomanywindows.png
    :alt:
-   :scale: 75
+   :scale: 75%
    
