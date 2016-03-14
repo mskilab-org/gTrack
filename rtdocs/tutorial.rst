@@ -24,4 +24,12 @@ Tutorial
 .. figure:: figures/tcgatoomanywindows.png
    :alt:
    :scale: 75%
+
+.. code-block:: bash
    
+   # Changed default number of windows (from entire genome to the first five windows 
+   plot(tcgagt , window = tcgagr[1:5])   
+
+.. figure:: figures/tcga5windows.png 
+   :alt:
+   :scale: 75%  
