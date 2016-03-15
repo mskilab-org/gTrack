@@ -386,7 +386,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' rows (and thus columns) must be equal to the length of the \code{data} element. The value of the (i,j) element of this matrix represents a value
 #' for the intersection of \code{data[i]} and \code{data[j]}. Note that all connections are assumed to be symmetric, and only the upper triangle
 #' will be read. Displays a \code{warning} if the matrix is non-symmetric
-#' @param y.field vector or scalar character specifying meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
+#' @param y.field vector or scalar character referencing meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
 #' numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks
 #' @param name vector or scalar character specifying name of this track, which will be displayed on label to the left of the track
 #' @param height vector or scalar numeric specifying height of track(s) (in relative units)
