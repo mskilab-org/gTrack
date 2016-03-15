@@ -436,7 +436,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param max.ranges vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)
 #' @param angle vector of scalar numeric specifying angle of polygons that represent signed range'
 #' @param lift vector or scalar logical flag specifying whether to lift this track to other chainedTrack
-#' items (only relevant if used wihtin chainedTracks object)
+#' items (only relevant if used within chainedTracks object)
 #' @param split vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)
 #' @param colormaps length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.
 #' @param edges Data frame of columns $from, $to, and optional fields $col, $lwd, and $lty, specifying edges linking data items.
