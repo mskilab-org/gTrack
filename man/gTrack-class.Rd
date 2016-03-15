@@ -9,9 +9,14 @@
 gTrack(...)
 }
 \arguments{
-\item{data}{This is an instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
+\item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
 (4) character representing Bed, Wig, BigWig, or .rds GRanges file.  It can also be a list of the above (if specifying multiplying
  tracks.}
+
+\item{mdata}{Square matrix representing values at connections between genomic elements (e.g. chr8:1,000-2,000 to chr3:5,000-6,000). The number of
+rows (and thus columns) must be equal to the length of the \code{data} element. The value of the (i,j) element of this matrix represents a value
+for the intersection of \code{data[i]} and \code{data[j]}. Note that all connections are assumed to be symmetric, and only the upper triangle
+will be read. Displays a \code{warning} if the matrix is non-symmetric}
 
 \item{y.field}{vector or scalar character specifying meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
 numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks}

@@ -4,17 +4,11 @@
 \alias{draw.triangle}
 \title{draw.triangle}
 \usage{
-draw.triangle(grl, mdata = NA, y = NULL, ylim = NULL,
-  ylim.parent = NULL, windows = NULL, win.gap = NULL, bg.col = "gray95",
-  bgborder = "red", sep.lty = 2, sep.lwd = 1, xaxis.nticks = 2,
-  xaxis.interval = NULL, xaxis.unit = 1, xaxis.suffix = "",
-  cex.tick = 1, xaxis.newline = TRUE, xaxis.width = TRUE,
-  xaxis.round = 3, xaxis.chronly = FALSE, xaxis.label.angle = 0,
-  xaxis.cex.label = 1, xaxis.prefix = "", xaxis.pos.label = NULL,
-  xaxis.pos = NULL, new.axis = TRUE, sigma = NA, new.plot = TRUE,
+draw.triangle(grl, mdata = NA, y = NULL, ylim.parent = NULL,
+  windows = NULL, win.gap = NULL, bg.col = "gray95", sigma = NA,
   col.min = "white", col.max = "red", palette.colors = NULL,
   cmap.min = NULL, cmap.max = NULL, msep.lwd = 1, legend.cex = 1,
-  islog = FALSE, ...)
+  islog = FALSE)
 }
 \description{
 internal draw.triangle function

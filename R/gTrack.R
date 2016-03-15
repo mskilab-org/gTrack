@@ -43,7 +43,6 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            gr.colorfield = NA,
                                            y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                                            y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
-                                           cex.tick = 0.8,
                                            lwd.border = 1,
                                            hadj.label = 1,
                                            vadj.label = 0.5,
@@ -59,7 +58,6 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
                                            source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
                                            y0.bar = NA,
-                                           legend = T,# logical whether to print legend
                                            yaxis = !is.na(y.field), # logical whether to print yaxis
                                            yaxis.pretty = 5, # how many ticks to optimally draw on yaxis
                                            yaxis.cex = 1, ## size of text at yaxis
@@ -68,12 +66,13 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            ...)
           {
 
-              is.null = FALSE;
+
+            is.null = FALSE;
             if (is.null(data))
-                {
+            {
                     .Object@data = list(GRanges())
                     is.null = T
-                }
+            }
             else if (!is.list(data))
               .Object@data = list(data)
             else
@@ -81,7 +80,6 @@ setMethod('initialize', 'gTrack', function(.Object,
 
               if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'character', 'RleList', 'ffTrack'))))
                 stop('check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
-
 
               ## replicate if length y.field > 1 and length dat is 1
               if (length(y.field)>1 & length(.Object)==1)
@@ -185,9 +183,45 @@ setMethod('initialize', 'gTrack', function(.Object,
               if (is.null(t.name))
                   t.name = rep(NA, length(.Object@data))
 
+              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap,
+                                              lift = lift, split = split, angle = angle, format = format, col = col,
+                                              lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border,
+                                              hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth,
+                                              round = round, vadj.label = vadj.label, y.field = y.field,
+                                              circles = circles, bars = bars, y0.bar = y0.bar, lines = lines,
+                                              source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex,
+                                              max.ranges = max.ranges, yaxis = yaxis,
+                                              yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle,
+                                              is.null = is.null, stringsAsFactors = FALSE)
 
-              .Object@formatting = data.frame(track.name = t.name, height = height, ygap = ygap, stack.gap = stack.gap, lift = lift, split = split, angle = angle, format = format, col = col, lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border, hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth, round = round, vadj.label = vadj.label, legend = legend, y.field = y.field, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex, cex.tick = cex.tick, max.ranges = max.ranges, yaxis = yaxis, yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle, is.null = is.null,
-                  stringsAsFactors = FALSE)
+              ## set the xaxis defaults
+              .Object@formatting$xaxis.prefix = ''
+              .Object@formatting$xaxis.suffix = ""
+              .Object@formatting$xaxis.unit = 1
+              .Object@formatting$xaxis.round = 3
+              .Object@formatting$xaxis.cex.label = 1
+              .Object@formatting$xaxis.newline = FALSE
+              .Object@formatting$xaxis.chronly = FALSE
+              .Object@formatting$xaxis.width= TRUE
+              .Object@formatting$xaxis.interval = 'auto'
+              .Object@formatting$xaxis.label.angle = 0
+              .Object@formatting$xaxis.ticklen = 1
+              .Object@formatting$xaxis.cex.tick = 1
+
+              ## set the seperator defaults
+              .Object@formatting$sep.lty = 2
+              .Object@formatting$sep.lwd = 1
+              .Object@formatting$sep.bg.col = 'gray95'
+              .Object@formatting$sep.draw = TRUE
+
+              ## set the legend defaults
+              # .Object@formatting$legend = TRUE
+              # .Object@formatting$legend.xpos = 0
+              # .Object@formatting$legend.ypos = 1
+              # .Object@formatting$legend.ncol = 2
+              # .Object@formatting$legend.xjust = 0
+              # .Object@formatting$legend.yjust = 0
+              # .Object@formatting$legend.maxitems
 
             other.args = list(...)
             if (length(other.args)>0)
@@ -388,9 +422,9 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param legend.xpos vector or scalar numeric between 0 and 1 specifying what relative x position in the plot to place the legend for this track  (formatting)
 #' @param legend.ypos vector or scalar numeric between 0 and 1 specifying what relative y position in the plot to place the legend for this track  (formatting)
 #' @param legend.ncol vector or scalar positive integer specifying how many columns to put in legend (formatting)
-#' @param legend.xjust vector or scalar of {0, 1, 2} specifying x justification of legend (formatting)
-#' @param legend.yjust vector or scalar of {0, 1, 2} specifying y justification of legend (formatting)
-#' @param legend.maxitems vector or scalar positive integer specifying what is the maximum number of items to include in legend  (formatting)
+#' @param legend.xjust Scalar of {0, 1, 2} = {left, center, right} specifying x justification of legend [0]
+#' @param legend.yjust Scalar of {0, 1, 2} = {left, center, right} specifying y justification of legend [0]
+#' @param legend.maxitems Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]
 #' @param label.suppress vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)
 #' @param label.suppress.gr vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)
 #' @param label.suppress.grl vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)
@@ -413,6 +447,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param xaxis.nticks vector or scalar positive integer specifying how many xaxis ticks to optimally draw (formatting)
 #' @param xaxis.label.angle vector or scalar numeric between 0 and 360 specifying angle with which to draw xaxis coordinate labels (formatting)
 #' @param xaxis.newline vector or scalar logical specifying whether to draw a newline in the xaxis coordinate labels (formatting)
+#' @param xaxis.width Logical scalar specifying whether to add window width to xaxis window labels [TRUE]
 #' @param lwd.border vector or scalar integer specifying the thickness of the polygon borders (formatting)
 #' @param cex.label vector or scalar numeric specifying the expansion factor of the range labels (formatting)
 #' @param hadj.label vector or scalar numeric specifying the horizontal adjustment of the range labels (formatting)
@@ -444,12 +479,14 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param path.cex.h vector or scalar numeric > 0 specifying horizontal bulge of spline in paths (formatting)
 #' (only applicable for tracks in which draw.paths = T)  (formatting)
 #' @param draw.backbone vector or scalar logical specifying whether to draw "backbone" connecting different items in a GRangesList item (formatting)
-#' @param cex.tick vector or scalar numeric specifying expansion factor for axis tick labels  (formatting)
-#' @param cex.tick.len vector or scalar numeric specifying lengths for axis ticks  (formatting)
+#' @param xaxis.cex.tick Scalar numeric specifying expansion factor for axis tick labels  (formatting)
+#' @param xaxis.ticklen Scalar numeric specifying lengths for axis ticks  (formatting)
 #' @param gr.cex.label vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)
 #' @param gr.srt.label vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)
-#' @param sep.lty vector or scalar integer specifying line style for window separators  (formatting)
-#' @param sep.lwd vector or scalar numeric specifying line thickness for window separators  (formatting)
+#' @param sep.lty Scalar integer specifying line style for window separators [2] (dashed line)
+#' @param sep.lwd Scalar numeric specifying line thickness for window separators [1]
+#' @param sep.bg.col Color (supplied by name or hex code) for the background of the windows [gray95]
+#' @param sep.draw Logical allowing separators to be turned off [FALSE]
 #' @param cmap.min minimum saturating data value of color map for triangle plot
 #' @param cmap.max maximum saturating data value of color map for triangle plot
 #'
@@ -599,7 +636,7 @@ setMethod('[', 'gTrack', function(x, i)
               if (.hasSlot(x, 'mdata'))
                   x@mdata = x@mdata[i]
               else
-                  x@mdata = rep(list(matrix()), lengtth(x))
+                  x@mdata = rep(list(matrix()), length(x))
 
               return(x)
           })
@@ -626,10 +663,10 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
                   return(x@mdata)
 
               if (is.null(igr))
-                  igr = seqinfo2gr(x)
+                  igr = gUtils::si2gr(x)
 
               if (is.null(jgr))
-                  jgr = seqinfo2gr(x)
+                  jgr = gUtils::si2gr(x)
 
               if (is(igr, 'Rle'))
                   igr = as.character(igr)
@@ -638,10 +675,10 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
                   jgr = as.character(jgr)
 
               if (is.character(igr))
-                  igr = seqinfo2gr(x)[igr]
+                  igr = gUtils::si2gr(x)[igr]
 
               if (is.character(jgr))
-                  jgr = seqinfo2gr(x)[jgr]
+                  jgr = gUtils::si2gr(x)[jgr]
 
               if (length(igr)==0 | length(jgr)==0)
                   return(NULL)
@@ -852,6 +889,44 @@ setMethod('c', 'gTrack', function(x, ...)
 
 #' @export
 setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
+
+#' @export
+setGeneric('xaxis', function(.Object, ...) standardGeneric('xaxis'))
+
+#' @name xaxis
+#' @title Retrieves the xaxis parameters
+#' @description
+#'
+#' Return the portion of the gTrack @format field responsible for
+#' formatting the x-axis
+#' @author Jeremiah Wala
+#' @export
+setMethod('xaxis', 'gTrack', function(.Object) {
+  xaxis.fields <- c("xaxis.prefix", "xaxis.suffix", "xaxis.unit",
+                    "xaxis.round", "xaxis.interval", "xaxis.pos",
+                    "xaxis.nticks", "xaxis.pos.label",
+                    "xaxis.cex.label","xaxis.newline", "xaxis.chronly",
+                    "xaxis.width", "xaxis.label.angle","xaxis.ticklen")
+  return(.Object@formatting[,which(colnames(.Object@formatting) %in% xaxis.fields)])
+
+})
+
+#' @export
+setGeneric('sep', function(.Object, ...) standardGeneric('sep'))
+
+#' @name sep
+#' @title Retrieves the seperator graphical parameters
+#' @description
+#'
+#' Return the portion of the gTrack @format field responsible for
+#' formatting the windows and their separators
+#' @author Jeremiah Wala
+#' @export
+setMethod('sep', 'gTrack', function(.Object) {
+  sep.fields <- c("sep.lty", "sep.lwd", "sep.bg.col", "sep.draw")
+  return(.Object@formatting[,which(colnames(.Object@formatting) %in% sep.fields)])
+
+})
 
 #' @name formatting
 #' @title formatting
@@ -1113,7 +1188,6 @@ if (!isGeneric("plot"))
 #' optional GRangesList values meta data specify formatting of individual links:
 #' $label (text label), $col (line color), $lwd (line weight), $lty (line style),
 #' $arrow (arrow flag), $col.arrow (arrow color), $v (vertical spline bulge), $w (horizontal spline bulge)
-#' @param cex.tick vector specifying relative heights of gaps below and above (stacked) windows, only relevant if windows is GRangesList
 #' @param gap scalar numeric specifying gap between windows (only relevant if windows has length>1). Units of the gap are in genome coordinates
 #' @param max.ranges scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.
 #' @param ..., additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')
@@ -1123,10 +1197,9 @@ if (!isGeneric("plot"))
 #' @author Marcin Imielinski, Jeremiah Wala
 setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (for easy search)
                                               y,
-                                              windows = seqinfo2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+                                              windows = gUtils::si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                                      links = NULL, ## GRangesList of pairs of signed locations,
                                      gap = NULL,  ## spacing betwen windows (in bp)
-
                                      y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
                                      y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
                                      cex.xlabel = 1,
@@ -1134,6 +1207,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                                      max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
                                      links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
                                      verbose=FALSE,
+                                     legend.params = list(),
                                      ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                                      )
     {
@@ -1144,6 +1218,14 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
         if (!missing(y))
             windows = y
 
+        ## make sure we have min legend data
+        if (!"xpos" %in% names(legend.params))
+          legend.params$xpos = 0
+        if (!"ypos" %in% names(legend.params))
+          legend.params$ypos = 1
+        if (!"plot" %in% names(legend.params))
+          legend.params$plot = TRUE
+
         win.gap = gap ## recasting some variable names
         pintersect = FALSE
         new.plot = TRUE
@@ -1152,6 +1234,13 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 
         ## parse the windows into GRanges
         windows = format_windows(windows, .Object)
+
+        ## if totally empty, plot blank and leave
+        if(!length(windows)) {
+          plot.blank()
+          return()
+        }
+
 
         ## make sure gTrack has all fields that are expected later
         .Object <- prep_defaults_for_plotting(.Object)
@@ -1179,33 +1268,33 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
         if (!is.na(max.ranges))
           formatting(.Object)$max.ranges = pmin(max.ranges, formatting(.Object)$max.ranges, na.rm = TRUE)
 
-            oth.ix = 1:(length(windows)-1);
-            top.gaps = 0.5*y.gaps
-            bottom.gaps = 0.5*y.gaps
-            if (length(windows)==1)
-              oth.ix = c()
-            ylim.stacks = data.frame(start = c(bottom.gaps[1], bottom.gaps[1] + cumsum(y.heights[oth.ix] + top.gaps[oth.ix] + bottom.gaps[oth.ix+1])),
-              end = cumsum(y.heights + top.gaps + bottom.gaps) - top.gaps)
+        oth.ix = 1:(length(windows)-1);
+        top.gaps = 0.5*y.gaps
+        bottom.gaps = 0.5*y.gaps
+        if (length(windows)==1)
+          oth.ix = c()
+        ylim.stacks = data.frame(start = c(bottom.gaps[1], bottom.gaps[1] + cumsum(y.heights[oth.ix] + top.gaps[oth.ix] + bottom.gaps[oth.ix+1])),
+                                 end = cumsum(y.heights + top.gaps + bottom.gaps) - top.gaps)
 
-            oth.ix = 1:(length(.Object)-1);
+        oth.ix = 1:(length(.Object)-1);
 
-            if (length(.Object)==1)
-              oth.ix = c()
+        if (length(.Object)==1)
+          oth.ix = c()
 
-            tmp.top.gaps = 0.5 * formatting(.Object)$ygap
-            tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
-            tmp.ylim.subplot = data.frame(start = c(tmp.bottom.gaps[1], tmp.bottom.gaps[1] +
-                                            cumsum(formatting(.Object)$height[oth.ix] + tmp.top.gaps[oth.ix] + tmp.bottom.gaps[oth.ix+1])),
-              end = cumsum(formatting(.Object)$height + tmp.top.gaps + tmp.bottom.gaps) - tmp.top.gaps)
-            ylim = c(0, max(ylim.stacks$end)+top.gaps[length(top.gaps)])
-            ylim.parent=ylim
-            window.ylims = data.frame(start = rep(NA, length(windows)), end = NA);
+        tmp.top.gaps = 0.5 * formatting(.Object)$ygap
+        tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
+        tmp.ylim.subplot = data.frame(start = c(tmp.bottom.gaps[1], tmp.bottom.gaps[1] +
+                                                  cumsum(formatting(.Object)$height[oth.ix] + tmp.top.gaps[oth.ix] + tmp.bottom.gaps[oth.ix+1])),
+                                      end = cumsum(formatting(.Object)$height + tmp.top.gaps + tmp.bottom.gaps) - tmp.top.gaps)
+        ylim = c(0, max(ylim.stacks$end)+top.gaps[length(top.gaps)])
+        ylim.parent=ylim
+        window.ylims = data.frame(start = rep(NA, length(windows)), end = NA);
 
                 new.axis = TRUE;
                 this.windows = windows
                 #this.windows = gUtils::streduce(windows[[i]]) ##gr.stripstrand(GenomicRanges::trim(windows[[i]]))
                 ##if (!inherits(this.windows, 'GRanges'))
-                ##  this.windows = seqinfo2gr(this.windows)
+                ##  this.windows = gUtils::si2gr(this.windows)
             i=1
                 this.ylim.subplot = tmp.ylim.subplot;
                 this.ylim.subplot$start = affine.map(pmin(1, this.ylim.subplot$start), ylim = unlist(ylim.stacks[i, c('start', 'end')]), xlim = c(0, 1))
@@ -1385,7 +1474,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                                pintersect=pintersect,
                                verbose=verbose,
                                ylim.parent=ylim.parent,
-                               mdata=.Object@mdata[[j]]
+                               mdata=.Object@mdata[[j]],
+                               leg.params = legend.params
                                ));
 
                         main.args = c(main.args, plot.track.formats[setdiff(names(plot.track.formats), names(main.args))]);
@@ -1702,7 +1792,7 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
             strand(karyotype) = '+'
 
 #            karyotype = split(karyotype, seqnames(karyotype))
-            si = seqinfo2gr(karyotype);
+            si = gUtils::si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
             karyotype = gr.fix(karyotype, si, drop = T)
@@ -1716,7 +1806,7 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
             values(karyotype)$region = as.character(seqnames(karyotype))
             colmap = structure(col.karyo$qrm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
             strand(karyotype) = '+'
-            si = seqinfo2gr(karyotype);
+            si = gUtils::si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
             karyotype = gr.fix(karyotype, si, drop = T)
@@ -2202,7 +2292,6 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   cex.label = 1,
   srt.label = 45,
   adj.label = c(0.5, 0),
-  new.plot = F,  # will draw new plot, otherwise on top of existing plot
   angle = 0, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb
   circles = FALSE, # if TRUE will draw circles at range midpoints instead of polygons
   bars = FALSE, # if TRUE will draw bars from y0.bar to the y locations
@@ -2285,25 +2374,6 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     x$direction = x$strand
 
   x$lwd = lwd
-
-  if (new.plot)
-    {
-      if (is.null(xlim))
-        xlim = c(min(x$pos1), max(x$pos2))
-      else if (inherits(xlim, 'GRanges') | inherits(xlim, 'IRanges'))
-        {
-          xlim = c(min(start(ranges(xlim))), min(end(ranges(xlim))))
-        }
-
-      if (is.null(ylim))
-        ylim = c(min(x$y), max(x$y))
-
-      xrange = diff(xlim)
-      yrange = max(diff(ylim), 1)
-      X.PAD = 0.05;
-      Y.PAD = 0.05;
-      plot.blank(xlim = xlim + X.PAD*xrange*c(-1, 1), ylim = ylim + Y.PAD*max(0.1, yrange)*c(-1, 1))
-    }
 
   if (nrow(x)>0)
     {
@@ -2476,15 +2546,7 @@ draw.grl = function(grl,
   gr.colormap = NULL, ## named vector mapping fields in the gr.colorfield to colors, if unspecified brewer.master() will be applied
   gr.labelfield = NULL, ## field of gr labels to draw.
   grl.labelfield = NULL, ## field of grl to draw as label
-  legend = F, ## if gr.colorfield and/or gr.colormap specified then will draw legend in top right corner of plot mapping colors and unique values
-  legend.xpos = 1,
-  legend.ypos = 1,
-  legend.pos = c(legend.xpos, legend.ypos), # x, y position of legend as fraction of canvas
-  legend.ncol = 1,
-  legend.cex = 1,
-  legend.xjust = 1,
-  legend.yjust = 1,
-  legend.maxitems = Inf,  ## max items in legend
+  leg.params,
   labels = NULL, # vector of length(grl)
   labels.suppress = F,
   labels.suppress.grl = labels.suppress,
@@ -2492,33 +2554,15 @@ draw.grl = function(grl,
   spc.label = 0.05, # number between 0 and 1 indicating spacing of label
   adj.label = c(0, 1),
   cex.label = 1,
-  cex.tick = 1,
-  cex.ticklen = 1,
   gr.cex.label = 0.8 * cex.label,
   gr.srt.label = 0,
   gr.adj.label = c(0,0.5),
-  new.plot = T,
-  new.axis = F, # if T will draw even on existing plot
-  sep.draw = T, # draw separator between windows, will only draw when new.plot = T or new.axis = T
-  sep.lty = 2,
-  sep.lwd = 1,
-  #  bg.col = 'gray95',
-  bg.col = 'gray99',
+  new.plot, new.axis, sep.draw, sep.lty, sep.lwd,
+  sep.bg.col = 'gray99',
   y.pad = 0.05,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair
-  xaxis.prefix = '',  ### DEFAULT GOES HERE
-  xaxis.suffix = "",  ### DEFAULT GOES HERE
-  xaxis.unit = 1, ##1e6,
-  xaxis.round = 3,
-  xaxis.interval = NULL,
-  xaxis.pos = NULL,
-  xaxis.nticks = 40, # total number of ticks to display
-  xaxis.pos.label = NULL,
-  xaxis.cex = 0.8,
-  xaxis.cex.label = 1,
-  xaxis.newline = TRUE, # do you want the xaxis labels to have newline breaks
-  xaxis.chronly = FALSE, # don't display xaxis positions, just the chromosomes. Useful for whole-genome
-  xaxis.width= TRUE, # do you want the xaxis labels to include the width
-  xaxis.label.angle=0,
+  xaxis.prefix, xaxis.suffix, xaxis.unit, xaxis.round, xaxis.interval, xaxis.pos,
+  xaxis.pos.label, xaxis.cex.label, xaxis.newline, xaxis.chronly, xaxis.ticklen,
+  xaxis.width, xaxis.label.angle, xaxis.cex.tick,
   ylim.grid = ylim, # can be also specified directly for plots with multiple axes and/or non-numeric tracks
   y.grid = NA, # if non NA, then the number specifies the spacing between y grid (drawn from ylim[1] to ylim[2]), can also be named vector mapping grid.tick labels to plot locations
   y.grid.col = alpha('gray', 0.5),
@@ -2567,7 +2611,7 @@ draw.grl = function(grl,
 
         return(draw.triangle(grl=grl,y=y,mdata=mdata,ylim.parent=ylim.parent,windows=windows,win.gap=win.gap,sigma = smooth,
                              cmap.min=cmap.min,cmap.max=cmap.max, msep.lwd=m.sep.lwd,
-                             bg.col=m.bg.col, legend.cex=legend.cex, islog=islog, palette.colors = palette.colors))
+                             bg.col=m.bg.col, leg.params=legend.params, islog=islog, palette.colors = palette.colors))
     }
 
     now = Sys.time();
@@ -2842,7 +2886,7 @@ draw.grl = function(grl,
           if (is(windows, 'GRangesList'))
             windows = unlist(windows)
           else  ## assume it's a seqinfo object or an object that has a seq
-            windows = seqinfo2gr(windows)
+            windows = gUtils::si2gr(windows)
 
         if (is.null(win.gap))
           win.gap = mean(width(windows))*0.2
@@ -3093,7 +3137,7 @@ draw.grl = function(grl,
           else
             xaxis.pos.label = xaxis.pos - 0.04*diff(ylim)
 
-        if (sep.draw == T & length(windows)>1)
+        if (sep.draw && length(windows)>1)
           {
                                         #rect(window.segs$end[1:(nrow(window.segs)-1)], rep(ylim[1], nrow(window.segs)-1),
                                         #window.segs$start[2:(nrow(window.segs))], rep(ylim[2], nrow(window.segs)-1), border = 'white', col = sep.col)
@@ -3104,7 +3148,7 @@ draw.grl = function(grl,
             if (!is.null(ylim.subplot)) ## limit separator drawing to actual data limits
               {
                 if (is.null(window.segs$col))
-                  window.segs$col = bg.col
+                  window.segs$col = sep.bg.col
 
                 if (is.null(window.segs$border))
                   window.segs$border = 'white'
@@ -3124,7 +3168,7 @@ draw.grl = function(grl,
             else
               {
                 rect(window.segs$start[1:(nrow(window.segs))], rep(ylim[1], nrow(window.segs)),
-                     #window.segs$end[1:(nrow(window.segs))], rep(ylim[2], nrow(window.segs)), border = 'white', col = bg.col) ## MARCIN
+                     #window.segs$end[1:(nrow(window.segs))], rep(ylim[2], nrow(window.segs)), border = 'white', col = sep.bg.col) ## MARCIN
                      window.segs$end[1:(nrow(window.segs))], rep(ylim[2], nrow(window.segs)), border = 'white', col = as.character(window.segs$bgcol)) ## JEREMIAH
                 abline(v = sep.loc, col = 'gray', lty = sep.lty, lwd = sep.lwd);
               }
@@ -3134,53 +3178,14 @@ draw.grl = function(grl,
           {
             nwin = length(windows);
 
-            if (is.null(xaxis.interval))
-              xaxis.interval = NA
-
-            if (is.na(xaxis.interval))
-              xaxis.interval = 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks)))
-
-            ## make round tick marks at xaxis.interval in original and plot coordinates
-
-            # don't let xaxis.interval to be too small .. so tick drawing doesn't get too out of control
-            xaxis.interval = max(xaxis.interval, 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks))))
-
-            seq.at.og = lapply(1:length(windows), function(x)
-              {
-                out = c(start(windows)[x], seq(ceiling(start(windows)[x]/xaxis.interval),
-                  floor(end(windows)[x]/xaxis.interval))*xaxis.interval, end(windows)[x])
-                out[out>=start(windows)[x] & out<=end(windows)[x]]
-                });
-            seq.at = lapply(1:length(seq.at.og), function(x) affine.map(seq.at.og[[x]]-start(windows)[x]+mapped$window.segs$start[x],
-              xlim = winlim, ylim = xlim))
-            seq.at.og = unlist(seq.at.og)
-            seq.at = unlist(seq.at);
-            dup.ix = duplicated(seq.at);
-            seq.at.og = seq.at.og[!dup.ix]
-            seq.at = seq.at[!dup.ix]
-
+            ## draw the actual x axis
             segments(window.segs$start, rep(xaxis.pos[1], nwin), window.segs$end, rep(xaxis.pos[1], nwin));
 
-            if (!is.null(xaxis.suffix))
-              if (is.na(xaxis.suffix) | nchar(xaxis.suffix)==0)
-                xaxis.suffix = NULL
+            # if (!is.null(xaxis.suffix))
+            #   if (is.na(xaxis.suffix) | nchar(xaxis.suffix)==0)
+            #     xaxis.suffix = NULL
 
-
-            # then ticks
-            tick.len = 0.01*diff(ylim)*cex.ticklen
-            y0.tick = rep(xaxis.pos, length(seq.at))
-            y1.tick = rep(xaxis.pos, length(seq.at)) - tick.len
-            segments(seq.at, y0.tick, seq.at, y1.tick)
-
-            # then (tick) text
-            if (xaxis.unit == 1)
-              tick.text = prettyNum(paste(seq.at.og, xaxis.suffix), big.mark = ',')
-            else
-              tick.text = paste(round(seq.at.og/xaxis.unit, xaxis.round), xaxis.suffix)
-
-            if (xaxis.nticks > 0)
-              text(seq.at, y1.tick-tick.len, tick.text,
-                 cex = cex.tick*0.8, srt = 90, adj = c(1, 0.5))
+            draw_x_ticks(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen)
 
             # then (label) text
             newline <- ifelse(xaxis.newline, '\n', '')
@@ -3316,16 +3321,30 @@ draw.grl = function(grl,
                   grl.segs$border[ix] = cols[ix]
                 }
 
-              if (legend & length(gr.colormap)>0)
+              if (leg.params$plot && length(gr.colormap)>0)
                 {
-                  if (length(gr.colormap)>legend.maxitems & legend.maxitems > 0)
-                    gr.colormap = gr.colormap[intersect(names(sort(table(grl.segs[, gr.colorfield]), decreasing = T)[1:legend.maxitems]),
-                      names(gr.colormap))]
 
-                  if (circles)
-                      legend(legend.pos[1]*diff(xlim) + xlim[1], legend.pos[2]*diff(par('usr')[3:4]) + par('usr')[3], legend = names(gr.colormap), col = gr.colormap, border = gr.colormap, cex = legend.cex * 0.5, ncol = legend.ncol, xjust = legend.xjust, pch = 16, yjust = legend.yjust)
+                  leg.params$x = leg.params$xpos * diff(xlim) + xlim[1]
+                  leg.params$y = leg.params$ypos * diff(par('usr')[3:4]) + par('usr')[3]
+                  leg.params$legend = names(gr.colormap)
+                  if (circles) {
+                    leg.params$col = gr.colormap
+                    leg.params$pch = 16
+                  }
                   else
-                      legend(legend.pos[1]*diff(xlim) + xlim[1], legend.pos[2]*diff(par('usr')[3:4]) + par('usr')[3], legend = names(gr.colormap), fill = gr.colormap, border = gr.colormap, cex = legend.cex * 0.5, ncol = legend.ncol, xjust = legend.xjust, yjust = legend.yjust)
+                    leg.params$fill = gr.colormap
+                  leg.params$border = gr.colormap
+                  leg.params$xpos = leg.params$ypos = NULL
+
+                  # if (length(gr.colormap)>legend.maxitems & legend.maxitems > 0)
+                  #   gr.colormap = gr.colormap[intersect(names(sort(table(grl.segs[, gr.colorfield]), decreasing = T)[1:legend.maxitems]),
+                  #     names(gr.colormap))]
+
+                  do.call(graphics::legend, leg.params)
+                  #if (circles)
+                  #    graphics::legend(legend.pos[1]*diff(xlim) + xlim[1], legend.pos[2]*diff(par('usr')[3:4]) + par('usr')[3], legend = names(gr.colormap), col = gr.colormap, border = gr.colormap, cex = legend.cex * 0.5, ncol = legend.ncol, xjust = legend.xjust, pch = 16, yjust = legend.yjust)
+                  #else
+                  #    graphics::legend(legend.pos[1]*diff(xlim) + xlim[1], legend.pos[2]*diff(par('usr')[3:4]) + par('usr')[3], legend = names(gr.colormap), fill = gr.colormap, border = gr.colormap, cex = legend.cex * 0.5, ncol = legend.ncol, xjust = legend.xjust, yjust = legend.yjust)
               }
 
             }
@@ -3340,7 +3359,7 @@ draw.grl = function(grl,
           if (lines)
             grl.segs = grl.segs[order(grl.segs$pos1), ]
 
-        draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, new.plot = F, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, points = points, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
+        draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, points = points, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
 
         ## if draw.paths, will now draw connectors
         ##
@@ -4011,7 +4030,6 @@ blend = function(cols)
 #'
 #' @author Marcin Imielinski
 #' @keywords internal
-##########################
 col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black', na.col = 'white',
   invert = F # if T flips rgb.min and rgb.max
   )
@@ -4156,7 +4174,7 @@ draw.triangle <- function(grl,
     cmap.min=NULL,
     cmap.max=NULL,
     msep.lwd=1,
-    legend.cex = 1,
+    leg.params,
     islog = FALSE) {
 
   ylim.subplot = NULL
@@ -4324,6 +4342,10 @@ draw.triangle <- function(grl,
     cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
     #cr <- cs[ceiling(out.t$col) - cmap.min + 1]
     polygon(out.t$x, out.t$y, col=cr, border=NA)
+
+    legend.cex = leg.params$cex
+    if (is.null(legend.cex))
+      legend.cex = 1
 
     ## plot the legend
     if (!islog)
@@ -4644,7 +4666,7 @@ format_windows <- function(windows, .Object) {
     windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
   if (is(windows, 'Seqinfo'))
-    windows = seqinfo2gr(windows)
+    windows = gUtils::si2gr(windows)
 
   if (is.list(windows))
     windows = do.call('GRangesList', windows)
@@ -4654,8 +4676,12 @@ format_windows <- function(windows, .Object) {
 
   if (sum(as.numeric(width(unlist(windows))))==0)
   {
-    warning("Empty windows provided, drawing whole genome")
-    windows = seqinfo2gr(seqinfo(.Object))
+    if (length(seqinfo(.Object))) {
+      windows = gUtils::si2gr(seqinfo(.Object))
+    } else {
+      warning("no windows provided and no seqinfo. Drawing blank plot")
+      return(GRanges())
+    }
   }
   return (unlist(windows))
 }
@@ -4671,18 +4697,18 @@ prep_defaults_for_plotting <- function(.Object) {
     formatting(.Object)$source.file.chrsub = TRUE
 
   # layout legends if colorfield or colormap is NA and legends have no xpos set
-  leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
-  if (is.null(.Object@formatting$legend.xpos))
-    .Object@formatting$legend.xpos = NA
-
-  if (is.null(.Object@formatting$legend.xjust))
-    .Object@formatting$legend.xjust = NA
-
-  if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
-  {
-    .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
-    .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
-  }
+  # leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
+  # if (is.null(.Object@formatting$legend.xpos))
+  #   .Object@formatting$legend.xpos = NA
+  #
+  # if (is.null(.Object@formatting$legend.xjust))
+  #   .Object@formatting$legend.xjust = NA
+  #
+  # if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
+  # {
+  #   .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
+  #   .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
+  # }
 
   # layout y coordinates
   sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
@@ -4902,4 +4928,45 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered) {
   return(.Object)
 }
 
+draw_x_ticks <- function(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen) {
 
+  xaxis.nticks = 20 ## default number of ticks
+  if (!is.na(xaxis.interval) && xaxis.interval == 'auto')
+    xaxis.interval = 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks)))
+
+  # don't let xaxis.interval to be too small .. so tick drawing doesn't get too out of control
+  xaxis.nticks = 1000 ## max number of ticks
+  if (!is.na(xaxis.interval))
+    xaxis.interval = max(xaxis.interval, 10^(ceiling(log10(sum(as.numeric(width(windows)))/xaxis.nticks))))
+
+  seq.at.og = lapply(1:length(windows), function(x)
+  {
+    out = c(start(windows)[x], seq(ceiling(start(windows)[x]/xaxis.interval),
+                                   floor(end(windows)[x]/xaxis.interval))*xaxis.interval, end(windows)[x])
+    out[out>=start(windows)[x] & out<=end(windows)[x]]
+  });
+  seq.at = lapply(1:length(seq.at.og), function(x) affine.map(seq.at.og[[x]]-start(windows)[x]+mapped$window.segs$start[x],
+                                                              xlim = winlim, ylim = xlim))
+  seq.at.og = unlist(seq.at.og)
+  seq.at = unlist(seq.at);
+  dup.ix = duplicated(seq.at);
+  seq.at.og = seq.at.og[!dup.ix]
+  seq.at = seq.at[!dup.ix]
+
+  # then ticks
+  tick.len = 0.01*diff(ylim)*xaxis.ticklen
+  y0.tick = rep(xaxis.pos, length(seq.at))
+  y1.tick = rep(xaxis.pos, length(seq.at)) - tick.len
+  segments(seq.at, y0.tick, seq.at, y1.tick)
+
+  # then (tick) text
+  if (xaxis.unit == 1)
+    tick.text = prettyNum(paste(seq.at.og, xaxis.suffix), big.mark = ',')
+  else
+    tick.text = paste(round(seq.at.og/xaxis.unit, xaxis.round), xaxis.suffix)
+
+  ##if (xaxis.nticks > 0)
+  if (!is.na(xaxis.interval) && xaxis.interval > 0)
+    text(seq.at, y1.tick-tick.len, tick.text,
+         cex = xaxis.cex.tick, srt = 90, adj = c(1, 0.5))
+}
