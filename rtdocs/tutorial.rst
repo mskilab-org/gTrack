@@ -33,7 +33,7 @@ Tutorial
 
 .. figure:: figures/tcga5windows.png 
    :alt:
-   :scale: 75%  
+   :scale: 40%  
 
 .. code-block:: bash
    
@@ -43,7 +43,7 @@ Tutorial
  
 .. figure:: figures/deletions.png
    :alt:
-   :scale: 75% 
+   :scale: 40% 
 
 .. code-block:: bash
 
@@ -58,7 +58,7 @@ Tutorial
 
 .. figure:: figures/deletions2.png
    :alt:
-   :scale: 75%
+   :scale: 40%
       
 .. code-block:: bash
    
@@ -67,5 +67,5 @@ Tutorial
 
 .. figure:: figures/ygap.png
    :alt:
-   :scale: 75%
+   :scale: 40%
 
