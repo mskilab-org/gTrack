@@ -60,3 +60,12 @@ Tutorial
    :alt:
    :scale: 75%
       
+.. code-block:: bash
+   
+   # physically separate gaps between tracks
+   plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red" , ygap = 5)
+
+.. figure:: figures/ygap.png
+   :alt:
+   :scale: 75%
+
