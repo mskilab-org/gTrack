@@ -39,6 +39,7 @@ Tutorial
    
    # use amplifications/deletions as y-values 
    tcgagt <- gTrack(tcgagrr , y.field="Segment_Mean")
+   plot(tcgagt , windows = tcgagrr[1:5] , col = "red")   
  
 .. figure:: figures/deletions.png
    :alt:
