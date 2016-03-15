@@ -10,10 +10,10 @@ Tutorial
 .. code-block:: bash 
 
    # load data from TCGA 
-   tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg")
+   tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
 
    # convert data.frame to GRanges object
-   tcgagr <- makeGRangesFromDataFrame(tcgaData)
+   tcgagr <- GRanges(tcgaData)
    
    # wrap gTrack around TCGA GRanges object 
    tcgagt <- gTrack(tcgagr)
@@ -38,9 +38,25 @@ Tutorial
 .. code-block:: bash
    
    # use amplifications/deletions as y-values 
-   tcgagt <- gTrack(tcgagrr , y.field="Segment_Mean")
+   tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
    plot(tcgagt , windows = tcgagrr[1:5] , col = "red")   
  
 .. figure:: figures/deletions.png
    :alt:
    :scale: 75% 
+
+.. code-block:: bash
+
+   # add a second sample to the graph
+   # create gTrack object for sample
+   tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
+   tcgagr2 <- GRanges(tcgaData2)
+   tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
+   
+   # plot the two samples 
+   plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
+
+.. figure:: figures/deletions2.png
+   :alt:
+   :scale: 75%
+      
