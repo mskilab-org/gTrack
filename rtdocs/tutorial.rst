@@ -10,7 +10,7 @@ Tutorial
 .. code-block:: bash 
 
    # load data from TCGA 
-   tcgaData <- read.delim("BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
+   tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg")
 
    # convert data.frame to GRanges object
    tcgagr <- makeGRangesFromDataFrame(tcgaData)
@@ -27,9 +27,19 @@ Tutorial
 
 .. code-block:: bash
    
-   # Changed default number of windows (from entire genome to the first five windows 
+   # Changed default number of windows (from entire genome to the first five windows). 
+   # Windows argument requires a subset of a GRanges Object. Check documentation for more details. 
    plot(tcgagt , window = tcgagr[1:5])   
 
 .. figure:: figures/tcga5windows.png 
    :alt:
    :scale: 75%  
+
+.. code-block:: bash
+   
+   # use amplifications/deletions as y-values 
+   tcgagt <- gTrack(tcgagrr , y.field="Segment_Mean")
+ 
+.. figure:: figures/deletions.png
+   :alt:
+   :scale: 75% 
