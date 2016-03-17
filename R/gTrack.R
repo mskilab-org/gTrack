@@ -20,6 +20,7 @@
 #'
 #' @exportClass gTrack
 #' @author Marcin Imielinski
+#' @importFrom methods setClass setGeneric setMethod setRefClass
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
@@ -63,6 +64,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                                            yaxis.cex = 1, ## size of text at yaxis
                                            format = 'ranges',
                                            chr.sub = TRUE, ## remove 'chr' from slen if drawing from UCSC style format
+                                           edgevars = NULL,
                                            ...)
           {
 
@@ -132,7 +134,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                            if (!all(c('from', 'to') %in% names(x)))
                              stop('edges data frame missing $to and $from columns')
 
-                           if (is.data.table(x))
+                           if (data.table::is.data.table(x))
                                x = as.data.frame(x)
                            x
                          }
@@ -258,9 +260,9 @@ setMethod('initialize', 'gTrack', function(.Object,
                             if (any(is.na(slen)))
                               {
                                 if (is(x, 'GRanges'))
-                                  slen = seqlengths(gr.fix(x))
+                                  slen = seqlengths(gUtils::gr.fix(x))
                                 else if (is(x, 'GRangesList'))
-                                  slen = seqlengths(gr.fix(unlist(x)))
+                                  slen = seqlengths(gUtils::gr.fix(unlist(x)))
                               }
                           }
                         else
@@ -287,7 +289,7 @@ setMethod('initialize', 'gTrack', function(.Object,
 
                         if (grepl('(\\.bw)|(\\.bigwig)', x, ignore.case = T))
                           {
-                            f = BigWigFile(normalizePath(x))
+                            f = rtracklayer::BigWigFile(normalizePath(x))
                             slen = tryCatch(seqlengths(f), error = function(x) NULL)
                             formatting(.Object)[i, 'yaxis'] = T
                             if (is.null(slen))
@@ -295,7 +297,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                           }
                         else if (grepl('\\.wig', x, ignore.case = T))
                           {
-                            f = WIGFile(normalizePath(x))
+                            f = rtracklayer::WIGFile(normalizePath(x))
                             slen = tryCatch(seqlengths(f), error = function(x) NULL)
                             formatting(.Object)[i, 'yaxis'] = T
                             if (is.null(slen))
@@ -303,8 +305,8 @@ setMethod('initialize', 'gTrack', function(.Object,
                           }
                         else if (grepl('\\.bed', x, ignore.case = T)) ## only option is to load
                           {
-                            f = BEDFile(normalizePath(x))
-                            tmp.out = tryCatch(import(f, asRangedData = F), error = function(x) NULL)
+                            f = rtracklayer::BEDFile(normalizePath(x))
+                            tmp.out = tryCatch(rtracklayer::import(f, asRangedData = F), error = function(x) NULL)
                             if (is.null(tmp.out))
                               stop('External file must be a valid and existing .bed file')
                             else
@@ -322,22 +324,22 @@ setMethod('initialize', 'gTrack', function(.Object,
                           }
                         else if (grepl('\\.gff', x, ignore.case = T))
                           {
-                            f = GFFFile(normalizePath(x))
+                            f = rtracklayer::GFFFile(normalizePath(x))
                             slen = tryCatch(seqlengths(f), error = function(x) NULL)
                             if (is.null(slen))
                               stop('External file must be a valid and existing .gff file')
                           }
                         else if (grepl('\\.2bit', x, ignore.case = T))
                           {
-                            f = TwoBitFile(normalizePath(x))
+                            f = rtracklayer::TwoBitFile(normalizePath(x))
                             slen = tryCatch(seqlengths(f), error = function(x) NULL)
                             if (is.null(slen))
                               stop('External file must be a valid and existing .2bit file')
                           }
                         else if (grepl('\\.bedgraph', x, ignore.case = T)) ## only option is to load
                           {
-                            f = BedGraphFile(normalizePath(x))
-                            tmp.out = tryCatch(import(f, asRangedData = F), error = function(x) NULL)
+                            f = rtracklayer::BedGraphFile(normalizePath(x))
+                            tmp.out = tryCatch(rtracklayer::import(f, asRangedData = F), error = function(x) NULL)
                             if (is.null(tmp.out))
                               stop('External file must be a valid and existing .bedgraph file')
                             else
@@ -394,7 +396,7 @@ setMethod('initialize', 'gTrack', function(.Object,
                       seqinfo = seqinfo(seqinfo);
 
                     .Object@seqinfo = seqinfo;
-                    .Object@data = lapply(.Object@data, gr.fix, seqinfo)
+                    .Object@data = lapply(.Object@data, gUtils::gr.fix, seqinfo)
                   }
               }
 
@@ -620,7 +622,10 @@ setValidity('gTrack', function(object)
 #' gt[1]
 #' gt[ix] # where ix is an integer vector
 #'
+#' @docType methods
 #' @export
+#' @aliases [,gTrack,ANY,ANY,ANY-method
+#' @rdname sub-methods
 #' @author Marcin Imielinski
 setMethod('[', 'gTrack', function(x, i)
           {
@@ -641,11 +646,6 @@ setMethod('[', 'gTrack', function(x, i)
               return(x)
           })
 
-
-#' @export
-#' @author Jeremiah Wala
-setGeneric('mdata', function(x, ...) standardGeneric('mdata'))
-
 #' @name mdata
 #' @title mdata
 #' @description
@@ -655,9 +655,16 @@ setGeneric('mdata', function(x, ...) standardGeneric('mdata'))
 #' Usage: (igr, jgr are GRanges objects corresponding to slices of matrix to be accessed from gt)
 #' mdata(gt, igr, jgr)
 #'
-#' @export
 #' @author Jeremiah Wala
-setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
+#' @docType methods
+#' @rdname mdata-methods
+#' @export
+setGeneric('mdata', function(x, igr=NULL, jgr=NULL) standardGeneric('mdata'))
+
+
+#' @rdname mdata-methods
+#' @aliases mdata,gTrack,ANY,ANY,ANY-method
+setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, jgr = igr)
           {
               if (is.null(igr) & is.null(jgr))
                   return(x@mdata)
@@ -687,10 +694,10 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
                   {
                       if (is.null(x@mdata[[y]]))
                           return(NULL)
-                      i = gr.in(x@data[[y]], igr)
-                      j = gr.in(x@data[[y]], jgr)
-                      rown = dedup(gr.string(x@data[[y]][i]))
-                      coln = dedup(gr.string(x@data[[y]][j]))
+                      i = gUtils::gr.in(x@data[[y]], igr)
+                      j = gUtils::gr.in(x@data[[y]], jgr)
+                      rown = dedup(gUtils::gr.string(x@data[[y]][i]))
+                      coln = dedup(gUtils::gr.string(x@data[[y]][j]))
                       tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
                       rownames(tmp) = rown
                       colnames(tmp) = coln
@@ -707,6 +714,9 @@ setMethod('mdata', 'gTrack', function(x, igr = NULL, jgr = igr)
 #'
 #' Accessing columns of gTrack formatting data.frame
 #'
+#' @docType methods
+#' @rdname cash-methods
+#' @aliases $,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('$', 'gTrack', function(x, name)
@@ -725,6 +735,9 @@ setMethod('$', 'gTrack', function(x, name)
 #' gt$y.field = 'score'
 #' gt$gr.colorfield[1] = 'readtype'
 #'
+#' @docType methods
+#' @rdname cash-set-methods
+#' @aliases $,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('$<-', 'gTrack', function(x, name, value)
@@ -757,7 +770,10 @@ setMethod('length', 'gTrack', function(x)
 #' reduce(gt) # outputs a GRanges
 #'
 #' @param ... additional arguments to GRanges reduce function
-#' @importMethodsFrom GenomicRanges reduce
+#' @importFrom GenomicRanges reduce
+#' @docType methods
+#' @rdname reduce-methods
+#' @aliases reduce,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('reduce', 'gTrack', function(x, ... )
@@ -782,7 +798,7 @@ setMethod('reduce', 'gTrack', function(x, ... )
             if (length(x)==1)
               return(reduce(.dat2gr(x@data[[1]]), ...))
             else
-              return(reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
+              return(reduce(do.call('gUtils::grbind', lapply(x@data, .dat2gr)), ... ))
           })
 
 #uppressWarnings(removeMethod('seqinfo', 'gTrack')) ## takes care of stupid R 2.15 bug
@@ -796,19 +812,13 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' Usage:
 #' seqinfo(gt)
 #'
-#' @importMethodsFrom GenomicRanges seqinfo
+#' @importFrom GenomicRanges seqinfo
 #' @export
 #' @author Marcin Imielinski
 setMethod("seqinfo", signature(x = "gTrack"), function(x)
           {
             return(x@seqinfo)
           })
-
-
-#' @export
-#' @author Marcin IMielinski
-setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
-
 
 #' @name seqinfo<-
 #' @title seqinfo,-
@@ -817,19 +827,21 @@ setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 #' set seqinfo property of gTrack
 #'
 #' @export
+#' @docType methods
+#' @rdname seqinfo-set-methods
 #' @author Marcin Imielinski
+setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
+
+
+#' @rdname seqinfo-set-methods
+#' @aliases seqinfo,gTrack-method
 setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
                  {
                    .Object@seqinfo = value;
-                   .Object@data = lapply(dat(.Object), gr.fix, value)
+                   .Object@data = lapply(dat(.Object), gUtils::gr.fix, value)
                    validObject(.Object)
                    return(.Object)
                  });
-
-
-#' @export
-setGeneric('lengths', function(x) standardGeneric('lengths'))
-
 
 #' @name lengths
 #' @title lengths
@@ -838,10 +850,11 @@ setGeneric('lengths', function(x) standardGeneric('lengths'))
 #' gets lengths of data objects inside gTrack object gt
 #' usage:
 #' lengths(gt) # returns vector of lengths
-#'
+#' @docType methods
+#' @rdname lengths-methods
+#' @aliases lengths,gTrack-method
 #' @export
-#' @author Marcin Imielinski
-setMethod("lengths", signature(x = "gTrack"), function(x)
+setMethod("lengths", "gTrack", function(x)
           { sapply(dat(x), length) } )
 
 #' @name c
@@ -852,6 +865,9 @@ setMethod("lengths", signature(x = "gTrack"), function(x)
 #' usage:
 #' c(gt1, gt2, gt3) # returns a gTrack object with the component tracks "stacked"
 #'
+#' @docType methods
+#' @rdname c-methods
+#' @aliases c,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('c', 'gTrack', function(x, ...)
@@ -887,47 +903,6 @@ setMethod('c', 'gTrack', function(x, ...)
             return(out)
           })
 
-#' @export
-setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
-
-#' @export
-setGeneric('xaxis', function(.Object, ...) standardGeneric('xaxis'))
-
-#' @name xaxis
-#' @title Retrieves the xaxis parameters
-#' @description
-#'
-#' Return the portion of the gTrack @format field responsible for
-#' formatting the x-axis
-#' @author Jeremiah Wala
-#' @export
-setMethod('xaxis', 'gTrack', function(.Object) {
-  xaxis.fields <- c("xaxis.prefix", "xaxis.suffix", "xaxis.unit",
-                    "xaxis.round", "xaxis.interval", "xaxis.pos",
-                    "xaxis.nticks", "xaxis.pos.label",
-                    "xaxis.cex.label","xaxis.newline", "xaxis.chronly",
-                    "xaxis.width", "xaxis.label.angle","xaxis.ticklen")
-  return(.Object@formatting[,which(colnames(.Object@formatting) %in% xaxis.fields)])
-
-})
-
-#' @export
-setGeneric('sep', function(.Object, ...) standardGeneric('sep'))
-
-#' @name sep
-#' @title Retrieves the seperator graphical parameters
-#' @description
-#'
-#' Return the portion of the gTrack @format field responsible for
-#' formatting the windows and their separators
-#' @author Jeremiah Wala
-#' @export
-setMethod('sep', 'gTrack', function(.Object) {
-  sep.fields <- c("sep.lty", "sep.lwd", "sep.bg.col", "sep.draw")
-  return(.Object@formatting[,which(colnames(.Object@formatting) %in% sep.fields)])
-
-})
-
 #' @name formatting
 #' @title formatting
 #' @description
@@ -939,16 +914,61 @@ setMethod('sep', 'gTrack', function(.Object) {
 #'
 #' If you want to access particular fields of the formatting data.frame, just use the "$" accessor like you would for a data.frame
 #'
+#' @docType methods
+#' @rdname formatting-methods
 #' @export
 #' @author Marcin Imielinski
+setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
+
+#' @name xaxis
+#' @title Retrieves the xaxis parameters
+#' @description
+#'
+#' Return the portion of the gTrack @format field responsible for
+#' formatting the x-axis
+#' @author Jeremiah Wala
+#' @docType methods
+#' @rdname xaxis-methods
+#' @export
+setGeneric('xaxis', function(.Object, ...) standardGeneric('xaxis'))
+
+#' @rdname xaxis-methods
+#' @aliases xaxis,gTrack-method
+setMethod('xaxis', 'gTrack', function(.Object) {
+  xaxis.fields <- c("xaxis.prefix", "xaxis.suffix", "xaxis.unit",
+                    "xaxis.round", "xaxis.interval", "xaxis.pos",
+                    "xaxis.nticks", "xaxis.pos.label",
+                    "xaxis.cex.label","xaxis.newline", "xaxis.chronly",
+                    "xaxis.width", "xaxis.label.angle","xaxis.ticklen")
+  return(.Object@formatting[,which(colnames(.Object@formatting) %in% xaxis.fields)])
+})
+
+#' @name sep
+#' @title Retrieves the seperator graphical parameters
+#' @description
+#'
+#' Return the portion of the gTrack @format field responsible for
+#' formatting the windows and their separators
+#' @author Jeremiah Wala
+#' @docType methods
+#' @rdname sep-methods
+#' @export
+setGeneric('sep', function(.Object, ...) standardGeneric('sep'))
+
+#' @rdname sep-methods
+#' @aliases sep,gTrack-method
+setMethod('sep', 'gTrack', function(.Object) {
+  sep.fields <- c("sep.lty", "sep.lwd", "sep.bg.col", "sep.draw")
+  return(.Object@formatting[,which(colnames(.Object@formatting) %in% sep.fields)])
+
+})
+
+#' @rdname formatting-methods
+#' @aliases formatting,gTrack-method
 setMethod('formatting', 'gTrack', function(.Object)
           {
             return(.Object@formatting)
           })
-
-
-#' @export
-setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 
 #' @name edgs
 #' @title edgs
@@ -960,9 +980,14 @@ setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 #'
 #' usage:
 #' edgs(gt)
-#'
+#' @docType methods
+#' @rdname edgs-methods
 #' @export
-#' @author Marcin Imielinski
+setGeneric('edgs', function(.Object) standardGeneric('edgs'))
+
+
+#' @rdname edgs-methods
+#' @aliases edgs,gTrack-method
 setMethod('edgs', 'gTrack', function(.Object)
            {
 #             .Object = list(...)[[1]]
@@ -986,9 +1011,6 @@ setMethod('vars', 'gTrack', function(.Object)
              return(.Object@vars)
            })
 
-
-setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
-
 #' @name edgs<-
 #' @title edgs<-
 #' @description
@@ -999,8 +1021,14 @@ setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 #' usage:
 #' edgs(gt)[[1]] <- new.edges.
 #'
+#' @docType methods
+#' @rdname edgs-set-methods
 #' @export
 #' @author Marcin Imielinski
+setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
+
+#' @rdname edgs-set-methods
+#' @aliases edgs<-,gTrack-method
 setMethod('edgs<-', 'gTrack', function(.Object, value)
           {
             if (!all(sapply(value, is.data.frame)))
@@ -1017,10 +1045,6 @@ setMethod('edgs<-', 'gTrack', function(.Object, value)
             return(.Object)
           })
 
-
-#' @export
-setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
-
 #' @name clear
 #' @title clear
 #' @description
@@ -1031,7 +1055,13 @@ setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
 #'
 #'
 #' @author Marcin Imielinski
+#' @docType methods
+#' @rdname clear-methods
 #' @export
+setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
+
+#' @rdname clear-methods
+#' @aliases clear,gTrack-method
 setMethod('clear', 'gTrack', function(.Object)
           {
             .Object = .Object[1]
@@ -1040,9 +1070,6 @@ setMethod('clear', 'gTrack', function(.Object)
             return(.Object);
           })
 
-
-#' @export
-setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
 
 #' @name dat
 #' @title dat
@@ -1054,8 +1081,14 @@ setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
 #' usage
 #' dat(gt)
 #'
+#' @docType methods
+#' @rdname dat-methods
 #' @export
 #' @author Marcin Imielinski
+setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
+
+#' @rdname dat-methods
+#' @aliases dat,gTrack-method
 setMethod('dat', 'gTrack', function(.Object)
           {
             return(.Object@data)
@@ -1112,8 +1145,6 @@ setMethod('colormap', 'gTrack', function(.Object)
             return(.Object@colormap)
           })
 
-#' @export
-setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 
 #' @name colormap
 #' @title colormap
@@ -1124,17 +1155,24 @@ setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 #'
 #' usage:
 #' colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
-#'
+#' @docType methods
+#' @rdname colormap-set-methods
 #' @export
-#' @author Marcin Imielinski
+setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
+
+#' @rdname colormap-set-methods
+#' @aliases colormap<-,gTrack-method
 setReplaceMethod('colormap', 'gTrack', function(.Object, value)
                  {
                    .Object@colormap = value;
                    validObject(.Object)
                    return(.Object)
                  });
-
-
+#' @name show
+#' @title show
+#' @docType methods
+#' @rdname show-methods
+#' @aliases show,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('show', 'gTrack', function(object)
@@ -1146,8 +1184,8 @@ setMethod('show', 'gTrack', function(object)
 ### utility function to allow "softer" matching of seqinfo's of genomes in chains
 .identical.seqinfo = function(a, b)
   {
-    df.a = data.frame(seqnames = seqnames(a), seqlengths = seqlengths(a), stringsAsFactors = F);
-    df.b = data.frame(seqnames = seqnames(b), seqlengths = seqlengths(b), stringsAsFactors = F);
+    df.a = data.frame(seqnames = GenomeInfoDb::seqnames(a), seqlengths = GenomeInfoDb::seqlengths(a), stringsAsFactors = F);
+    df.b = data.frame(seqnames = GenomeInfoDb::seqnames(b), seqlengths = GenomeInfoDb::seqlengths(b), stringsAsFactors = F);
 
     df.a = df.a[order(df.a$seqnames), ]
     df.b = df.b[order(df.b$seqnames), ]
@@ -1158,9 +1196,9 @@ setMethod('show', 'gTrack', function(object)
     return(identical(df.a, df.b))
   }
 
-#' @importMethodsFrom graphics plot
-if (!isGeneric("plot"))
-    setGeneric("plot", function(x, ...) standardGeneric("plot"))
+# @importFrom graphics plot
+# if (!isGeneric("plot"))
+#     setGeneric("plot", function(x, ...) standardGeneric("plot"))
 
 #' @name plot
 #' @title plot
@@ -1192,7 +1230,9 @@ if (!isGeneric("plot"))
 #' @param max.ranges scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.
 #' @param ..., additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')
 #'
-#' @import GenomicRanges
+#' @docType methods
+#' @rdname plot-methods
+#' @aliases plot,xTrack,ANY-method
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
 setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (for easy search)
@@ -1343,7 +1383,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 
                     ## fix y limits and apply log transform if needed
                     if (!is.na(formatting(.Object)$y.field[j]) && (is.na(formatting(.Object)$y0[j]) || is.na(formatting(.Object)$y1[j])))
-                      .Object <- format_yfield_limits(.Object, j, tmp.dat, pre.filtered)
+                      .Object <- format_yfield_limits(.Object, j, tmp.dat, pre.filtered, this.windows)
 
                     if (formatting(.Object[j])$format != 'ranges')
                       stop("violated assumption. need to fix")
@@ -1518,7 +1558,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                   }
 
             if (is.null(links))
-              links = GRangesList()
+              links = GenomicRanges::GRangesList()
 
             if (length(links)>0) # draw rearrangement links
               {
@@ -1531,30 +1571,30 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                 window.segs.u$width = window.segs.u$end - window.segs.u$start + 1
                 window.segs.xlim = do.call('rbind', lapply(window.segs, function(x) data.frame(start = min(x$start), end = max(x$end))))
 
-                links.u = grl.unlist(links)
+                links.u = gUtils::grl.unlist(links)
 
                 if (any(table(links.u$grl.ix)!=2))
                   stop('Links should be GRangesList of range pairs.')
 
-                links.p = grl.pivot(links)
+                links.p = gUtils::grl.pivot(links)
 
                 ## flip strands to conform to connectors convention (- connection to left side and + is connection to right side)
                 ## with ra specification convention (- refers to segment to left of breakpoint and + refers to segment to right)
-                strand(links.p[[1]]) = c("-" = "+", "+" = "-")[as.character(strand(links.p[[1]]))]
-                strand(links.p[[2]]) = c("-" = "+", "+" = "-")[as.character(strand(links.p[[2]]))]
+                GenomicRanges::strand(links.p[[1]]) = c("-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[1]]))]
+                GenomicRanges::strand(links.p[[2]]) = c("-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[2]]))]
 
                 ## find overlaps with windows and calculate their window specific coordinates
-                l1 = gr.findoverlaps(links.p[[1]], win.u)
+                l1 = gUtils::gr.findoverlaps(links.p[[1]], win.u)
                 values(l1) = cbind(as.data.frame(values(l1)), as.data.frame(values(links)[l1$query.id, , drop = FALSE]))
-                strand(l1) = strand(links.p[[1]])[l1$query.id]
+                GenomicRanges::strand(l1) = GenomicRanges::strand(links.p[[1]])[l1$query.id]
                 l1$stack.id = win.u$grl.ix[l1$subject.id]
                 l1$y.pos = ylim.stacks$xaxis.pos[l1$stack.id]
                 l1$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l1$subject.id,]$start, y = start(l1),
                   z = start(win.u[l1$subject.id]), a = window.segs.u$width[l1$subject.id] / width(win.u)[l1$subject.id])
 
-                l2 = gr.findoverlaps(links.p[[2]], win.u)
+                l2 = gUtils::gr.findoverlaps(links.p[[2]], win.u)
                 values(l2) = cbind(as.data.frame(values(l2)), as.data.frame(values(links)[l2$query.id, , drop = FALSE]))
-                strand(l2) = strand(links.p[[2]])[l2$query.id]
+                GenomicRanges::strand(l2) = GenomicRanges::strand(links.p[[2]])[l2$query.id]
                 l2$stack.id = win.u$grl.ix[l2$subject.id]
                 l2$y.pos = ylim.stacks$xaxis.pos[l2$stack.id]
                 l2$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l2$subject.id,]$start, y = start(l2),
@@ -1647,9 +1687,9 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 #                    l.unpaired$y.pos2 = l.unpaired$y.pos + top.gaps[l.unpaired$stack.id]
                     l.unpaired$y.pos2 = l.unpaired$y.pos + l.unpaired$v
 
-                    connectors(l.unpaired$x.pos, l.unpaired$y.pos, as.character(strand(l.unpaired)),
+                    connectors(l.unpaired$x.pos, l.unpaired$y.pos, as.character(GenomicRanges::strand(l.unpaired)),
                                l.unpaired$x.pos, l.unpaired$y.pos2,
-                               as.character(strand(l.unpaired)),
+                               as.character(GenomicRanges::strand(l.unpaired)),
                                v = abs(l.unpaired$v), h = l.unpaired$h, type = 'S',
                                f.arrow = l.unpaired$arrow, b.arrow = l.unpaired$arrow,
                                cex.arrow = 0.2*l.unpaired$cex.arrow,
@@ -1750,7 +1790,7 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
         si = gUtils::si2gr(ucsc.bands);
         si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
         si = Seqinfo(as.character(seqnames(si)), width(si)+1)
-        ucsc.bands = sort(gr.fix(ucsc.bands, si, drop = T))
+        ucsc.bands = sort(gUtils::gr.fix(ucsc.bands, si, drop = T))
 
         ucsc.bands = split(ucsc.bands, seqnames(ucsc.bands))
         td = gTrack(list(ucsc.bands), colormap = list(stain = c('gneg' = 'white', 'gpos25' = 'gray25', 'gpos50' = 'gray50', 'gpos75'= 'gray75', 'gpos100' = 'black', 'acen' = 'red', 'gvar' = 'pink', 'stalk' = 'blue')), border = 'black', ...)
@@ -1759,7 +1799,7 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
       }
     else
       {
-        tmp = c(brewer.pal(11, 'BrBG'), brewer.pal(11, 'PiYG'), brewer.pal(11, 'RdYlGn'))
+        tmp = c(RColorBrewer::brewer.pal(11, 'BrBG'), RColorBrewer::brewer.pal(11, 'PiYG'), RColorBrewer::brewer.pal(11, 'RdYlGn'))
         col.adjust = 10;
 
         col.karyo = data.frame(
@@ -1773,29 +1813,29 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
           {
             tmp.tel = aggregate(formula = end ~ seqnames, data = as.data.frame(ucsc.bands), FUN = max)
             tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
-            telomeres = c(GRanges(names(tmp.tel), IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
+            telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
               seqlengths = seqlengths(seqinfo(ucsc.bands))),
-              GRanges(names(tmp.tel), IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = seqlengths(seqinfo(ucsc.bands))))
+              GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = seqlengths(seqinfo(ucsc.bands))))
             values(telomeres)$lwd.border = 1;
             values(telomeres)$border = 'black';
             centromeres = reduce(ucsc.bands[values(ucsc.bands)$stain=='acen'])
             values(centromeres)$lwd.border = 1;
             values(centromeres)$border = 'black';
 #            arms = reduce(setdiff(ucsc.bands, centromeres))
-            arms = gaps(c(telomeres, centromeres))
-            arms = arms[which(strand(arms)=='*')]
+            arms = IRanges::gaps(c(telomeres, centromeres))
+            arms = arms[which(GenomicRanges::strand(arms)=='*')]
             values(arms)$lwd.border = 1;
             values(arms)$border = 'black';
             karyotype = sort(c(arms, centromeres, telomeres))
             values(karyotype)$region = paste(as.character(seqnames(karyotype)), c('ptel', 'p', ' cen', 'q', 'qtel'), sep = '')
             colmap = structure(as.vector(t(as.matrix(col.karyo)))[1:length(karyotype)], names = values(karyotype)$region)
-            strand(karyotype) = '+'
+            GenomicRanges::strand(karyotype) = '+'
 
 #            karyotype = split(karyotype, seqnames(karyotype))
             si = gUtils::si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
-            karyotype = gr.fix(karyotype, si, drop = T)
+            karyotype = gUtils::gr.fix(karyotype, si, drop = T)
             names(karyotype) = NULL;
             td = gTrack(list(karyotype), colormaps = list(region= colmap), border = 'black',
               stack.gap = 0, xaxis.interval = 1e7, ...)
@@ -1805,11 +1845,11 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
             karyotype = sort(reduce(ucsc.bands))
             values(karyotype)$region = as.character(seqnames(karyotype))
             colmap = structure(col.karyo$qrm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
-            strand(karyotype) = '+'
+            GenomicRanges::strand(karyotype) = '+'
             si = gUtils::si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
-            karyotype = gr.fix(karyotype, si, drop = T)
+            karyotype = gUtils::gr.fix(karyotype, si, drop = T)
             names(karyotype) = NULL;
             td = gTrack(list(karyotype), colormaps = list(region = colmap),
               border = 'black', stack.gap = 0, xaxis.interval = 1e7, ...)
@@ -1824,451 +1864,454 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
   }
 
 
-#' @name karyogram
-#' @title karyogram
-#' @description
-#'
-#' Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
-#' Usually built from cahced data objects but can also be built from provided GRangesList
-#'
-#' @param rg (optional) GRangesList representing transcript models obtained from refgene, with
-#' GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot,
-#' @param genes (optional) character vector specifying genes to limit gTrack object to
-#' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
-#' @param bg.col scalar character representing background color for genespan
-#' @param cds.col scalar character representing background color for CDS
-#' @param cds.utr scalar character representing background color for UTR
-#' @param st.col scalar character representing color of CDS start
-#' @param en.col scalar character representing color of CDS end
-#' @param genespan logical scalar whether to include genespan range around entire gne
-#' @param utr logical scalar whether to include range specifying UTR
-#' @param cds logical scalar whether to include range specifying CDS
-#' @param cached logical scalar whether to use "cached" version provided with package
-#' @param gr.srt.label scalar numeric specifying angle on exon label
-#' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
-#' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
-#' @param stack.gap stack.gap argument to gTrack
-#' @param ... additional arguments passed down to gTrack
-#'
-#' @export
-#' @author Marcin Imielinski
-track.refgene = function(rg = NULL,
-  gene.collapse = T,
-  genes = NULL,
-  bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
-  st.col = 'green',
-  en.col = 'red',
-  genespan = T, ## flags determining whether to include ranges for these features
-  utr = T, ## show utr?
-  cds = T, ## show cds start / end?
-
-  grl.labelfield, ## Don't touch these
-  gr.labelfield,
-  col,
-  cached = T, ## if true will use cached version
-  cached.path = system.file("extdata", "refgene.composite.rds", package = 'gTrack'),  ## location of cached copy
-  cached.path.collapsed = system.file("extdata", "refgene.composite.collapsed.rds", package = 'gTrack'),  ## location of cached collapsed copy
-  gr.srt.label = 0,
-  gr.cex.label = 0.8,
-  labels.suppress.gr = T,
-  stack.gap = 1e6,
-  ...)
-  {
-
-    if (!cached | (!gene.collapse & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
-      {
-        if (is.null(rg))
-          rg = read_refGene(grl = T)
-
-        values(rg)$label = values(rg)$gene_sym
-        ix.pos = values(rg)$str == '+'
-#         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'border', 'col', 'type')
-        OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'type', 'is.exon')
-
-        rg.exons = grl.unlist(rg)
-        rg.exons$rg.id = rg.exons$grl.ix
-        rg.exons$border = rg.exons$col = cds.col
-        rg.exons$is.exon = T;
-        rg.exons$type = 'exon'
-
-        if (genespan)
-          rg.genespan = GRanges(values(rg)$chr, IRanges(values(rg)$s1, values(rg)$e1), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = bg.col, type = 'genespan')
-        else
-          rg.genespan = NULL
-
-        if (utr)
-          {
-            type1 = ifelse(ix.pos, 'utr.5', 'utr.3')
-            type2 = ifelse(ix.pos, 'utr.3', 'utr.5')
-            tmp.utr = c(
-              GRanges(values(rg)$chr, IRanges(values(rg)$s1, pmax(values(rg)$s1, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type1),
-              GRanges(values(rg)$chr, IRanges(values(rg)$e1, pmax(values(rg)$e1, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type2))
-
-            utr.ix = which(rg.exons %over% tmp.utr)
-            utr.exons = rg.exons[utr.ix]
-            utr.exons$gr.ix = utr.ix
-            ix.check = merge(data.frame(i = 1:length(utr.exons), key = utr.exons$grl.ix), data.frame(j = 1:length(tmp.utr), key = tmp.utr$rg.id))
-            rg.utr.exons = pintersect(utr.exons[ix.check$i, ], tmp.utr[ix.check$j, ], resolve.empty = 'start')
-            non.empty = width(rg.utr.exons)!=0
-            rg.utr.exons = rg.utr.exons[non.empty]
-            values(rg.utr.exons) = values(utr.exons)[ix.check$i[non.empty], ]
-            rg.utr.exons$type = tmp.utr$type[ix.check$j[non.empty]]
-            rg.utr.exons$rg.id = rg.utr.exons$grl.ix
-            ranges(rg.exons[rg.utr.exons$gr.ix]) = ranges(psetdiff(rg.exons[rg.utr.exons$gr.ix], rg.utr.exons)) ## trim rg.exons by rg.utr.exons
-            ## remove width 0 rg.exons
-            rg.exons = rg.exons[width(rg.exons)>0]
-          }
-        else
-          rg.utr.exons = NULL
-
-        if (cds)
-          {
-            sten.col1 = ifelse(ix.pos, st.col, en.col)
-            sten.col2 = ifelse(ix.pos, en.col, st.col)
-            type1 = ifelse(ix.pos, 'cds.start', 'cds.end')
-            type2 = ifelse(ix.pos, 'cds.end', 'cds.start')
-            rg.sten = c(
-              GRanges(values(rg)$chr, IRanges(values(rg)$s2, pmax(values(rg)$s2, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col1, border = sten.col1, type = type1),
-              GRanges(values(rg)$chr, IRanges(values(rg)$e2, pmax(values(rg)$e2, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col2, border = sten.col2, type = type2))
-          }
-        else
-          rg.sten = NULL
-
-        tmp = grbind(rg.genespan, rg.exons, rg.utr.exons, rg.sten)[, OUT.COLS]
-        tmp$label = NULL;
-
-        ## compute tx ord of intervals
-        ord.ix = order(tmp$rg.id, match(tmp$type, c('genespan', 'utr.5', 'cds.start', 'exon', 'cds.end', 'utr.3')))
-        tmp.rle = rle(tmp$rg.id[ord.ix])
-        tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
-
-        if (gene.collapse)
-          {
-            tmp = tmp[order(match(tmp$type, c('genespan', 'exon', 'utr.5', 'utr.3', 'cds.start', 'cds.end')))]
-            rg.composite = split(tmp, values(rg)[tmp$rg.id, ]$gene_sym)
-            values(rg.composite) = values(rg)[match(names(rg.composite), values(rg)$gene_sym), c('gene_sym', 'Uniprot')]
-            saveRDS(rg.composite, cached.path.collapsed)
-          }
-        else
-          {
-            rg.composite = split(tmp, tmp$rg.id)
-            values(rg.composite) = values(rg)[as.numeric(names(rg.composite)), ]
-            saveRDS(rg.composite, cached.path)
-          }
-      }
-    else if (gene.collapse)
-        {
-            rg.composite = readRDS(cached.path.collapsed)
-        }
-    else
-        {
-            rg.composite = readRDS(cached.path)
-        }
-
-
-    if (!is.null(genes))
-      rg.composite = rg.composite[values(rg.composite)$gene_sym %in% genes]
-
-    cmap = list(type = c(genespan = bg.col, exon = cds.col, cds.start = st.col, cds.end = en.col, utr.5 = utr.col, utr.3 = utr.col))
-
-    return(gTrack(rg.composite, col = NA, grl.labelfield = 'gene_sym', gr.labelfield = 'exon_id',
-                     gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
-  }
-
-
-#' @name track.gencode
-#' @title track.gencode
-#'
-#' @description
-#' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
-#' Usually built from cached data objects but can also be built from provided GRangesList
-#'
-#' @param rg (optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import
-#' @param genes (optional) character vector specifying genes to limit gTrack object to
-#' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
-#' @param grep character vector for which to grep genes to positively select
-#' @param grepe character vector for which to grep genes which to exclude
-#' @param bg.col scalar character representing background color for genespan
-#' @param cds.col scalar character representing background color for CDS
-#' @param cds.utr scalar character representing background color for UTR
-#' @param st.col scalar character representing color of CDS start
-#' @param en.col scalar character representing color of CDS end
-#' @param cached logical scalar whether to use "cached" version provided with package
-#' @param gr.srt.label scalar numeric specifying angle on exon label
-#' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
-#' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
-#' @param stack.gap stack.gap argument to gTrack
-#' @param ... additional arguments passed down to gTrack
-#'
-#' @export
-#' @author Marcin Imielinski
-track.gencode = function(gencode = NULL,
-  gene.collapse = T,
-  genes = NULL,
-  grep = NULL,
-  grepe = NULL, ## which to exclude
-  bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
-  st.col = 'green',
-  en.col = 'red',
-  grl.labelfield, ## Don't touch these
-  gr.labelfield,
-  col,
-  cached = T, ## if true will use cached version
-  cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack'),  ## location of cached copy
-  cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'),
-  gr.srt.label = 0,
-  gr.cex.label = 0.3,
-  cex.label = 0.5,
-  labels.suppress.gr = T,
-  drop.rp11 = TRUE,
-  stack.gap = 1e6,
-  ...)
-  {
-
-    if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
-        {
-            cat('recreating composite gencode object\n')
-            if (is.null(gencode))
-                gencode = read_gencode()
-
-            cat('loaded gencode rds\n')
-
-            tx = gencode[gencode$type =='transcript']
-            genes = gencode[gencode$type =='gene']
-            exons = gencode[gencode$type == 'exon']
-            utr = gencode[gencode$type == 'UTR']
-            ## ut = unlist(utr$tag)
-            ## utix = rep(1:length(utr), sapply(utr$tag, length))
-            ## utr5 = utr[unique(utix[grep('5_UTR',ut)])]
-            ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]
-            ## utr5$type = 'UTR5'
-            ## utr3$type = 'UTR3'
-            startcodon = gencode[gencode$type == 'start_codon']
-            stopcodon = gencode[gencode$type == 'stop_codon']
-            OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
-            tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
-
-            cat('extracted intervals\n')
-
-            ## compute tx ord of intervals
-            ord.ix = order(tmp$transcript_id, match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))
-            tmp.rle = rle(tmp$transcript_id[ord.ix])
-            tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
-            tmp = tmp[order(match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))]
-
-            cat('reordered intervals\n')
-
-            tmp.g = tmp[tmp$type != 'transcript']
-            gencode.composite = split(tmp.g, tmp.g$gene_name)
-            ix = sapply(split(1:length(tmp.g), tmp.g$gene_name), function(x) x[1])
-            values(gencode.composite)$id = tmp.g$gene_name[ix]
-            values(gencode.composite)$gene_sym = tmp.g$gene_name[ix]
-            values(gencode.composite)$type = tmp.g$gene_type[ix]
-            values(gencode.composite)$status = tmp.g$gene_status[ix]
-            cat('saving gene collapsed track\n')
-            saveRDS(gencode.composite, cached.path.collapsed)
-
-            tmp.t = tmp[tmp$type != 'gene']
-            gencode.composite = split(tmp.t, tmp.t$transcript_id)
-            ix = sapply(split(1:length(tmp.t), tmp.t$transcript_id), function(x) x[1])
-            values(gencode.composite)$gene_sym = tmp.t$gene_name[ix]
-            values(gencode.composite)$id = paste(tmp.t$gene_name[ix], tmp.t$transcript_name[ix], sep = '-')
-            values(gencode.composite)$type = tmp.t$transcript_type[ix]
-            values(gencode.composite)$status = tmp.t$transcript_status[ix]
-            cat('saving transcript track\n')
-            saveRDS(gencode.composite, cached.path)
-
-            genes = NULL
-
-            cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
-    }
-
-    if (gene.collapse)
-        gencode.composite = readRDS(cached.path.collapsed)
-    else
-        gencode.composite = readRDS(cached.path)
+# @name karyogram
+# @title karyogram
+# @description
+#
+# Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
+# Usually built from cahced data objects but can also be built from provided GRangesList
+#
+# @param rg (optional) GRangesList representing transcript models obtained from refgene, with
+# GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot,
+# @param genes (optional) character vector specifying genes to limit gTrack object to
+# @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
+# @param bg.col scalar character representing background color for genespan
+# @param cds.col scalar character representing background color for CDS
+# @param cds.utr scalar character representing background color for UTR
+# @param st.col scalar character representing color of CDS start
+# @param en.col scalar character representing color of CDS end
+# @param genespan logical scalar whether to include genespan range around entire gne
+# @param utr logical scalar whether to include range specifying UTR
+# @param cds logical scalar whether to include range specifying CDS
+# @param cached logical scalar whether to use "cached" version provided with package
+# @param gr.srt.label scalar numeric specifying angle on exon label
+# @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
+# @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
+# @param stack.gap stack.gap argument to gTrack
+# @param ... additional arguments passed down to gTrack
+#
+# @export
+# @importFrom IRanges IRanges
+# @importFrom GenomicRanges GRanges
+# @author Marcin Imielinski
+# track.refgene = function(rg = NULL,
+#   gene.collapse = T,
+#   genes = NULL,
+#   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
+#   st.col = 'green',
+#   en.col = 'red',
+#   genespan = T, ## flags determining whether to include ranges for these features
+#   utr = T, ## show utr?
+#   cds = T, ## show cds start / end?
+#
+#   grl.labelfield, ## Don't touch these
+#   gr.labelfield,
+#   col,
+#   cached = T, ## if true will use cached version
+#   cached.path = system.file("extdata", "refgene.composite.rds", package = 'gTrack'),  ## location of cached copy
+#   cached.path.collapsed = system.file("extdata", "refgene.composite.collapsed.rds", package = 'gTrack'),  ## location of cached collapsed copy
+#   gr.srt.label = 0,
+#   gr.cex.label = 0.8,
+#   labels.suppress.gr = T,
+#   stack.gap = 1e6,
+#   ...)
+#   {
+#
+#     if (!cached | (!gene.collapse & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
+#       {
+#         if (is.null(rg))
+#           rg = read_refGene(grl = T)
+#
+#         values(rg)$label = values(rg)$gene_sym
+#         ix.pos = values(rg)$str == '+'
+# #         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'border', 'col', 'type')
+#         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'type', 'is.exon')
+#
+#         rg.exons = gUtils::grl.unlist(rg)
+#         rg.exons$rg.id = rg.exons$grl.ix
+#         rg.exons$border = rg.exons$col = cds.col
+#         rg.exons$is.exon = T;
+#         rg.exons$type = 'exon'
+#
+#         if (genespan)
+#           rg.genespan = GRanges(values(rg)$chr, IRanges(values(rg)$s1, values(rg)$e1), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = bg.col, type = 'genespan')
+#         else
+#           rg.genespan = NULL
+#
+#         if (utr)
+#           {
+#             type1 = ifelse(ix.pos, 'utr.5', 'utr.3')
+#             type2 = ifelse(ix.pos, 'utr.3', 'utr.5')
+#             tmp.utr = c(
+#               GRanges(values(rg)$chr, IRanges(values(rg)$s1, pmax(values(rg)$s1, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type1),
+#               GRanges(values(rg)$chr, IRanges(values(rg)$e1, pmax(values(rg)$e1, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type2))
+#
+#             ##utr.ix = which(rg.exons %over% tmp.utr)
+#             utr.ix = which(gUtils::gr.in(rg.exons, tmp.utr))
+#             utr.exons = rg.exons[utr.ix]
+#             utr.exons$gr.ix = utr.ix
+#             ix.check = merge(data.frame(i = 1:length(utr.exons), key = utr.exons$grl.ix), data.frame(j = 1:length(tmp.utr), key = tmp.utr$rg.id))
+#             rg.utr.exons = pintersect(utr.exons[ix.check$i, ], tmp.utr[ix.check$j, ], resolve.empty = 'start')
+#             non.empty = width(rg.utr.exons)!=0
+#             rg.utr.exons = rg.utr.exons[non.empty]
+#             values(rg.utr.exons) = values(utr.exons)[ix.check$i[non.empty], ]
+#             rg.utr.exons$type = tmp.utr$type[ix.check$j[non.empty]]
+#             rg.utr.exons$rg.id = rg.utr.exons$grl.ix
+#             IRanges::ranges(rg.exons[rg.utr.exons$gr.ix]) = IRanges::ranges(psetdiff(rg.exons[rg.utr.exons$gr.ix], rg.utr.exons)) ## trim rg.exons by rg.utr.exons
+#             ## remove width 0 rg.exons
+#             rg.exons = rg.exons[width(rg.exons)>0]
+#           }
+#         else
+#           rg.utr.exons = NULL
+#
+#         if (cds)
+#           {
+#             sten.col1 = ifelse(ix.pos, st.col, en.col)
+#             sten.col2 = ifelse(ix.pos, en.col, st.col)
+#             type1 = ifelse(ix.pos, 'cds.start', 'cds.end')
+#             type2 = ifelse(ix.pos, 'cds.end', 'cds.start')
+#             rg.sten = c(
+#               GRanges(values(rg)$chr, IRanges(values(rg)$s2, pmax(values(rg)$s2, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col1, border = sten.col1, type = type1),
+#               GRanges(values(rg)$chr, IRanges(values(rg)$e2, pmax(values(rg)$e2, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col2, border = sten.col2, type = type2))
+#           }
+#         else
+#           rg.sten = NULL
+#
+#         tmp = rbind(rg.genespan, rg.exons, rg.utr.exons, rg.sten)[, OUT.COLS]
+#         tmp$label = NULL;
+#
+#         ## compute tx ord of intervals
+#         ord.ix = order(tmp$rg.id, match(tmp$type, c('genespan', 'utr.5', 'cds.start', 'exon', 'cds.end', 'utr.3')))
+#         tmp.rle = rle(tmp$rg.id[ord.ix])
+#         tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
+#
+#         if (gene.collapse)
+#           {
+#             tmp = tmp[order(match(tmp$type, c('genespan', 'exon', 'utr.5', 'utr.3', 'cds.start', 'cds.end')))]
+#             rg.composite = split(tmp, values(rg)[tmp$rg.id, ]$gene_sym)
+#             values(rg.composite) = values(rg)[match(names(rg.composite), values(rg)$gene_sym), c('gene_sym', 'Uniprot')]
+#             saveRDS(rg.composite, cached.path.collapsed)
+#           }
+#         else
+#           {
+#             rg.composite = split(tmp, tmp$rg.id)
+#             values(rg.composite) = values(rg)[as.numeric(names(rg.composite)), ]
+#             saveRDS(rg.composite, cached.path)
+#           }
+#       }
+#     else if (gene.collapse)
+#         {
+#             rg.composite = readRDS(cached.path.collapsed)
+#         }
+#     else
+#         {
+#             rg.composite = readRDS(cached.path)
+#         }
+#
+#
+#     if (!is.null(genes))
+#       rg.composite = rg.composite[values(rg.composite)$gene_sym %in% genes]
+#
+#     cmap = list(type = c(genespan = bg.col, exon = cds.col, cds.start = st.col, cds.end = en.col, utr.5 = utr.col, utr.3 = utr.col))
+#
+#     return(gTrack(rg.composite, col = NA, grl.labelfield = 'gene_sym', gr.labelfield = 'exon_id',
+#                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
+#   }
 
 
-    if (drop.rp11)
-        gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
+# @name track.gencode
+# @title track.gencode
+#
+# @description
+# Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
+# Usually built from cached data objects but can also be built from provided GRangesList
+#
+# @param rg (optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import
+# @param genes (optional) character vector specifying genes to limit gTrack object to
+# @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
+# @param grep character vector for which to grep genes to positively select
+# @param grepe character vector for which to grep genes which to exclude
+# @param bg.col scalar character representing background color for genespan
+# @param cds.col scalar character representing background color for CDS
+# @param cds.utr scalar character representing background color for UTR
+# @param st.col scalar character representing color of CDS start
+# @param en.col scalar character representing color of CDS end
+# @param cached logical scalar whether to use "cached" version provided with package
+# @param gr.srt.label scalar numeric specifying angle on exon label
+# @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
+# @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
+# @param stack.gap stack.gap argument to gTrack
+# @param ... additional arguments passed down to gTrack
+#
+# @export
+# @author Marcin Imielinski
+# track.gencode = function(gencode = NULL,
+#   gene.collapse = T,
+#   genes = NULL,
+#   grep = NULL,
+#   grepe = NULL, ## which to exclude
+#   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
+#   st.col = 'green',
+#   en.col = 'red',
+#   grl.labelfield, ## Don't touch these
+#   gr.labelfield,
+#   col,
+#   cached = T, ## if true will use cached version
+#   cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack'),  ## location of cached copy
+#   cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'),
+#   gr.srt.label = 0,
+#   gr.cex.label = 0.3,
+#   cex.label = 0.5,
+#   labels.suppress.gr = T,
+#   drop.rp11 = TRUE,
+#   stack.gap = 1e6,
+#   ...)
+#   {
+#
+#     if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
+#         {
+#             cat('recreating composite gencode object\n')
+#             if (is.null(gencode))
+#                 gencode = read_gencode()
+#
+#             cat('loaded gencode rds\n')
+#
+#             tx = gencode[gencode$type =='transcript']
+#             genes = gencode[gencode$type =='gene']
+#             exons = gencode[gencode$type == 'exon']
+#             utr = gencode[gencode$type == 'UTR']
+#             ## ut = unlist(utr$tag)
+#             ## utix = rep(1:length(utr), sapply(utr$tag, length))
+#             ## utr5 = utr[unique(utix[grep('5_UTR',ut)])]
+#             ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]
+#             ## utr5$type = 'UTR5'
+#             ## utr3$type = 'UTR3'
+#             startcodon = gencode[gencode$type == 'start_codon']
+#             stopcodon = gencode[gencode$type == 'stop_codon']
+#             OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
+#             tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
+#
+#             cat('extracted intervals\n')
+#
+#             ## compute tx ord of intervals
+#             ord.ix = order(tmp$transcript_id, match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))
+#             tmp.rle = rle(tmp$transcript_id[ord.ix])
+#             tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
+#             tmp = tmp[order(match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))]
+#
+#             cat('reordered intervals\n')
+#
+#             tmp.g = tmp[tmp$type != 'transcript']
+#             gencode.composite = split(tmp.g, tmp.g$gene_name)
+#             ix = sapply(split(1:length(tmp.g), tmp.g$gene_name), function(x) x[1])
+#             values(gencode.composite)$id = tmp.g$gene_name[ix]
+#             values(gencode.composite)$gene_sym = tmp.g$gene_name[ix]
+#             values(gencode.composite)$type = tmp.g$gene_type[ix]
+#             values(gencode.composite)$status = tmp.g$gene_status[ix]
+#             cat('saving gene collapsed track\n')
+#             saveRDS(gencode.composite, cached.path.collapsed)
+#
+#             tmp.t = tmp[tmp$type != 'gene']
+#             gencode.composite = split(tmp.t, tmp.t$transcript_id)
+#             ix = sapply(split(1:length(tmp.t), tmp.t$transcript_id), function(x) x[1])
+#             values(gencode.composite)$gene_sym = tmp.t$gene_name[ix]
+#             values(gencode.composite)$id = paste(tmp.t$gene_name[ix], tmp.t$transcript_name[ix], sep = '-')
+#             values(gencode.composite)$type = tmp.t$transcript_type[ix]
+#             values(gencode.composite)$status = tmp.t$transcript_status[ix]
+#             cat('saving transcript track\n')
+#             saveRDS(gencode.composite, cached.path)
+#
+#             genes = NULL
+#
+#             cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
+#     }
+#
+#     if (gene.collapse)
+#         gencode.composite = readRDS(cached.path.collapsed)
+#     else
+#         gencode.composite = readRDS(cached.path)
+#
+#
+#     if (drop.rp11)
+#         gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
+#
+#     if (!is.null(genes))
+#         gencode.composite = gencode.composite[values(gencode.composite)$gene_sym %in% genes]
+#
+#     if (!is.null(grep))
+#         {
+#             ix = rep(FALSE, length(gencode.composite))
+#             for (g in grep)
+#                 ix = ix | grepl(g, values(gencode.composite)$gene_sym)
+#
+#             gencode.composite = gencode.composite[ix]
+#         }
+#
+#     if (!is.null(grepe))
+#         {
+#             ix = rep(TRUE, length(gencode.composite))
+#             for (g in grepe)
+#                 ix = ix & !grepl(g, values(gencode.composite)$gene_sym)
+#
+#             gencode.composite = gencode.composite[ix]
+#         }
+#
+#
+#     cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
+#
+#     return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
+#                      gr.srt.label = gr.srt.label, cex.label = cex.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...)))
+#   }
 
-    if (!is.null(genes))
-        gencode.composite = gencode.composite[values(gencode.composite)$gene_sym %in% genes]
 
-    if (!is.null(grep))
-        {
-            ix = rep(FALSE, length(gencode.composite))
-            for (g in grep)
-                ix = ix | grepl(g, values(gencode.composite)$gene_sym)
-
-            gencode.composite = gencode.composite[ix]
-        }
-
-    if (!is.null(grepe))
-        {
-            ix = rep(TRUE, length(gencode.composite))
-            for (g in grepe)
-                ix = ix & !grepl(g, values(gencode.composite)$gene_sym)
-
-            gencode.composite = gencode.composite[ix]
-        }
-
-
-    cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
-
-    return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
-                     gr.srt.label = gr.srt.label, cex.label = cex.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...)))
-  }
-
-
-#' @name track.splice
-#' @title track.splice
-#'
-#' Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object
-#' of splicing graph
-#'
-#' @param ex GRanges of candidate exons
-#' @param bam path to indexed RNA seq bam
-#' @param verbose
-#' @import Rsamtools
-#' @export
-#' @author Marcin Imielinski
-track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
-    infer.exons = FALSE,
-    min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
-    min.exon.width = 10,
-    max.exon.width = 1000 ## only relevant if ex is null
-    )
-    {
-        if (!is.null(ex))
-            {
-                ex = gr.stripstrand(ex)
-                ex.ov = gr.findoverlaps(ex, ex)
-            }
-
-        if (is.null(region))
-            reads = read.bam(bam, intervals = ex, pairs.grl = FALSE, verbose = verbose)
-        else
-            reads = read.bam(bam, intervals = region, pairs.grl = FALSE, verbose = verbose)
-
-        if (verbose)
-            cat(length(reads), 'reads\n')
-
-        if (length(reads)==0)
-            {
-                if (!is.null(ex))
-                    {
-                        ex$expr = 0
-                        ex$log.expr = log(ex$expr)
-                        return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
-                    }
-                else
-                    return(gTrack(region[c()]))
-            }
-
-        sp.reads = splice.cigar(reads, return.grl = FALSE)
-
-        if (verbose)
-            cat(length(sp.reads), 'spliced fragments\n')
-
-        if (is.null(ex))
-            infer.exons = TRUE
-
-        if (infer.exons)
-            {
-                sp.reads = sp.reads[seqnames(sp.reads)==seqnames(region) & ranges(sp.reads) %over% ranges(region), ]
-                tmp = grdt(sp.reads)
-                m.reads = tmp[type != 'N']
-                n.reads = tmp[type == 'N']
-                ustart = c(min(start(sp.reads)), n.reads[, length(seqnames), by = end][V1>=min.reads, end]+1)
-                uend = c(n.reads[, length(seqnames), by = start][V1>=min.reads, start]-1, max(end(sp.reads))) ## 1 after N ends are starts of exons
-
-                ustart.maxwidth = m.reads[, max(end-start), keyby = start]
-                uend.maxwidth = m.reads[, max(end-start), keyby = end]
-
-                new.ex = data.table(seqnames = n.reads$seqnames[1], start = rep(ustart, length(uend)), end = rep(uend, each = length(ustart)))[ (end-start) <= max.exon.width & (end-start) >= min.exon.width, ]
-
-                ## we will get exon overload unless we cull a bit
-                ## to be parsimonious we only keep enough exons for all the matching parts of reads to "land on"
-                ## ie if they start in an exon they will end up in the same one
-                ## rather than computing all the overlaps necessary for this
-                ## we just approximate by removing exons for which a smaller one exists that accomodates all of the
-                ## reads that start on its start or end on its end
-                new.ex[ , maxwidth.start := (end-start) > ustart.maxwidth[list(new.ex$start), V1]]
-                new.ex[ , maxwidth.end := (end-start) > uend.maxwidth[list(new.ex$end), V1]]
-
-                new.ex[ , shorter.start.exists := !(1:length(seqnames) %in% which.min(end-start)), by = start]
-                new.ex[ , shorter.end.exists := !(1:length(seqnames) %in% which.min(end-start)), by = end]
-
-                new.ex = seg2gr(new.ex[!shorter.start.exists | !shorter.end.exists, ], seqlengths = seqlengths(sp.reads))[, c()]
-
-                new.ex$type = 'inferred'
-                if (verbose)
-                    cat(sprintf('inferred %s total unique exons with min.reads %s, min.exon.width %s, and max.exon.width %s\n', length(new.ex), min.reads, min.exon.width, max.exon.width))
-                if (!is.null(ex))
-                    {
-                        old.ex = ex;
-                        ex = sort(unique(grbind(ex, new.ex)))
-                        if (verbose)
-                            cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
-                    }
-                else
-                   ex = sort(new.ex)
-
-                ex.ov = gr.findoverlaps(ex, ex)
-            }
-
-        sp.reads = sort(sp.reads[sp.reads$type != 'N'])
-        sp.reads = sp.reads[order(sp.reads$rid), ]
-
-        tmp =  grdt(sp.reads)
-        tmp[, spid := 1:length(sp.reads)]
-        tmp[, riid := 1:length(seqnames), by = rid]
-        setkey(tmp, spid)
-        sp.reads$riid = tmp[list(1:length(sp.reads)), riid]
-
-        ov = gr.findoverlaps(ex, sp.reads, scol = c('rid', 'riid'), verbose = verbose, return.type = 'data.table')
-        if (length(ov)==0)
-            {
-                ex$expr = 0
-                ex$log.expr = log(ex$expr)
-                return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
-            }
-        ov[, width := end-start]
-        ov[, match.left.exon := as.numeric(start == start(ex)[query.id])]
-        ov[, match.right.exon := as.numeric(end == end(ex)[query.id])]
-        ov[, match.left.read := as.numeric(start == start(sp.reads)[subject.id])]
-        ov[, match.right.read := as.numeric(end == end(sp.reads)[subject.id])]
-        ov = ov[(match.left.read | match.left.exon) & (match.right.read | match.right.exon), ]
-        setkeyv(ov, c('rid', 'riid'))
-
-        sp.rid = unique(ov$rid[ov$riid>1])
-        ij = ov[list(sp.rid), list(from = rep(query.id, each = length(query.id)), to = rep(query.id, length(query.id)),
-            val = width[rep(1:length(query.id), each = length(query.id))] + width[rep(1:length(query.id), length(query.id))],
-            from.riid = rep(riid*match.right.exon*match.right.read, each = length(query.id)),
-            to.riid = rep(riid*match.left.exon*match.left.read, length(query.id))), by = rid]
-
-        ij = ij[(ij$to.riid - ij$from.riid) == 1 & ij$to.riid !=0 & ij$from.riid != 0, ]
-        setkeyv(ij, c('from', 'to'))
-        ij = ij[!list(ex.ov$query.id, ex.ov$subject.id), ]
-
-#        edges = ij[, list(val = sum(val)/(width(ex)[from] + width(ex)[to])), keyby = list(from, to)]
-        edges = ij[, list(val = sum(val)), keyby = list(from, to)]
-                                        #edges = edges[, val := 0]
-        edges = edges[, lwd := affine.map(log(val+1), c(0, 6), cap = TRUE)]
-        edges = edges[, v := 5]
-        edges = edges[, h := 2]
-        edges = edges[, col := alpha('gray10', affine.map(log(val+1), c(0.1,0.8), cap = TRUE))]
-        edges = edges[, cex.arrow := 0]
-        ex$expr = ov[(match.right.exon*match.right.read + match.left.exon*match.right.read) | (match.left.read==1 & match.right.read==1), sum(width), keyby = query.id][list(1:length(ex)), V1]/width(ex)
-
-        ex$log.expr = round(log10(ex$expr), 1)
-        ex$ywid = 0.8
-        ex$border = 'black'
-        ex$col = alpha('blue', 0.4)
-        td.ex = gTrack(ex, y.field = 'log.expr', edges = edges, name = 'Log Read Density', height = 30)
-        return(td.ex)
-    }
+# @name track.splice
+# @title track.splice
+#
+# Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object
+# of splicing graph
+#
+# @param ex GRanges of candidate exons
+# @param bam path to indexed RNA seq bam
+# @param verbose
+# @import Rsamtools
+# @export
+# @author Marcin Imielinski
+# track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
+#     infer.exons = FALSE,
+#     min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
+#     min.exon.width = 10,
+#     max.exon.width = 1000 ## only relevant if ex is null
+#     )
+#     {
+#         if (!is.null(ex))
+#             {
+#                 ex = gr.stripstrand(ex)
+#                 ex.ov = gr.findoverlaps(ex, ex)
+#             }
+#
+#         if (is.null(region))
+#             reads = read.bam(bam, intervals = ex, pairs.grl = FALSE, verbose = verbose)
+#         else
+#             reads = read.bam(bam, intervals = region, pairs.grl = FALSE, verbose = verbose)
+#
+#         if (verbose)
+#             cat(length(reads), 'reads\n')
+#
+#         if (length(reads)==0)
+#             {
+#                 if (!is.null(ex))
+#                     {
+#                         ex$expr = 0
+#                         ex$log.expr = log(ex$expr)
+#                         return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
+#                     }
+#                 else
+#                     return(gTrack(region[c()]))
+#             }
+#
+#         sp.reads = splice.cigar(reads, return.grl = FALSE)
+#
+#         if (verbose)
+#             cat(length(sp.reads), 'spliced fragments\n')
+#
+#         if (is.null(ex))
+#             infer.exons = TRUE
+#
+#         if (infer.exons)
+#             {
+#                 sp.reads = sp.reads[seqnames(sp.reads)==seqnames(region) & ranges(sp.reads) %over% ranges(region), ]
+#                 tmp = grdt(sp.reads)
+#                 m.reads = tmp[type != 'N']
+#                 n.reads = tmp[type == 'N']
+#                 ustart = c(min(start(sp.reads)), n.reads[, length(seqnames), by = end][V1>=min.reads, end]+1)
+#                 uend = c(n.reads[, length(seqnames), by = start][V1>=min.reads, start]-1, max(end(sp.reads))) ## 1 after N ends are starts of exons
+#
+#                 ustart.maxwidth = m.reads[, max(end-start), keyby = start]
+#                 uend.maxwidth = m.reads[, max(end-start), keyby = end]
+#
+#                 new.ex = data.table(seqnames = n.reads$seqnames[1], start = rep(ustart, length(uend)), end = rep(uend, each = length(ustart)))[ (end-start) <= max.exon.width & (end-start) >= min.exon.width, ]
+#
+#                 ## we will get exon overload unless we cull a bit
+#                 ## to be parsimonious we only keep enough exons for all the matching parts of reads to "land on"
+#                 ## ie if they start in an exon they will end up in the same one
+#                 ## rather than computing all the overlaps necessary for this
+#                 ## we just approximate by removing exons for which a smaller one exists that accomodates all of the
+#                 ## reads that start on its start or end on its end
+#                 new.ex[ , maxwidth.start := (end-start) > ustart.maxwidth[list(new.ex$start), V1]]
+#                 new.ex[ , maxwidth.end := (end-start) > uend.maxwidth[list(new.ex$end), V1]]
+#
+#                 new.ex[ , shorter.start.exists := !(1:length(seqnames) %in% which.min(end-start)), by = start]
+#                 new.ex[ , shorter.end.exists := !(1:length(seqnames) %in% which.min(end-start)), by = end]
+#
+#                 new.ex = seg2gr(new.ex[!shorter.start.exists | !shorter.end.exists, ], seqlengths = seqlengths(sp.reads))[, c()]
+#
+#                 new.ex$type = 'inferred'
+#                 if (verbose)
+#                     cat(sprintf('inferred %s total unique exons with min.reads %s, min.exon.width %s, and max.exon.width %s\n', length(new.ex), min.reads, min.exon.width, max.exon.width))
+#                 if (!is.null(ex))
+#                     {
+#                         old.ex = ex;
+#                         ex = sort(unique(gUtils::grbind(ex, new.ex)))
+#                         if (verbose)
+#                             cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
+#                     }
+#                 else
+#                    ex = sort(new.ex)
+#
+#                 ex.ov = gr.findoverlaps(ex, ex)
+#             }
+#
+#         sp.reads = sort(sp.reads[sp.reads$type != 'N'])
+#         sp.reads = sp.reads[order(sp.reads$rid), ]
+#
+#         tmp =  grdt(sp.reads)
+#         tmp[, spid := 1:length(sp.reads)]
+#         tmp[, riid := 1:length(seqnames), by = rid]
+#         setkey(tmp, spid)
+#         sp.reads$riid = tmp[list(1:length(sp.reads)), riid]
+#
+#         ov = gr.findoverlaps(ex, sp.reads, scol = c('rid', 'riid'), verbose = verbose, return.type = 'data.table')
+#         if (length(ov)==0)
+#             {
+#                 ex$expr = 0
+#                 ex$log.expr = log(ex$expr)
+#                 return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
+#             }
+#         ov[, width := end-start]
+#         ov[, match.left.exon := as.numeric(start == start(ex)[query.id])]
+#         ov[, match.right.exon := as.numeric(end == end(ex)[query.id])]
+#         ov[, match.left.read := as.numeric(start == start(sp.reads)[subject.id])]
+#         ov[, match.right.read := as.numeric(end == end(sp.reads)[subject.id])]
+#         ov = ov[(match.left.read | match.left.exon) & (match.right.read | match.right.exon), ]
+#         setkeyv(ov, c('rid', 'riid'))
+#
+#         sp.rid = unique(ov$rid[ov$riid>1])
+#         ij = ov[list(sp.rid), list(from = rep(query.id, each = length(query.id)), to = rep(query.id, length(query.id)),
+#             val = width[rep(1:length(query.id), each = length(query.id))] + width[rep(1:length(query.id), length(query.id))],
+#             from.riid = rep(riid*match.right.exon*match.right.read, each = length(query.id)),
+#             to.riid = rep(riid*match.left.exon*match.left.read, length(query.id))), by = rid]
+#
+#         ij = ij[(ij$to.riid - ij$from.riid) == 1 & ij$to.riid !=0 & ij$from.riid != 0, ]
+#         setkeyv(ij, c('from', 'to'))
+#         ij = ij[!list(ex.ov$query.id, ex.ov$subject.id), ]
+#
+# #        edges = ij[, list(val = sum(val)/(width(ex)[from] + width(ex)[to])), keyby = list(from, to)]
+#         edges = ij[, list(val = sum(val)), keyby = list(from, to)]
+#                                         #edges = edges[, val := 0]
+#         edges = edges[, lwd := affine.map(log(val+1), c(0, 6), cap = TRUE)]
+#         edges = edges[, v := 5]
+#         edges = edges[, h := 2]
+#         edges = edges[, col := alpha('gray10', affine.map(log(val+1), c(0.1,0.8), cap = TRUE))]
+#         edges = edges[, cex.arrow := 0]
+#         ex$expr = ov[(match.right.exon*match.right.read + match.left.exon*match.right.read) | (match.left.read==1 & match.right.read==1), sum(width), keyby = query.id][list(1:length(ex)), V1]/width(ex)
+#
+#         ex$log.expr = round(log10(ex$expr), 1)
+#         ex$ywid = 0.8
+#         ex$border = 'black'
+#         ex$col = alpha('blue', 0.4)
+#         td.ex = gTrack(ex, y.field = 'log.expr', edges = edges, name = 'Log Read Density', height = 30)
+#         return(td.ex)
+#     }
 
 ##########################
 #' @name draw.ranges
@@ -2311,13 +2354,13 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   PAD = 0.5;
 
   if (is.null(y))
-    if (is.data.frame(x))
-      y = stack_segs(x)
-    else
-      y = disjointBins(ranges(x))
+    #if (is.data.frame(x))
+    #  y = stack_segs(x)
+    #else
+      y = IRanges::disjointBins(IRanges::ranges(x))
 
-  if (inherits(x, 'Rle'))
-    x = RangedData(x)
+  #if (inherits(x, 'Rle'))
+  #  x = RangedData(x)
 
   if (inherits(x, 'GappedAlignments'))
     x = as(x, 'GRanges')
@@ -2518,7 +2561,10 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 #'
 #' @keywords internal
 #' @author Marcin IMielinski
-##########################
+#' @importFrom GenomicRanges GRanges values ranges width strand values<- strand<- seqnames coverage ranges<-
+#' @importFrom data.table is.data.table := setkeyv
+#' @importFrom IRanges findOverlaps
+#' @importFrom GenomeInfoDb Seqinfo seqinfo keepSeqlevels seqlevels seqlengths seqlevels<- seqlengths<- genome<- seqnames
 draw.grl = function(grl,
   y = NULL,  # can be either vector of length grl, or data.frame row / list with fields $start and $end
              # specifying y coordinates to "pack" the granges into (or just length 2 list)
@@ -2597,8 +2643,11 @@ draw.grl = function(grl,
   m.bg.col = 'gray80',
   smooth = NA, ## passed down to draw triangle
   islog = FALSE, ## if the input data is 10*log(mat), set TRUE to make colormap legend good
+  legend.params = list(plot=TRUE),
   ...)
   {
+
+    ## NOTE fix
 
     ## call to matrix function, skip the rest. this is budget, but keeps draw.grl integration
     if (triangle) {
@@ -2625,14 +2674,14 @@ draw.grl = function(grl,
 #          draw.backbone = is.null(y)
           draw.backbone = T
 
-        if (inherits(grl, 'GappedAlignments'))
-          grl = ga2gr(grl)
+        # if (inherits(grl, 'GappedAlignments'))
+        #   grl = ga2gr(grl)
 
         if ((inherits(grl, 'GRanges')))
           {
             if (!is.null(windows)) ## hack to get over stupid GRanges speed issues when we have a giant GRanges input (eg coverage)
               {
-                ix <- gr.in(grl, windows, pintersect=pintersect)
+                ix <- gUtils::gr.in(grl, windows, pintersect=pintersect)
                 grl = grl[ix]
 
                 if (!is.null(col))
@@ -2660,7 +2709,7 @@ draw.grl = function(grl,
                 if (!is.null(edges))
                   if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
                     {
-                      if (is.data.table(edges))
+                      if (data.table::is.data.table(edges))
                           edges = as.data.frame(edges)
 
                       ix.i = which(ix)
@@ -2673,9 +2722,9 @@ draw.grl = function(grl,
             names(grl) = NULL;
 
             if (length(grl)>0)
-              grl = split(grl, 1:length(grl))
+              grl = S4Vectors::split(grl, 1:length(grl))
             else
-              grl = GRangesList(grl)
+              grl = GenomicRanges::GRangesList(grl)
 
             names(grl) = gr.names;
           }
@@ -2766,7 +2815,7 @@ draw.grl = function(grl,
           if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
             grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
 
-        gr = tryCatch(grl.unlist(grl), error = function(e)
+        gr = tryCatch(gUtils::grl.unlist(grl), error = function(e)
           {
             ## ghetto solution if we get GRanges names snafu
             gr = unlist(grl);
@@ -2786,6 +2835,7 @@ draw.grl = function(grl,
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
 
+        last = iix = NULL ## NOTE fix
         if (length(gr)>0)
             gr$last = data.table(iix = as.numeric(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
 
@@ -2793,15 +2843,15 @@ draw.grl = function(grl,
 
         grl.props$group = as.character(grl.props$group)
 
-        values(gr) = cbind(as.data.frame(values(gr)),
+        S4Vectors::values(gr) = cbind(as.data.frame(values(gr)),
                 grl.props[match(values(gr)$group, grl.props$group), setdiff(colnames(grl.props), c(colnames(values(gr)), 'group', 'labels')), drop = FALSE])
 
         #####
         # variant drawing
         ####
 
-        if (draw.var & is.null(var))
-          var = varbase(gr, soft = var.soft)
+        ##if (draw.var & is.null(var))
+        ##  var = varbase(gr, soft = var.soft)
 
         if (!is.null(var))
           {
@@ -2813,7 +2863,7 @@ draw.grl = function(grl,
             names(var) = NULL
             var.group = as.numeric(as.data.frame(var)$element)
 #            var.gr = gr.stripstrand(unlist(var))
-            var.gr = grl.unlist(var)
+            var.gr = gUtils::grl.unlist(var)
 
             # inherit properties from gr
             values(var.gr) = cbind(as.data.frame(values(var.gr)),
@@ -2830,33 +2880,33 @@ draw.grl = function(grl,
                 ## remove soft clips
                 var.gr = var.gr[var.gr$type != 'S']
                 gr2 = gr;
-                strand(var.gr) == strand(gr)[var.gr$grl.ix]
+                GenomicRanges::strand(var.gr) == GenomicRanges::strand(gr)[var.gr$grl.ix]
 
                 gr$grl.iix = as.numeric(gr$grl.iix)
 
                 ## now doing some ranges acrobatics to find all the pieces of gr that are not in var.gr
                 ## TODO: speed up, remove awkawardness
-                ir = ranges(gr)
-                var.ir = ranges(var.gr)
+                ir = IRanges::ranges(gr)
+                var.ir = IRanges::ranges(var.gr)
                 tmp.ix = split(1:length(var.gr), var.gr$grl.ix)
-                tmp.l = lapply(names(tmp.ix), function(i) disjoin(c(ir[as.numeric(i)], var.ir[tmp.ix[[i]]])))
+                tmp.l = lapply(names(tmp.ix), function(i) IRanges::disjoin(c(ir[as.numeric(i)], var.ir[tmp.ix[[i]]])))
                 tmp.ogix = rep(as.numeric(names(tmp.ix)), sapply(tmp.l, length))
                 tmp.ir = do.call(c, tmp.l)
-                tmp.gr = GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = seqlengths(gr), og.ix = tmp.ogix)
-                tmp.ov = gr.findoverlaps(tmp.gr, var.gr)
+                tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = seqlengths(gr), og.ix = tmp.ogix)
+                tmp.ov = gUtils::gr.findoverlaps(tmp.gr, var.gr)
                 tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]
                 new.gr = tmp.gr[!(1:length(tmp.gr) %in% tmp.ov$query.id), ] ## only keep the non variant pieces
-                strand(new.gr) = strand(gr)[new.gr$og.ix]
+                GenomicRanges::strand(new.gr) = GenomicRanges::strand(gr)[new.gr$og.ix]
                 values(new.gr) = cbind(as.data.frame(values(gr)[new.gr$og.ix, ]) , og.ix = new.gr$og.ix)
 
                 var.gr$og.ix = var.gr$grl.ix
-                strand(var.gr) = strand(gr)[var.gr$og.ix]
+                GenomicRanges::strand(var.gr) = GenomicRanges::strand(gr)[var.gr$og.ix]
                 var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
 
-                new.gr = grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
+                new.gr = gUtils::grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
                 new.gr$grl.iix = as.numeric(gr$grl.iix[new.gr$og.ix])
                 new.ord = mapply(function(x, y, z) if (y[1]) x[order(z)] else rev(x[order(z)]),
-                       split(1:length(new.gr), new.gr$og.ix), split(as.logical(strand(new.gr)=='+'), new.gr$og.ix), split(start(new.gr), new.gr$og.ix))
+                       split(1:length(new.gr), new.gr$og.ix), split(as.logical(GenomicRanges::strand(new.gr)=='+'), new.gr$og.ix), split(start(new.gr), new.gr$og.ix))
                 new.ix = unlist(lapply(new.ord, function(x) ((1:length(x))-1)/length(x)))
                 new.gr$grl.iix[unlist(new.ord)] = new.gr$grl.iix[unlist(new.ord)] + new.ix
 
@@ -2866,7 +2916,7 @@ draw.grl = function(grl,
 
             else
               {
-                gr = grbind(gr, var.gr)
+                gr = gUtils::grbind(gr, var.gr)
               }
 
           }
@@ -2899,7 +2949,7 @@ draw.grl = function(grl,
           print(Sys.time() - now)
         }
         ## add 1 bp to end for visualization .. ranges avoids weird width < 0 error
-        ranges(gr) = IRanges(start(gr), pmax(end(gr), pmin(end(gr)+1, seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T))
+        IRanges::ranges(gr) = IRanges::IRanges(start(gr), pmax(end(gr), pmin(end(gr)+1, seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T))
 #        end(gr) = pmax(end(gr), pmin(end(gr)+1, seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T)
 
         mapped = gr.flatmap(gr, windows, win.gap, pintersect=pintersect);
@@ -2961,7 +3011,7 @@ draw.grl = function(grl,
                       }
 
                                         # bin ranges
-                    y.bin = disjointBins(IRanges(pos1, pos2))
+                    y.bin = IRanges::disjointBins(IRanges::IRanges(pos1, pos2))
 
                     m.y.bin = max(y.bin)
                     if (is.null(ylim))
@@ -3036,9 +3086,9 @@ draw.grl = function(grl,
                                         # find lowest level at which there is no clash with this and previously stacked segments
 
 
-                        ir1 = IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
-                        ir2 = IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-                      clash = which(ir1 %over% (ir2 + path.stack.x.gap))
+                        ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
+                        ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
+                      clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))##which(ir1 %over% (ir2 + path.stack.x.gap))
                       pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
                       contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
                     }
@@ -3185,7 +3235,7 @@ draw.grl = function(grl,
             #   if (is.na(xaxis.suffix) | nchar(xaxis.suffix)==0)
             #     xaxis.suffix = NULL
 
-            draw_x_ticks(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen)
+            draw_x_ticks(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen, xaxis.round)
 
             # then (label) text
             newline <- ifelse(xaxis.newline, '\n', '')
@@ -3501,7 +3551,7 @@ draw.grl = function(grl,
         if (!is.null(edges))
           if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
             {
-              if (is.data.table(edges))
+              if (data.table::is.data.table(edges))
                   edges = as.data.frame(edges)
 
               if (is.null(edges$col))
@@ -4034,6 +4084,10 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
   invert = F # if T flips rgb.min and rgb.max
   )
   {
+
+    ## NOTE fix
+    error = NULL
+
     if (!is.numeric(col.min))
       if (is.character(col.min))
         col.min = col2rgb(col.min)/255
@@ -4114,7 +4168,7 @@ brewer.master = function(n, palette = 'Accent')
           col.remain = 0;
         }
 
-      col = c(col, brewer.pal(max(next.n, 3), names(palettes[i])))
+      col = c(col, RColorBrewer::brewer.pal(max(next.n, 3), names(palettes[i])))
       i = ((i) %% length(palettes))+1
     }
 
@@ -4157,7 +4211,7 @@ plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes 
 #' @description
 #' internal draw.triangle function
 #'
-#' Shortcut for making blank plot with no axes
+#' @importFrom spatstat blur
 #' @author Jeremiah Wala
 #' @keywords internal
 draw.triangle <- function(grl,
@@ -4175,6 +4229,7 @@ draw.triangle <- function(grl,
     cmap.max=NULL,
     msep.lwd=1,
     leg.params,
+    min.gapwidth = 1,
     islog = FALSE) {
 
   ylim.subplot = NULL
@@ -4187,7 +4242,7 @@ draw.triangle <- function(grl,
       ylim.subplot = c(y[[1]], y[[2]])
 
   if (inherits(grl, "GRangesList")) {
-    gr <- grl.unlist(grl)
+    gr <- gUtils::grl.unlist(grl)
   } else {
     gr <- grl
   }
@@ -4219,7 +4274,6 @@ draw.triangle <- function(grl,
 
     if (!is.na(sigma)) ## MARCIN: if blur use spatstat library to blur matrix for n base pairs but making sure we don't bleed across windows
         {
-            require(spatstat)
             uwin = unique(grl.segs$window)
             win.map = split(1:length(grl.segs$window), grl.segs$window)
             uwin.pairs = cbind(rep(uwin, length(uwin)), rep(uwin, each = length(uwin)))
@@ -4228,7 +4282,7 @@ draw.triangle <- function(grl,
                     print(paste('...blurring', p, 'of', nrow(uwin.pairs), 'windows'))
                     tmp.i = win.map[[uwin.pairs[p, 1]]]
                     tmp.j = win.map[[uwin.pairs[p, 2]]]
-                    mdata[tmp.i, tmp.j] = as.matrix(blur(im(mdata[tmp.i, tmp.j], xcol = grl.segs$start[tmp.j], yrow = grl.segs$end[tmp.i]), sigma = sigma))
+                    mdata[tmp.i, tmp.j] = as.matrix(spatstat::blur(spatstat::im(mdata[tmp.i, tmp.j], xcol = grl.segs$start[tmp.j], yrow = grl.segs$end[tmp.i]), sigma = sigma))
                 }
         }
     if (nrow(mdata) != nrow(grl.segs))
@@ -4359,13 +4413,17 @@ draw.triangle <- function(grl,
 }
 
 
-# @name .clip.polys
-# @title .clip.polys
-# @description
-# Clip polygons
-# @author Jeremiah Wala
-# @keywords internal
-.clip.polys <- function(dt, y0, y1) {
+#' @name clip_polys
+#' @title clip_polys
+#' @description
+#' Clip polygons
+#' @author Jeremiah Wala
+#' @keywords internal
+clip_polys <- function(dt, y0, y1) {
+
+  ## fix global def NOTE
+  y2 <- y3 <- y4 <- y5 <- y6 <- NULL
+  left <- x3.tmp <- x3 <- y3.tmp <- lean.sign <- NULL
 
   ## leave early if not necessary
   miny = min(dt[, c(y1, y2, y3, y4, y5, y6)], na.rm = TRUE)
@@ -4457,7 +4515,7 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
      ## setup the data table
      dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                       y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
-     dt <- .clip.polys(dt, y0, y1)
+     dt <- clip_polys(dt, y0, y1)
      iN <- rep(NA, nrow(dt))
 
      out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
@@ -4491,7 +4549,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 
    dt <- data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
                     y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
-   dt <- .clip.polys(dt, y0, y1)
+   dt <- clip_polys(dt, y0, y1)
    iN <- rep(NA, nrow(dt))
 
    out.x <- as.numeric(t(matrix(c(dt$x1, dt$x2, dt$x3, dt$x4, dt$x5, dt$x6, iN), nrow=nrow(dt))))
@@ -4609,15 +4667,15 @@ readData = function(..., environment = NULL)
 gr.flatmap = function(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FALSE, xlim = c(0, 1), pintersect=FALSE)
 {
   if (strand.agnostic)
-    strand(windows) = "*"
+    GenomicRanges::strand(windows) = "*"
 
   ## now flatten "window" coordinates, so we first map gr to windows
   ## (replicating some gr if necessary)
   #    h = findOverlaps(gr, windows)
 
-  h = gr.findoverlaps(gr, windows, pintersect=pintersect);
+  h = gUtils::gr.findoverlaps(gr, windows, pintersect=pintersect);
 
-  window.segs = gr.flatten(windows, gap = gap)
+  window.segs = gUtils::gr.flatten(windows, gap = gap)
 
   grl.segs = as.data.frame(gr);
   grl.segs = grl.segs[values(h)$query.id, ];
@@ -4646,7 +4704,7 @@ gr.flatmap = function(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FA
 
 gr.stripstrand = function(gr)
 {
-  strand(gr) = "*"
+  GenomicRanges::strand(gr) = "*"
   return(gr)
 }
 
@@ -4662,8 +4720,8 @@ gr.sub = function(gr, a = c('(^chr)(\\.1$)', 'MT'), b= c('', 'M'))
 }
 
 format_windows <- function(windows, .Object) {
-  if (is(windows, 'character'))
-    windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+  #if (is(windows, 'character'))
+  #  windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
   if (is(windows, 'Seqinfo'))
     windows = gUtils::si2gr(windows)
@@ -4672,7 +4730,7 @@ format_windows <- function(windows, .Object) {
     windows = do.call('GRangesList', windows)
 
   if (!inherits(windows, 'GRangesList'))
-    windows = GRangesList(windows)
+    windows = GenomicRanges::GRangesList(windows)
 
   if (sum(as.numeric(width(unlist(windows))))==0)
   {
@@ -4726,55 +4784,56 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
 
   tmp.dat = dat(.Object)[[j]]
 
-  if (inherits(tmp.dat, 'RleList'))
-  {
-    tmp.score = rle.query(tmp.dat, this.windows)
-    tmp.dat = gr.dice(this.windows)
-    tmp.dat$score = as.numeric(tmp.score)
-
-    if (is.na(formatting(.Object)$y0[j]))
-      formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
-
-    if (is.na(formatting(.Object)$y1[j]))
-      formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
-
-    formatting(.Object)$y.field[j] = 'score'
-    pre.filtered = TRUE
-  }
-  else if (is.character(tmp.dat))
+  # if (inherits(tmp.dat, 'RleList'))
+  # {
+  #   tmp.score = rle.query(tmp.dat, this.windows)
+  #   tmp.dat = gUtils::gr.dice(this.windows)
+  #   tmp.dat$score = as.numeric(tmp.score)
+  #
+  #   if (is.na(formatting(.Object)$y0[j]))
+  #     formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
+  #
+  #   if (is.na(formatting(.Object)$y1[j]))
+  #     formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
+  #
+  #   formatting(.Object)$y.field[j] = 'score'
+  #   pre.filtered = TRUE
+  # }
+  ## else if
+  if (is.character(tmp.dat))
   {
     if (file.exists(tmp.dat))
     {
       bed.style = FALSE
       if (grepl('(\\.bw)|(\\.bigwig)', tmp.dat, ignore.case = TRUE))
       {
-        f = BigWigFile(normalizePath(tmp.dat))
+        f = rtracklayer::BigWigFile(normalizePath(tmp.dat))
         si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
       }
       else if (grepl('\\.wig', tmp.dat, ignore.case = TRUE))
       {
-        f = WIGFile(normalizePath(tmp.dat))
+        f = rtracklayer::WIGFile(normalizePath(tmp.dat))
         si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
       }
       else if (grepl('\\.bed', tmp.dat, ignore.case = TRUE))
       {
-        f = BEDFile(normalizePath(tmp.dat))
+        f = rtracklayer::BEDFile(normalizePath(tmp.dat))
         #                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
         bed.style = TRUE
       }
       else if (grepl('\\.gff', tmp.dat, ignore.case = TRUE))
       {
-        f = GFFFile(normalizePath(tmp.dat))
+        f = rtracklayer::GFFFile(normalizePath(tmp.dat))
         si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
       }
       else if (grepl('\\.2bit', tmp.dat, ignore.case = TRUE))
       {
-        f = TwoBitFile(normalizePath(tmp.dat))
+        f = rtracklayer::TwoBitFile(normalizePath(tmp.dat))
         si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
       }
       else if (grepl('\\.bedgraph', tmp.dat, ignore.case = TRUE))
       {
-        f = BEDGraphFile(normalizePath(tmp.dat))
+        f = rtracklayer::BEDGraphFile(normalizePath(tmp.dat))
         #                           si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
         bed.style = TRUE
       }
@@ -4787,9 +4846,9 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
         if (!is.character(si))
         {
           if (formatting(.Object)[j, 'source.file.chrsub'])
-            sel = gr.fix(gr.chr(this.windows), si, drop = TRUE)
+            sel = gUtils::gr.fix(gUtils::gr.chr(this.windows), si, drop = TRUE)
 
-          tmp.dat = import(f, selection = sel, asRangedData = FALSE)
+          tmp.dat = rtracklayer::import(f, selection = sel, asRangedData = FALSE)
 
           if (formatting(.Object)[j, 'source.file.chrsub'])
             tmp.dat = gr.sub(tmp.dat, 'chr', '')
@@ -4801,7 +4860,7 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
       }
       else
       {
-        tmp.dat = import(f, asRangedData = FALSE)
+        tmp.dat = rtracklayer::import(f, asRangedData = FALSE)
 
         if (formatting(.Object)[j, 'source.file.chrsub'])
           tmp.dat = gr.sub(tmp.dat, 'chr', '')
@@ -4843,9 +4902,9 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
       {
         vals = values(tmp.dat)
         nm = names(tmp.dat)
-        tmp2 = grl.unlist(tmp.dat)
-        tmp2 = tmp2[gr.in(tmp2, this.windows)]
-        tmp.dat = split(tmp2, tmp2$grl.ix)
+        tmp2 = gUtils::grl.unlist(tmp.dat)
+        tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
+        tmp.dat = GenomicRanges::split(tmp2, tmp2$grl.ix)
         values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
         names(tmp.dat) = nm[as.numeric(names(tmp.dat))]
       }
@@ -4875,15 +4934,15 @@ smooth_yfield <- function(.Object, j, tmp.dat) {
     tmp = round(tmp, formatting(.Object)$round[j])
 
   tmp = as(tmp, 'GRanges')
-  tmp = tmp[gr.in(tmp, tmp.dat)]
+  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
   tmp.val = tmp$score
-  values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+  values(tmp) = values(tmp.dat)[gUtils::gr.match(tmp, tmp.dat), , drop = F]
   values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
   tmp.dat = tmp
 
 }
 
-format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered) {
+format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows) {
   if (!(formatting(.Object)$y.field[j] %in% names(values(tmp.dat))))
     stop('y.field missing from input granges')
 
@@ -4891,7 +4950,7 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered) {
   y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
 
   if (!pre.filtered)
-    tmp.dat.r <- tmp.dat[gr.in(tmp.dat, this.windows)]
+    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
   else
     tmp.dat.r = tmp.dat
 
@@ -4928,7 +4987,7 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered) {
   return(.Object)
 }
 
-draw_x_ticks <- function(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen) {
+draw_x_ticks <- function(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen, xaxis.round) {
 
   xaxis.nticks = 20 ## default number of ticks
   if (!is.na(xaxis.interval) && xaxis.interval == 'auto')
@@ -4969,4 +5028,480 @@ draw_x_ticks <- function(xaxis.interval, windows, mapped, winlim, xlim, ylim, xa
   if (!is.na(xaxis.interval) && xaxis.interval > 0)
     text(seq.at, y1.tick-tick.len, tick.text,
          cex = xaxis.cex.tick, srt = 90, adj = c(1, 0.5))
+}
+
+#' get.var.col
+#'
+#' simple function storing default
+#' variant color scheme
+#' @name get.var.col
+#' @keywords internal
+get.varcol = function()
+{
+  VAR.COL = c('XA' = 'green', 'XG' = 'brown', 'XC' = 'blue', 'XT' = 'red', 'D'= alpha('lightblue', 0.4),
+              'I'= 'purple', 'N' = alpha('white', 0.8), 'S' = alpha('pink', 0.9))
+  return(VAR.COL)
+}
+
+#' \code{stats::aggregate}, but returns vector
+#'
+#' @description
+#' Same as \code{stats::aggregate} except returns named vector
+#' with names as first column of output and values as second
+#'
+#' Note: there is no need to ever use aggregate or vaggregate, just switch to data.table
+#'
+#' @param ... arguments to aggregate
+#' @return named vector indexed by levels of "by"
+#' @author Marcin Imielinski
+#' @keywords internal
+vaggregate = function(...)
+{
+  out = aggregate(...);
+  return(structure(out[,ncol(out)], names = do.call(paste, lapply(names(out)[1:(ncol(out)-1)], function(x) out[,x]))))
+}
+
+# clip.seg
+#
+# (data frame seg function)
+#
+# Clips a pile of segments / ranges to a given region (a single seg) .. ie removing all segments outside of that region
+# and then trimming the segments overlapping "region" to the region boundaries
+#
+clip.seg = function(x, region)
+{
+  x = standardize_segs(x);
+  region = standardize_segs(region);
+  if (nrow(region)>1)
+    stop('Can only region to a single range')
+
+  ## if either x or region do not specify chrom then we ignore chrom
+  if (is.null(x$chr))
+    region$chr = NULL;
+
+  if (is.null(region$chr))
+    x$chr = NULL;
+
+  ix = which(seg.on.seg(x, region));
+  x = x[ix, ]
+  if (nrow(x)>0)
+  {
+    x$pos1 = pmax(region$pos1, x$pos1)
+    x$pos2 = pmin(region$pos2, x$pos2)
+  }
+  return(x)
+}
+
+#' standardize_segs
+#'
+#' (data frame seg function)
+#'
+#' Takes and returns segs data frame standardized to a single format (ie $chr, $pos1, $pos2)
+#'
+#' if chr = TRUE will ensure "chr" prefix is added to chromossome(if does not exist)
+#' @keywords internal
+standardize_segs = function(seg, chr = FALSE)
+{
+  #if (inherits(seg, 'IRangesList'))
+  #  seg = irl2gr(seg);
+
+  if (is(seg, 'matrix'))
+    seg = as.data.frame(seg, stringsAsFactors = FALSE)
+
+  if (inherits(seg, 'RangedData') | inherits(seg, 'GRanges') | inherits(seg, 'IRanges'))
+  {
+    val = as.data.frame(values(seg));
+    values(seg) = NULL;
+    seg = as.data.frame(seg, row.names = NULL);  ## returns compressed iranges list
+    seg$seqnames = as.character(seg$seqnames)
+  }
+  else
+    val = NULL;
+
+  field.aliases = list(
+    ID = c('id', 'patient', 'Sample'),
+    chr = c('seqnames', 'chrom', 'Chromosome', "contig", "seqnames", "seqname", "space", 'chr', 'Seqnames'),
+    pos1 = c('start', 'loc.start', 'begin', 'Start', 'start', 'Start.bp', 'Start_position', 'pos', 'pos1', 'left', 's1'),
+    pos2 =  c('end', 'loc.end', 'End', 'end', "stop", 'End.bp', 'End_position', 'pos2', 'right', 'e1'),
+    strand = c('strand', 'str', 'strand', 'Strand', 'Str')
+  );
+
+  if (is.null(val))
+    val = seg[, setdiff(names(seg), unlist(field.aliases))]
+
+  seg = seg[, intersect(names(seg), unlist(field.aliases))]
+
+  for (field in setdiff(names(field.aliases), names(seg)))
+    if (!(field %in% names(seg)))
+      names(seg)[names(seg) %in% field.aliases[[field]]] = field;
+
+  if (chr)
+    if (!is.null(seg$chr))
+      if (!grepl('chr', seg$chr[1]))
+        seg$chr = paste('chr', seg$chr, sep = "");
+
+  if (is.null(seg$pos2))
+    seg$pos2 = seg$pos1;
+
+  missing.fields = setdiff(names(field.aliases), c(names(seg), c('chr', 'ID', 'strand')));
+
+  if (length(missing.fields)>0)
+    warning(sprintf('seg file format problem, missing an alias for the following fields:\n\t%s',
+                    paste(sapply(missing.fields, function(x) paste(x, '(can also be', paste(field.aliases[[x]], collapse = ', '), ')')), collapse = "\n\t")));
+
+  if (!is.null(val))
+    seg = cbind(seg, val)
+
+  return(seg)
+}
+
+# varbase
+#
+# takes gr or gappedalignment object "reads" and uses cigar, MD, seq fields
+# to return variant bases and ranges
+#
+# returns grl (of same length as input) of variant base positions with character vector $varbase field populated with variant bases
+# for each gr item in grl[[k]], with the following handling for insertions, deletions, and substitution gr's:
+#
+# substitutions: nchar(gr$varbase) = width(gr) of the corresponding var
+# insertions: nchar(gr$varbase)>=1, width(gr) ==0
+# deletions: gr$varbase = '', width(gr)>=1
+#
+# Each gr also has $type flag which shows the cigar string code for the event ie
+# S = soft clip --> varbase represents clipped bases
+# I = insertion --> varbase represents inserted bases
+# D = deletion --> varbase is empty
+# X = mismatch --> varbase represents mismatched bases
+# @importFrom GenomicRanges GRangesList
+# @name varbase
+# @keywords internal
+# varbase = function(reads, soft = T, verbose = T)
+# {
+#   nreads = length(reads)
+#   if (inherits(reads, 'GRangesList'))
+#   {
+#     was.grl = T
+#     r.id = as.data.frame(reads)$element
+#     reads = unlist(reads)
+#   }
+#   else if (inherits(reads, 'data.frame'))
+#   {
+#     r.id = 1:nrow(reads)
+#     nreads = nrow(reads)
+#     was.grl = F
+#   }
+#   else
+#   {
+#     r.id = 1:length(reads)
+#     was.grl = F
+#   }
+#
+#   if (!inherits(reads, 'GRanges') & !inherits(reads, 'GappedAlignments') & !inherits(reads, 'data.frame'))
+#     stop('Reads must be either GRanges, GRangesList, or GappedAlignment object')
+#   else if (inherits(reads, 'data.frame'))
+#   {
+#     if (is.null(reads$cigar) | is.null(reads$seq))
+#       stop('Reads must have cigar and seq fields specified')
+#   }
+#   else if (is.null(values(reads)$cigar) | is.null(values(reads)$seq))
+#     stop('Reads must have cigar and seq fields specified')
+#
+#   if (is.data.frame(reads))
+#   {
+#     sl = NULL
+#     sn =  reads$seqnames
+#     cigar = as.character(reads$cigar)
+#     seq = as.character(reads$seq)
+#     str = reads$strand
+#
+#     if (!is.null(reads$MD))
+#       md = as.character(reads$MD)
+#     else
+#       md = rep(NA, length(cigar))
+#   }
+#   else
+#   {
+#     sl = seqlengths(reads)
+#     sn =  seqnames(reads)
+#     cigar = as.character(values(reads)$cigar)
+#     seq = as.character(values(reads)$seq)
+#     str = as.character(strand(reads))
+#
+#     if (!is.null(values(reads)$MD))
+#       md = as.character(values(reads)$MD)
+#     else
+#       md = rep(NA, length(cigar))
+#   }
+#
+#   if (!inherits(cigar, 'character') & !inherits(cigar, 'character') & !inherits(md, 'character'))
+#     stop('Input must be GRanges with seq, cigar, and MD fields populated or GappedAlignments object')
+#
+#   ix = which(!is.na(cigar))
+#
+#   if (length(ix)==0)
+#     return(rep(GRangesList(GRanges()), nreads))
+#
+#   cigar = cigar[ix]
+#   seq = seq[ix]
+#   md = md[ix]
+#   str = str[ix]
+#
+#   if (is.data.frame(reads))
+#   {
+#     r.start = reads$start[ix]
+#     r.end = reads$end[ix]
+#   }
+#   else
+#   {
+#     r.start = start(reads)[ix]
+#     r.end = end(reads)[ix];
+#   }
+#
+#   flip = str == '-'
+#
+#   seq = strsplit(seq, '')
+#
+#   cigar.vals = lapply(strsplit(cigar, "\\d+"), function(x) x[2:length(x)])
+#   cigar.lens = lapply(strsplit(cigar, "[A-Z]"), as.numeric)
+#
+#   clip.left = sapply(cigar.vals, function(x) x[1] == 'S')
+#   clip.right = sapply(cigar.vals, function(x) x[length(x)] == 'S')
+#
+#   if (any(clip.left))
+#     r.start[clip.left] = r.start[clip.left]-sapply(cigar.lens[which(clip.left)], function(x) x[1])
+#
+#   if (any(clip.right))
+#     r.end[clip.right] = r.end[clip.right]+sapply(cigar.lens[which(clip.right)], function(x) x[length(x)])
+#
+#   # split md string into chars after removing "deletion" signatures and also
+#   # any soft clipped base calls (bases followed by a 0
+#   md.vals = strsplit(gsub('([ATGC])', '|\\1|', gsub('\\^[ATGC]+', '|', md)), '\\|')
+#
+#   # ranges of different cigar elements relative to query ie read-centric coordinates
+#   starts.seq = lapply(1:length(cigar.lens), function(i)
+#   {
+#     x = c(0, cigar.lens[[i]])
+#     x[which(cigar.vals[[i]] %in% c('D', 'H', 'N'))+1] = 0  ## deletions have 0 width on query
+#     cumsum(x[1:(length(x)-1)])+1
+#   })
+#
+#   ends.seq = lapply(1:length(cigar.lens), function(i)
+#   {
+#     x = cigar.lens[[i]];
+#     x[which(cigar.vals[[i]] %in% c('D', 'H', 'N'))] = 0
+#     cumsum(x)
+#   })
+#
+#   # ranges of different cigar elements relative to reference coordinatse
+#   starts.ref = lapply(1:length(cigar.lens), function(i)
+#   {
+#     x = c(0, cigar.lens[[i]]);
+#     x[which(cigar.vals[[i]] %in% c('I'))+1] = 0 ## insertions have 0 width on reference / subject
+#     cumsum(x[1:(length(x)-1)]) + r.start[i]
+#   })
+#
+#   ends.ref = lapply(1:length(cigar.lens), function(i)
+#   {
+#     x = cigar.lens[[i]];
+#     x[which(cigar.vals[[i]] %in% c('I'))] = 0
+#     cumsum(x) + r.start[i] - 1
+#   })
+#
+#   # now using MD find coordinates of mismatched bases (using starts and ends of M regions)
+#
+#   # find coords of subs on genome
+#   tmp.pos = lapply(1:length(md.vals), function(i)
+#   {
+#     x = md.vals[[i]]
+#     nix = grepl('[ATGC]', x);
+#     if (!any(nix))
+#       return(c())
+#     p = rep(0, length(x))
+#     p[!nix] = as.numeric(x[!nix])
+#     p[nix] = 1
+#     s.pos.m = cumsum(p)[nix] ## position of subs in read
+#     mix = cigar.vals[[i]]=='M'
+#     m.st = cumsum(c(1, ends.seq[[i]][mix]-starts.seq[[i]][mix]+1))
+#     m.st.g = starts.ref[[i]][mix]
+#     m.st.r = starts.seq[[i]][mix]
+#     s.match = rep(NA, length(s.pos.m)) ## indices of matching "M" cigar element for each sub
+#     for (ii in 1:length(s.pos.m))
+#     {
+#       j = 0;
+#       done = FALSE
+#       for (j in 0:(length(m.st)-1))
+#         if (s.pos.m[ii] < m.st[j+1])
+#           break
+#       s.match[ii] = j
+#     }
+#
+#     s.pos.g = m.st.g[s.match] + s.pos.m-m.st[s.match]
+#     s.pos.r = m.st.r[s.match] + s.pos.m-m.st[s.match]
+#
+#     return(rbind(s.pos.g, s.pos.r))
+#   })
+#   subs.pos = lapply(tmp.pos, function(x) x[1,])
+#   subs.rpos = lapply(tmp.pos, function(x) x[2,])
+#   #  subs.base = lapply(md.vals, grep, pattern = '[ATGC]', value = T)
+#   subs.base = lapply(1:length(seq), function(x) seq[[x]][subs.rpos[[x]]])
+#
+#   # make sure md and cigar are consistent
+#   # (for some reason - sometimes soft clipped mismatches are included in MD leading to a longer MD string)
+#   # also some MD are NA
+#   mlen.cigar = sapply(1:length(ends.seq), function(x) {mix = cigar.vals[[x]]=='M'; sum(ends.seq[[x]][mix]-starts.seq[[x]][mix]+1)})
+#   mlen.md = sapply(md.vals, function(x) {ix = grepl('[ATGC]', x); sum(as.numeric(x[!ix])) + sum(nchar(x[ix]))})
+#   good.md = which(!is.na(md))
+#   #  good.md = which(mlen.md == mlen.cigar & !is.na(md))
+#
+#   if (any(na <- is.na(md)))
+#   {
+#     warning('MD field absent from one or more input reads')
+#     good.md = which(!na)
+#   }
+#
+#   # now make granges of subs
+#   if (length(good.md)>0)
+#   {
+#     if (any(mlen.md[good.md] != mlen.cigar[good.md]))
+#       warning('the lengths of some MD strings do not match the number of M positions on the corresponding CIGAR string: some variants may not be correctly mapped to the genome')
+#
+#     iix.md = unlist(lapply(good.md, function(x) rep(x, length(subs.pos[[x]]))))
+#     tmp = unlist(subs.pos[good.md])
+#     if (!is.null(tmp))
+#     {
+#       subs.gr = GRanges(sn[ix][iix.md], IRanges(tmp, tmp), strand = '*')
+#       values(subs.gr)$varbase = unlist(subs.base[good.md])
+#       values(subs.gr)$type = 'X'
+#       values(subs.gr)$iix = ix[iix.md]
+#     }
+#     else
+#       subs.gr = GRanges()
+#   }
+#   else
+#     subs.gr = GRanges()
+#
+#   iix = unlist(lapply(1:length(cigar.vals), function(x) rep(x, length(cigar.vals[[x]]))))
+#   cigar.vals = unlist(cigar.vals)
+#   cigar.lens = unlist(cigar.lens)
+#   starts.seq = unlist(starts.seq)
+#   ends.seq = unlist(ends.seq)
+#   starts.ref = unlist(starts.ref)
+#   ends.ref = unlist(ends.ref)
+#
+#   ## pick up other variants (including soft clipped and indel)
+#   is.var = cigar.vals != 'M'
+#   iix = iix[is.var]
+#   cigar.vals = cigar.vals[is.var]
+#   cigar.lens = cigar.lens[is.var]
+#   starts.ref = starts.ref[is.var]
+#   ends.ref = ends.ref[is.var]
+#   starts.seq = starts.seq[is.var]
+#   ends.seq = ends.seq[is.var]
+#   str <- str[iix] # JEREMIAH
+#
+#   if (length(cigar.vals)>0)
+#   {
+#     var.seq = lapply(1:length(cigar.vals),
+#                      function(i)
+#                      {
+#                        if (ends.seq[i]<starts.seq[i])
+#                          return('') # deletion
+#                        else
+#                          seq[[iix[i]]][starts.seq[i]:ends.seq[i]] #insertion
+#                      })
+#     other.gr = GRanges(sn[ix][iix], IRanges(starts.ref, ends.ref), strand = str, seqlengths = sl)
+#     values(other.gr)$varbase = sapply(var.seq, paste, collapse = '')
+#     values(other.gr)$type = cigar.vals
+#     values(other.gr)$iix = ix[iix];
+#
+#     out.gr = sort(c(subs.gr, other.gr))
+#   }
+#   else
+#     out.gr = subs.gr
+#
+#
+#   # add default colors to out.gr
+#   VAR.COL = get.varcol()
+#
+#   col.sig = as.character(out.gr$type)
+#   xix = out.gr$type == 'X'
+#   col.sig[xix] = paste(col.sig[xix], out.gr$varbase[xix], sep = '')
+#   out.gr$col = VAR.COL[col.sig]
+#   out.gr$border = out.gr$col
+#
+#   if (!soft)
+#     if (any(soft.ix <<- out.gr$type == 'S'))
+#       out.gr = out.gr[-which(soft.ix)]
+#
+#   out.grl = rep(GRangesList(GRanges()), nreads)
+#   out.iix = r.id[values(out.gr)$iix]
+#   values(out.gr)$iix = NULL
+#
+#   tmp.grl = split(out.gr, out.iix)
+#   out.grl[as.numeric(names(tmp.grl))] = tmp.grl
+#   values(out.grl)$qname[r.id] = reads$qname
+#
+#   return(out.grl)
+# }
+
+# seg.on.seg
+#
+# (data frame version of GenomicRanges %in%)
+#
+# Given two collections of segs segs1 and segs2 (each a data fram of $chr, $start, $end) returns a logical vector of length nrow(segs1)
+# that is TRUE in position i if segment i in segs1 overlaps one or more segments in segs2
+#
+# also works on data frames with the following segment nomenclatures, however data frame should only contain one of these:
+# $chrom, $loc.start, $loc.end, $pos1, $pos2
+#
+# if $chr or $chrom not included then will only consider start and end
+#
+# e.g. given segments in data frame segs and snps in data frame map snp.in.seg(snps, segs) will flag snps that are in segment
+seg.on.seg = function(segs1, segs2, pad = 0, within = F # within = T -> output only T if segs1 range is within at least one segs2 range
+)
+{
+  # convert col names to a standard format
+  segs1 = standardize_segs(segs1);
+  segs2 = standardize_segs(segs2);
+
+  out = vector(mode = "logical", length = nrow(segs1))
+
+  # if neither of the sets of segs have chr specified then we act as if all segs are on a single chromosome
+  if (is.null(segs1$chr) & is.null(segs2$chr))
+    segs1$chr = segs2$chr = 1;
+
+  for (chr in unique(intersect(segs1$chr, segs2$chr)))
+  {
+    chrind1 = which(segs1$chr == chr)
+    chrind2 = which(segs2$chr == chr)
+    for (i in chrind2)
+    {
+      region = segs2[i,, drop = FALSE]
+      if (within)
+        out[chrind1] = out[chrind1] | (segs1$pos1[chrind1]>=(region$pos1-pad) & segs1$pos2[chrind1]<=(region$pos2+pad))   # seg1 is inside region
+      else
+        out[chrind1] = out[chrind1] | !(segs1$pos2[chrind1]<(region$pos1-pad) | segs1$pos1[chrind1]>(region$pos2+pad))
+    }
+  }
+
+  return(out)
+}
+
+#' Deduplicate character vectors
+#
+#' Relabels duplicates in a character vector with .1, .2, .3
+#' (where "." can be replaced by any user specified suffix)
+#' @param x Character vector to deduplicate.
+#' @param suffix User defined suffix
+#' @return dedupclicated character vector
+#' @keywords internal
+dedup = function(x, suffix = '.')
+{
+  dup = duplicated(x);
+  udup = unique(x[dup])
+  udup.ix = lapply(udup, function(y) which(x==y));
+  udup.suffices = lapply(udup.ix, function(y) c('', paste(suffix, 2:length(y), sep = '')))
+  out = x;
+  out[unlist(udup.ix)] = paste(out[unlist(udup.ix)], unlist(udup.suffices), sep = '');
+  return(out)
 }

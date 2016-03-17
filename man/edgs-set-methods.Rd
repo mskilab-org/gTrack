@@ -3,8 +3,11 @@
 \docType{methods}
 \name{edgs<-}
 \alias{edgs<-}
+\alias{edgs<-,gTrack-method}
 \title{edgs<-}
 \usage{
+edgs(.Object) <- value
+
 \S4method{edgs}{gTrack}(.Object) <- value
 }
 \description{

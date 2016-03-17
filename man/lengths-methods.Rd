@@ -3,6 +3,7 @@
 \docType{methods}
 \name{lengths}
 \alias{lengths}
+\alias{lengths,gTrack-method}
 \title{lengths}
 \usage{
 \S4method{lengths}{gTrack}(x)
@@ -11,8 +12,5 @@
 gets lengths of data objects inside gTrack object gt
 usage:
 lengths(gt) # returns vector of lengths
-}
-\author{
-Marcin Imielinski
 }
 

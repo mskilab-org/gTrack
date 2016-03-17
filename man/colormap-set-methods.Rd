@@ -3,18 +3,19 @@
 \docType{methods}
 \name{colormap}
 \alias{colormap}
+\alias{colormap<-,gTrack-method}
 \title{colormap}
 \usage{
-\S4method{colormap}{gTrack}(.Object)
+colormap(.Object) <- value
+
+\S4method{colormap}{gTrack}(.Object) <- value
 }
 \description{
-Access colormap of gTrack object, this is a named list of named character vectors that specifies
+Set colormap of gTrack object, this is a named list of named character vectors that specifies
 the field of the underlying GRanges object that will be used to map a set of values
 to a set of colors.
+
 usage:
-colormap(gt)
-}
-\author{
-Marcin Imielinski
+colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
 }
 

@@ -3,8 +3,11 @@
 \docType{methods}
 \name{edgs}
 \alias{edgs}
+\alias{edgs,gTrack-method}
 \title{edgs}
 \usage{
+edgs(.Object)
+
 \S4method{edgs}{gTrack}(.Object)
 }
 \description{
@@ -14,8 +17,5 @@ underlying GRanges object $from, $to and additional formats $col $lwd $lty
 
 usage:
 edgs(gt)
-}
-\author{
-Marcin Imielinski
 }
 

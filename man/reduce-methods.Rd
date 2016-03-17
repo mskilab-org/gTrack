@@ -3,6 +3,7 @@
 \docType{methods}
 \name{reduce}
 \alias{reduce}
+\alias{reduce,gTrack-method}
 \title{reduce}
 \usage{
 \S4method{reduce}{gTrack}(x, ...)

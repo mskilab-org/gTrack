@@ -2,6 +2,7 @@
 % Please edit documentation in R/gTrack.R
 \docType{methods}
 \name{$<-}
+\alias{$,gTrack-method}
 \alias{$<-}
 \title{$<-}
 \usage{
