@@ -3,8 +3,11 @@
 \docType{methods}
 \name{clear}
 \alias{clear}
+\alias{clear,gTrack-method}
 \title{clear}
 \usage{
+clear(.Object, ...)
+
 \S4method{clear}{gTrack}(.Object)
 }
 \description{

@@ -3,6 +3,7 @@
 \docType{methods}
 \name{c}
 \alias{c}
+\alias{c,gTrack-method}
 \title{c}
 \usage{
 \S4method{c}{gTrack}(x, ..., recursive = FALSE)

@@ -37,11 +37,11 @@ numeric tracks, (note: for a RleList or ffTrack this field is automatically set 
 
 \item{legend.ncol}{vector or scalar positive integer specifying how many columns to put in legend (formatting)}
 
-\item{legend.xjust}{vector or scalar of {0, 1, 2} specifying x justification of legend (formatting)}
+\item{legend.xjust}{Scalar of {0, 1, 2} = {left, center, right} specifying x justification of legend [0]}
 
-\item{legend.yjust}{vector or scalar of {0, 1, 2} specifying y justification of legend (formatting)}
+\item{legend.yjust}{Scalar of {0, 1, 2} = {left, center, right} specifying y justification of legend [0]}
 
-\item{legend.maxitems}{vector or scalar positive integer specifying what is the maximum number of items to include in legend  (formatting)}
+\item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
 
 \item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
 
@@ -84,6 +84,8 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 \item{xaxis.label.angle}{vector or scalar numeric between 0 and 360 specifying angle with which to draw xaxis coordinate labels (formatting)}
 
 \item{xaxis.newline}{vector or scalar logical specifying whether to draw a newline in the xaxis coordinate labels (formatting)}
+
+\item{xaxis.width}{Logical scalar specifying whether to add window width to xaxis window labels [TRUE]}
 
 \item{lwd.border}{vector or scalar integer specifying the thickness of the polygon borders (formatting)}
 
@@ -143,17 +145,21 @@ in which draw.paths = T)  (formatting)}
 
 \item{draw.backbone}{vector or scalar logical specifying whether to draw "backbone" connecting different items in a GRangesList item (formatting)}
 
-\item{cex.tick}{vector or scalar numeric specifying expansion factor for axis tick labels  (formatting)}
+\item{xaxis.cex.tick}{Scalar numeric specifying expansion factor for axis tick labels  (formatting)}
 
-\item{cex.tick.len}{vector or scalar numeric specifying lengths for axis ticks  (formatting)}
+\item{xaxis.ticklen}{Scalar numeric specifying lengths for axis ticks  (formatting)}
 
 \item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
 
 \item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
 
-\item{sep.lty}{vector or scalar integer specifying line style for window separators  (formatting)}
+\item{sep.lty}{Scalar integer specifying line style for window separators [2] (dashed line)}
 
-\item{sep.lwd}{vector or scalar numeric specifying line thickness for window separators  (formatting)}
+\item{sep.lwd}{Scalar numeric specifying line thickness for window separators [1]}
+
+\item{sep.bg.col}{Color (supplied by name or hex code) for the background of the windows [gray95]}
+
+\item{sep.draw}{Logical allowing separators to be turned off [FALSE]}
 
 \item{cmap.min}{minimum saturating data value of color map for triangle plot}
 

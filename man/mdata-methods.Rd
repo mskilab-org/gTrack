@@ -3,8 +3,12 @@
 \docType{methods}
 \name{mdata}
 \alias{mdata}
+\alias{mdata,gTrack,ANY,ANY,ANY-method}
+\alias{mdata,gTrack-method}
 \title{mdata}
 \usage{
+mdata(x, igr = NULL, jgr = NULL)
+
 \S4method{mdata}{gTrack}(x, igr = NULL, jgr = igr)
 }
 \description{
