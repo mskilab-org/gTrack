@@ -3,12 +3,13 @@
 \docType{methods}
 \name{plot}
 \alias{plot}
+\alias{plot,gTrack,ANY-method}
 \title{plot}
 \usage{
-\S4method{plot}{gTrack,ANY}(x, y, windows = seqinfo2gr(seqinfo(x)),
+\S4method{plot}{gTrack,ANY}(x, y, windows = gUtils::si2gr(seqinfo(x)),
   links = NULL, gap = NULL, y.heights = NULL, y.gaps = NULL,
   cex.xlabel = 1, cex.ylabel = 1, max.ranges = NA, links.feat = NULL,
-  verbose = FALSE, ...)
+  verbose = FALSE, legend.params = list(), ...)
 }
 \arguments{
 \item{windows}{GRanges specifying windows to view (can also be GRangesList), default is whole genome}
@@ -23,8 +24,6 @@ $arrow (arrow flag), $col.arrow (arrow color), $v (vertical spline bulge), $w (h
 \item{max.ranges}{scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.}
 
 \item{..., }{additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')}
-
-\item{cex.tick}{vector specifying relative heights of gaps below and above (stacked) windows, only relevant if windows is GRangesList}
 }
 \description{
 Plot gTrack object in multi-track genome browser view.  gTracks will appear as stacked interval

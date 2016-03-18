@@ -3,9 +3,15 @@
 \docType{methods}
 \name{clear}
 \alias{clear}
+\alias{clear,gTrack-method}
 \title{clear}
 \usage{
+clear(.Object)
+
 \S4method{clear}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to clear}
 }
 \description{
 Clear data from gTrack object (makes into an empty container with the same seqinfo and display features)

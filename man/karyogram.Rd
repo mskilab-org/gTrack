@@ -2,19 +2,10 @@
 % Please edit documentation in R/gTrack.R
 \name{karyogram}
 \alias{karyogram}
-\alias{track.refgene}
 \title{karyogram}
 \usage{
-karyogram(hg19 = T, bands = T, arms = T, tel.width = 2e+06, ...)
-
-track.refgene(rg = NULL, gene.collapse = T, genes = NULL,
-  bg.col = alpha("blue", 0.1), cds.col = alpha("blue", 0.6),
-  utr.col = alpha("purple", 0.4), st.col = "green", en.col = "red",
-  genespan = T, utr = T, cds = T, grl.labelfield, gr.labelfield, col,
-  cached = T, cached.path = system.file("extdata", "refgene.composite.rds",
-  package = "gTrack"), cached.path.collapsed = system.file("extdata",
-  "refgene.composite.collapsed.rds", package = "gTrack"), gr.srt.label = 0,
-  gr.cex.label = 0.8, labels.suppress.gr = T, stack.gap = 1e+06, ...)
+karyogram(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e+06,
+  ...)
 }
 \arguments{
 \item{hg19}{logical scalar flag, if T returns gTrack for hg19}
@@ -25,50 +16,12 @@ track.refgene(rg = NULL, gene.collapse = T, genes = NULL,
 
 \item{tel.width}{numeric scalar, specifies telomere width in bases (only relevant if arms = T, bands = F)}
 
-\item{...}{additional arguments passed down to gTrack}
-
-\item{rg}{(optional) GRangesList representing transcript models obtained from refgene, with
-GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot,}
-
-\item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
-
-\item{genes}{(optional) character vector specifying genes to limit gTrack object to}
-
-\item{bg.col}{scalar character representing background color for genespan}
-
-\item{cds.col}{scalar character representing background color for CDS}
-
-\item{st.col}{scalar character representing color of CDS start}
-
-\item{en.col}{scalar character representing color of CDS end}
-
-\item{genespan}{logical scalar whether to include genespan range around entire gne}
-
-\item{utr}{logical scalar whether to include range specifying UTR}
-
-\item{cds}{logical scalar whether to include range specifying CDS}
-
-\item{cached}{logical scalar whether to use "cached" version provided with package}
-
-\item{gr.srt.label}{scalar numeric specifying angle on exon label}
-
-\item{gr.cex.label}{scalar numeric > 0 specifying character expansion on exon label}
-
-\item{labels.suppress.gr}{scalar logical specifying whether to suppress exon label plotting}
-
-\item{stack.gap}{stack.gap argument to gTrack}
-
-\item{cds.utr}{scalar character representing background color for UTR}
+\item{...}{Additional arguments sent to the \code{gTrack} constructor}
 }
 \description{
 Returns gTrack displaying band pattern for hg18 or hg19 karyotype
-
-Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
-Usually built from cahced data objects but can also be built from provided GRangesList
 }
 \author{
-Marcin Imielinski
-
 Marcin Imielinski
 }
 

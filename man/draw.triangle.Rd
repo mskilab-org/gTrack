@@ -7,13 +7,11 @@
 draw.triangle(grl, mdata = NA, y = NULL, ylim.parent = NULL,
   windows = NULL, win.gap = NULL, bg.col = "gray95", sigma = NA,
   col.min = "white", col.max = "red", palette.colors = NULL,
-  cmap.min = NULL, cmap.max = NULL, msep.lwd = 1, legend.cex = 1,
-  islog = FALSE)
+  cmap.min = NULL, cmap.max = NULL, msep.lwd = 1, leg.params,
+  min.gapwidth = 1, islog = FALSE)
 }
 \description{
 internal draw.triangle function
-
-Shortcut for making blank plot with no axes
 }
 \author{
 Jeremiah Wala

@@ -11,3 +11,4 @@ batch.R
 rtdocs
 install_bioc.sh
 ^data-raw$
+^docs

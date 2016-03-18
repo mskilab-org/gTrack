@@ -3,9 +3,15 @@
 \docType{methods}
 \name{dat}
 \alias{dat}
+\alias{dat,gTrack-method}
 \title{dat}
 \usage{
+dat(.Object)
+
 \S4method{dat}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} to retrive data from}
 }
 \description{
 Extract list of data contained inside a gTrack object gt.  Each list item will contain

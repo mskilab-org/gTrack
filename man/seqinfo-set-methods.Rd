@@ -2,10 +2,19 @@
 % Please edit documentation in R/gTrack.R
 \docType{methods}
 \name{seqinfo<-}
+\alias{seqinfo,gTrack-method}
 \alias{seqinfo<-}
+\alias{seqinfo<-,gTrack-method}
 \title{seqinfo,-}
 \usage{
+seqinfo(.Object) <- value
+
 \S4method{seqinfo}{gTrack}(.Object) <- value
+}
+\arguments{
+\item{.Object}{\code{gTrack} object}
+
+\item{value}{new \code{Seqinfo} object}
 }
 \description{
 set seqinfo property of gTrack

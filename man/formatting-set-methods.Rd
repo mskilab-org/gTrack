@@ -3,9 +3,17 @@
 \docType{methods}
 \name{formatting<-}
 \alias{formatting<-}
+\alias{formatting<-,gTrack-method}
 \title{formatting<-}
 \usage{
+formatting(.Object) <- value
+
 \S4method{formatting}{gTrack}(.Object) <- value
+}
+\arguments{
+\item{.Object}{\code{gTrack} to set the formatting field for}
+
+\item{value}{\code{data.frame} with the new formatting information}
 }
 \description{
 Set formatting of gTrack object  gt
@@ -16,8 +24,5 @@ formatting(td)$height <- 2
 
 #can also just use $ directly, like for a data frame, which is more convenient
 td$height <- 2
-}
-\author{
-Marcin Imielinski
 }
 

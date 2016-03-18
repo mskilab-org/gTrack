@@ -3,9 +3,17 @@
 \docType{methods}
 \name{edgs<-}
 \alias{edgs<-}
+\alias{edgs<-,gTrack-method}
 \title{edgs<-}
 \usage{
+edgs(.Object) <- value
+
 \S4method{edgs}{gTrack}(.Object) <- value
+}
+\arguments{
+\item{.Object}{\code{gTrack} object on which to set new edges}
+
+\item{value}{New value of the edges}
 }
 \description{
 Set edges data.frame associated with associated with gTrack object, the data.frame
