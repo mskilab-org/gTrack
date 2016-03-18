@@ -4,8 +4,9 @@ Tutorial
 
 .. code-block:: bash
    
-   # make sure to load gTrack
+   # make sure to load gTrack & data.table
    library(gTrack)
+   library(data.table)
 
 .. code-block:: bash 
 
