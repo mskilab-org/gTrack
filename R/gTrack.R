@@ -896,21 +896,6 @@ setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
                    return(.Object)
                  });
 
-#' @name lengths
-#' @title lengths
-#' @description
-#'
-#' gets lengths of data objects inside gTrack object gt
-#' usage:
-#' lengths(gt) # returns vector of lengths
-#' @param x \code{gTrack} to get the lengths from
-#' @docType methods
-#' @rdname lengths-methods
-#' @aliases lengths,gTrack-method
-#' @export
-setMethod('lengths', "gTrack", function(x)
-          { sapply(dat(x), length) } )
-
 #' @name c
 #' @title c
 #' @description
