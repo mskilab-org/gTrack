@@ -6,9 +6,12 @@
 \alias{formatting,gTrack-method}
 \title{formatting}
 \usage{
-formatting(.Object, ...)
+formatting(.Object)
 
 \S4method{formatting}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to extracting the formatting data.frame from}
 }
 \description{
 Get data frame specifying formatting of gTrack object gt

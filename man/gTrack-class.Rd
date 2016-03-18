@@ -6,94 +6,66 @@
 \alias{gTrack-class}
 \title{constructor for gTrack}
 \usage{
-gTrack(...)
+gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
+  vars = NULL, colormaps = NULL, height = 10, ygap = 2,
+  stack.gap = 20, col = NA, border = col, angle = 15, name = NULL,
+  lift = FALSE, split = FALSE, gr.colorfield = NA, y.quantile = 0.01,
+  y.cap = T, lwd.border = 1, hadj.label = 1, vadj.label = 0.5,
+  smooth = NA, round = NA, ywid = NA, ypad = 0, seqinfo = NULL,
+  circles = NA, lines = NA, bars = NA, triangle = !is.null(mdata),
+  max.ranges = 50000, source.file.chrsub = T, y0.bar = NA,
+  yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
+  format = "ranges", chr.sub = TRUE, edgevars = NULL,
+  gr.labelfield = NULL, grl.labelfield = NULL, xaxis.prefix = "",
+  xaxis.unit = 1, xaxis.suffix = "", xaxis.round = 3,
+  xaxis.cex.label = 1, xaxis.newline = FALSE, xaxis.chronly = FALSE,
+  xaxis.width = TRUE, xaxis.interval = "auto", xaxis.label.angle = 0,
+  xaxis.ticklen = 1, xaxis.cex.tick = 1, ...)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
 (4) character representing Bed, Wig, BigWig, or .rds GRanges file.  It can also be a list of the above (if specifying multiplying
  tracks.}
 
+\item{y.field}{vector or scalar character referencing meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
+numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks}
+
 \item{mdata}{Square matrix representing values at connections between genomic elements (e.g. chr8:1,000-2,000 to chr3:5,000-6,000). The number of
 rows (and thus columns) must be equal to the length of the \code{data} element. The value of the (i,j) element of this matrix represents a value
 for the intersection of \code{data[i]} and \code{data[j]}. Note that all connections are assumed to be symmetric, and only the upper triangle
 will be read. Displays a \code{warning} if the matrix is non-symmetric}
 
-\item{y.field}{vector or scalar character specifying meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
-numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks}
+\item{edges}{Data frame of columns $from, $to, and optional fields $col, $lwd, and $lty, specifying edges linking data items.
+Also can be a list of the above if specifying multiple tracks (and must be compatible in length with data arg)}
 
-\item{name}{vector or scalar character specifying name of this track, which will be displayed on label to the left of the track}
+\item{colormaps}{length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.}
 
 \item{height}{vector or scalar numeric specifying height of track(s) (in relative units)}
-
-\item{gr.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)}
-
-\item{grl.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)}
-
-\item{legend}{vector or scalar logical specifying whether to draw a legend for this track (formatting)}
-
-\item{legend.xpos}{vector or scalar numeric between 0 and 1 specifying what relative x position in the plot to place the legend for this track  (formatting)}
-
-\item{legend.ypos}{vector or scalar numeric between 0 and 1 specifying what relative y position in the plot to place the legend for this track  (formatting)}
-
-\item{legend.ncol}{vector or scalar positive integer specifying how many columns to put in legend (formatting)}
-
-\item{legend.xjust}{Scalar of {0, 1, 2} = {left, center, right} specifying x justification of legend [0]}
-
-\item{legend.yjust}{Scalar of {0, 1, 2} = {left, center, right} specifying y justification of legend [0]}
-
-\item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
-
-\item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
-
-\item{label.suppress.gr}{vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)}
-
-\item{label.suppress.grl}{vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)}
 
 \item{ygap}{vector or scalar numeric specifying gap between tracks}
 
 \item{stack.gap}{vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)}
 
-\item{ywid}{vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)}
-
 \item{col}{vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object}
 
 \item{border}{vector or scalar character specifying static border for polygons in track(s), if NA then $border is determine duing gr.colorfield / colormap or meta field $border of GRanges / GRangesList}
 
-\item{max.ranges}{vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)}
-
 \item{angle}{vector of scalar numeric specifying angle of polygons that represent signed range'}
 
+\item{name}{vector or scalar character specifying name of this track, which will be displayed on label to the left of the track}
+
 \item{lift}{vector or scalar logical flag specifying whether to lift this track to other chainedTrack
-items (only relevant if used wihtin chainedTracks object)}
+items (only relevant if used within chainedTracks object)}
 
 \item{split}{vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)}
 
-\item{colormaps}{length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.}
-
-\item{edges}{Data frame of columns $from, $to, and optional fields $col, $lwd, and $lty, specifying edges linking data items.
-Also can be a list of the above if specifying multiple tracks (and must be compatible in length with data arg)}
-
-\item{xaxis.suffix}{vector or scalar numeric specifying the suffix that will be used in describin x axis coordinates (TODO: move to display) (formatting)}
-
-\item{xaxis.unit}{vector or scalar numeric specifying the unit that will be used in describing x axis coordinates (TODO: move to display)  (formatting)}
-
-\item{xaxis.round}{vector or scalar non-neg integer specifying number of decimals to round xaxis coordinate labels (formatting)}
-
-\item{xaxis.nticks}{vector or scalar positive integer specifying how many xaxis ticks to optimally draw (formatting)}
-
-\item{xaxis.label.angle}{vector or scalar numeric between 0 and 360 specifying angle with which to draw xaxis coordinate labels (formatting)}
-
-\item{xaxis.newline}{vector or scalar logical specifying whether to draw a newline in the xaxis coordinate labels (formatting)}
-
-\item{xaxis.width}{Logical scalar specifying whether to add window width to xaxis window labels [TRUE]}
-
 \item{lwd.border}{vector or scalar integer specifying the thickness of the polygon borders (formatting)}
-
-\item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
 
 \item{hadj.label}{vector or scalar numeric specifying the horizontal adjustment of the range labels (formatting)}
 
 \item{vadj.label}{vector or scalar numeric specifying the vertical adjustment of the range labels (formatting)}
+
+\item{ywid}{vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)}
 
 \item{ypad}{vector or scalar numeric between 0 and 1 specifying how much whitespace padding to add within panel (formatting)}
 
@@ -103,9 +75,47 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 
 \item{bars}{vector or scalar logical specifying whether to bar plot range data (formatting)}
 
-\item{y0.bar}{vector or scalar numeric specifying where to draw the lower boundary of a bar in a bar plot (only applicable if bars == T) (formatting)}
+\item{max.ranges}{vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)}
 
 \item{source.file.chrsub}{vector or scalar logical specifying whether or not sub "chr" out of any external files (e.g. UCSC style files) (formatting)}
+
+\item{y0.bar}{vector or scalar numeric specifying where to draw the lower boundary of a bar in a bar plot (only applicable if bars == T) (formatting)}
+
+\item{yaxis}{vector or scalar logical specifying whether to print yaxis (formatting)}
+
+\item{yaxis.pretty}{vector or scalar positive integer specifying how many ticks to optimally draw on yaxis (formatting)}
+
+\item{gr.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)}
+
+\item{grl.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)}
+
+\item{xaxis.unit}{vector or scalar numeric specifying the unit that will be used in describing x axis coordinates (TODO: move to display)  (formatting)}
+
+\item{xaxis.suffix}{vector or scalar numeric specifying the suffix that will be used in describin x axis coordinates (TODO: move to display) (formatting)}
+
+\item{xaxis.round}{vector or scalar non-neg integer specifying number of decimals to round xaxis coordinate labels (formatting)}
+
+\item{xaxis.newline}{vector or scalar logical specifying whether to draw a newline in the xaxis coordinate labels (formatting)}
+
+\item{xaxis.width}{Logical scalar specifying whether to add window width to xaxis window labels [TRUE]}
+
+\item{xaxis.label.angle}{vector or scalar numeric between 0 and 360 specifying angle with which to draw xaxis coordinate labels (formatting)}
+
+\item{xaxis.ticklen}{Scalar numeric specifying lengths for axis ticks  (formatting)}
+
+\item{xaxis.cex.tick}{Scalar numeric specifying expansion factor for axis tick labels  (formatting)}
+
+\item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
+
+\item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
+
+\item{label.suppress.gr}{vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)}
+
+\item{label.suppress.grl}{vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)}
+
+\item{xaxis.nticks}{vector or scalar positive integer specifying how many xaxis ticks to optimally draw (formatting)}
+
+\item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
 
 \item{y.grid.col}{vector or scalar character specifying color of "gridlines" used to specify numeric track data (formatting)}
 
@@ -116,10 +126,6 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 \item{y.grid.lwd}{vector or scalar positive integer specifying thickness of y grid lines for numeric tracks (formatting)}
 
 \item{y.grid.labx}{vector or scalar positive integer specifying fraction of xlim left of plot to place y axis labels (formatting)}
-
-\item{yaxis}{vector or scalar logical specifying whether to print yaxis (formatting)}
-
-\item{yaxis.pretty}{vector or scalar positive integer specifying how many ticks to optimally draw on yaxis (formatting)}
 
 \item{draw.var}{vector or scalar logical specifying whether to draw.var for GRanges / GRangesList  specifying reads
 (GRanges must contain $cigar +/- $MD field) (formatting)}
@@ -144,10 +150,6 @@ in which draw.paths = T)  (formatting)}
 (only applicable for tracks in which draw.paths = T)  (formatting)}
 
 \item{draw.backbone}{vector or scalar logical specifying whether to draw "backbone" connecting different items in a GRangesList item (formatting)}
-
-\item{xaxis.cex.tick}{Scalar numeric specifying expansion factor for axis tick labels  (formatting)}
-
-\item{xaxis.ticklen}{Scalar numeric specifying lengths for axis ticks  (formatting)}
 
 \item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
 
@@ -182,6 +184,8 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
   \item{colormap}{length(.Object) length named list of named vectors whose entry i specifies the colormap for the meta data field of object entry i (specified by the name) and maps unique value of that data field to colors (specified by the named vector)}
   \item{edges}{list of data.frames of length length(.Object) which has columns $from, $to, and optional fields $col, $lwd, and $lty to specify splined edges joining data items in the corresponding track}
   \item{formatting}{\code{data.frame} holding all of the formatting options}
+  \item{mdata}{\code{matrix} holding interaction data between genomic loci (e.g. hiC)}
+  \item{vars}{List of variants associated with track}
 }
 }
 \author{

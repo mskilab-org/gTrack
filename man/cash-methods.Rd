@@ -8,6 +8,11 @@
 \usage{
 \S4method{$}{gTrack}(x, name)
 }
+\arguments{
+\item{x}{\code{gTrack} object}
+
+\item{name}{Name of the \code{formatting} field to view}
+}
 \description{
 Accessing columns of gTrack formatting data.frame
 }

@@ -3,9 +3,15 @@
 \docType{methods}
 \name{colormap}
 \alias{colormap}
+\alias{colormap,gTrack-method}
 \title{colormap}
 \usage{
+colormap(.Object)
+
 \S4method{colormap}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to retrieve colormap from}
 }
 \description{
 Access colormap of gTrack object, this is a named list of named character vectors that specifies

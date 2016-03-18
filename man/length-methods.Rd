@@ -3,9 +3,13 @@
 \docType{methods}
 \name{length}
 \alias{length}
+\alias{length,gTrack-method}
 \title{length}
 \usage{
 \S4method{length}{gTrack}(x)
+}
+\arguments{
+\item{x}{\code{gTrack} object}
 }
 \description{
 Getting length of gTrack object gt

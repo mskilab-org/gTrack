@@ -11,6 +11,13 @@ mdata(x, igr = NULL, jgr = NULL)
 
 \S4method{mdata}{gTrack}(x, igr = NULL, jgr = igr)
 }
+\arguments{
+\item{x}{\code{gTrack} object containing a matrix in the \code{mdata} slot}
+
+\item{igr}{\code{GRegion} object specifying positions to subset matrix with}
+
+\item{jgr}{\code{GRegion} object specifying positions to subset matrix with}
+}
 \description{
 Accessing submatrices of mdata object for length 1 gTrack gt
 

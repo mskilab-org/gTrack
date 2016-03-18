@@ -2,11 +2,18 @@
 % Please edit documentation in R/gTrack.R
 \docType{methods}
 \name{$<-}
-\alias{$,gTrack-method}
 \alias{$<-}
+\alias{$<-,gTrack-method}
 \title{$<-}
 \usage{
 \S4method{$}{gTrack}(x, name) <- value
+}
+\arguments{
+\item{x}{\code{gTrack} object to alter \code{formatting} field of}
+
+\item{name}{\code{formatting} field to alter}
+
+\item{value}{New value}
 }
 \description{
 Setting formats of gTrack object - ie modifying the formatting(gt) data frame after

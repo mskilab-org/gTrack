@@ -4,7 +4,8 @@
 \alias{karyogram}
 \title{karyogram}
 \usage{
-karyogram(hg19 = T, bands = T, arms = T, tel.width = 2e+06, ...)
+karyogram(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e+06,
+  ...)
 }
 \arguments{
 \item{hg19}{logical scalar flag, if T returns gTrack for hg19}
@@ -14,6 +15,8 @@ karyogram(hg19 = T, bands = T, arms = T, tel.width = 2e+06, ...)
 \item{arms}{logical scalar, if T and bands F, returns chromosome arms with different colors and centromeres and telomeres marked, if arms is F and bands F returns chromosomes, each with a different color}
 
 \item{tel.width}{numeric scalar, specifies telomere width in bases (only relevant if arms = T, bands = F)}
+
+\item{...}{Additional arguments sent to the \code{gTrack} constructor}
 }
 \description{
 Returns gTrack displaying band pattern for hg18 or hg19 karyotype

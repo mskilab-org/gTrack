@@ -8,6 +8,11 @@
 \usage{
 \S4method{[}{gTrack,ANY,ANY,ANY}(x, i)
 }
+\arguments{
+\item{x}{\code{gTrack} object}
+
+\item{i}{Integer specifying which \code{gTrack} to grab}
+}
 \description{
 Subsetting tracks of gTrack gt
 gt[1]

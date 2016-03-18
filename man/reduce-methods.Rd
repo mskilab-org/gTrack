@@ -9,7 +9,12 @@
 \S4method{reduce}{gTrack}(x, ...)
 }
 \arguments{
+\item{x}{\code{gTrack} object to retrieve reduced \code{GRanges} from}
+
 \item{...}{additional arguments to GRanges reduce function}
+}
+\value{
+\code{GRanges} with the minimal footprint of the \code{gTrack} data
 }
 \description{
 Computing the GRanges footprint of the gTrack object on the genome

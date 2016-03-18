@@ -10,6 +10,9 @@ edgs(.Object)
 
 \S4method{edgs}{gTrack}(.Object)
 }
+\arguments{
+\item{.Object}{\code{gTrack} object to extract the edge list from}
+}
 \description{
 Get edges list associated with gTrack object, is is a list of data.frames
 each which contains a data.frame specifying formatted edges, as pairs of indices into the

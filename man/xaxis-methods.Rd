@@ -6,9 +6,15 @@
 \alias{xaxis,gTrack-method}
 \title{Retrieves the xaxis parameters}
 \usage{
-xaxis(.Object, ...)
+xaxis(.Object)
 
 \S4method{xaxis}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to retrieve xaxis parameters from}
+}
+\value{
+\code{data.frame} which is a subset of \code{formatting} showing xaxis params
 }
 \description{
 Return the portion of the gTrack @format field responsible for
