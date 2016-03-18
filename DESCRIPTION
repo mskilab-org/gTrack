@@ -13,9 +13,9 @@ Depends:
     R (>= 3.1.0),
     GenomicRanges (>= 1.8)
 Imports:
-    IRanges (>= 2.4),
+    IRanges (>= 2.0),
     S4Vectors (>= 0.8),
-    GenomeInfoDb (>= 1.6),
+    GenomeInfoDb (>= 1.2),
     gUtils,
     RColorBrewer,
     data.table,
