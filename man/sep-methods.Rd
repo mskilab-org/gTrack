@@ -6,9 +6,15 @@
 \alias{sep,gTrack-method}
 \title{Retrieves the seperator graphical parameters}
 \usage{
-sep(.Object, ...)
+sep(.Object)
 
 \S4method{sep}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to extract separator params from}
+}
+\value{
+\code{data.frame} with the seperator paramters
 }
 \description{
 Return the portion of the gTrack @format field responsible for

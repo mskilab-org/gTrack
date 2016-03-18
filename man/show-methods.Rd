@@ -8,6 +8,12 @@
 \usage{
 \S4method{show}{gTrack}(object)
 }
+\arguments{
+\item{object}{\code{gTrack} to display}
+}
+\description{
+Display a \code{gTrack} object
+}
 \author{
 Marcin Imielinski
 }

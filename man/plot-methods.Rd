@@ -3,7 +3,7 @@
 \docType{methods}
 \name{plot}
 \alias{plot}
-\alias{plot,xTrack,ANY-method}
+\alias{plot,gTrack,ANY-method}
 \title{plot}
 \usage{
 \S4method{plot}{gTrack,ANY}(x, y, windows = gUtils::si2gr(seqinfo(x)),

@@ -8,6 +8,9 @@
 \usage{
 \S4method{lengths}{gTrack}(x)
 }
+\arguments{
+\item{x}{\code{gTrack} to get the lengths from}
+}
 \description{
 gets lengths of data objects inside gTrack object gt
 usage:

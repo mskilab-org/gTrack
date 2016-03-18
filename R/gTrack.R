@@ -7,6 +7,8 @@
 #'   \item{colormap}{length(.Object) length named list of named vectors whose entry i specifies the colormap for the meta data field of object entry i (specified by the name) and maps unique value of that data field to colors (specified by the named vector)}
 #'   \item{edges}{list of data.frames of length length(.Object) which has columns $from, $to, and optional fields $col, $lwd, and $lty to specify splined edges joining data items in the corresponding track}
 #'   \item{formatting}{\code{data.frame} holding all of the formatting options}
+#'   \item{mdata}{\code{matrix} holding interaction data between genomic loci (e.g. hiC)}
+#'   \item{vars}{List of variants associated with track}
 #' }
 #'
 #' @name gTrack-class
@@ -25,47 +27,19 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 
 setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
-setMethod('initialize', 'gTrack', function(.Object,
-                                           data = NULL, ##
-                                           y.field = NA, ## character field specifying what numeric values field of the underlying gr or grl should be used as y coordinate (otherwise ranges are stacked)
-                                           mdata = NULL, ## this is matrix of values for triangle plot
-                                           edges = NULL, ## this is a list of data.frames of length numtracks or a data.frame, data.frame has fields $from, $to, and optional fields $col, $lwd, $lty to specify edges joining ranges and their display, can also be an adjacency matrix of dim n x n where n =  length(GRanges) or length(GRangesList), the values of the matrix will specify $lwd of the resulting lines
-                                           vars = NULL, ## GRangesList of same length as data (if length is 1 ) or list of GRangesList representing variants (output of draw.var)
-                                           colormaps = NULL, # (named) list same length as data
-                                           height = 10,
-                                           ygap = 2,
-                                           stack.gap = 20,
-                                           col = NA,
-                                           border = col, #'gray30',
-                                           angle = 15,
-                                           name = NULL,
-                                           lift = FALSE, ## whether to lift this track to other chainedTrack items
-                                           split = FALSE, ## whether to split when lifting
-                                           gr.colorfield = NA,
-                                           y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
-                                           y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
-                                           lwd.border = 1,
-                                           hadj.label = 1,
-                                           vadj.label = 0.5,
-                                           smooth = NA, ## smooth with running mean with this window
-                                           round = NA, ## round the output of running mean to this precision
-                                           ywid = NA,
-                                           ypad = 0,
-                                           seqinfo = NULL,
-                                           circles = NA,
-                                           lines = NA,
-                                           bars = NA,
-                                           triangle = !is.null(mdata),
-                                           max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
-                                           source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
-                                           y0.bar = NA,
-                                           yaxis = !is.na(y.field), # logical whether to print yaxis
-                                           yaxis.pretty = 5, # how many ticks to optimally draw on yaxis
-                                           yaxis.cex = 1, ## size of text at yaxis
-                                           format = 'ranges',
-                                           chr.sub = TRUE, ## remove 'chr' from slen if drawing from UCSC style format
-                                           edgevars = NULL,
-                                           ...)
+setMethod('initialize', 'gTrack', function(.Object, data, y.field, mdata, edges, vars, colormaps, height, ygap,
+                                           stack.gap, col, border, angle,
+                                           name, lift, split, gr.colorfield, y.quantile,
+                                           y.cap, lwd.border, hadj.label, vadj.label, smooth,
+                                           round, ywid, ypad, seqinfo, circles, lines,
+                                           bars, triangle, max.ranges, source.file.chrsub,
+                                           y0.bar, yaxis, yaxis.pretty, yaxis.cex,
+                                           format, chr.sub, edgevars, xaxis.prefix, xaxis.suffix,
+                                           xaxis.unit, xaxis.round, xaxis.interval,
+                                           xaxis.cex.label, xaxis.newline,
+                                           xaxis.chronly, xaxis.width,
+                                           xaxis.label.angle, xaxis.ticklen,
+                                           xaxis.cex.tick, ...)
           {
 
 
@@ -197,18 +171,18 @@ setMethod('initialize', 'gTrack', function(.Object,
                                               is.null = is.null, stringsAsFactors = FALSE)
 
               ## set the xaxis defaults
-              .Object@formatting$xaxis.prefix = ''
-              .Object@formatting$xaxis.suffix = ""
-              .Object@formatting$xaxis.unit = 1
-              .Object@formatting$xaxis.round = 3
-              .Object@formatting$xaxis.cex.label = 1
-              .Object@formatting$xaxis.newline = FALSE
-              .Object@formatting$xaxis.chronly = FALSE
-              .Object@formatting$xaxis.width= TRUE
-              .Object@formatting$xaxis.interval = 'auto'
-              .Object@formatting$xaxis.label.angle = 0
-              .Object@formatting$xaxis.ticklen = 1
-              .Object@formatting$xaxis.cex.tick = 1
+              .Object@formatting$xaxis.prefix = xaxis.prefix
+              .Object@formatting$xaxis.suffix = xaxis.suffix
+              .Object@formatting$xaxis.unit = xaxis.unit
+              .Object@formatting$xaxis.round = xaxis.round
+              .Object@formatting$xaxis.cex.label = xaxis.cex.label
+              .Object@formatting$xaxis.newline = xaxis.newline
+              .Object@formatting$xaxis.chronly = xaxis.chronly
+              .Object@formatting$xaxis.width= xaxis.width
+              .Object@formatting$xaxis.interval = xaxis.interval
+              .Object@formatting$xaxis.label.angle = xaxis.label.angle
+              .Object@formatting$xaxis.ticklen = xaxis.ticklen
+              .Object@formatting$xaxis.cex.tick = xaxis.cex.tick
 
               ## set the seperator defaults
               .Object@formatting$sep.lty = 2
@@ -420,12 +394,6 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @param height vector or scalar numeric specifying height of track(s) (in relative units)
 #' @param gr.labelfield vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)
 #' @param grl.labelfield vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)
-#' @param legend vector or scalar logical specifying whether to draw a legend for this track (formatting)
-#' @param legend.xpos vector or scalar numeric between 0 and 1 specifying what relative x position in the plot to place the legend for this track  (formatting)
-#' @param legend.ypos vector or scalar numeric between 0 and 1 specifying what relative y position in the plot to place the legend for this track  (formatting)
-#' @param legend.ncol vector or scalar positive integer specifying how many columns to put in legend (formatting)
-#' @param legend.xjust Scalar of {0, 1, 2} = {left, center, right} specifying x justification of legend [0]
-#' @param legend.yjust Scalar of {0, 1, 2} = {left, center, right} specifying y justification of legend [0]
 #' @param legend.maxitems Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]
 #' @param label.suppress vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)
 #' @param label.suppress.gr vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)
@@ -496,7 +464,75 @@ setMethod('initialize', 'gTrack', function(.Object,
 #' @rdname gTrack-class
 #' @export
 #' @author Marcin Imielinski
-gTrack = function(...) new('gTrack', ...)
+gTrack = function(data = NULL, ##
+                  y.field = NA, ## character field specifying what numeric values field of the underlying gr or grl should be used as y coordinate (otherwise ranges are stacked)
+                  mdata = NULL, ## this is matrix of values for triangle plot
+                  edges = NULL, ## this is a list of data.frames of length numtracks or a data.frame, data.frame has fields $from, $to, and optional fields $col, $lwd, $lty to specify edges joining ranges and their display, can also be an adjacency matrix of dim n x n where n =  length(GRanges) or length(GRangesList), the values of the matrix will specify $lwd of the resulting lines
+                  vars = NULL, ## GRangesList of same length as data (if length is 1 ) or list of GRangesList representing variants (output of draw.var)
+                  colormaps = NULL, # (named) list same length as data
+                  height = 10,
+                  ygap = 2,
+                  stack.gap = 20,
+                  col = NA,
+                  border = col, #'gray30',
+                  angle = 15,
+                  name = NULL,
+                  lift = FALSE, ## whether to lift this track to other chainedTrack items
+                  split = FALSE, ## whether to split when lifting
+                  gr.colorfield = NA,
+                  y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
+                  y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
+                  lwd.border = 1,
+                  hadj.label = 1,
+                  vadj.label = 0.5,
+                  smooth = NA, ## smooth with running mean with this window
+                  round = NA, ## round the output of running mean to this precision
+                  ywid = NA,
+                  ypad = 0,
+                  seqinfo = NULL,
+                  circles = NA,
+                  lines = NA,
+                  bars = NA,
+                  triangle = !is.null(mdata),
+                  max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
+                  source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
+                  y0.bar = NA,
+                  yaxis = !is.na(y.field), # logical whether to print yaxis
+                  yaxis.pretty = 5, # how many ticks to optimally draw on yaxis
+                  yaxis.cex = 1, ## size of text at yaxis
+                  format = 'ranges',
+                  chr.sub = TRUE, ## remove 'chr' from slen if drawing from UCSC style format
+                  edgevars = NULL,
+                  gr.labelfield = NULL,
+                  grl.labelfield = NULL,
+                  xaxis.prefix = "",
+                  xaxis.unit = 1,
+                  xaxis.suffix = "",
+                  xaxis.round = 3,
+                  xaxis.cex.label = 1,
+                  xaxis.newline = FALSE,
+                  xaxis.chronly = FALSE,
+                  xaxis.width= TRUE,
+                  xaxis.interval = 'auto',
+                  xaxis.label.angle = 0,
+                  xaxis.ticklen = 1,
+                  xaxis.cex.tick = 1,
+                  ...) new('gTrack', data = data, y.field = y.field, mdata = mdata,
+                           edges = edges, vars = vars, colormaps = colormaps, height = height, ygap = ygap,
+                           stack.gap = stack.gap, col = col, border = border, angle = angle,
+                           name = name, lift = lift, split = split, gr.colorfield = gr.colorfield, y.quantile = y.quantile,
+                           y.cap = y.cap, lwd.border = lwd.border, hadj.label = hadj.label, vadj.label = vadj.label, smooth = smooth,
+                           round = round, ywid = ywid, ypad = ypad, seqinfo = seqinfo, circles = circles, lines = lines,
+                           bars = bars, triangle = triangle, max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
+                           y0.bar = y0.bar, yaxis = yaxis, yaxis.pretty = yaxis.pretty, yaxis.cex = yaxis.cex,
+                           format = format, chr.sub = chr.sub, edgevars = edgevars, gr.labelfield = gr.labelfield,
+                           grl.labelfield = grl.labelfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
+                           xaxis.suffix = xaxis.suffix, xaxis.round = xaxis.round, xaxis.interval = xaxis.interval,
+                           xaxis.cex.label = xaxis.cex.label, xaxis.newline = xaxis.newline,
+                           xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
+                           xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
+                           xaxis.cex.tick = xaxis.cex.tick, ...)
+
 
 setValidity('gTrack', function(object)
           {
@@ -622,6 +658,8 @@ setValidity('gTrack', function(object)
 #' gt[1]
 #' gt[ix] # where ix is an integer vector
 #'
+#' @param x \code{gTrack} object
+#' @param i Integer specifying which \code{gTrack} to grab
 #' @docType methods
 #' @export
 #' @aliases [,gTrack,ANY,ANY,ANY-method
@@ -654,7 +692,9 @@ setMethod('[', 'gTrack', function(x, i)
 #'
 #' Usage: (igr, jgr are GRanges objects corresponding to slices of matrix to be accessed from gt)
 #' mdata(gt, igr, jgr)
-#'
+#' @param x \code{gTrack} object containing a matrix in the \code{mdata} slot
+#' @param igr \code{GRegion} object specifying positions to subset matrix with
+#' @param jgr \code{GRegion} object specifying positions to subset matrix with
 #' @author Jeremiah Wala
 #' @docType methods
 #' @rdname mdata-methods
@@ -714,6 +754,8 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
 #'
 #' Accessing columns of gTrack formatting data.frame
 #'
+#' @param x \code{gTrack} object
+#' @param name Name of the \code{formatting} field to view
 #' @docType methods
 #' @rdname cash-methods
 #' @aliases $,gTrack-method
@@ -735,9 +777,12 @@ setMethod('$', 'gTrack', function(x, name)
 #' gt$y.field = 'score'
 #' gt$gr.colorfield[1] = 'readtype'
 #'
+#' @param x \code{gTrack} object to alter \code{formatting} field of
+#' @param name \code{formatting} field to alter
+#' @param value New value
 #' @docType methods
 #' @rdname cash-set-methods
-#' @aliases $,gTrack-method
+#' @aliases $<-,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('$<-', 'gTrack', function(x, name, value)
@@ -753,7 +798,10 @@ setMethod('$<-', 'gTrack', function(x, name, value)
 #' Getting length of gTrack object gt
 #' Usage:
 #' length(gt)
-#'
+#' @param x \code{gTrack} object
+#' @docType methods
+#' @rdname length-methods
+#' @aliases length,gTrack-method
 #' @export
 #' @author Marcin Imielinski
 setMethod('length', 'gTrack', function(x)
@@ -768,8 +816,9 @@ setMethod('length', 'gTrack', function(x)
 #' Computing the GRanges footprint of the gTrack object on the genome
 #' usage:
 #' reduce(gt) # outputs a GRanges
-#'
+#' @param x \code{gTrack} object to retrieve reduced \code{GRanges} from
 #' @param ... additional arguments to GRanges reduce function
+#' @return \code{GRanges} with the minimal footprint of the \code{gTrack} data
 #' @importFrom GenomicRanges reduce
 #' @docType methods
 #' @rdname reduce-methods
@@ -811,7 +860,9 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' returns Seqinfo of gTrack object gt
 #' Usage:
 #' seqinfo(gt)
-#'
+#' @docType methods
+#' @param x \code{gTrack} object
+#' @return \code{seqinfo}
 #' @importFrom GenomicRanges seqinfo
 #' @export
 #' @author Marcin Imielinski
@@ -827,6 +878,8 @@ setMethod("seqinfo", signature(x = "gTrack"), function(x)
 #' set seqinfo property of gTrack
 #'
 #' @export
+#' @param .Object \code{gTrack} object
+#' @param value new \code{Seqinfo} object
 #' @docType methods
 #' @rdname seqinfo-set-methods
 #' @author Marcin Imielinski
@@ -850,11 +903,12 @@ setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
 #' gets lengths of data objects inside gTrack object gt
 #' usage:
 #' lengths(gt) # returns vector of lengths
+#' @param x \code{gTrack} to get the lengths from
 #' @docType methods
 #' @rdname lengths-methods
 #' @aliases lengths,gTrack-method
 #' @export
-setMethod("lengths", "gTrack", function(x)
+setMethod('lengths', "gTrack", function(x)
           { sapply(dat(x), length) } )
 
 #' @name c
@@ -862,17 +916,19 @@ setMethod("lengths", "gTrack", function(x)
 #' @description
 #'
 #' Concatenate gTrack objects gt1, gt2, gt3
-#' usage:
 #' c(gt1, gt2, gt3) # returns a gTrack object with the component tracks "stacked"
 #'
+#' @param x Initial \code{gTrack} object
+#' @param ... Any number of \code{gTrack} objects
+#' @param recursive If recursive = TRUE, the function recursively descends through lists (and pairlists) combining all their elements into a vector [FALSE]
 #' @docType methods
 #' @rdname c-methods
 #' @aliases c,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('c', 'gTrack', function(x, ...)
+setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
           {
-            args = list(x, ...)
+            args = list(...)
 
             if (any(ix <- sapply(args, inherits, 'trackData')))
                 args[ix] = lapply(args[ix], function(y) {class(y) = 'gTrack'; return(y)})
@@ -889,7 +945,7 @@ setMethod('c', 'gTrack', function(x, ...)
             args = args[!sapply(args, is.null)]
             out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),
 #                             seqinfo = do.call('c', lapply(1:length(args), function(y) args[[y]]@seqinfo)),
-                      colormap = do.call('c', lapply(args, function(y) y@colormap)), edges = do.call('c', lapply(args, function(y) y@edges)))
+                      colormaps = do.call('c', lapply(args, function(y) y@colormap)), edges = do.call('c', lapply(args, function(y) y@edges)))
 
             out@mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata))
             formatting(out) <- do.call('rrbind', lapply(args, formatting))
@@ -914,11 +970,12 @@ setMethod('c', 'gTrack', function(x, ...)
 #'
 #' If you want to access particular fields of the formatting data.frame, just use the "$" accessor like you would for a data.frame
 #'
+#' @param .Object \code{gTrack} object to extracting the formatting data.frame from
 #' @docType methods
 #' @rdname formatting-methods
 #' @export
 #' @author Marcin Imielinski
-setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
+setGeneric('formatting', function(.Object) standardGeneric('formatting'))
 
 #' @name xaxis
 #' @title Retrieves the xaxis parameters
@@ -926,11 +983,13 @@ setGeneric('formatting', function(.Object, ...) standardGeneric('formatting'))
 #'
 #' Return the portion of the gTrack @format field responsible for
 #' formatting the x-axis
+#' @param .Object \code{gTrack} object to retrieve xaxis parameters from
+#' @return \code{data.frame} which is a subset of \code{formatting} showing xaxis params
 #' @author Jeremiah Wala
 #' @docType methods
 #' @rdname xaxis-methods
 #' @export
-setGeneric('xaxis', function(.Object, ...) standardGeneric('xaxis'))
+setGeneric('xaxis', function(.Object) standardGeneric('xaxis'))
 
 #' @rdname xaxis-methods
 #' @aliases xaxis,gTrack-method
@@ -950,10 +1009,12 @@ setMethod('xaxis', 'gTrack', function(.Object) {
 #' Return the portion of the gTrack @format field responsible for
 #' formatting the windows and their separators
 #' @author Jeremiah Wala
+#' @param .Object \code{gTrack} object to extract separator params from
+#' @return \code{data.frame} with the seperator paramters
 #' @docType methods
 #' @rdname sep-methods
 #' @export
-setGeneric('sep', function(.Object, ...) standardGeneric('sep'))
+setGeneric('sep', function(.Object) standardGeneric('sep'))
 
 #' @rdname sep-methods
 #' @aliases sep,gTrack-method
@@ -980,6 +1041,7 @@ setMethod('formatting', 'gTrack', function(.Object)
 #'
 #' usage:
 #' edgs(gt)
+#' @param .Object \code{gTrack} object to extract the edge list from
 #' @docType methods
 #' @rdname edgs-methods
 #' @export
@@ -1021,6 +1083,8 @@ setMethod('vars', 'gTrack', function(.Object)
 #' usage:
 #' edgs(gt)[[1]] <- new.edges.
 #'
+#' @param .Object \code{gTrack} object on which to set new edges
+#' @param value New value of the edges
 #' @docType methods
 #' @rdname edgs-set-methods
 #' @export
@@ -1053,12 +1117,12 @@ setMethod('edgs<-', 'gTrack', function(.Object, value)
 #' usage:
 #' clear(gTrack)
 #'
-#'
+#' @param .Object \code{gTrack} object to clear
 #' @author Marcin Imielinski
 #' @docType methods
 #' @rdname clear-methods
 #' @export
-setGeneric('clear', function(.Object, ...) standardGeneric('clear'))
+setGeneric('clear', function(.Object) standardGeneric('clear'))
 
 #' @rdname clear-methods
 #' @aliases clear,gTrack-method
@@ -1081,11 +1145,12 @@ setMethod('clear', 'gTrack', function(.Object)
 #' usage
 #' dat(gt)
 #'
+#' @param .Object \code{gTrack} to retrive data from
 #' @docType methods
 #' @rdname dat-methods
 #' @export
 #' @author Marcin Imielinski
-setGeneric('dat', function(.Object, ...) standardGeneric('dat'))
+setGeneric('dat', function(.Object) standardGeneric('dat'))
 
 #' @rdname dat-methods
 #' @aliases dat,gTrack-method
@@ -1093,9 +1158,6 @@ setMethod('dat', 'gTrack', function(.Object)
           {
             return(.Object@data)
           })
-#' @export
-setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<-'))
-
 
 #' @name formatting<-
 #' @title formatting<-
@@ -1109,8 +1171,15 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 #'
 #' #can also just use $ directly, like for a data frame, which is more convenient
 #' td$height <- 2
+#' @param .Object \code{gTrack} to set the formatting field for
+#' @param value \code{data.frame} with the new formatting information
+#' @docType methods
+#' @rdname formatting-set-methods
 #' @export
-#' @author Marcin Imielinski
+setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<-'))
+
+#' @rdname formatting-set-methods
+#' @aliases formatting<-,gTrack-method
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
     {
         REQUIRED.COLUMNS = c('height', 'col', 'lift', 'format', 'ygap');
@@ -1126,9 +1195,6 @@ setReplaceMethod('formatting', 'gTrack', function(.Object, value)
     });
 
 
-#' @export
-setGeneric('colormap', function(.Object, value) standardGeneric('colormap'))
-
 #' @name colormap
 #' @title colormap
 #' @description
@@ -1138,16 +1204,23 @@ setGeneric('colormap', function(.Object, value) standardGeneric('colormap'))
 #' usage:
 #' colormap(gt)
 #'
+#' @param .Object \code{gTrack} object to retrieve colormap from
+#' @docType methods
+#' @rdname colormap-methods
 #' @export
 #' @author Marcin Imielinski
+setGeneric('colormap', function(.Object) standardGeneric('colormap'))
+
+#' @rdname colormap-methods
+#' @aliases colormap,gTrack-method
 setMethod('colormap', 'gTrack', function(.Object)
           {
             return(.Object@colormap)
           })
 
 
-#' @name colormap
-#' @title colormap
+#' @name colormap<-
+#' @title colormap<-
 #' @description
 #' Set colormap of gTrack object, this is a named list of named character vectors that specifies
 #' the field of the underlying GRanges object that will be used to map a set of values
@@ -1155,6 +1228,8 @@ setMethod('colormap', 'gTrack', function(.Object)
 #'
 #' usage:
 #' colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
+#' @param .Object \code{gTrack} to set the colormap for
+#' @param value New \code{colormap}
 #' @docType methods
 #' @rdname colormap-set-methods
 #' @export
@@ -1170,7 +1245,9 @@ setReplaceMethod('colormap', 'gTrack', function(.Object, value)
                  });
 #' @name show
 #' @title show
+#' @description Display a \code{gTrack} object
 #' @docType methods
+#' @param object \code{gTrack} to display
 #' @rdname show-methods
 #' @aliases show,gTrack-method
 #' @export
@@ -1232,7 +1309,7 @@ setMethod('show', 'gTrack', function(object)
 #'
 #' @docType methods
 #' @rdname plot-methods
-#' @aliases plot,xTrack,ANY-method
+#' @aliases plot,gTrack,ANY-method
 #' @export
 #' @author Marcin Imielinski, Jeremiah Wala
 setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (for easy search)
@@ -1773,10 +1850,10 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 #' @param bands logical scalar, if T returns gTrack with colored giemsa bands
 #' @param arms logical scalar, if T and bands F, returns chromosome arms with different colors and centromeres and telomeres marked, if arms is F and bands F returns chromosomes, each with a different color
 #' @param tel.width numeric scalar, specifies telomere width in bases (only relevant if arms = T, bands = F)
-#'
+#' @param ... Additional arguments sent to the \code{gTrack} constructor
 #' @export
 #' @author Marcin Imielinski
-karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
+karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
   {
 #    ucsc.bands = get_ucsc_bands(hg19 = hg19)
 
@@ -1793,7 +1870,7 @@ karyogram = function(hg19 = T, bands = T, arms = T, tel.width = 2e6, ... )
         ucsc.bands = sort(gUtils::gr.fix(ucsc.bands, si, drop = T))
 
         ucsc.bands = split(ucsc.bands, seqnames(ucsc.bands))
-        td = gTrack(list(ucsc.bands), colormap = list(stain = c('gneg' = 'white', 'gpos25' = 'gray25', 'gpos50' = 'gray50', 'gpos75'= 'gray75', 'gpos100' = 'black', 'acen' = 'red', 'gvar' = 'pink', 'stalk' = 'blue')), border = 'black', ...)
+        td = gTrack(list(ucsc.bands), colormaps = list(stain = c('gneg' = 'white', 'gpos25' = 'gray25', 'gpos50' = 'gray50', 'gpos75'= 'gray75', 'gpos100' = 'black', 'acen' = 'red', 'gvar' = 'pink', 'stalk' = 'blue')), border = 'black', ...)
         formatting(td)$stack.gap[1] = 0
 
       }

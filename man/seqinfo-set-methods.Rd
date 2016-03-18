@@ -11,6 +11,11 @@ seqinfo(.Object) <- value
 
 \S4method{seqinfo}{gTrack}(.Object) <- value
 }
+\arguments{
+\item{.Object}{\code{gTrack} object}
+
+\item{value}{new \code{Seqinfo} object}
+}
 \description{
 set seqinfo property of gTrack
 }
