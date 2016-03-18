@@ -71,7 +71,7 @@ Tutorial
 
 .. code-block:: bash 
    
-   # study of the common variants in breast cancer 
+   # study of the CNVs in breast cancer 
    fn = list.files(Level_3/)
    
    # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
