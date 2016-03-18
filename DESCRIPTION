@@ -1,7 +1,7 @@
 Package: gTrack
 Title: Plotting multiple tracks of complex genomic data across multiple genomic
     windows
-Version: 0.0.1
+Version: 0.1.0
 Maintainer: Marcin Imielinski <mimielinski@nygenome.org>
 Authors@R: c(person(given = "Jeremiah", family = "Wala", role = c("aut"), email = "jwala@broadinstitute.org"),
     person(given = "Marcin",
