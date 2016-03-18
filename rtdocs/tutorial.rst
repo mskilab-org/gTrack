@@ -69,3 +69,30 @@ Tutorial
    :alt:
    :scale: 40%
 
+.. code-block:: bash 
+   
+   # study of the common variants in breast cancer 
+   fn = list.files(Level_3/)
+   
+   # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
+   dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
+   
+   # certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need 
+   # to be converted into "numeric" vectors.
+
+   dt$Start = type.convert(dt$Start)
+   dt$End = type.convert(dt$End)
+
+   # because we are graphing segment mean, that column also needs to be "numeric"
+   dt$Segment_Mean = type.convert(dt$Segment_Mean)
+
+   # convert data.table into GRanges object
+   dtgr = GRanges(dt)
+
+   # wrap gTrack object around it and plot 
+   dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+   plot(dtgt , window = dtgr[1:5])
+   
+.. figure:: figures/tcgabrcacnvpatients.png
+   :alt:
+   :scale: 40% 
