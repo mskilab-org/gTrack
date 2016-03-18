@@ -3,9 +3,15 @@
 \docType{methods}
 \name{edgs}
 \alias{edgs}
+\alias{edgs,gTrack-method}
 \title{edgs}
 \usage{
+edgs(.Object)
+
 \S4method{edgs}{gTrack}(.Object)
+}
+\arguments{
+\item{.Object}{\code{gTrack} object to extract the edge list from}
 }
 \description{
 Get edges list associated with gTrack object, is is a list of data.frames
@@ -14,8 +20,5 @@ underlying GRanges object $from, $to and additional formats $col $lwd $lty
 
 usage:
 edgs(gt)
-}
-\author{
-Marcin Imielinski
 }
 

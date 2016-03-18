@@ -3,9 +3,15 @@
 \docType{methods}
 \name{[}
 \alias{[}
+\alias{[,gTrack,ANY,ANY,ANY-method}
 \title{[}
 \usage{
-\S4method{[}{gTrack,ANY,ANY}(x, i)
+\S4method{[}{gTrack,ANY,ANY,ANY}(x, i)
+}
+\arguments{
+\item{x}{\code{gTrack} object}
+
+\item{i}{Integer specifying which \code{gTrack} to grab}
 }
 \description{
 Subsetting tracks of gTrack gt
