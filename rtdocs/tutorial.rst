@@ -71,7 +71,7 @@ Tutorial
 
 .. code-block:: bash 
    
-   # study of the CNVs in breast cancer 
+   # study of the common variants in breast cancer 
    fn = list.files(Level_3/)
    
    # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
@@ -92,7 +92,28 @@ Tutorial
    # wrap gTrack object around it and plot 
    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
    plot(dtgt , window = dtgr[1:5])
-   
+
 .. figure:: figures/tcgabrcacnvpatients.png
    :alt:
    :scale: 40% 
+
+.. code-block:: bash
+   # graph amplifications (use gUtils operators!) 
+   amps <- dtgr %Q% (Segment_Mean > 0)
+   ampsgt <- gTrack(amps , y.field = "Segment_Mean")
+   plot(ampsgt , window = dtgr[1:5])
+
+.. figure:: figures/tcgabrcacnvAMPS.png
+   :alt:
+   :scale: 40%
+
+.. code-block:: bash
+   # graph deletions (again, use gUtils operators!)
+   dels <- dtgr %Q% (Segment_Mean < 0) 
+   delsgt <- gTrack(dels , y.field = "Segment_Mean")
+   plot(delsgt , window = dtgr[1:5])
+
+.. figure:: figures/tcgabrcacnvDELS.png
+   :alt:
+   :scale: 40% 
+
