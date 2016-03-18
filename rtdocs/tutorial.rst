@@ -99,6 +99,7 @@ Tutorial
    :scale: 40% 
 
 .. code-block:: bash
+
    # graph amplifications (use gUtils operators!) 
    amps <- dtgr %Q% (Segment_Mean > 0)
    ampsgt <- gTrack(amps , y.field = "Segment_Mean")
@@ -109,6 +110,7 @@ Tutorial
    :scale: 40%
 
 .. code-block:: bash
+
    # graph deletions (again, use gUtils operators!)
    dels <- dtgr %Q% (Segment_Mean < 0) 
    delsgt <- gTrack(dels , y.field = "Segment_Mean")
@@ -117,6 +119,4 @@ Tutorial
 .. figure:: figures/tcgabrcacnvDELS.png
    :alt:
    :scale: 40% 
-   
-sdfdf
    
