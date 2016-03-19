@@ -25,7 +25,7 @@
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
-setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
+#setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
 setMethod('initialize', 'gTrack', function(.Object, data, y.field, mdata, edges, vars, colormaps, height, ygap,
                                            stack.gap, col, border, angle,
@@ -199,6 +199,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, y.field, mdata, edges,
               # .Object@formatting$legend.yjust = 0
               # .Object@formatting$legend.maxitems
 
+            .Object@formatting$y0 = NA
+            .Object@formatting$y1 = NA
+            
             other.args = list(...)
             if (length(other.args)>0)
               for (i in 1:length(other.args))
@@ -734,8 +737,8 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
                   {
                       if (is.null(x@mdata[[y]]))
                           return(NULL)
-                      i = gUtils::gr.in(x@data[[y]], igr)
-                      j = gUtils::gr.in(x@data[[y]], jgr)
+                      i = x@data[[y]] %over% igr #gUtils::gr.in(x@data[[y]], igr)
+                      j = x@data[[y]] %over% jgr ##gUtils::gr.in(x@data[[y]], jgr)
                       rown = dedup(gUtils::gr.string(x@data[[y]][i]))
                       coln = dedup(gUtils::gr.string(x@data[[y]][j]))
                       tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
@@ -1358,7 +1361,8 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
 
         ## get the height of the stacks
         if (is.null(y.heights) | length(y.heights) != length(windows))
-          y.heights = rep(1, length(windows))
+          ##y.heights = rep(1, length(windows)) ## old from when we had windows as GRangesList
+          y.heights <- 1
 
         ## set the gaps between the gTracks
         if (is.null(y.gaps) )
@@ -1388,6 +1392,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
         tmp.ylim.subplot = data.frame(start = c(tmp.bottom.gaps[1], tmp.bottom.gaps[1] +
                                                   cumsum(formatting(.Object)$height[oth.ix] + tmp.top.gaps[oth.ix] + tmp.bottom.gaps[oth.ix+1])),
                                       end = cumsum(formatting(.Object)$height + tmp.top.gaps + tmp.bottom.gaps) - tmp.top.gaps)
+
         ylim = c(0, max(ylim.stacks$end)+top.gaps[length(top.gaps)])
         ylim.parent=ylim
         window.ylims = data.frame(start = rep(NA, length(windows)), end = NA);
@@ -1439,8 +1444,7 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,  ##pplot  (fo
                     }
 
                     ## smooth the y.field data
-                    if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') &&
-                        !is.null(formatting(.Object$smooth)) && !is.na(formatting(.Object)$smooth[j]))
+                    if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') && !is.na(formatting(.Object)$smooth[j]))
                       tmp.dat <- smooth_yfield(.Object, j, tmp.dat)
 
                     ## fix y limits and apply log transform if needed
@@ -2627,6 +2631,7 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 #' @importFrom data.table is.data.table := setkeyv
 #' @importFrom IRanges findOverlaps
 #' @importFrom GenomeInfoDb Seqinfo seqinfo keepSeqlevels seqlevels seqlengths seqlevels<- seqlengths<- genome<- seqnames
+#' @importFrom gUtils grl.unlist
 draw.grl = function(grl,
   y = NULL,  # can be either vector of length grl, or data.frame row / list with fields $start and $end
              # specifying y coordinates to "pack" the granges into (or just length 2 list)
@@ -2743,7 +2748,7 @@ draw.grl = function(grl,
           {
             if (!is.null(windows)) ## hack to get over stupid GRanges speed issues when we have a giant GRanges input (eg coverage)
               {
-                ix <- gUtils::gr.in(grl, windows, pintersect=pintersect)
+                ix <- grl %over% windows ##gUtils::gr.in(grl, windows, pintersect=pintersect)
                 grl = grl[ix]
 
                 if (!is.null(col))
@@ -2784,7 +2789,7 @@ draw.grl = function(grl,
             names(grl) = NULL;
 
             if (length(grl)>0)
-              grl = S4Vectors::split(grl, 1:length(grl))
+              grl = GenomicRanges::split(grl, 1:length(grl))
             else
               grl = GenomicRanges::GRangesList(grl)
 
@@ -2877,7 +2882,7 @@ draw.grl = function(grl,
           if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
             grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
 
-        gr = tryCatch(gUtils::grl.unlist(grl), error = function(e)
+        gr = tryCatch(grl.unlist(grl), error = function(e)
           {
             ## ghetto solution if we get GRanges names snafu
             gr = unlist(grl);
@@ -3150,7 +3155,8 @@ draw.grl = function(grl,
 
                         ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
                         ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-                      clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))##which(ir1 %over% (ir2 + path.stack.x.gap))
+                      ##clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+                      clash = which(ir1 %over% (ir2 + path.stack.x.gap))
                       pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
                       contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
                     }
@@ -4965,14 +4971,16 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
         vals = values(tmp.dat)
         nm = names(tmp.dat)
         tmp2 = gUtils::grl.unlist(tmp.dat)
-        tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
+        ##tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
+        tmp2 = tmp2[tmp2 %over% this.windows]
         tmp.dat = GenomicRanges::split(tmp2, tmp2$grl.ix)
         values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
         names(tmp.dat) = nm[as.numeric(names(tmp.dat))]
       }
     else if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
     {
-      tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+      ##tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+      tmp.dat = tmp.dat[tmp.dat %over% this.windows]
       pre.filtered = TRUE
     }
   }
@@ -4996,7 +5004,8 @@ smooth_yfield <- function(.Object, j, tmp.dat) {
     tmp = round(tmp, formatting(.Object)$round[j])
 
   tmp = as(tmp, 'GRanges')
-  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+##  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+  tmp = tmp[tmp %over% tmp.dat]
   tmp.val = tmp$score
   values(tmp) = values(tmp.dat)[gUtils::gr.match(tmp, tmp.dat), , drop = F]
   values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
@@ -5012,7 +5021,8 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
   y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
 
   if (!pre.filtered)
-    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+##    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+    tmp.dat.r <- tmp.dat[tmp.dat %in% this.windows]
   else
     tmp.dat.r = tmp.dat
 
@@ -5032,7 +5042,7 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
   {
     formatting(.Object)$y0[j] =  pmax(y0.global, r[1] - diff(r)*0.05)
 
-    if (diff(r) == 0 & !is.na(formatting(.Object)$y1[j]))
+    if (diff(r) == 0 & !is.na(formatting(.Object)$y1)[j])
       formatting(.Object)$y0[j] =
         r[1] - diff(c(r[1], formatting(.Object)$y1[j]))*0.05
 
