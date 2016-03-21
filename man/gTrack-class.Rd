@@ -22,7 +22,8 @@ gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
   xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
   xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
   sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
-  m.bg.col = "white", cmap.min = NA, cmap.max = NA, formatting = NA)
+  m.bg.col = "white", cmap.min = NA, cmap.max = NA, bg.col = "white",
+  formatting = NA)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
