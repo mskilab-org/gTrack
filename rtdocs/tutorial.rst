@@ -121,5 +121,5 @@ Tutorial
 
 .. figure:: figures/tcgabrcacnvDELS.png
    :alt:
-   :scale: 50%
+   :scale: 60%
    
