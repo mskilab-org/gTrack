@@ -89,7 +89,7 @@ Tutorial
    # convert data.table into GRanges object
    dtgr = GRanges(dt)
 
-   # wrap a gTrack object around it and plot 
+   # wrap gTrack object around it and plot 
    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
    plot(dtgt , window = dtgr[1:5])
    
