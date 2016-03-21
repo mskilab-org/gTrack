@@ -4,8 +4,8 @@
 \alias{plot.blank}
 \title{plot.blank}
 \usage{
-plot.blank(xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "",
-  axes = F, ...)
+\method{plot}{blank}(xlim = c(0, 1), ylim = c(0, 1), xlab = "",
+  ylab = "", axes = F, ...)
 }
 \description{
 Make a blank plot

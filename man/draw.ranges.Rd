@@ -6,7 +6,7 @@
 \usage{
 draw.ranges(x, y = NULL, lwd = 0.5, col = "black", border = col,
   label = NULL, draw.backbone = F, group = NULL, col.backbone = col[1],
-  cex.label = 1, srt.label = 45, adj.label = c(0.5, 0), angle = 0,
+  cex.label = 1, srt.label = 45, adj.label = c(0.5, 0), angle,
   circles = FALSE, bars = FALSE, points = NA, lines = FALSE,
   y0.bar = NULL, strand.dir = T, xlim = NULL, ylim = NULL,
   clip = NULL, lwd.border = 1, lwd.backbone = 1, verbose = FALSE, ...)
