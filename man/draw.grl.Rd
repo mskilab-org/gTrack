@@ -24,7 +24,7 @@ draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   path.cex.h = 1, draw.backbone = NULL, xlim = c(0, 20000), points = NA,
   circles = F, bars = F, y0.bar = NULL, lines = F, angle,
   verbose = FALSE, triangle = FALSE, ylim.parent = NULL,
-  legend.params = list(plot = TRUE), ...)
+  legend.params = list(plot = TRUE), bg.col = "white", ...)
 }
 \description{
 wrapper function around draw.ranges to draw GRangesList across a set of genomic windows
