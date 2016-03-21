@@ -96,3 +96,30 @@ Tutorial
 .. figure:: figures/tcgabrcacnvpatients.png
    :alt:
    :scale: 40% 
+
+.. code-block:: bash
+
+   # show amplifications only (use gUtils operators!)
+   dtgr = dtgr %Q% (Segment_Mean > 0)
+   dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+   plot(dtgt , window = dtgr[1:5]
+
+.. figure:: figures/tcgabrcacnvAMPS.png
+   :alt:
+   :scale: 40%
+
+.. code-block:: bash
+   
+   # show deletions only (again, use gUtils operators!)
+    
+   # recreate the original GRanges object 
+   dtgr = GRanges(dt)
+   # subset properly 
+   dtgr = dtgr %Q% (Segment_Mean < 0)
+   dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+   plot(dtgt , window = dtgr[1:5]
+
+.. figure:: figures/tcgabrcacnvDELS.png
+   :alt:
+   :scale: 60%
+   
