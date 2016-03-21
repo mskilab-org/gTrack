@@ -4,23 +4,25 @@
 \name{gTrack-class}
 \alias{gTrack}
 \alias{gTrack-class}
-\title{constructor for gTrack}
+\title{Construct a new \code{gTrack}}
 \usage{
 gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
-  vars = NULL, colormaps = NULL, height = 10, ygap = 2,
-  stack.gap = 20, col = NA, border = col, angle = 15, name = NULL,
+  vars = NULL, colormaps = NULL, height = 10, ygap = 2, stack.gap = 0,
+  col = alpha("black", 0.5), border = "black", angle = 15, name = "",
   lift = FALSE, split = FALSE, gr.colorfield = NA, y.quantile = 0.01,
   y.cap = T, lwd.border = 1, hadj.label = 1, vadj.label = 0.5,
-  smooth = NA, round = NA, ywid = NA, ypad = 0, seqinfo = NULL,
-  circles = NA, lines = NA, bars = NA, triangle = !is.null(mdata),
-  max.ranges = 50000, source.file.chrsub = T, y0.bar = NA,
-  yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
-  format = "ranges", chr.sub = TRUE, edgevars = NULL,
-  gr.labelfield = NULL, grl.labelfield = NULL, xaxis.prefix = "",
-  xaxis.unit = 1, xaxis.suffix = "", xaxis.round = 3,
-  xaxis.cex.label = 1, xaxis.newline = FALSE, xaxis.chronly = FALSE,
-  xaxis.width = TRUE, xaxis.interval = "auto", xaxis.label.angle = 0,
-  xaxis.ticklen = 1, xaxis.cex.tick = 1, ...)
+  smooth = NA, round = NA, ywid = NA, ypad = 0, seqinfo = NA,
+  circles = FALSE, lines = FALSE, bars = FALSE,
+  triangle = !is.null(mdata), max.ranges = 50000, source.file.chrsub = T,
+  y0.bar = NA, yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
+  chr.sub = TRUE, edgevars = NA, gr.labelfield = NA,
+  grl.labelfield = NA, xaxis.prefix = "", xaxis.unit = 1,
+  xaxis.suffix = "", xaxis.round = 3, xaxis.cex.label = 1,
+  xaxis.newline = FALSE, xaxis.chronly = FALSE, xaxis.width = TRUE,
+  xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
+  xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
+  sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
+  m.bg.col = "white", cmap.min = NA, cmap.max = NA, formatting = NA)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
@@ -105,6 +107,18 @@ items (only relevant if used within chainedTracks object)}
 
 \item{xaxis.cex.tick}{Scalar numeric specifying expansion factor for axis tick labels  (formatting)}
 
+\item{sep.lty}{Scalar integer specifying line style for window separators [2] (dashed line)}
+
+\item{sep.lwd}{Scalar numeric specifying line thickness for window separators [1]}
+
+\item{sep.bg.col}{Color (supplied by name or hex code) for the background of the windows [gray95]}
+
+\item{sep.draw}{Logical allowing separators to be turned off [FALSE]}
+
+\item{cmap.min}{minimum saturating data value of color map for triangle plot}
+
+\item{cmap.max}{maximum saturating data value of color map for triangle plot}
+
 \item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
 
 \item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
@@ -154,18 +168,6 @@ in which draw.paths = T)  (formatting)}
 \item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
 
 \item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
-
-\item{sep.lty}{Scalar integer specifying line style for window separators [2] (dashed line)}
-
-\item{sep.lwd}{Scalar numeric specifying line thickness for window separators [1]}
-
-\item{sep.bg.col}{Color (supplied by name or hex code) for the background of the windows [gray95]}
-
-\item{sep.draw}{Logical allowing separators to be turned off [FALSE]}
-
-\item{cmap.min}{minimum saturating data value of color map for triangle plot}
-
-\item{cmap.max}{maximum saturating data value of color map for triangle plot}
 }
 \description{
 S4 class for \code{gTrack}

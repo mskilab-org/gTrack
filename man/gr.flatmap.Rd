@@ -5,7 +5,7 @@
 \title{gr.flatmap}
 \usage{
 gr.flatmap(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FALSE,
-  xlim = c(0, 1), pintersect = FALSE)
+  xlim = c(0, 1))
 }
 \arguments{
 \item{gr}{\code{GRanges} pile to flatten}
@@ -19,8 +19,6 @@ gr.flatmap(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FALSE,
 \item{squeeze}{TODO}
 
 \item{xlim}{TODO}
-
-\item{pintersect}{TODO}
 }
 \value{
 TODO
