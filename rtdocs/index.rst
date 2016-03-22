@@ -12,7 +12,8 @@ Contents:
    :maxdepth: 2
 
    tutorial.rst	      
-
+   vignetteusingBAMS.rst	      
+   
 Indices and tables
 ==================
 
