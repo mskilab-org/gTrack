@@ -72,7 +72,7 @@ Tutorial
 .. code-block:: bash 
    
    # study of the CNVs in breast cancer 
-   fn = list.files(Level_3/)
+   fn = list.files("Level_3/")
    
    # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
    dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
