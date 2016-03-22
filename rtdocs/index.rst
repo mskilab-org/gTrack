@@ -13,7 +13,8 @@ Contents:
 
    tutorial.rst	      
    vignetteusingBAMS.rst	      
-   
+   vignetteSmallData.rst
+	      
 Indices and tables
 ==================
 
