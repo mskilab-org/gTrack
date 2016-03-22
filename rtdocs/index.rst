@@ -3,29 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+Welcome to gTrack's documentation!
 ====================================
- Welcome to gTrack's documentation!
-====================================
-
-An example of Python documentation.::
-
-    print 'hello'
-    >> hello
-
-=======
- Guide
-=======
 
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 	      
    :tutorial.rst 
 
-
-
-====================
  Indices and tables
 ====================
 
