@@ -11,10 +11,10 @@ mdat <- matrix(sample(10, 4, replace=TRUE), ncol=2, nrow=2)
 mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 
 test_that("gTrack receives input vals into format", {
-  g <- gTrack(gr, height=7, xaxis.chronly = TRUE)
-  #png("rtdocs/figures/basic_background_col.png", height=HI, width=WI);
+  g <- gTrack(gr, height=7, xaxis.chronly = TRUE, y.field="A", bars=TRUE, xaxis.suffix = "bp")
+  png("rtdocs/figures/basic_background_col.png", height=HI, width=WI);
   plot(g,windows=reduce(g))
-  #dev.off()
+  dev.off()
 
   g <- gTrack(gr, xaxis.chronly = TRUE, mdata=mdat)
   #g2 <- gTrack(gr, height=7, xaxis.chronly = TRUE)
