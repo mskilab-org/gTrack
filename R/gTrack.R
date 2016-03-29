@@ -26,7 +26,7 @@
 #' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
-setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
+#setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
 setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
 {
@@ -459,14 +459,14 @@ setValidity('gTrack', function(object)
           if (grepl('(\\.bw$)|(\\.bigwig$)', x, ignore.case = T))
           {
             f = BigWigFile(normalizePath(x))
-            slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             if (is.null(slen))
               problems = c(problems, sprintf('External file %s is not a valid and existing .bw / .bigwig file', x))
           }
           else if (grepl('\\.wig', x, ignore.case = T))
           {
             f = WIGFile(normalizePath(x))
-            slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             if (is.null(slen))
               problems = c(problems, sprintf('External file %s is not a valid and existing .wig file', x))
 
@@ -474,21 +474,21 @@ setValidity('gTrack', function(object)
           else if (grepl('\\.bed', x, ignore.case = T))
           {
             f = BEDFile(normalizePath(x))
-            #                        slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            #                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             #                        if (is.null(slen))
             #                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
           }
           else if (grepl('\\.gff', x, ignore.case = T))
           {
             f = GFFFile(normalizePath(x))
-            slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             if (is.null(slen))
               problems = c(problems, sprintf('External file %s is not a valid and existing .gff file', x))
           }
           else if (grepl('\\.2bit', x, ignore.case = T))
           {
             f = TwoBitFile(normalizePath(x))
-            slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             if (is.null(slen))
               problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
 
@@ -496,7 +496,7 @@ setValidity('gTrack', function(object)
           else if (grepl('\\.bedgraph', x, ignore.case = T))
           {
             f = BEDGraphFile(normalizePath(x))
-            #                       slen = tryCatch(seqlengths(f), error = function(x) NULL)
+            #                       slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
             #                       if (is.null(slen))
             #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
           }
@@ -599,8 +599,8 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
   {
     if (is.null(x@mdata[[y]]))
       return(NULL)
-    i = x@data[[y]] %over% igr #gUtils::gr.in(x@data[[y]], igr)
-    j = x@data[[y]] %over% jgr ##gUtils::gr.in(x@data[[y]], jgr)
+    i = gUtils::gr.in(x@data[[y]], igr)
+    j = gUtils::gr.in(x@data[[y]], jgr)
     rown = dedup(gr.string(x@data[[y]][i]))
     coln = dedup(gr.string(x@data[[y]][j]))
     tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
@@ -694,7 +694,7 @@ setMethod('length', 'gTrack', function(x)
 setMethod('reduce', 'gTrack', function(x, ... )
 {
   if (length(x)==0)
-    return(GRanges(seqlengths = seqlengths(x)))
+    return(GRanges(seqlengths = GenomeInfoDb::seqlengths(x)))
 
   .dat2gr = function(y)
   {
@@ -1194,6 +1194,7 @@ setMethod('plot', c("gTrack","ANY"),
   if (!missing(y))
     windows = y
 
+
   ## make sure we have min legend data
   if (!"xpos" %in% names(legend.params))
     legend.params$xpos = 0
@@ -1612,7 +1613,7 @@ setMethod('plot', c("gTrack","ANY"),
 
 
     ## some l1 and l2 will be unpaired
-    l.unpaired = GRanges(seqlengths = seqlengths(links));
+    l.unpaired = GRanges(seqlengths = GenomeInfoDb::seqlengths(links));
     p1 = p2 = c();
     if (nrow(pairs)>0)
     {
@@ -1763,8 +1764,8 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
       tmp.tel = aggregate(formula = end ~ seqnames, data = as.data.frame(ucsc.bands), FUN = max)
       tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
-                            seqlengths = seqlengths(seqinfo(ucsc.bands))),
-                    GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = seqlengths(seqinfo(ucsc.bands))))
+                            seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
+                    GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))))
       values(telomeres)$lwd.border = 1;
       values(telomeres)$border = 'black';
       centromeres = reduce(ucsc.bands[values(ucsc.bands)$stain=='acen'])
@@ -2602,7 +2603,8 @@ draw.grl = function(grl,
       if (!is.null(windows)) ## hack to get over stupid GRanges speed issues when we have a giant GRanges input (eg coverage)
       {
         strand(windows) <- rep("*", length(windows)) ## don't need strand on windows, mess up intersections
-        ix <- grl %over% windows ##gUtils::gr.in(grl, windows, pintersect=pintersect)
+
+        ix <- gUtils::gr.in(grl, windows)
         grl = grl[ix]
 
         if (!is.null(col))
@@ -2813,7 +2815,7 @@ draw.grl = function(grl,
           tmp.l = lapply(names(tmp.ix), function(i) IRanges::disjoin(c(ir[as.numeric(i)], var.ir[tmp.ix[[i]]])))
           tmp.ogix = rep(as.numeric(names(tmp.ix)), sapply(tmp.l, length))
           tmp.ir = do.call(c, tmp.l)
-          tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = seqlengths(gr), og.ix = tmp.ogix)
+          tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = GenomeInfoDb::seqlengths(gr), og.ix = tmp.ogix)
           tmp.ov = gr.findoverlaps(tmp.gr, var.gr)
           tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]
           new.gr = tmp.gr[!(1:length(tmp.gr) %in% tmp.ov$query.id), ] ## only keep the non variant pieces
@@ -2870,7 +2872,7 @@ draw.grl = function(grl,
         print(Sys.time() - now)
       }
       ## add 1 bp to end for visualization .. ranges avoids weird width < 0 error
-      IRanges::ranges(gr) = IRanges::IRanges(start(gr), pmax(end(gr), pmin(end(gr)+1, seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T)) ## jeremiah commented
+      IRanges::ranges(gr) = IRanges::IRanges(start(gr), pmax(end(gr), pmin(end(gr)+1, GenomeInfoDb::seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T)) ## jeremiah commented
       #        end(gr) = pmax(end(gr), pmin(end(gr)+1, seqlengths(gr)[as.character(seqnames(gr))], na.rm = T), na.rm = T)
 
       suppressWarnings(end(windows) <- end(windows) + 1) ## shift one needed bc gr.flatmap has continuous convention, we have categorical (e.g. 2 bases is width 2, not 1)
@@ -3009,8 +3011,8 @@ draw.grl = function(grl,
 
               ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
               ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-              ##clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
-              clash = which(ir1 %over% (ir2 + path.stack.x.gap))
+              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+              ##clash = which(ir1 %over% (ir2 + path.stack.x.gap))
               pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
               contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
             }
@@ -4816,16 +4818,16 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
         vals = values(tmp.dat)
         nm = names(tmp.dat)
         tmp2 = grl.unlist(tmp.dat)
-        ##tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
-        tmp2 = tmp2[tmp2 %over% this.windows]
+        tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
+        ##tmp2 = tmp2[tmp2 %over% this.windows]
         tmp.dat = GenomicRanges::split(tmp2, tmp2$grl.ix)
         values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
         names(tmp.dat) = nm[as.numeric(names(tmp.dat))]
       }
     else if (length(tmp.dat)>formatting(.Object)$max.ranges[j])
     {
-      ##tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
-      tmp.dat = tmp.dat[tmp.dat %over% this.windows]
+      tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+      ##tmp.dat = tmp.dat[tmp.dat %over% this.windows]
       pre.filtered = TRUE
     }
   }
@@ -4849,8 +4851,8 @@ smooth_yfield <- function(.Object, j, tmp.dat) {
     tmp = round(tmp, formatting(.Object)$round[j])
 
   tmp = as(tmp, 'GRanges')
-  ##  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
-  tmp = tmp[tmp %over% tmp.dat]
+  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+  ##tmp = tmp[tmp %over% tmp.dat]
   tmp.val = tmp$score
   values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
   values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
@@ -4869,8 +4871,8 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
   y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
 
   if (!pre.filtered)
-    ##    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
-    tmp.dat.r <- tmp.dat[tmp.dat %over% this.windows]
+    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+    ##tmp.dat.r <- tmp.dat[tmp.dat %over% this.windows]
   else
     tmp.dat.r = tmp.dat
 
@@ -5450,25 +5452,25 @@ get_seqinfo <- function(.Object, seqinfo) {
       {
         if (is.null(slen))
         {
-          slen = seqlengths(x)
+          slen = GenomeInfoDb::seqlengths(x)
 
           if (any(is.na(slen)))
           {
             if (is(x, 'GRanges'))
-              slen = seqlengths(gr.fix(x))
+              slen = GenomeInfoDb::seqlengths(gr.fix(x))
             else if (is(x, 'GRangesList'))
-              slen = seqlengths(gr.fix(unlist(x)))
+              slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
           }
         }
         else
-          slen[seqlevels(x)] = pmax(slen[seqlevels(x)], seqlengths(x), na.rm = TRUE)
+          slen[GenomeInfoDb::seqlevels(x)] = pmax(slen[GenomeInfoDb::seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
       }
       else if (is(x, 'ffTrack'))
       {
         if (is.null(slen))
-          slen = seqlengths(x)
+          slen = GenomeInfoDb::seqlengths(x)
         else
-          slen[seqlevels(x)] = pmax(slen[seqlevels(x)], seqlengths(x), na.rm = TRUE)
+          slen[seqlevels(x)] = pmax(slen[seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
         formatting(.Object)[i, 'yaxis'] = TRUE
       }
       else if (inherits(x, 'RleList'))
@@ -5485,7 +5487,7 @@ get_seqinfo <- function(.Object, seqinfo) {
         if (grepl('(\\.bw)|(\\.bigwig)', x, ignore.case = TRUE))
         {
           f = rtracklayer::BigWigFile(normalizePath(x))
-          slen = tryCatch(seqlengths(f), error = function(x) NULL)
+          slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
           formatting(.Object)[i, 'yaxis'] = TRUE
           if (is.null(slen))
             stop('External file must be a valid and existing .bigwig file')
@@ -5493,7 +5495,7 @@ get_seqinfo <- function(.Object, seqinfo) {
         else if (grepl('\\.wig', x, ignore.case = TRUE))
         {
           f = rtracklayer::WIGFile(normalizePath(x))
-          slen = tryCatch(seqlengths(f), error = function(x) NULL)
+          slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
           formatting(.Object)[i, 'yaxis'] = TRUE
           if (is.null(slen))
             stop('External file must be a valid and existing .wig file')
@@ -5512,7 +5514,7 @@ get_seqinfo <- function(.Object, seqinfo) {
               .Object@data[[i]] = tmp.out
           }
 
-          slen = seqlengths(tmp.out)
+          slen = GenomeInfoDb::seqlengths(tmp.out)
           #                            slen = tryCatch(seqlengths(f), error = function(x) NULL)
           #                            if (is.null(slen))
           #                              stop('External file must be a valid and existing .bed file')
@@ -5520,13 +5522,13 @@ get_seqinfo <- function(.Object, seqinfo) {
         else if (grepl('\\.gff', x, ignore.case = TRUE))
         {
           f = rtracklayer::GFFFile(normalizePath(x))
-          slen = tryCatch(seqlengths(f), error = function(x) NULL)
+          slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
           if (is.null(slen))
             stop('External file must be a valid and existing .gff file')
         }
         else if (grepl('\\.2bit', x, ignore.case = TRUE)) {
           f = rtracklayer::TwoBitFile(normalizePath(x))
-          slen = tryCatch(seqlengths(f), error = function(x) NULL)
+          slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
           if (is.null(slen))
             stop('External file must be a valid and existing .2bit file')
         }
@@ -5544,7 +5546,7 @@ get_seqinfo <- function(.Object, seqinfo) {
               .Object@data[[i]] = tmp.out
           }
 
-          slen = seqlengths(tmp.out)
+          slen = GenomeInfoDb::seqlengths(tmp.out)
         }
         else if (grepl('\\.rds', x, ignore.case = TRUE)) ## assume this is GRanges or GRangesList
         {
@@ -5562,7 +5564,7 @@ get_seqinfo <- function(.Object, seqinfo) {
               .Object@data[[i]] = tmp.out
           }
 
-          slen = seqlengths(tmp.out)
+          slen = GenomeInfoDb::seqlengths(tmp.out)
         }
       }
       else
