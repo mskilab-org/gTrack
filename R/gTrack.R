@@ -1996,7 +1996,7 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 #' @export
 #' @author Marcin Imielinski
 track.gencode = function(gencode = NULL,
-  gene.collapse = T,
+  gene.collapse = TRUE,
   genes = NULL,
   grep = NULL,
   grepe = NULL, ## which to exclude
@@ -2017,7 +2017,6 @@ track.gencode = function(gencode = NULL,
   stack.gap = 1e6,
   ...)
   {
-
     if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
         {
             cat('recreating composite gencode object\n')
@@ -2110,7 +2109,10 @@ track.gencode = function(gencode = NULL,
     cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
 
     return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
-                     gr.srt.label = gr.srt.label, cex.label = cex.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...)))
+                     #gr.srt.label = gr.srt.label, cex.label = cex.label,
+                     #gr.cex.label = gr.cex.label,
+                     #labels.suppress.gr = labels.suppress.gr,
+                     stack.gap = stack.gap, colormaps = cmap, ...)))
   }
 
 
