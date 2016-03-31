@@ -22,8 +22,9 @@ gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
   xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
   xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
   sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
-  m.bg.col = "white", cmap.min = NA, cmap.max = NA, bg.col = "white",
-  formatting = NA)
+  m.bg.col = "white", cmap.min = NA, cmap.max = NA, labels.suppress = F,
+  labels.suppress.grl = labels.suppress,
+  labels.suppress.gr = labels.suppress, bg.col = "white", formatting = NA)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
@@ -120,6 +121,10 @@ items (only relevant if used within chainedTracks object)}
 
 \item{cmap.max}{maximum saturating data value of color map for triangle plot}
 
+\item{labels.suppress}{whether to suppress labels (both GRangesList and GRanges)}
+
+\item{labels.suppress.gr}{whether to suppress GRanges labels}
+
 \item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
 
 \item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
@@ -169,6 +174,10 @@ in which draw.paths = T)  (formatting)}
 \item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
 
 \item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
+
+\item{labels.suppress.gr}{whether to suppress GRangesList labels}
+
+\item{...}{additional formatting arguments to gTrack}
 }
 \description{
 S4 class for \code{gTrack}

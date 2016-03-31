@@ -28,9 +28,10 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
+
 setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
-{
-  .Object@data <- listify(data, GRanges)
+    {
+        .Object@data <- listify(data, GRanges)
   # if (is.null(data))
   #   .Object@data = list(GRanges())
   # else if (!is.list(data))
@@ -61,13 +62,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
     .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
   }
 
-  .Object@edges <- listify(edges, data.frame, length(.Object@data))
-  # if (is.null(edges))
-  #   .Object@edges = rep(list(data.frame()), length(.Object@data))
-  # else if (!is.list(edges) | inherits(edges, 'data.frame'))
-  #   .Object@edges = list(edges)
-  # else
-  #   .Object@edges = edges
+#  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+  if (is.null(edges))
+    .Object@edges = rep(list(data.frame()), length(.Object@data))
+  else if (!is.list(edges) | inherits(edges, 'data.frame'))
+    .Object@edges = list(edges)
+  else
+      .Object@edges = edges
 
   .Object@vars <- listify(vars, list, length(.Object@data))
   # if (is.null(vars))
@@ -84,7 +85,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
 
   if (any(edges.df))
-    .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
+      .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
     {
       if (nrow(x)>0)
       {
@@ -92,12 +93,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
           stop('edges data frame missing $to and $from columns')
 
         if (data.table::is.data.table(x))
-          x = as.data.frame(x)
+            x = as.data.frame(x)
+        x
       }
       else
         data.frame()
-    })
-
+  })
+ 
   if (any(edges.mat))
     .Object@edges[edges.mat] = lapply(which(edges.mat), function(x)
     {
@@ -107,7 +109,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
       tmp.edges = which(y>0, arr.ind = TRUE)
       return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
     })
-
+  
   .Object@colormap <- listify(colormaps, list)
   # if (is.null(colormaps))
   #   .Object@colormap = list(list())
@@ -207,24 +209,25 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
       new_object = c(new_object, o)
     }
     .Object = new_object
-  } else if (!is.na(y.field[1])) {
+  } else if (!all(is.na(y.field))) {
     formatting(.Object)$y.field <- y.field
     formatting(.Object)$yaxis <- yaxis
   }
   else {
     formatting(.Object)$y.field <- NA
     formatting(.Object)$yaxis <- TRUE
-  }
-
+}
   ##
   if (any(!is.na(y.field))) {
-    ix <- nchar(formatting(.Object)$name) == 0
-    formatting(.Object)$name[ix] <- y.field[ix]
+      ix <- nchar(formatting(.Object)$name) == 0
+      formatting(.Object)$name[ix] <- y.field[ix]
   }
-
-  validObject(.Object)
-  return(.Object)
+  
+  return(.Object)  
 })
+
+
+
 
 #' Construct a new \code{gTrack}
 #'
@@ -248,12 +251,14 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param label.suppress.grl vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)
 #' @param ygap vector or scalar numeric specifying gap between tracks
 #' @param stack.gap vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)
+#' @param cex.label size of top level label (e.g. GRAngesList item)
+#' @param cex.label.gr size of bottom level label (i.e. GRanges in a GrangesListitem, e.g. exons in a gene)
+#' @param gr.srt.label rotation of GRanges label
 #' @param ywid vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)
 #' @param col vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object
 #' @param border vector or scalar character specifying static border for polygons in track(s), if NA then $border is determine duing gr.colorfield / colormap or meta field $border of GRanges / GRangesList
 #' @param max.ranges vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)
 #' @param angle vector of scalar numeric specifying angle of polygons that represent signed range'
-#' @param lift vector or scalar logical flag specifying whether to lift this track to other chainedTrack
 #' items (only relevant if used within chainedTracks object)
 #' @param split vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)
 #' @param colormaps length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.
@@ -307,6 +312,10 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param sep.draw Logical allowing separators to be turned off [FALSE]
 #' @param cmap.min minimum saturating data value of color map for triangle plot
 #' @param cmap.max maximum saturating data value of color map for triangle plot
+#' @param labels.suppress whether to suppress labels (both GRangesList and GRanges)
+#' @param labels.suppress.gr whether to suppress GRanges labels
+#' @param labels.suppress.gr whether to suppress GRangesList labels
+#' @param ... additional formatting arguments to gTrack
 #'
 #' @name gTrack
 #' @rdname gTrack-class
@@ -321,12 +330,13 @@ gTrack = function(data = NULL, ##
                   height = 10,
                   ygap = 2,
                   stack.gap = 0,
+                  cex.label = 1,
+                  gr.cex.label = cex.label *0.8,
+                  gr.srt.label = 0,
                   col = alpha('black', 0.5),
                   border = 'black', #'gray30',
                   angle = 15,
                   name = "",
-                  lift = FALSE, ## whether to lift this track to other chainedTrack items
-                  split = FALSE, ## whether to split when lifting
                   gr.colorfield = NA,
                   y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                   y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
@@ -357,7 +367,7 @@ gTrack = function(data = NULL, ##
                   xaxis.suffix = "",
                   xaxis.round = 3,
                   xaxis.cex.label = 1,
-                  xaxis.newline = FALSE,
+                  xaxis.newline = TRUE,
                   xaxis.chronly = FALSE,
                   xaxis.width= TRUE,
                   xaxis.interval = 'auto',
@@ -374,12 +384,17 @@ gTrack = function(data = NULL, ##
                   m.bg.col = 'white',
                   cmap.min = NA,
                   cmap.max = NA,
+                    labels.suppress = F,
+                    labels.suppress.grl = labels.suppress,
+                    labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
-                  formatting = NA) {
-  new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
+    formatting = NA) {
+    ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
+    new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
       edges = edges, vars = vars, colormaps = colormaps, height = height, ygap = ygap,
       stack.gap = stack.gap, col = col, border = border, angle = angle,
-      lift = lift, split = split, gr.colorfield = gr.colorfield, y.quantile = y.quantile,
+      gr.colorfield = gr.colorfield, y.quantile = y.quantile,
+      cex.label = cex.label, gr.cex.label.gr = gr.cex.label, gr.srt.label = gr.srt.label,
       y.cap = y.cap, lwd.border = lwd.border, hadj.label = hadj.label, vadj.label = vadj.label, smooth = smooth,
       round = round, ywid = ywid, ypad = ypad, seqinfo = seqinfo, circles = circles, lines = lines,
       bars = bars, triangle = triangle, max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
@@ -420,6 +435,7 @@ setValidity('gTrack', function(object)
     else
       if (nrow(object@formatting) != 0)
         problems = c(problems, 'Null trackdata object has incompatible fields');
+
 
       if (!all(sapply(object@edges, is.data.frame)))
         problems = c(problems, 'Some trackdata edges attributes are not data.frames')
@@ -805,14 +821,14 @@ setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
                 yaxis = do.call('c', lapply(args, function(y) formatting(y)$yaxis)))
   #out@mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata))
 
-  #formatting(out) <- do.call('rrbind', lapply(args, formatting))
+##  formatting(out) <- do.call('rrbind', lapply(args, formatting))
 
   if ('is.null' %in% names(formatting(out)))
   {
     is.n = out$is.null
     is.n[is.na(is.n)] = F
     out = out[!is.n]
-  }
+}
   return(out)
 })
 
@@ -1039,7 +1055,7 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 #' @aliases formatting<-,gTrack-method
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
 {
-  REQUIRED.COLUMNS = c('height', 'col', 'lift', 'ygap', 'y.field');
+  REQUIRED.COLUMNS = c('height', 'col', 'ygap', 'y.field');
   if (nrow(value) != length(.Object))
     stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
 
@@ -1131,8 +1147,8 @@ setMethod('show', 'gTrack', function(object)
 }
 
 # @importFrom graphics plot
-#if (!isGeneric("plot"))
-#   setGeneric("plot", function(x, ...) standardGeneric("plot"))
+if (!isGeneric("plot"))
+   setGeneric("plot", function(x, ...) standardGeneric("plot"))
 
 #' @name plot
 #' @title plot
@@ -1172,20 +1188,20 @@ setMethod('show', 'gTrack', function(object)
 setMethod('plot', c("gTrack","ANY"),
           #signature(x = "gTrack", y = "ANY"),
           function(x,  ##pplot  (for easy search)
-                                                                y,
-                                                                windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
-                                                                links = NULL, ## GRangesList of pairs of signed locations,
-                                                                gap = NULL,  ## spacing betwen windows (in bp)
-                                                                y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
-                                                                y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
-                                                                cex.xlabel = 1,
-                                                                cex.ylabel = 1,
-                                                                max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
-                                                                links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
-                                                                verbose=FALSE,
-                                                                legend.params = list(),
-                                                                ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
-)
+                   y,
+                   windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+                   links = NULL, ## GRangesList of pairs of signed locations,
+                   gap = NULL,  ## spacing betwen windows (in bp)
+                   y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
+                   y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
+                   cex.xlabel = 1,
+                   cex.ylabel = 1,
+                   max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
+                   links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
+                   verbose=FALSE,
+                   legend.params = list(),
+                   ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
+                   )
 {
   if (!missing(y))
     windows = y
@@ -1193,7 +1209,6 @@ setMethod('plot', c("gTrack","ANY"),
   .Object = x
   if (!missing(y))
     windows = y
-
 
   ## make sure we have min legend data
   if (!"xpos" %in% names(legend.params))
@@ -1405,10 +1420,13 @@ setMethod('plot', c("gTrack","ANY"),
         else # otherwise use some arbitrary proportion around the value
           range.y = range.y + abs(range.y)*0.2*c(-1, 1)
       }
-
+      
       this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
 
-      if (!is.null(formatting(.Object)$y.cap)) ## cap values from top and bottom
+      if (is.null(formatting(.Object)$y.cap))
+          formatting(.Object)$y.cap = NA
+      
+      if (!is.na(formatting(.Object)$y.cap[j])) ## cap values from top and bottom
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
       else
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = TRUE)
@@ -1453,7 +1471,7 @@ setMethod('plot', c("gTrack","ANY"),
                       y.grid.cex = formatting(.Object)$yaxis.cex[j],
                       edges = edgs(.Object)[[j]])
     all.args <- c(main.args, all.args[!names(all.args) %in% names(main.args)])
-
+    
     # main.args = c(main.args, all.args[setdiff(names(all.args), names(main.args))]);
     #
     # other.args = dotdot.args
@@ -1602,8 +1620,8 @@ setMethod('plot', c("gTrack","ANY"),
     if (length(l1)>0 & length(l2)>0)
     {
       pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]
-      l1.paired = as.data.frame(l1)[pairs[,1], ]
-      l2.paired = as.data.frame(l2)[pairs[,2], ]
+      l1.paired = GenomicRanges::as.data.frame(l1)[pairs[,1], ]
+      l2.paired = GenomicRanges::as.data.frame(l2)[pairs[,2], ]
     }
     else
     {
@@ -1761,7 +1779,7 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 
     if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
     {
-      tmp.tel = aggregate(formula = end ~ seqnames, data = as.data.frame(ucsc.bands), FUN = max)
+      tmp.tel = aggregate(formula = end ~ seqnames, data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
       tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
                             seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
@@ -2109,9 +2127,9 @@ track.gencode = function(gencode = NULL,
     cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
 
     return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
-                     #gr.srt.label = gr.srt.label, cex.label = cex.label,
-                     #gr.cex.label = gr.cex.label,
-                     #labels.suppress.gr = labels.suppress.gr,
+                     gr.srt.label = gr.srt.label, cex.label = cex.label,
+                     gr.cex.label = gr.cex.label,
+                     labels.suppress.gr = labels.suppress.gr,
                      stack.gap = stack.gap, colormaps = cmap, ...)))
   }
 
@@ -2407,6 +2425,12 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     if (is.na(lines))
       lines = F
 
+
+    bars = ifelse(is.na(bars), FALSE, bars)
+    circles = ifelse(is.na(bars), FALSE, circles)
+    lines = ifelse(is.na(bars), FALSE, lines)
+
+    
     if (!circles & !lines & !bars)
     {
       main.args = list(x0 = x$pos1 - PAD, y0 = x$y-x$lwd/2, x1 = x$pos2 + PAD, y1 = x$y + x$lwd/2, col = x$col, border = x$border , angle = angle*c('*'=0, '+'=1, '-'=-1)[x$direction], lwd = x$lwd.border)
@@ -3188,7 +3212,7 @@ draw.grl = function(grl,
 
           if (!xaxis.chronly) {
             text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
-                 paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
+                 paste(xaxis.prefix, ' ',  seqnames(windows), ':',newline,
                        begin.text,'-', newline,
                        end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
                  cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
