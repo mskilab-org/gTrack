@@ -11,9 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   tutorial.rst	      
    vignetteusingBAMS.rst	      
-   vignetteSmallData.rst
+   vignetteSmallDS.rst
 	      
 Indices and tables
 ==================
