@@ -4,22 +4,13 @@
 \alias{draw.triangle}
 \title{draw.triangle}
 \usage{
-draw.triangle(grl, mdata = NA, y = NULL, ylim = NULL,
-  ylim.parent = NULL, windows = NULL, win.gap = NULL, bg.col = "gray95",
-  bgborder = "red", sep.lty = 2, sep.lwd = 1, xaxis.nticks = 2,
-  xaxis.interval = NULL, xaxis.unit = 1, xaxis.suffix = "",
-  cex.tick = 1, xaxis.newline = TRUE, xaxis.width = TRUE,
-  xaxis.round = 3, xaxis.chronly = FALSE, xaxis.label.angle = 0,
-  xaxis.cex.label = 1, xaxis.prefix = "", xaxis.pos.label = NULL,
-  xaxis.pos = NULL, new.axis = TRUE, sigma = NA, new.plot = TRUE,
-  col.min = "white", col.max = "red", palette.colors = NULL,
-  cmap.min = NULL, cmap.max = NULL, msep.lwd = 1, legend.cex = 1,
-  islog = FALSE, ...)
+draw.triangle(grl, mdata, y, ylim.parent = NULL, windows = NULL,
+  win.gap = NULL, m.bg.col, sigma = NA, col.min = "white",
+  col.max = "red", gr.colormap = NA, cmap.min, cmap.max, m.sep.lwd,
+  leg.params, min.gapwidth = 1, islog = FALSE)
 }
 \description{
 internal draw.triangle function
-
-Shortcut for making blank plot with no axes
 }
 \author{
 Jeremiah Wala
