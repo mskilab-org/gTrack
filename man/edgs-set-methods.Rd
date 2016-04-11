@@ -18,7 +18,7 @@ edgs(.Object) <- value
 \description{
 Set edges data.frame associated with associated with gTrack object, the data.frame
 that is being used to replace must have fields $from, $to, and can have optional fields $lwd
-$lty, $col specifyign color and line type. 
+$lty, $col specifyign color and line type.
 
 usage:
 edgs(gt)[[1]] <- new.edges.

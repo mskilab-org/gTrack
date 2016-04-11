@@ -10,7 +10,7 @@ affine.map(x, ylim = c(0, 1), xlim = c(min(x), max(x)), cap = F,
 }
 \description{
 affinely maps 1D points in vector x from interval xlim to interval ylim,
-ie takes points that lie in 
+ie takes points that lie in
 interval xlim and mapping onto interval ylim using linear / affine map defined by:
 (x0,y0) = c(xlim(1), ylim(1)),
 (x1,y1) = c(xlim(2), ylim(2))
