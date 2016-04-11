@@ -4660,28 +4660,33 @@ gr.stripstrand = function(gr)
 }
 
 format_windows <- function(windows, .Object) {
-  #if (is(windows, 'character'))
-  #  windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+    if (is(windows, 'character'))
+        windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
-  if (is(windows, 'Seqinfo'))
-    windows = si2gr(windows)
+    if (is(windows, 'Seqinfo'))
+        windows = si2gr(windows)
 
-  if (is.list(windows))
-    windows = do.call('GRangesList', windows)
+#    if (is.list(windows))
+#        windows = do.call('GRangesList', windows)
 
-  if (!inherits(windows, 'GRangesList'))
-    windows = GenomicRanges::GRangesList(windows)
+    ## collapse and match metadata back to original
+    tmp = reduce(gr.stripstrand(windows))
+    ix = gr.match(tmp, windows)
+    values(tmp) = values(windows)[ix, ]    
+    
+##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
+##        windows = GenomicRanges::GRangesList(windows)
 
-  if (sum(as.numeric(width(grl.unlist(windows))))==0)
-  {
+    if (sum(as.numeric(width(grl.unlist(windows))))==0)
+        {
 
-    if (length(seqinfo(.Object))) {
-      windows = si2gr(seqinfo(.Object))
-    } else {
-      warning("no windows provided and no seqinfo. Drawing blank plot")
-      return(GRanges())
-    }
-  }
+            if (length(seqinfo(.Object))) {
+                windows = si2gr(seqinfo(.Object))
+            } else {
+                warning("no windows provided and no seqinfo. Drawing blank plot")
+                return(GRanges())
+            }
+        }
 
   return (grl.unlist(windows))
 }
