@@ -24,11 +24,6 @@ $arrow (arrow flag), $col.arrow (arrow color), $v (vertical spline bulge), $w (h
 \item{max.ranges}{scalar numeric > 0 specifying max number of ranges to draw in a window (via sampling).  If specified, overrides gTrack max.ranges formatting feature.}
 
 \item{..., }{additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')}
-<<<<<<< HEAD
-
-\item{cex.tick}{vector specifying relative heights of gaps below and above (stacked) windows, only relevant if windows is GRangesList}
-=======
->>>>>>> 2d9a677939a226b69fefcb4a54b59a2e79c1ad4b
 }
 \description{
 Plot gTrack object in multi-track genome browser view.  gTracks will appear as stacked interval
@@ -39,10 +34,10 @@ settings and additional data (eg mdata) provided.  gTracks can be drawn across s
 Additional argument "links" takes a GRangesList of signed interval pairs (ie each item is length 2)
 representing genomic junctions as input. The junctions will be pointing right for + intervals and
 left for - intervals.  The meta data of the links GRangesList ($lwd $col $lty) can be set
-to modulate the color, witwidth, and line style of the junction links . 
+to modulate the color, witwidth, and line style of the junction links .
 
 usage:
-display(gt, win) # where win is a GRanges object 
+display(gt, win) # where win is a GRanges object
 display(gt) # this will show the entire span of seqinfo(gt)
 display(gt, '3:1e6-2e6') ## can use UCSC style strings
 display(gt, GRanges(20, IRanges(20e6, 21e6)))

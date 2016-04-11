@@ -12,26 +12,6 @@ draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   grl.labelfield = NULL, leg.params, labels = NULL, labels.suppress = F,
   labels.suppress.grl = labels.suppress,
   labels.suppress.gr = labels.suppress, spc.label = 0.05, adj.label = c(0,
-<<<<<<< HEAD
-  1), cex.label = 1, cex.tick = 1, cex.ticklen = 1, gr.cex.label = 0.8 *
-  cex.label, gr.srt.label = 0, gr.adj.label = c(0, 0.5), new.plot = T,
-  new.axis = F, sep.draw = T, sep.lty = 2, sep.lwd = 1,
-  bg.col = "gray99", y.pad = 0.05, xaxis.prefix = "chr",
-  xaxis.suffix = "MB", xaxis.unit = 1e+06, xaxis.round = 3,
-  xaxis.interval = NULL, xaxis.pos = NULL, xaxis.nticks = 40,
-  xaxis.pos.label = NULL, xaxis.cex = 0.8, xaxis.cex.label = 1,
-  xaxis.newline = TRUE, xaxis.chronly = FALSE, xaxis.width = TRUE,
-  xaxis.label.angle = 0, ylim.grid = ylim, y.grid = NA,
-  y.grid.col = alpha("gray", 0.5), y.grid.pretty = 5, y.grid.cex = 1,
-  y.grid.lty = 2, y.grid.lwd = 1, path.col = "black",
-  path.col.arrow = "black", path.cex.arrow = 1, path.stack.y.gap = 1,
-  path.stack.x.gap = 0, path.cex.v = 1, path.cex.h = 1,
-  draw.backbone = NULL, return.windows = F, xlim = c(0, 20000),
-  points = NA, circles = F, bars = F, y0.bar = NULL, lines = F,
-  angle = 20, pintersect = FALSE, verbose = FALSE, triangle = FALSE,
-  ylim.parent = NULL, mdata = NULL, cmap.min = NULL, cmap.max = NULL,
-  m.sep.lwd = 1, m.bg.col = "gray80", smooth = NA, islog = FALSE, ...)
-=======
   1), cex.label = 1, gr.cex.label = 0.8 * cex.label, gr.srt.label = 0,
   gr.adj.label = c(0, 0.5), new.plot, new.axis, sep.draw, sep.lty, sep.lwd,
   sep.bg.col, y.pad, xaxis.prefix, xaxis.suffix, xaxis.unit, xaxis.round,
@@ -45,12 +25,11 @@ draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   circles = F, bars = F, y0.bar = NULL, lines = F, angle,
   verbose = FALSE, triangle = FALSE, ylim.parent = NULL,
   legend.params = list(plot = TRUE), bg.col = "white", ...)
->>>>>>> 2d9a677939a226b69fefcb4a54b59a2e79c1ad4b
 }
 \description{
-wrapper function around draw.ranges to draw GRangesList across a set of genomic windows 
+wrapper function around draw.ranges to draw GRangesList across a set of genomic windows
 By default, these windows correspond to the smallest set of "covered" regions (ie containing at least one
-grl in their span, but can also be specified as an argument. 
+grl in their span, but can also be specified as an argument.
 
 basically same idea as draw.granges, except can more compactly draw / stack paired / group reads or
 gene models / alignments and deal with "grouped" intervals
