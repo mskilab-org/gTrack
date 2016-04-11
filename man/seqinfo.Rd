@@ -7,6 +7,12 @@
 \usage{
 \S4method{seqinfo}{gTrack}(x)
 }
+\arguments{
+\item{x}{\code{gTrack} object}
+}
+\value{
+\code{seqinfo}
+}
 \description{
 returns Seqinfo of gTrack object gt
 Usage:

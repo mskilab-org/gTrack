@@ -5,7 +5,7 @@
 \title{plot.blank}
 \usage{
 plot.blank(xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "",
-  axes = F, ...)
+  axes = F, bg.col = "white", ...)
 }
 \description{
 Make a blank plot

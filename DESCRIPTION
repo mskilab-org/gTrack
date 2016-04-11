@@ -1,18 +1,41 @@
 Package: gTrack
 Title: Plotting multiple tracks of complex genomic data across multiple genomic
-    windows.
-Version: 0.0.0.9000
+    windows
+Version: 0.1.0
 Maintainer: Marcin Imielinski <mimielinski@nygenome.org>
+<<<<<<< HEAD
 Author: Marcin Imielinski <mimielinski@nygenome.org>, Jeremiah Wala
     <jwala@broadinstitute.org>>
 Authors@R: c(person(given = "Marcin", family = "Imielinski", role = c("aut", "cre")), person(given = "Jeremiah", family = "Wala", role = c("aut"), email = "jwala@broadinstitute.org"))
+=======
+Authors@R: c(person(given = "Jeremiah", family = "Wala", role = c("aut"), email = "jwala@broadinstitute.org"),
+    person(given = "Marcin",
+    family = "Imielinski", role = c("aut", "cre"), email =
+    "mimielinski@nygenome.org"))
+>>>>>>> 2d9a677939a226b69fefcb4a54b59a2e79c1ad4b
 Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
 Depends:
     R (>= 3.1.0),
-    GenomicRanges (>= 1.8),
+    GenomicRanges (>= 1.8)
+Imports:
+    IRanges (>= 2.0),
+    S4Vectors (>= 0.8),
+    GenomeInfoDb (>= 1.2),
     gUtils,
-    RColorBrewer
-License: GNU GPLv3
+    RColorBrewer,
+    data.table,
+    spatstat,
+    methods,
+    rtracklayer,
+    BiocGenerics
+License: GPL-2
 LazyData: true
+<<<<<<< HEAD
 RoxygenNote: 5.0.1
+=======
+BugReports: http://github.com/mskilab/gTrack/issues
+RoxygenNote: 5.0.1.9000
+Suggests:
+    testthat
+>>>>>>> 2d9a677939a226b69fefcb4a54b59a2e79c1ad4b

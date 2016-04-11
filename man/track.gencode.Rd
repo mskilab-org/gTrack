@@ -2,9 +2,9 @@
 % Please edit documentation in R/gTrack.R
 \name{track.gencode}
 \alias{track.gencode}
-\title{track.gencode}
+\title{Constructor a \code{gTrack} from GENCODE transcripts}
 \usage{
-track.gencode(gencode = NULL, gene.collapse = T, genes = NULL,
+track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
   grep = NULL, grepe = NULL, bg.col = alpha("blue", 0.1),
   cds.col = alpha("blue", 0.6), utr.col = alpha("purple", 0.4),
   st.col = "green", en.col = "red", grl.labelfield, gr.labelfield, col,
