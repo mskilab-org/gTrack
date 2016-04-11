@@ -1182,6 +1182,16 @@ setMethod('plot', signature(x = "gTrack", y = "ANY"),  function(x,
             if (!inherits(windows, 'GRangesList'))
               windows = GRangesList(windows)
 
+        ## reduce but keep original order
+        windows = do.call('GRangesList', lapply(windows, function(x)
+            {
+                new = reduce(gr.stripstrand(x))
+                ix = gr.match(new, x)
+                values(new)  = values(x)[ix,]
+                new = new[order(ix)]
+                return(new)
+            }))
+        
             if (sum(as.numeric(width(unlist(windows))))==0)
                 {
                     warning("Empty windows provided, drawing whole genome")
@@ -2624,8 +2634,10 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
             {
               if (is.null(y0.bar))
                 y0.bar = par('usr')[3]
-              
-              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$col, lwd = x$lwd.border/2)
+
+
+              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$border, lwd = x$lwd.border/2)
+#              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$col, lwd = x$lwd.border/2)
 #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
             }
 
@@ -3002,15 +3014,10 @@ draw.grl = function(grl,
         gr$group = grl.props$group[gr$grl.ix]
         gr$group.ord = gr$grl.iix
         gr$first = gr$grl.iix == 1
-<<<<<<< HEAD
 
         if (length(gr)>0)            
             gr$last = data.table(iix = as.numeric(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
-=======
-        
-        if (length(gr)>0)           
-            gr$last = data.table(iix = as.vector(gr$grl.iix), ix = gr$grl.ix)[, last := iix == max(iix), by = ix][, last]
->>>>>>> 04105e1e2c1a7d5a65df12c9a532c104c1262355
+
 #          gr$last = levapply(gr$grl.iix, gr$grl.ix, FUN = function(x) x == max(x))
 
         grl.props$group = as.character(grl.props$group)
