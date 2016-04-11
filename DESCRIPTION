@@ -3,7 +3,8 @@ Title: Plotting multiple tracks of complex genomic data across multiple genomic
     windows.
 Version: 0.0.0.9000
 Maintainer: Marcin Imielinski <mimielinski@nygenome.org>
-Author: Marcin Imielinski <mimielinski@nygenome.org>, Jeremiah Wala <jwala@broadinstitute.org>>
+Author: Marcin Imielinski <mimielinski@nygenome.org>, Jeremiah Wala
+    <jwala@broadinstitute.org>>
 Authors@R: c(person(given = "Marcin", family = "Imielinski", role = c("aut", "cre")), person(given = "Jeremiah", family = "Wala", role = c("aut"), email = "jwala@broadinstitute.org"))
 Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
@@ -14,3 +15,4 @@ Depends:
     RColorBrewer
 License: GNU GPLv3
 LazyData: true
+RoxygenNote: 5.0.1
