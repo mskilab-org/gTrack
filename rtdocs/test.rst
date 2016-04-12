@@ -1,8 +1,8 @@
 A reST document for knitr
 =========================
 
-This is a reStructuredText document. The input filename extension is ``Rrst``
-and the output filename will be ``rst``. Here is how we write R code in
+Khagay - testing testing this document with automatically generated images
+
 **knitr**:
 
 
