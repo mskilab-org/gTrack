@@ -1,11 +1,11 @@
 Vignette Using a Small Data Set
 ===============================
 
-Overlapping Segments
+**Overlapping Segments**
 
-gr.tile(gr , w)
+**gr.tile(gr , w)**
 
-tile ranges across GRanges
+**tile ranges across GRanges**
 
 .. {r overlapping segments by gr.tile }
 ## Given a GRanges object, separate the interval by "w".
@@ -21,8 +21,9 @@ tile ranges across GRanges
 ..plot(gTrack(gr))
 .. .. 
 
-Overlapping Tiles - gTrack(gr + n)
-indicate the degree of overlap
+**Overlapping Tiles - gTrack(gr + n)**
+
+**indicate the degree of overlap**
 
 .. {r rst-plot2 }
 ..plot(gTrack(gr+10))
