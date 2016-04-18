@@ -11,6 +11,18 @@ tile ranges across GRanges
 --------------------------
 
 
+.. sourcecode:: r
+    
+
+     1+1 
+
+
+::
+
+    ## [1] 2
+
+
+
 
 
 
