@@ -56,7 +56,7 @@ Vignette Using a Small Data Set
 
 **vector or scalar numeric specifiying gap between tracks (add a dimension to the data)**
 
-.. {r y.field-plot}
+.. {r yfield-plot}
 .plot(gTrack(gr , y.field = 'GC'))
 .. .. 
 
