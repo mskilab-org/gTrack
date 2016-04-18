@@ -7,7 +7,7 @@ gr.tile(gr , w)
 
 tile ranges across GRanges
 
-.. {r gr.tile}
+.. {r overlapping segments by gr.tile }
 ## Given a GRanges object, separate the interval by "w".
 ## In this example, the output will be 20 equal sized tiles
 
@@ -21,6 +21,12 @@ tile ranges across GRanges
 ..plot(gTrack(gr))
 .. .. 
 
+Overlapping Tiles - gTrack(gr + n)
+indicate the degree of overlap
+
+.. {r rst-plot2 }
+..plot(gTrack(gr+10))
+.. ..
 
 
 
