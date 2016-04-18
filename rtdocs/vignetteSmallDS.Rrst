@@ -2,13 +2,8 @@ Vignette Using a Small Data Set
 ===============================
 
 Overlapping Segments
-====================
-
 gr.tile(gr , w)
----------------
-
 tile ranges across GRanges
---------------------------
 
 .. {r gr.tile}
 ## Given a GRanges object, separate the interval by "w".
@@ -23,6 +18,7 @@ tile ranges across GRanges
 ## Plot how the tiles would like
 ..plot(gTrack(gr))
 .. .. 
+
 
 
 

@@ -2,13 +2,8 @@ Vignette Using a Small Data Set
 ===============================
 
 Overlapping Segments
-====================
-
 gr.tile(gr , w)
----------------
-
 tile ranges across GRanges
---------------------------
 
 
 .. sourcecode:: r
@@ -47,6 +42,7 @@ tile ranges across GRanges
     :alt: plot of chunk rst-plot
 
     plot of chunk rst-plot
+
 
 
 
