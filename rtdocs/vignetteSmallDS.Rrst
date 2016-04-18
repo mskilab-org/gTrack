@@ -60,3 +60,29 @@ Vignette Using a Small Data Set
 ..plot(gTrack(gr , y.field = 'GC'))
 .. .. 
 
+**gTrack(gr , bars = TRUE/FALSE)**
+
+.. {r plot-bars}
+..plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue'))
+.. ..
+
+**gTrack(gr , lines = TRUE/FALSE)**
+
+.. {r plot-lines}
+..plot(gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple'))
+.. ..
+
+**gTrack(gr , circles = TRUE/FALSE)**
+
+.. {r plot-circles}
+..plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
+.. ..
+
+**colorfield**
+
+**map values to colors! Legend is automatically added**
+
+.. {r plot-colorfield}
+..plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
+.. .. 
+
