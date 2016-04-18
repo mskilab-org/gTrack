@@ -14,8 +14,8 @@ tile ranges across GRanges
 .. sourcecode:: r
     
 
-       ## Given a GRanges object, separate the interval by "w".
-       ## In this example, the output will be 20 equal sized tiles
+    ## Given a GRanges object, separate the interval by "w".
+    ## In this example, the output will be 20 equal sized tiles
     
      print(GRanges(1 , IRanges(1,100)))
 
@@ -35,7 +35,7 @@ tile ranges across GRanges
 
      gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
     
-       ## Plot how the tiles would like
+    ## Plot how the tiles would like
      plot(gTrack(gr))
 
 .. figure:: figure/unnamed-chunk-1-1.png
