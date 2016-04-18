@@ -45,6 +45,19 @@ tile ranges across GRanges
 
     plot of chunk rst-plot
 
+Overlapping Tiles - gTrack(gr + n)
+indicate the degree of overlap
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr+10))
+
+.. figure:: figure/rst-plot2-1.png
+    :alt: plot of chunk rst-plot2
+
+    plot of chunk rst-plot2
 
 
 
