@@ -14,7 +14,7 @@ Tutorial
 
    # convert data.frame to GRanges object
    tcgagr <- GRanges(tcgaData)
-   
+  
    # wrap gTrack around TCGA GRanges object 
    tcgagt <- gTrack(tcgagr)
    

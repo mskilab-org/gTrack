@@ -1,5 +1,5 @@
 ---
-output: html_document
+output: pdf_document
 ---
 ## gTrack Tutorial On An Artifically Small Data Set 
 
@@ -15,9 +15,11 @@ output: html_document
 ``` {r}
   ## Given a GRanges object, separate the interval by "w". 
   ## In this example, the output will be 20 equal sized tiles
-
-  gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
     
+  print(GRanges(1 , IRanges(1,100)))
+  
+  gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
+     
   ## Plot how the tiles would like 
   plot(gTrack(gr))
 ``` 
@@ -25,8 +27,7 @@ output: html_document
 ### Overlapping Tiles - gTrack(gr + n)
 ##### indicate the degree of overlap
 ``` {r}
-  ## "1" in this example adds one more title to each interval 
-  plot(gTrack(gr+1))
+  plot(gTrack(gr+10))
 ``` 
 
 ### gTrack(gr , stack.gap = n) 
@@ -102,6 +103,5 @@ output: html_document
   
   chrom3 <- GRanges(seqnames=Rle(rep(3,5)) , ranges = IRanges(c(5883026,5888521,6651128,6655078,10251906) , end = c(5887648,6646543,6653332,10245198,10254797)))
   
-  chroms <- GRangesList("chrom1" = chrom1 , chrom2 = "chrom2" , chrom3 = "chrom3")
+  chroms <- GRangesList("chrom1" = chrom1 , "chrom2" = chrom2 , "chrom3" = chrom3)
 ```
-
