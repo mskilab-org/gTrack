@@ -55,10 +55,10 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr+10))
 
-.. figure:: figure/plot-overlapping tiles-1.png
-    :alt: plot of chunk plot-overlapping tiles
+.. figure:: figure/plot-overlappingtiles-1.png
+    :alt: plot of chunk plot-overlappingtiles
 
-    plot of chunk plot-overlapping tiles
+    plot of chunk plot-overlappingtiles
 
 **stack.gap**
 

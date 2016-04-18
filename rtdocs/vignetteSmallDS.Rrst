@@ -25,7 +25,7 @@ Vignette Using a Small Data Set
 
 **indicate the degree of overlap**
 
-.. {r plot-overlapping tiles }
+.. {r plot-overlappingtiles }
 ..plot(gTrack(gr+10))
 .. ..
 
