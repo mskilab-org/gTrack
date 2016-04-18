@@ -135,12 +135,10 @@ Vignette Using a Small Data Set
 .. sourcecode:: r
     
 
-    .plot(gTrack(gr , y.field = 'GC'))
+    plot(gTrack(gr , y.field = 'GC'))
 
+.. figure:: figure/y.field-plot-1.png
+    :alt: plot of chunk y.field-plot
 
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function ".plot"
-
-
+    plot of chunk y.field-plot
 
