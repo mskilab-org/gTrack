@@ -40,10 +40,10 @@ Vignette Using a Small Data Set
     ## Plot how the tiles would like
     plot(gTrack(gr))
 
-.. figure:: figure/rst-plot-1.png
-    :alt: plot of chunk rst-plot
+.. figure:: figure/plot-tiles-1.png
+    :alt: plot of chunk plot-tiles
 
-    plot of chunk rst-plot
+    plot of chunk plot-tiles
 
 **Overlapping Tiles - gTrack(gr + n)**
 
@@ -55,10 +55,10 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr+10))
 
-.. figure:: figure/rst-plot2-1.png
-    :alt: plot of chunk rst-plot2
+.. figure:: figure/plot-overlapping tiles-1.png
+    :alt: plot of chunk plot-overlapping tiles
 
-    plot of chunk rst-plot2
+    plot of chunk plot-overlapping tiles
 
 **stack.gap**
 
@@ -100,10 +100,10 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr))
 
-.. figure:: figure/rst-plot3-1.png
-    :alt: plot of chunk rst-plot3
+.. figure:: figure/plot-gr-1.png
+    :alt: plot of chunk plot-gr
 
-    plot of chunk rst-plot3
+    plot of chunk plot-gr
 
 
 .. sourcecode:: r
@@ -111,10 +111,10 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr , stack.gap = 2))
 
-.. figure:: figure/rst-plot4-1.png
-    :alt: plot of chunk rst-plot4
+.. figure:: figure/plot-stack.gap2-1.png
+    :alt: plot of chunk plot-stack.gap2
 
-    plot of chunk rst-plot4
+    plot of chunk plot-stack.gap2
 
 
 .. sourcecode:: r
@@ -122,10 +122,10 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr , stack.gap = 3))
 
-.. figure:: figure/rst-plot5-1.png
-    :alt: plot of chunk rst-plot5
+.. figure:: figure/plot-stack.gap3-1.png
+    :alt: plot of chunk plot-stack.gap3
 
-    plot of chunk rst-plot5
+    plot of chunk plot-stack.gap3
 
 **gTrack(gr , y.field = 'GC')**
 
@@ -137,8 +137,8 @@ Vignette Using a Small Data Set
 
     plot(gTrack(gr , y.field = 'GC'))
 
-.. figure:: figure/y.field-plot-1.png
-    :alt: plot of chunk y.field-plot
+.. figure:: figure/plot-y.fieldGC-1.png
+    :alt: plot of chunk plot-y.fieldGC
 
-    plot of chunk y.field-plot
+    plot of chunk plot-y.fieldGC
 

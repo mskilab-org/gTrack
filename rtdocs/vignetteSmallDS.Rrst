@@ -16,7 +16,7 @@ Vignette Using a Small Data Set
 ..gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 .. ..
 
-.. {r rst-plot}
+.. {r plot-tiles}
 ## Plot how the tiles would like
 ..plot(gTrack(gr))
 .. .. 
@@ -25,7 +25,7 @@ Vignette Using a Small Data Set
 
 **indicate the degree of overlap**
 
-.. {r rst-plot2 }
+.. {r plot-overlapping tiles }
 ..plot(gTrack(gr+10))
 .. ..
 
@@ -40,15 +40,15 @@ Vignette Using a Small Data Set
 ..print(gr)
 .. ..
 
-.. {r rst-plot3}
+.. {r plot-gr}
 ..plot(gTrack(gr))
 .. ..
 
-.. {r rst-plot4}
+.. {r plot-stack.gap2}
 ..plot(gTrack(gr , stack.gap = 2))
 .. ..
 
-.. {r rst-plot5}
+.. {r plot-stack.gap3}
 ..plot(gTrack(gr , stack.gap = 3))
 .. ..
 
@@ -56,7 +56,7 @@ Vignette Using a Small Data Set
 
 **vector or scalar numeric specifiying gap between tracks (add a dimension to the data)**
 
-.. {r y.field-plot}
+.. {r plot-y.fieldGC}
 ..plot(gTrack(gr , y.field = 'GC'))
 .. .. 
 
