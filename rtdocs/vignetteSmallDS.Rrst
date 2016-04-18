@@ -10,14 +10,16 @@ gr.tile(gr , w)
 tile ranges across GRanges
 --------------------------
 
-.. {r }
+.. {r gr.tile}
 ## Given a GRanges object, separate the interval by "w".
 ## In this example, the output will be 20 equal sized tiles
 
 ..print(GRanges(1 , IRanges(1,100)))
 
 ..gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
+.. ..
 
+.. {r rst-plot}
 ## Plot how the tiles would like
 ..plot(gTrack(gr))
 .. .. 

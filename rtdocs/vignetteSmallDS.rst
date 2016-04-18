@@ -34,14 +34,19 @@ tile ranges across GRanges
     
 
     gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
+
+
+
+.. sourcecode:: r
     
+
     ## Plot how the tiles would like
     plot(gTrack(gr))
 
-.. figure:: figure/unnamed-chunk-1-1.png
-    :alt: plot of chunk unnamed-chunk-1
+.. figure:: figure/rst-plot-1.png
+    :alt: plot of chunk rst-plot
 
-    plot of chunk unnamed-chunk-1
+    plot of chunk rst-plot
 
 
 
