@@ -50,8 +50,7 @@ output: pdf_document
   plot(gTrack(gr , stack.gap=2))
     
   # 3 levels
-  plot(gTrack(gr , stack.gap=3))
-```  
+o```  
   
 ### gTrack(gr , y.field='GC')
 ##### vector or scalar numeric specifying gap between tracks (add a dimension to the data) 

@@ -142,3 +142,57 @@ Vignette Using a Small Data Set
 
     plot of chunk plot-y.fieldGC
 
+**gTrack(gr , bars = TRUE/FALSE)**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue'))
+
+.. figure:: figure/plot-bars-1.png
+    :alt: plot of chunk plot-bars
+
+    plot of chunk plot-bars
+
+**gTrack(gr , lines = TRUE/FALSE)**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple'))
+
+.. figure:: figure/plot-lines-1.png
+    :alt: plot of chunk plot-lines
+
+    plot of chunk plot-lines
+
+**gTrack(gr , circles = TRUE/FALSE)**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
+
+.. figure:: figure/plot-circles-1.png
+    :alt: plot of chunk plot-circles
+
+    plot of chunk plot-circles
+
+**colorfield**
+
+**map values to colors! Legend is automatically added**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
+
+.. figure:: figure/plot-colorfield-1.png
+    :alt: plot of chunk plot-colorfield
+
+    plot of chunk plot-colorfield
+
