@@ -5,6 +5,8 @@ Overlapping Segments
 ====================
 
 gr.tile(gr , w)
+---------------
+
 tile ranges across GRanges
 --------------------------
 
