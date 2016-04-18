@@ -196,3 +196,41 @@ Vignette Using a Small Data Set
 
     plot of chunk plot-colorfield
 
+**gr.colorfield**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC'))
+
+.. figure:: figure/plot-gr.colorfield-1.png
+    :alt: plot of chunk plot-gr.colorfield
+
+    plot of chunk plot-gr.colorfield
+
+**gr.labelfield**
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name'))
+
+.. figure:: figure/plot-labelfield-1.png
+    :alt: plot of chunk plot-labelfield
+
+    plot of chunk plot-labelfield
+
+**GRangesList**
+
+
+.. sourcecode:: r
+    
+
+    # first, create GRanges object for chroms 1-3. Each chrom stores regions of exons
+    chrom1 <- GRanges(seqnames=Rle(rep(1,5)) , ranges = IRanges(c(13214448,13377047,17190862,17284920,30741950) , end=c(13376489,17190004,17283075,30741656,30745210)))
+    chrom2 <- GRanges(seqnames=Rle(rep(2,5)) , ranges = IRanges(c(34675467,34737163,50880025,50882016,51098931) , end = c(34737057,50879519,50880979,51089715,51099793)))
+    chrom3 <- GRanges(seqnames=Rle(rep(3,5)) , ranges = IRanges(c(5883026,5888521,6651128,6655078,10251906) , end = c(5887648,6646543,6653332,10245198,10254797)))
+    chroms <- GRangesList("chrom1" = chrom1 , "chrom2" = chrom2 , "chrom3" = chrom3)
+
