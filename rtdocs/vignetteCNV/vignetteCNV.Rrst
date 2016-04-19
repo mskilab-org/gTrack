@@ -6,7 +6,6 @@ Vignette Using CNV Data
 .. {r loading in data}
 library(gUtils)
 library(gTrack)
-options(width = 150)
 
 ..setwd("~/Documents/gTrack/gTrack/")
 ##load data from TCGA
@@ -22,7 +21,7 @@ options(width = 150)
 ..tcgagt <- gTrack(tcgagr)
 .. ..
 
-.. {r plot-entireData}
+.. {r plot-entireData,fig.width=20}
 # plot gTrack object
 
 ..plot(tcgagt)
