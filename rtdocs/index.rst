@@ -13,7 +13,8 @@ Contents:
 
    vignetteCNV/vignetteCNV.rst	      
    vignetteSmallDS/vignetteSmallDS.rst
-	      
+   vignetteHeatMap/vignetteHeatMap.rst 
+      
 Indices and tables
 ==================
 

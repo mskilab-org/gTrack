@@ -9,6 +9,8 @@ Vignette Using CNV Data
 
     library(gUtils)
     library(gTrack)
+    opts_chunk$set(dev = 'pdf')
+    opts_chunk$set(fig.width = 5 , fig.height = 5)
     
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
@@ -32,7 +34,7 @@ Vignette Using CNV Data
     
     plot(tcgagt)
 
-.. figure:: figure/plot-entireData-1.png
+.. figure:: figure/plot-entireData-1.pdf
     :alt: plot of chunk plot-entireData
 
     plot of chunk plot-entireData
@@ -45,7 +47,7 @@ Vignette Using CNV Data
     # Windows argument requires a subset of a GRanges Object. Check documentation for more details.
     plot(tcgagt , window = tcgagr[1:5])
 
-.. figure:: figure/plot-subsetofData-1.png
+.. figure:: figure/plot-subsetofData-1.pdf
     :alt: plot of chunk plot-subsetofData
 
     plot of chunk plot-subsetofData
@@ -58,7 +60,7 @@ Vignette Using CNV Data
     tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
     plot(tcgagt , windows = tcgagr[1:5] , col = "red")
 
-.. figure:: figure/plot-amplifcations-1.png
+.. figure:: figure/plot-amplifcations-1.pdf
     :alt: plot of chunk plot-amplifcations
 
     plot of chunk plot-amplifcations
@@ -83,7 +85,7 @@ Vignette Using CNV Data
     # plot the two samples
     plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
 
-.. figure:: figure/plot-twoSamples-1.png
+.. figure:: figure/plot-twoSamples-1.pdf
     :alt: plot of chunk plot-twoSamples
 
     plot of chunk plot-twoSamples
@@ -105,7 +107,7 @@ Vignette Using CNV Data
     ## shorter object length
 
 
-.. figure:: figure/plot-ygap-1.png
+.. figure:: figure/plot-ygap-1.pdf
     :alt: plot of chunk plot-ygap
 
     plot of chunk plot-ygap
@@ -143,7 +145,7 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
-.. figure:: figure/plot-allSamples-1.png
+.. figure:: figure/plot-allSamples-1.pdf
     :alt: plot of chunk plot-allSamples
 
     plot of chunk plot-allSamples
@@ -163,7 +165,7 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
-.. figure:: figure/plot-amplificationsAll-1.png
+.. figure:: figure/plot-amplificationsAll-1.pdf
     :alt: plot of chunk plot-amplificationsAll
 
     plot of chunk plot-amplificationsAll
@@ -187,7 +189,7 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
-.. figure:: figure/plot-deletionsAll-1.png
+.. figure:: figure/plot-deletionsAll-1.pdf
     :alt: plot of chunk plot-deletionsAll
 
     plot of chunk plot-deletionsAll
