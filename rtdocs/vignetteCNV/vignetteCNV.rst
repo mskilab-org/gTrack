@@ -1,97 +1,53 @@
 Vignette Using CNV Data
-==============
+=======================
 
-..{r loading in data}
-#load data from TCGA
-..tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
-# convert data.frame to GRanges object
-..tcgagr <- GRanges(tcgaData)
-# wrap gTrack around TCGA GRanges object
-..tcgagt <- gTrack(tcgagr)
-.. ..
+** Operations on CNV data of one sample ** 
 
-..{r plot-entireData}
-# plot gTrack object
-..plot(tcgagt)
-.. ..
 
-..{r plot-subsetofData}
-# Changed default number of windows (from entire genome to the first five windows).
-# Windows argument requires a subset of a GRanges Object. Check documentation for more details.
-..plot(tcgagt , window = tcgagr[1:5])
-.. ..
+.. sourcecode:: r
+    
 
-..{r plot-amplifcations}
-# use amplifications/deletions as y-values
-..tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
-..plot(tcgagt , windows = tcgagrr[1:5] , col = "red")
-.. ..
+    ##load data from TCGA
+    
+    tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
 
-..{r code for second sample}
-# add a second sample to the graph
-# create gTrack object for sample
-..tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
-..tcgagr2 <- GRanges(tcgaData2)
-..tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
-.. ..
 
-..{r plot-twoSamples}
-# plot the two samples
-..plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
-.. ..
+::
 
-..{r plot-ygap}
-# physically separate gaps between tracks
-..plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red" , ygap = 5)
-.. ..
+    ## Warning in file(file, "rt"): cannot open file 'inst/extdata/
+    ## BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt': No such
+    ## file or directory
 
-..{r allSamples}
-# study of the CNVs in breast cancer
-..fn = list.files("Level_3/")
 
-# create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
-..dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
 
-# certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need
-# to be converted into "numeric" vectors.
+::
 
-..dt$Start = type.convert(dt$Start)
-..dt$End = type.convert(dt$End)
+    ## Error in file(file, "rt"): cannot open the connection
 
-# because we are graphing segment mean, that column also needs to be "numeric"
-..dt$Segment_Mean = type.convert(dt$Segment_Mean)
 
-# convert data.table into GRanges object
-..dtgr = GRanges(dt)
+.. sourcecode:: r
+    
 
-# wrap a gTrack object around it and plot
-..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-.. ..
+    ## convert data.frame to GRanges object
+    
+    tcgagr <- GRanges(tcgaData)
 
-..{r plot-allSamples}
-..plot(dtgt , window = dtgr[1:5])
-.. ..
 
-..{r showAmplifications}
-# show amplifications only (use gUtils operators!)
-..dtgr = dtgr %Q% (Segment_Mean > 0)
-..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-.. ..
+::
 
-..{r plot-amplificationsAll}
-..plot(dtgt , window = dtgr[1:5]
-.. ..
+    ## Error in newGRanges("GRanges", seqnames = seqnames, ranges = ranges, strand = strand, : object 'tcgaData' not found
 
-..{r deletions for all samples}
-# show deletions only (again, use gUtils operators!)
 
-# recreate the original GRanges object
-..dtgr = GRanges(dt)
-# subset properly
-..dtgr = dtgr %Q% (Segment_Mean < 0)
-..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-.. ..
+.. sourcecode:: r
+    
 
-..{r plot-deletionsAll}
-..plot(dtgt , window = dtgr[1:5]
-.. .. 
+    # wrap gTrack around TCGA GRanges object
+    
+    tcgagt <- gTrack(tcgagr)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'tcgagr' not found
+
+
