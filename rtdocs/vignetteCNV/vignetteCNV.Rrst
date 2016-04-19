@@ -4,12 +4,11 @@ Vignette Using CNV Data
 **Operations on CNV data of one sample** 
 
 .. {r loading in data}
-..getwd()
-..list.files()
+..setwd("~/Documents/gTrack/gTrack/")
 
 ##load data from TCGA
 
-..tcgaData <- read.delim("gTrack/inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
+..tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
 
 ## convert data.frame to GRanges object
 
