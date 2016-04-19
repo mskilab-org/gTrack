@@ -38,7 +38,7 @@ Vignette On Creating Heat maps and Graphs
 ..m[10,1]=1
 .. .. 
 
-.. {r plot1}
+.. {r plot1 , fig.width=5}
 ##attach "m" to the edges parameter.
 ..plot(gTrack(gr , edges = m , stack.gap = 5))
 .. ..

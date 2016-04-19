@@ -90,10 +90,10 @@ Vignette On Creating Heat maps and Graphs
     ##attach "m" to the edges parameter.
     plot(gTrack(gr , edges = m , stack.gap = 5))
 
-.. figure:: figure/plot1-1.png
-    :alt: plot of chunk plot1
+.. figure:: figure/plot1 -1.png
+    :alt: plot of chunk plot1 
 
-    plot of chunk plot1
+    plot of chunk plot1 
 
 
 
