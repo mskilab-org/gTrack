@@ -109,7 +109,7 @@ Vignette On Creating Heat maps and Graphs
 .. sourcecode:: r
     
 
-    plot(gTrack(gr , edges = graph, mdata = heatMap, stack.gap = 5))
+    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
 
 .. figure:: figure/plot-heatmap-1.png
     :alt: plot of chunk plot-heatmap
@@ -121,7 +121,7 @@ Vignette On Creating Heat maps and Graphs
 .. sourcecode:: r
     
 
-    ##plot(c(gTrack(gr , edges = a , stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+    ##plot(c(gTrack(gr , edges = a, stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
 
 
 

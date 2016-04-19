@@ -51,12 +51,12 @@ heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
 .. ..
 
 .. {r plot-heatmap}
-..plot(gTrack(gr , edges = graph, mdata = heatMap, stack.gap = 5))
+..plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
 .. .. 
 
 
 .. {r plot-HeatMap&Graph}
-##plot(c(gTrack(gr , edges = a , stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+##plot(c(gTrack(gr , edges = a, stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
 .. .. 
 
 
