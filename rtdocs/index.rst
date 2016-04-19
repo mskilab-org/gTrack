@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 3
 
-   vignetteHeatMap/vignetteHeatMap.rst	      
+   vignetteCNV/vignetteCNV.rst	      
    vignetteSmallDS/vignetteSmallDS.rst
    vignetteCNV/vignetteCNV.rst 
       
