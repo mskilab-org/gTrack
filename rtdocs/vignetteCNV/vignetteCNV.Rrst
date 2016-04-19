@@ -1,7 +1,7 @@
 Vignette Using CNV Data
 =======================
 
-..{r loading in data}
+.. {r loading in data}
 #load data from TCGA
 ..tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
 # convert data.frame to GRanges object
