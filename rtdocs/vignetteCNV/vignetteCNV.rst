@@ -8,7 +8,7 @@ Vignette Using CNV Data
     
 
     setwd("~/Documents/gTrack/gTrack/")
-    
+    ok = list.files()
     ##load data from TCGA
     
     tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
@@ -81,10 +81,13 @@ Vignette Using CNV Data
     # plot the two samples
     plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
 
-.. figure:: figure/plot-twoSamples-1.png
-    :alt: plot of chunk plot-twoSamples
 
-    plot of chunk plot-twoSamples
+::
+
+    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red"): error in evaluating the argument 'x' in selecting a method for function 'plot': Error in do.call("rrbind", lapply(args, formatting)) : 
+    ##   could not find function "rrbind"
+
+
 
 
 .. sourcecode:: r
@@ -96,25 +99,17 @@ Vignette Using CNV Data
 
 ::
 
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
-    ## shorter object length
-
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
-    ## shorter object length
+    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red", : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in do.call("rrbind", lapply(args, formatting)) : 
+    ##   could not find function "rrbind"
 
 
-.. figure:: figure/plot-ygap-1.png
-    :alt: plot of chunk plot-ygap
-
-    plot of chunk plot-ygap
 
 
 .. sourcecode:: r
     
 
     # study of the CNVs in breast cancer
-    setwd("~/Documents/gTrack/gTrack/inst/extdata")
-    fn = list.files("Level_3/")
+    fn = list.files("~/Documents/gTrack/gTrack/inst/extdata/Level_3/")
     
     # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
     dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
@@ -122,7 +117,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in fread(x, colClasses = "character"): File 'BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A02_772068.hg19.seg.txt' does not exist. Include one or more spaces to consider the input a system command.
+    ## Error in eval(expr, envir, enclos): could not find function "rbindlist"
 
 
 .. sourcecode:: r
@@ -136,7 +131,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in type.convert(dt$Start): the first argument must be of mode character
+    ## Error in dt$Start: object of type 'closure' is not subsettable
 
 
 .. sourcecode:: r
@@ -147,7 +142,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in type.convert(dt$End): the first argument must be of mode character
+    ## Error in dt$End: object of type 'closure' is not subsettable
 
 
 .. sourcecode:: r
@@ -159,7 +154,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in type.convert(dt$Segment_Mean): the first argument must be of mode character
+    ## Error in dt$Segment_Mean: object of type 'closure' is not subsettable
 
 
 .. sourcecode:: r
@@ -171,7 +166,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
+    ## Error in as(seqnames, class): no method or default for coercing "function" to "GRanges"
 
 
 .. sourcecode:: r
@@ -210,7 +205,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in dtgr %Q% (Segment_Mean > 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
+    ## Error in eval(expr, envir, enclos): could not find function "%Q%"
 
 
 .. sourcecode:: r
@@ -250,7 +245,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
+    ## Error in as(seqnames, class): no method or default for coercing "function" to "GRanges"
 
 
 .. sourcecode:: r
@@ -262,7 +257,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in dtgr %Q% (Segment_Mean < 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
+    ## Error in eval(expr, envir, enclos): could not find function "%Q%"
 
 
 .. sourcecode:: r
