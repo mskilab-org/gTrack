@@ -17,24 +17,25 @@ Vignette Using CNV Data
 ..tcgagt <- gTrack(tcgagr)
 .. ..
 
-..{r plot-entireData}
+.. {r plot-entireData}
 # plot gTrack object
+
 ..plot(tcgagt)
 .. ..
 
-..{r plot-subsetofData}
+.. {r plot-subsetofData}
 # Changed default number of windows (from entire genome to the first five windows).
 # Windows argument requires a subset of a GRanges Object. Check documentation for more details.
 ..plot(tcgagt , window = tcgagr[1:5])
 .. ..
 
-..{r plot-amplifcations}
+.. {r plot-amplifcations}
 # use amplifications/deletions as y-values
 ..tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
 ..plot(tcgagt , windows = tcgagrr[1:5] , col = "red")
 .. ..
 
-..{r code for second sample}
+.. {r code for second sample}
 # add a second sample to the graph
 # create gTrack object for sample
 ..tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
@@ -42,17 +43,17 @@ Vignette Using CNV Data
 ..tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
 .. ..
 
-..{r plot-twoSamples}
+.. {r plot-twoSamples}
 # plot the two samples
 ..plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
 .. ..
 
-..{r plot-ygap}
+.. {r plot-ygap}
 # physically separate gaps between tracks
 ..plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red" , ygap = 5)
 .. ..
 
-..{r allSamples}
+.. {r allSamples}
 # study of the CNVs in breast cancer
 ..fn = list.files("Level_3/")
 
@@ -75,21 +76,21 @@ Vignette Using CNV Data
 ..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
 .. ..
 
-..{r plot-allSamples}
+.. {r plot-allSamples}
 ..plot(dtgt , window = dtgr[1:5])
 .. ..
 
-..{r showAmplifications}
+.. {r showAmplifications}
 # show amplifications only (use gUtils operators!)
 ..dtgr = dtgr %Q% (Segment_Mean > 0)
 ..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
 .. ..
 
-..{r plot-amplificationsAll}
-..plot(dtgt , window = dtgr[1:5]
+.. {r plot-amplificationsAll}
+..plot(dtgt , window = dtgr[1:5])
 .. ..
 
-..{r deletions for all samples}
+.. {r deletions for all samples}
 # show deletions only (again, use gUtils operators!)
 
 # recreate the original GRanges object
@@ -99,6 +100,6 @@ Vignette Using CNV Data
 ..dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
 .. ..
 
-..{r plot-deletionsAll}
-..plot(dtgt , window = dtgr[1:5]
+.. {r plot-deletionsAll}
+..plot(dtgt , window = dtgr[1:5])
 .. .. 
