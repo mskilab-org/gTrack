@@ -49,3 +49,5 @@ Vignette On Creating Heat maps and Graphs
 ##plot(c(gTrack(gr , edges = a , stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
 .. .. 
 
+
+
