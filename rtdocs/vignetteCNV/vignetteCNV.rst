@@ -9,7 +9,6 @@ Vignette Using CNV Data
 
     library(gUtils)
     library(gTrack)
-    options(width = 150)
     
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
@@ -99,9 +98,11 @@ Vignette Using CNV Data
 
 ::
 
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of shorter object length
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
 
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of shorter object length
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
 
 
 .. figure:: figure/plot-ygap-1.png
