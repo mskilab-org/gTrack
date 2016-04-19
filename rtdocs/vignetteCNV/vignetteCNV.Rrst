@@ -4,7 +4,9 @@ Vignette Using CNV Data
 **Operations on CNV data of one sample** 
 
 .. {r loading in data}
-..library(gUtils)
+library(gUtils)
+opts_chunk$set(fig.width = 5 , fig.height = 10)
+
 ..setwd("~/Documents/gTrack/gTrack/")
 ##load data from TCGA
 

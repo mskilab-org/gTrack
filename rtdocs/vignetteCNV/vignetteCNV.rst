@@ -8,51 +8,8 @@ Vignette Using CNV Data
     
 
     library(gUtils)
-
-
-::
-
-    ## Loading required package: data.table
-
-
-
-::
-
-    ## data.table 1.9.6  For help type ?data.table or https://github.com/Rdatatable/data.table/wiki
-
-
-
-::
-
-    ## The fastest way to learn (by data.table authors): https://www.datacamp.com/courses/data-analysis-the-data-table-way
-
-
-
-::
-
-    ## 
-    ## Attaching package: 'data.table'
-
-
-
-::
-
-    ## The following object is masked from 'package:GenomicRanges':
-    ## 
-    ##     shift
-
-
-
-::
-
-    ## The following object is masked from 'package:IRanges':
-    ## 
-    ##     shift
-
-
-.. sourcecode:: r
+    opts_chunk$set(fig.width = 5 , fig.height = 10)
     
-
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
     
@@ -180,7 +137,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in dt$Start: object of type 'closure' is not subsettable
+    ## Error in type.convert(dt$Start): the first argument must be of mode character
 
 
 .. sourcecode:: r
@@ -191,7 +148,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in dt$End: object of type 'closure' is not subsettable
+    ## Error in type.convert(dt$End): the first argument must be of mode character
 
 
 .. sourcecode:: r
@@ -203,7 +160,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in dt$Segment_Mean: object of type 'closure' is not subsettable
+    ## Error in type.convert(dt$Segment_Mean): the first argument must be of mode character
 
 
 .. sourcecode:: r
@@ -215,7 +172,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in as(seqnames, class): no method or default for coercing "function" to "GRanges"
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
 
 
 .. sourcecode:: r
@@ -294,7 +251,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in as(seqnames, class): no method or default for coercing "function" to "GRanges"
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
 
 
 .. sourcecode:: r
