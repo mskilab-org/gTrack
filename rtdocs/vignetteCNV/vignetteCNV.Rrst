@@ -6,6 +6,7 @@ Vignette Using CNV Data
 .. {r loading in data}
 library(gUtils)
 library(gTrack)
+options(width = 75)
 
 ..setwd("~/Documents/gTrack/gTrack/")
 ##load data from TCGA

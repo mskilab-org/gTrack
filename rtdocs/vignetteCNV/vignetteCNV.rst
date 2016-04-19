@@ -9,6 +9,7 @@ Vignette Using CNV Data
 
     library(gUtils)
     library(gTrack)
+    options(width = 75)
     
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
