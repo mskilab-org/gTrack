@@ -12,7 +12,7 @@ Contents:
    :maxdepth: 2
 
    vignetteusingBAMS.rst	      
-   vignetteSmallDS.rst
+   vignetteSmallDS/vignetteSmallDS.rst
 	      
 Indices and tables
 ==================
