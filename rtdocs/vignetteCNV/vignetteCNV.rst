@@ -54,14 +54,12 @@ Vignette Using CNV Data
 
     # use amplifications/deletions as y-values
     tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
-    plot(tcgagt , windows = tcgagrr[1:5] , col = "red")
+    plot(tcgagt , windows = tcgagr[1:5] , col = "red")
 
+.. figure:: figure/plot-amplifcations-1.png
+    :alt: plot of chunk plot-amplifcations
 
-::
-
-    ## Error in is(windows, "character"): object 'tcgagrr' not found
-
-
+    plot of chunk plot-amplifcations
 
 
 .. sourcecode:: r
