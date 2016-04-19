@@ -1,5 +1,5 @@
 ========
-Vignette using BAMS 
+Vignette Using CNV Data 
 ========
 
 .. code-block:: bash
