@@ -7,71 +7,19 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
-    getwd()
-
-
-::
-
-    ## [1] "/Users/knagdimov/Documents/gTrack/gTrack/rtdocs/vignetteCNV"
-
-
-.. sourcecode:: r
+    setwd("~/Documents/gTrack/gTrack/")
     
-
-    list.files()
-
-
-::
-
-    ## [1] "vignetteCNV.Rrst"  "vignetteCNV.Rrst~" "vignetteCNV.rst"
-
-
-.. sourcecode:: r
-    
-
     ##load data from TCGA
     
-    tcgaData <- read.delim("gTrack/inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
-
-
-::
-
-    ## Warning in file(file, "rt"): cannot open file 'gTrack/inst/extdata/
-    ## BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt': No such
-    ## file or directory
-
-
-
-::
-
-    ## Error in file(file, "rt"): cannot open the connection
-
-
-.. sourcecode:: r
+    tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
     
-
     ## convert data.frame to GRanges object
     
     tcgagr <- GRanges(tcgaData)
-
-
-::
-
-    ## Error in newGRanges("GRanges", seqnames = seqnames, ranges = ranges, strand = strand, : object 'tcgaData' not found
-
-
-.. sourcecode:: r
     
-
     # wrap gTrack around TCGA GRanges object
     
     tcgagt <- gTrack(tcgagr)
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'tcgagr' not found
-
 
 
 
@@ -82,12 +30,10 @@ Vignette Using CNV Data
     
     plot(tcgagt)
 
+.. figure:: figure/plot-entireData-1.png
+    :alt: plot of chunk plot-entireData
 
-::
-
-    ## Error in plot(tcgagt): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'tcgagt' not found
-
-
+    plot of chunk plot-entireData
 
 
 .. sourcecode:: r
@@ -97,12 +43,10 @@ Vignette Using CNV Data
     # Windows argument requires a subset of a GRanges Object. Check documentation for more details.
     plot(tcgagt , window = tcgagr[1:5])
 
+.. figure:: figure/plot-subsetofData-1.png
+    :alt: plot of chunk plot-subsetofData
 
-::
-
-    ## Error in plot(tcgagt, window = tcgagr[1:5]): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'tcgagt' not found
-
-
+    plot of chunk plot-subsetofData
 
 
 .. sourcecode:: r
@@ -110,22 +54,12 @@ Vignette Using CNV Data
 
     # use amplifications/deletions as y-values
     tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'tcgagr' not found
-
-
-.. sourcecode:: r
-    
-
     plot(tcgagt , windows = tcgagrr[1:5] , col = "red")
 
 
 ::
 
-    ## Error in plot(tcgagt, windows = tcgagrr[1:5], col = "red"): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'tcgagt' not found
+    ## Error in is(windows, "character"): object 'tcgagrr' not found
 
 
 
