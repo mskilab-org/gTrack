@@ -40,9 +40,9 @@ Vignette On Creating Heat maps and Graphs
     ##create matrix to specify edges (links between nodes) and nodes are the ranges.
     
     ##create an N*N matrix filled with 0s.
-    m = matrix(0 , nrow = 10 , ncol = 10)
+    graph = matrix(0 , nrow = 10 , ncol = 10)
     ##print how the matrix looks.
-    m
+    graph
 
 
 ::
@@ -65,35 +65,56 @@ Vignette On Creating Heat maps and Graphs
 
     ##the graph will be made by searching for coordinates in the matrix that have 1s.
     ##set indices to 1.
-    m[1,3]=1
-    m[1,10]=1
-    m[2,5]=1
-    m[2,8]=1
-    m[3,5]=1
-    m[4,1]=1
-    m[4,2]=1
-    m[4,6]=1
-    m[4,9]=1
-    m[5,1]=1
-    m[5,2]=1
-    m[5,4]=1
-    m[8,1]=1
-    m[8,2]=1
-    m[9,1]=1
-    m[10,1]=1
+    graph[1,3]=1
+    graph[1,10]=1
+    graph[2,5]=1
+    graph[2,8]=1
+    graph[3,5]=1
+    graph[4,1]=1
+    graph[4,2]=1
+    graph[4,6]=1
+    graph[4,9]=1
+    graph[5,1]=1
+    graph[5,2]=1
+    graph[5,4]=1
+    graph[8,1]=1
+    graph[8,2]=1
+    graph[9,1]=1
+    graph[10,1]=1
 
 
 
 .. sourcecode:: r
     
 
-    ##attach "m" to the edges parameter.
-    plot(gTrack(gr , edges = m , stack.gap = 5))
+    ##attach "graph" to the edges parameter.
+    plot(gTrack(gr , edges = graph , stack.gap = 5))
 
 .. figure:: figure/plot1 -1.png
     :alt: plot of chunk plot1 
 
     plot of chunk plot1 
+
+**Add a Heat map to the plot!**
+
+.. sourcecode:: r
+    
+
+    ##in order to create a heatmap for each node in the matrix, color intensity needs to be specified.
+    ##to save time, a random N*N matrix filled with values from 1:100 is made.
+    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
+
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , edges = graph, mdata = heatMap, stack.gap = 5))
+
+.. figure:: figure/plot-heatmap-1.png
+    :alt: plot of chunk plot-heatmap
+
+    plot of chunk plot-heatmap
 
 
 
@@ -101,4 +122,7 @@ Vignette On Creating Heat maps and Graphs
     
 
     ##plot(c(gTrack(gr , edges = a , stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+
+
+
 
