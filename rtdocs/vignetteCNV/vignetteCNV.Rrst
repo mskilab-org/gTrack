@@ -4,8 +4,8 @@ Vignette Using CNV Data
 **Operations on CNV data of one sample** 
 
 .. {r loading in data}
+..library(gUtils)
 ..setwd("~/Documents/gTrack/gTrack/")
-..ok = list.files()
 ##load data from TCGA
 
 ..tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")

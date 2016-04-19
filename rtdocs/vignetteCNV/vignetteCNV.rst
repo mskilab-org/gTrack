@@ -7,8 +7,53 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
+    library(gUtils)
+
+
+::
+
+    ## Loading required package: data.table
+
+
+
+::
+
+    ## data.table 1.9.6  For help type ?data.table or https://github.com/Rdatatable/data.table/wiki
+
+
+
+::
+
+    ## The fastest way to learn (by data.table authors): https://www.datacamp.com/courses/data-analysis-the-data-table-way
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'data.table'
+
+
+
+::
+
+    ## The following object is masked from 'package:GenomicRanges':
+    ## 
+    ##     shift
+
+
+
+::
+
+    ## The following object is masked from 'package:IRanges':
+    ## 
+    ##     shift
+
+
+.. sourcecode:: r
+    
+
     setwd("~/Documents/gTrack/gTrack/")
-    ok = list.files()
     ##load data from TCGA
     
     tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
@@ -81,13 +126,10 @@ Vignette Using CNV Data
     # plot the two samples
     plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
 
+.. figure:: figure/plot-twoSamples-1.png
+    :alt: plot of chunk plot-twoSamples
 
-::
-
-    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red"): error in evaluating the argument 'x' in selecting a method for function 'plot': Error in do.call("rrbind", lapply(args, formatting)) : 
-    ##   could not find function "rrbind"
-
-
+    plot of chunk plot-twoSamples
 
 
 .. sourcecode:: r
@@ -99,10 +141,17 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red", : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in do.call("rrbind", lapply(args, formatting)) : 
-    ##   could not find function "rrbind"
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
+
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
 
 
+.. figure:: figure/plot-ygap-1.png
+    :alt: plot of chunk plot-ygap
+
+    plot of chunk plot-ygap
 
 
 .. sourcecode:: r
@@ -117,7 +166,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "rbindlist"
+    ## Error in fread(x, colClasses = "character"): File 'BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt' does not exist. Include one or more spaces to consider the input a system command.
 
 
 .. sourcecode:: r
@@ -205,7 +254,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "%Q%"
+    ## Error in dtgr %Q% (Segment_Mean > 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
 
 
 .. sourcecode:: r
@@ -257,7 +306,7 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "%Q%"
+    ## Error in dtgr %Q% (Segment_Mean < 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
 
 
 .. sourcecode:: r
