@@ -7,9 +7,7 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
-    library(gUtils)
-    opts_chunk$set(fig.width = 30 , fig.height = 5)
-    
+    library(gUtils) 
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
     
