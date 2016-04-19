@@ -40,6 +40,7 @@ Vignette Using CNV Data
 .. {r code for second sample}
 # add a second sample to the graph
 # create gTrack object for sample
+..getwd()
 ..tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
 ..tcgagr2 <- GRanges(tcgaData2)
 ..tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")

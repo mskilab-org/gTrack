@@ -67,6 +67,17 @@ Vignette Using CNV Data
 
     # add a second sample to the graph
     # create gTrack object for sample
+    getwd()
+
+
+::
+
+    ## [1] "/Users/knagdimov/Documents/gTrack/gTrack/rtdocs/vignetteCNV"
+
+
+.. sourcecode:: r
+    
+
     tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
 
 
