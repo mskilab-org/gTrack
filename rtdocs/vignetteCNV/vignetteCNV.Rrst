@@ -5,7 +5,7 @@ Vignette Using CNV Data
 
 .. {r loading in data}
 ..setwd("~/Documents/gTrack/gTrack/")
-
+..ok = list.files()
 ##load data from TCGA
 
 ..tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
@@ -59,8 +59,7 @@ Vignette Using CNV Data
 
 .. {r allSamples}
 # study of the CNVs in breast cancer
-..setwd("~/Documents/gTrack/gTrack/inst/extdata")
-..fn = list.files("Level_3/")
+..fn = list.files("~/Documents/gTrack/gTrack/inst/extdata/Level_3/")
 
 # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
 ..dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
