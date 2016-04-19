@@ -1,5 +1,5 @@
 Vignette Using CNV Data
-==============
+=======================
 
 ..{r loading in data}
 #load data from TCGA
