@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   vignetteCNV.rst	      
+   vignetteCNV/vignetteCNV.rst	      
    vignetteSmallDS/vignetteSmallDS.rst
 	      
 Indices and tables
