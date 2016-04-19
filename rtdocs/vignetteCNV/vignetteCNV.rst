@@ -115,77 +115,26 @@ Vignette Using CNV Data
     
 
     # study of the CNVs in breast cancer
-    fn = list.files("~/Documents/gTrack/gTrack/inst/extdata/Level_3/")
+    setwd("~/Documents/gTrack/gTrack/inst/extdata/Level_3")
+    fn = list.files()
     
     # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
     dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
-
-
-::
-
-    ## Error in fread(x, colClasses = "character"): File 'BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt' does not exist. Include one or more spaces to consider the input a system command.
-
-
-.. sourcecode:: r
     
-
     # certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need
     # to be converted into "numeric" vectors.
     
     dt$Start = type.convert(dt$Start)
-
-
-::
-
-    ## Error in type.convert(dt$Start): the first argument must be of mode character
-
-
-.. sourcecode:: r
-    
-
     dt$End = type.convert(dt$End)
-
-
-::
-
-    ## Error in type.convert(dt$End): the first argument must be of mode character
-
-
-.. sourcecode:: r
     
-
     # because we are graphing segment mean, that column also needs to be "numeric"
     dt$Segment_Mean = type.convert(dt$Segment_Mean)
-
-
-::
-
-    ## Error in type.convert(dt$Segment_Mean): the first argument must be of mode character
-
-
-.. sourcecode:: r
     
-
     # convert data.table into GRanges object
     dtgr = GRanges(dt)
-
-
-::
-
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
-
-
-.. sourcecode:: r
     
-
     # wrap a gTrack object around it and plot
     dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'dtgr' not found
-
 
 
 
@@ -194,12 +143,10 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
+.. figure:: figure/plot-allSamples-1.png
+    :alt: plot of chunk plot-allSamples
 
-::
-
-    ## Error in plot(dtgt, window = dtgr[1:5]): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'dtgt' not found
-
-
+    plot of chunk plot-allSamples
 
 
 .. sourcecode:: r
@@ -207,23 +154,7 @@ Vignette Using CNV Data
 
     # show amplifications only (use gUtils operators!)
     dtgr = dtgr %Q% (Segment_Mean > 0)
-
-
-::
-
-    ## Error in dtgr %Q% (Segment_Mean > 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
-
-
-.. sourcecode:: r
-    
-
     dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'dtgr' not found
-
 
 
 
@@ -232,12 +163,10 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
+.. figure:: figure/plot-amplificationsAll-1.png
+    :alt: plot of chunk plot-amplificationsAll
 
-::
-
-    ## Error in plot(dtgt, window = dtgr[1:5]): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'dtgt' not found
-
-
+    plot of chunk plot-amplificationsAll
 
 
 .. sourcecode:: r
@@ -247,35 +176,9 @@ Vignette Using CNV Data
     
     # recreate the original GRanges object
     dtgr = GRanges(dt)
-
-
-::
-
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'Rle' for signature '"data.table", "missing"'
-
-
-.. sourcecode:: r
-    
-
     # subset properly
     dtgr = dtgr %Q% (Segment_Mean < 0)
-
-
-::
-
-    ## Error in dtgr %Q% (Segment_Mean < 0): error in evaluating the argument 'x' in selecting a method for function '%Q%': Error: object 'dtgr' not found
-
-
-.. sourcecode:: r
-    
-
     dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'dtgr' not found
-
 
 
 
@@ -284,9 +187,7 @@ Vignette Using CNV Data
 
     plot(dtgt , window = dtgr[1:5])
 
+.. figure:: figure/plot-deletionsAll-1.png
+    :alt: plot of chunk plot-deletionsAll
 
-::
-
-    ## Error in plot(dtgt, window = dtgr[1:5]): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'dtgt' not found
-
-
+    plot of chunk plot-deletionsAll
