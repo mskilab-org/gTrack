@@ -21,7 +21,7 @@ library(gTrack)
 ..tcgagt <- gTrack(tcgagr)
 .. ..
 
-.. {r plot-entireData,fig.width=20}
+.. {r plot-entireData,fig.width=10}
 # plot gTrack object
 
 ..plot(tcgagt)
