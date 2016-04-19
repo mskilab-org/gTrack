@@ -7,7 +7,9 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
-    library(gUtils) 
+    library(gUtils)
+    library(gTrack)
+    
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
     
