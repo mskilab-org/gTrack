@@ -34,7 +34,7 @@ Vignette Using CNV Data
 .. {r plot-amplifcations}
 # use amplifications/deletions as y-values
 ..tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
-..plot(tcgagt , windows = tcgagrr[1:5] , col = "red")
+..plot(tcgagt , windows = tcgagr[1:5] , col = "red")
 .. ..
 
 .. {r code for second sample}
