@@ -7,14 +7,36 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
-    ##load data from TCGA
-    
-    tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
+    getwd()
 
 
 ::
 
-    ## Warning in file(file, "rt"): cannot open file 'inst/extdata/
+    ## [1] "/Users/knagdimov/Documents/gTrack/gTrack/rtdocs/vignetteCNV"
+
+
+.. sourcecode:: r
+    
+
+    list.files()
+
+
+::
+
+    ## [1] "vignetteCNV.Rrst"  "vignetteCNV.Rrst~" "vignetteCNV.rst"
+
+
+.. sourcecode:: r
+    
+
+    ##load data from TCGA
+    
+    tcgaData <- read.delim("gTrack/inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
+
+
+::
+
+    ## Warning in file(file, "rt"): cannot open file 'gTrack/inst/extdata/
     ## BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt': No such
     ## file or directory
 
