@@ -61,7 +61,8 @@ library(gTrack)
 
 .. {r allSamples}
 # study of the CNVs in breast cancer
-..fn = list.files("~/Documents/gTrack/gTrack/inst/extdata/Level_3/")
+setwd("~/Documents/gTrack/gTrack/inst/extdata/Level_3")
+..fn = list.files()
 
 # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
 ..dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
