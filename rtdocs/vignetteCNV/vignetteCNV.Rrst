@@ -40,7 +40,8 @@ Vignette Using CNV Data
 .. {r code for second sample}
 # add a second sample to the graph
 # create gTrack object for sample
-..getwd()
+
+..setwd("~/Documents/gTrack/gTrack/")
 ..tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
 ..tcgagr2 <- GRanges(tcgaData2)
 ..tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
@@ -58,6 +59,7 @@ Vignette Using CNV Data
 
 .. {r allSamples}
 # study of the CNVs in breast cancer
+..setwd("~/Documents/gTrack/gTrack/inst/extdata")
 ..fn = list.files("Level_3/")
 
 # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist

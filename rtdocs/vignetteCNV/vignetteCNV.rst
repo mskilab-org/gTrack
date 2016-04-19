@@ -67,54 +67,11 @@ Vignette Using CNV Data
 
     # add a second sample to the graph
     # create gTrack object for sample
-    getwd()
-
-
-::
-
-    ## [1] "/Users/knagdimov/Documents/gTrack/gTrack/rtdocs/vignetteCNV"
-
-
-.. sourcecode:: r
     
-
+    setwd("~/Documents/gTrack/gTrack/")
     tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
-
-
-::
-
-    ## Warning in file(file, "rt"): cannot open file 'inst/extdata/
-    ## BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt': No such
-    ## file or directory
-
-
-
-::
-
-    ## Error in file(file, "rt"): cannot open the connection
-
-
-.. sourcecode:: r
-    
-
     tcgagr2 <- GRanges(tcgaData2)
-
-
-::
-
-    ## Error in newGRanges("GRanges", seqnames = seqnames, ranges = ranges, strand = strand, : object 'tcgaData2' not found
-
-
-.. sourcecode:: r
-    
-
     tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
-
-
-::
-
-    ## Error in listify(data, GRanges): object 'tcgagr2' not found
-
 
 
 
@@ -124,12 +81,10 @@ Vignette Using CNV Data
     # plot the two samples
     plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
 
+.. figure:: figure/plot-twoSamples-1.png
+    :alt: plot of chunk plot-twoSamples
 
-::
-
-    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red"): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'tcgagt2' not found
-
-
+    plot of chunk plot-twoSamples
 
 
 .. sourcecode:: r
@@ -141,20 +96,38 @@ Vignette Using CNV Data
 
 ::
 
-    ## Error in plot(c(tcgagt2, tcgagt), windows = tcgagr2[1:5], col = "red", : error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'tcgagt2' not found
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
+
+    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
+    ## shorter object length
 
 
+.. figure:: figure/plot-ygap-1.png
+    :alt: plot of chunk plot-ygap
+
+    plot of chunk plot-ygap
 
 
 .. sourcecode:: r
     
 
     # study of the CNVs in breast cancer
+    setwd("~/Documents/gTrack/gTrack/inst/extdata")
     fn = list.files("Level_3/")
     
     # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
     dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
+
+
+::
+
+    ## Error in fread(x, colClasses = "character"): File 'BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A02_772068.hg19.seg.txt' does not exist. Include one or more spaces to consider the input a system command.
+
+
+.. sourcecode:: r
     
+
     # certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need
     # to be converted into "numeric" vectors.
     
