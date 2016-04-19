@@ -4666,12 +4666,15 @@ format_windows <- function(windows, .Object) {
     if (is(windows, 'Seqinfo'))
         windows = si2gr(windows)
 
+    windows = windows[width(windows)>0]  ## otherwise will get non-matching below
+
 #    if (is.list(windows))
 #        windows = do.call('GRangesList', windows)
 
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
     ix = gr.match(tmp, windows)
+
     values(tmp) = values(windows)[ix, ]    
     
 ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated

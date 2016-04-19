@@ -42,6 +42,6 @@ We'll get started with a very simple example generating and plotting a GRanges o
 
 .. figure:: figure/rst-plot-1.png
     :alt: 
-    :width: 720px
+    :width: 1440px
 
     
