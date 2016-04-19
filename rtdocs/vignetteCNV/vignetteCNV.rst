@@ -8,7 +8,7 @@ Vignette Using CNV Data
     
 
     library(gUtils)
-    opts_chunk$set(fig.width = 5 , fig.height = 10)
+    opts_chunk$set(fig.width = 30 , fig.height = 5)
     
     setwd("~/Documents/gTrack/gTrack/")
     ##load data from TCGA
