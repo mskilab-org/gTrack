@@ -41,22 +41,7 @@ Vignette On Creating Heat maps and Graphs
 
     ##create matrix to specify edges (links between nodes) and nodes are the ranges.
     
-     comment
-
-
-::
-
-    ## function (x) 
-    ## .Internal(comment(x))
-    ## <bytecode: 0x7fe042b59708>
-    ## <environment: namespace:base>
-
-
-.. sourcecode:: r
-    
-
-       ##create an N*N matrix filled with 0s.
-    
+    ##create an N*N matrix filled with 0s.
     graph = matrix(0 , nrow = 10 , ncol = 10)
     ##print how the matrix looks.
     graph
@@ -104,7 +89,7 @@ Vignette On Creating Heat maps and Graphs
 .. sourcecode:: r
     
 
-    ##attach "graph" to the edges parameter.
+    ##use edges parameter to create graph. 
     plot(gTrack(gr , edges = graph , stack.gap = 5))
 
 .. figure:: figure/plot1 -1.png
@@ -133,14 +118,16 @@ Vignette On Creating Heat maps and Graphs
 
     plot of chunk plot-heatmap
 
-
+**Combining the heat map and graph onto the same plot.Possible by concatenation**
 
 .. sourcecode:: r
     
 
-    ##plot(c(gTrack(gr , edges = a, stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+
+.. figure:: figure/plot-HeatMap&Graph-1.png
+    :alt: plot of chunk plot-HeatMap&Graph
+
+    plot of chunk plot-HeatMap&Graph
 
 
-**Combining the heat map and graph onto the same plot.Possible by concatenation**
-
-..{r plot 
