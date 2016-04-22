@@ -351,7 +351,8 @@ gTrack = function(data = NULL, ##
                   circles = FALSE,
                   lines = FALSE,
                   bars = FALSE,
-                  draw.paths = FALSE, 
+                  draw.paths = FALSE,
+                  draw.var = FALSE, 
                   triangle = !is.null(mdata),
                   max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
                   source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
