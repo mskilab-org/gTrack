@@ -137,7 +137,7 @@ Time to change the **width** of the graph by **lwd** parameter.
     
 
     ## lwd column specifies the width of the edge 
-     graph$lwd = runif(length(9))
+     graph$lwd = 1.844941
      graph$lwd = graph$lwd + 1
      graph
 
@@ -145,15 +145,15 @@ Time to change the **width** of the graph by **lwd** parameter.
 ::
 
     ##   from to   col      lwd
-    ## 1    1  8   red 1.511907
-    ## 2    2  7  blue 1.511907
-    ## 3    3  4 green 1.511907
-    ## 4    4  3   red 1.511907
-    ## 5    5  5  blue 1.511907
-    ## 6    6 10 green 1.511907
-    ## 7    7  6   red 1.511907
-    ## 8    8  2  blue 1.511907
-    ## 9    9  9 green 1.511907
+    ## 1    1 10   red 2.844941
+    ## 2    2  3  blue 2.844941
+    ## 3    3  5 green 2.844941
+    ## 4    4  6   red 2.844941
+    ## 5    5  7  blue 2.844941
+    ## 6    6  8 green 2.844941
+    ## 7    7  2   red 2.844941
+    ## 8    8  4  blue 2.844941
+    ## 9    9  9 green 2.844941
 
 
 
