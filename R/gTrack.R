@@ -3040,8 +3040,9 @@ draw.grl = function(grl,
 
               ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
               ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
-              ##clash = which(ir1 %over% (ir2 + path.stack.x.gap))
+#              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+#              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+              clash = which(ir1 %over% (ir2 + path.stack.x.gap))
               pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
               contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
             }
