@@ -3,8 +3,7 @@ Vignette On Creating Heat maps and Graphs
 =========================================
 
 Creating a **Graph** to connect ranges
-======================================
-
+=======================================
 
 Made Possible by **edges** parameter of **gTrack**
 
@@ -99,6 +98,8 @@ Made Possible by **edges** parameter of **gTrack**
     :alt: plot of chunk plot1 
 
     plot of chunk plot1 
+
+Adding **styles** to a graph 
 
 
 .. sourcecode:: r
