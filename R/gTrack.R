@@ -394,7 +394,7 @@ gTrack = function(data = NULL, ##
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
       edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
-      stack.gap = stack.gap, col = col, border = border, angle = angle,
+      stack.gap = stack.gap, col = col, border = border, angle = angle, draw.var = draw.var,
       gr.colorfield = gr.colorfield, y.quantile = y.quantile,
       cex.label = cex.label, gr.cex.label.gr = gr.cex.label, gr.srt.label = gr.srt.label,
       y.cap = y.cap, lwd.border = lwd.border, hadj.label = hadj.label, vadj.label = vadj.label, smooth = smooth,
