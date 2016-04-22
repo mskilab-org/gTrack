@@ -99,7 +99,9 @@ Made Possible by **edges** parameter of **gTrack**
 
     plot of chunk plot1 
 
+============================
 Adding **styles** to a graph 
+============================
 
 
 .. sourcecode:: r

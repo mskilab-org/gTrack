@@ -47,7 +47,9 @@ Made Possible by **edges** parameter of **gTrack**
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
+============================
 Adding **styles** to a graph 
+============================
 
 .. {r edit graph}
 ##if a **matrix** is used to create a graph, color and style of edges can't be specified
