@@ -152,6 +152,25 @@ Time to change the **width** of the graph
 
     plot of chunk width-graph
 
+
+.. sourcecode:: r
+    
+
+    graph$lty = c(1,2,3)
+
+
+
+.. sourcecode:: r
+    
+
+    ## lty specifies the style of the edge (dashed line or not)
+    plot(gTrack(gr , edges = graph , stack.gap = 5))
+
+.. figure:: figure/style-graph-1.png
+    :alt: plot of chunk style-graph
+
+    plot of chunk style-graph
+
 **Add a Heat map to the plot!**
 
 .. sourcecode:: r
