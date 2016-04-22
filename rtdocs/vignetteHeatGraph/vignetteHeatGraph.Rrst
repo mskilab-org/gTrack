@@ -54,11 +54,25 @@ Adding **styles** to a graph
 If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
 .. {r edit graph}
+##from column specifies the beginning node (range)
+##to column specifies the end node (range)
+##col specifies the color of the edge 
 ..graph = data.frame(from = 1:9, to = sample(1 + 1:9) , col = c('red', 'blue', 'green'))
 .. .. 
 
 .. {r colored-graph}
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. .. 
+
+Time to change the **width** of the graph
+
+.. {r edit graph2}
+## lwd column specifies the width of the edge 
+.. graph$lwd = runif(length(9) +1)
+.. ..
+
+.. {r width-graph}
+..plot(gTrack(gr, edges = graph, stack.gap = 5))
 .. .. 
 
 

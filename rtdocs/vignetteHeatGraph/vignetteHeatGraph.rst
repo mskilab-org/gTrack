@@ -109,6 +109,9 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
 .. sourcecode:: r
     
 
+    ##from column specifies the beginning node (range)
+    ##to column specifies the end node (range)
+    ##col specifies the color of the edge 
     graph = data.frame(from = 1:9, to = sample(1 + 1:9) , col = c('red', 'blue', 'green'))
 
 
@@ -122,6 +125,33 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
     :alt: plot of chunk colored-graph
 
     plot of chunk colored-graph
+
+Time to change the **width** of the graph
+
+
+.. sourcecode:: r
+    
+
+    ## lwd column specifies the width of the edge 
+     graph$lwd = runif(length(9) +1)
+
+
+::
+
+    ## Error in `$<-.data.frame`(`*tmp*`, "lwd", value = c(0.418266233755276, : replacement has 2 rows, data has 9
+
+
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr, edges = graph, stack.gap = 5))
+
+.. figure:: figure/width-graph-1.png
+    :alt: plot of chunk width-graph
+
+    plot of chunk width-graph
 
 
 **Add a Heat map to the plot!**
