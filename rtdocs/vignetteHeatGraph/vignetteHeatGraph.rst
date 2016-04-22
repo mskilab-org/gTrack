@@ -139,6 +139,22 @@ Time to change the **width** of the graph by **lwd** parameter.
     ## lwd column specifies the width of the edge 
      graph$lwd = runif(length(9))
      graph$lwd = graph$lwd + 1
+     graph
+
+
+::
+
+    ##   from to   col      lwd
+    ## 1    1  8   red 1.511907
+    ## 2    2  7  blue 1.511907
+    ## 3    3  4 green 1.511907
+    ## 4    4  3   red 1.511907
+    ## 5    5  5  blue 1.511907
+    ## 6    6 10 green 1.511907
+    ## 7    7  6   red 1.511907
+    ## 8    8  2  blue 1.511907
+    ## 9    9  9 green 1.511907
+
 
 
 
@@ -173,7 +189,7 @@ Change style of edge by **lty** parameter.
 
     plot of chunk style-graph
 
-Change "curviness of the edges by adding **h** column
+Change **"curviness"** of the edges by adding **h** column
 
 
 .. sourcecode:: r
