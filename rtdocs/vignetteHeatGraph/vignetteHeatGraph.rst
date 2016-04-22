@@ -137,13 +137,8 @@ Time to change the **width** of the graph
     
 
     ## lwd column specifies the width of the edge 
-     graph$lwd = runif(length(9) +1)
-
-
-::
-
-    ## Error in `$<-.data.frame`(`*tmp*`, "lwd", value = c(0.341531977523118, : replacement has 2 rows, data has 9
-
+     graph$lwd = runif(length(9))
+     graph$lwd = graph$lwd + 2
 
 
 
@@ -156,7 +151,6 @@ Time to change the **width** of the graph
     :alt: plot of chunk width-graph
 
     plot of chunk width-graph
-
 
 **Add a Heat map to the plot!**
 
