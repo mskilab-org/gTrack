@@ -97,6 +97,15 @@ Vignette On Creating Heat maps and Graphs
 
     plot of chunk plot1 
 
+
+.. sourcecode:: r
+    
+
+    ##if a **matrix** is used to create a graph, color and style of edges can't be specified
+    ##Instead of using a **matrix** use a **data frame** to specify those attributes. 
+
+
+
 **Add a Heat map to the plot!**
 
 .. sourcecode:: r
