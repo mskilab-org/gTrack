@@ -1,7 +1,7 @@
 Vignette On Creating Heat maps and Graphs
 ======
 
-Creating a Graph to connect ranges
+Creating a **Graph** to connect ranges
 
 **Made Possible by edges parameter of gTrack**
 
