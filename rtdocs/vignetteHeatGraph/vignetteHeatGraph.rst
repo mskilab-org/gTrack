@@ -138,22 +138,21 @@ Time to change the **width** of the graph by **lwd** parameter.
 
     ## lwd column specifies the width of the edge 
      graph$lwd = 1.844941
-     graph$lwd = graph$lwd + 1
      graph
 
 
 ::
 
     ##   from to   col      lwd
-    ## 1    1 10   red 2.844941
-    ## 2    2  3  blue 2.844941
-    ## 3    3  5 green 2.844941
-    ## 4    4  6   red 2.844941
-    ## 5    5  7  blue 2.844941
-    ## 6    6  8 green 2.844941
-    ## 7    7  2   red 2.844941
-    ## 8    8  4  blue 2.844941
-    ## 9    9  9 green 2.844941
+    ## 1    1  3   red 1.844941
+    ## 2    2  6  blue 1.844941
+    ## 3    3  8 green 1.844941
+    ## 4    4  7   red 1.844941
+    ## 5    5  5  blue 1.844941
+    ## 6    6  4 green 1.844941
+    ## 7    7 10   red 1.844941
+    ## 8    8  9  blue 1.844941
+    ## 9    9  2 green 1.844941
 
 
 

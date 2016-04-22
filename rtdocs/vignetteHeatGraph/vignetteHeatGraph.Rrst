@@ -73,7 +73,6 @@ Time to change the **width** of the graph by **lwd** parameter.
 .. {r edit graph2}
 ## lwd column specifies the width of the edge 
 .. graph$lwd = 1.844941
-.. graph$lwd = graph$lwd + 1
 .. graph
 .. ..
 
