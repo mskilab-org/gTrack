@@ -98,45 +98,10 @@ Vignette On Creating Heat maps and Graphs
     plot of chunk plot1 
 
 
-.. sourcecode:: r
-    
-
-    ##if a **matrix** is used to create a graph, color and style of edges can't be specified
-    ##Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
 
 
-**Add a Heat map to the plot!**
-
-.. sourcecode:: r
-    
-
-    ##in order to create a heatmap for each node in the matrix, color intensity needs to be specified.
-    ##to save time, a random N*N matrix filled with values from 1:100 is made.
-    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
 
 
-
-.. sourcecode:: r
-    
-
-    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
-
-.. figure:: figure/plot-heatmap-1.png
-    :alt: plot of chunk plot-heatmap
-
-    plot of chunk plot-heatmap
-
-**Combining the heat map and graph onto the same plot.Possible by concatenation**
-
-.. sourcecode:: r
-    
-
-    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
-
-.. figure:: figure/plot-HeatMap&Graph-1.png
-    :alt: plot of chunk plot-HeatMap&Graph
-
-    plot of chunk plot-HeatMap&Graph
 
 
