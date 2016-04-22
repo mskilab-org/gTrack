@@ -116,7 +116,7 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
     ##from column specifies the beginning node (range)
     ##to column specifies the end node (range)
     ##col specifies the color of the edge 
-    graph = data.frame(from = 1:9, to = sample(1 + 1:9) , col = c('red', 'blue', 'green'))
+    graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
 
 
 
@@ -144,15 +144,15 @@ Time to change the **width** of the graph by **lwd** parameter.
 ::
 
     ##   from to   col      lwd
-    ## 1    1  3   red 1.844941
-    ## 2    2  6  blue 1.844941
-    ## 3    3  8 green 1.844941
-    ## 4    4  7   red 1.844941
-    ## 5    5  5  blue 1.844941
-    ## 6    6  4 green 1.844941
-    ## 7    7 10   red 1.844941
-    ## 8    8  9  blue 1.844941
-    ## 9    9  2 green 1.844941
+    ## 1    1  6   red 1.844941
+    ## 2    2  9  blue 1.844941
+    ## 3    3  7 green 1.844941
+    ## 4    4  2   red 1.844941
+    ## 5    5  4  blue 1.844941
+    ## 6    6 10 green 1.844941
+    ## 7    7  8   red 1.844941
+    ## 8    8  5  blue 1.844941
+    ## 9    9  3 green 1.844941
 
 
 
