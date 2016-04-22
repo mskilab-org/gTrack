@@ -74,6 +74,7 @@ Time to change the **width** of the graph by **lwd** parameter.
 ## lwd column specifies the width of the edge 
 .. graph$lwd = runif(length(9))
 .. graph$lwd = graph$lwd + 1
+.. graph
 .. ..
 
 .. {r width-graph}
@@ -91,7 +92,7 @@ Change style of edge by **lty** parameter.
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
-Change "curviness of the edges by adding **h** column
+Change **"curviness"** of the edges by adding **h** column
 
 .. {r edit curviness}
 ..graph$h = 10
