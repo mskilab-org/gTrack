@@ -89,6 +89,16 @@ Change style of edge by **lty** parameter.
 
 .. {r style-graph}
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. ..
+
+Change "curviness of the edges by adding **h** column
+
+.. {r edit curviness}
+..graph$h = 10
+..
+
+.. {r curviness-graph}
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. .. 
 
 **Add a Heat map to the plot!**
