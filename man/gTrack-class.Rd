@@ -13,17 +13,18 @@ gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
   gr.colorfield = NA, y.quantile = 0.01, y.cap = T, lwd.border = 1,
   hadj.label = 1, vadj.label = 0.5, smooth = NA, round = NA,
   ywid = NA, ypad = 0, seqinfo = NA, circles = FALSE, lines = FALSE,
-  bars = FALSE, triangle = !is.null(mdata), max.ranges = 50000,
-  source.file.chrsub = T, y0.bar = NA, yaxis = !is.na(y.field),
-  yaxis.pretty = 5, yaxis.cex = 1, chr.sub = TRUE, edgevars = NA,
-  gr.labelfield = NA, grl.labelfield = NA, xaxis.prefix = "",
-  xaxis.unit = 1, xaxis.suffix = "", xaxis.round = 3,
-  xaxis.cex.label = 1, xaxis.newline = TRUE, xaxis.chronly = FALSE,
-  xaxis.width = TRUE, xaxis.interval = "auto", xaxis.label.angle = 0,
-  xaxis.ticklen = 1, xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1,
-  sep.bg.col = "gray95", sep.draw = TRUE, y0 = NA, y1 = NA,
-  m.sep.lwd = 1, m.bg.col = "white", cmap.min = NA, cmap.max = NA,
-  labels.suppress = F, labels.suppress.grl = labels.suppress,
+  bars = FALSE, draw.paths = FALSE, triangle = !is.null(mdata),
+  max.ranges = 50000, source.file.chrsub = T, y0.bar = NA,
+  yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
+  chr.sub = TRUE, edgevars = NA, gr.labelfield = NA,
+  grl.labelfield = NA, xaxis.prefix = "", xaxis.unit = 1,
+  xaxis.suffix = "", xaxis.round = 3, xaxis.cex.label = 1,
+  xaxis.newline = TRUE, xaxis.chronly = FALSE, xaxis.width = TRUE,
+  xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
+  xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
+  sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
+  m.bg.col = "white", cmap.min = NA, cmap.max = NA, labels.suppress = F,
+  labels.suppress.grl = labels.suppress,
   labels.suppress.gr = labels.suppress, bg.col = "white", formatting = NA)
 }
 \arguments{
@@ -80,6 +81,9 @@ items (only relevant if used within chainedTracks object)}
 \item{lines}{vector or scalar logical specifying whether to line plot range data (formatting)}
 
 \item{bars}{vector or scalar logical specifying whether to bar plot range data (formatting)}
+
+\item{draw.paths}{vector or scalar logical specifying whether to interpret GRangesLists as "paths" and connect them with a
+a set of spline curves.  (formatting)}
 
 \item{max.ranges}{vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)}
 
@@ -155,9 +159,6 @@ items (only relevant if used within chainedTracks object)}
 
 \item{draw.var}{vector or scalar logical specifying whether to draw.var for GRanges / GRangesList  specifying reads
 (GRanges must contain $cigar +/- $MD field) (formatting)}
-
-\item{draw.paths}{vector or scalar logical specifying whether to interpret GRangesLists as "paths" and connect them with a
-a set of spline curves.  (formatting)}
 
 \item{path.col}{vector or scalar character specifying color of path (only applicable for tracks in which draw.paths = T) (formatting)}
 

@@ -351,6 +351,7 @@ gTrack = function(data = NULL, ##
                   circles = FALSE,
                   lines = FALSE,
                   bars = FALSE,
+                  draw.paths = FALSE, 
                   triangle = !is.null(mdata),
                   max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
                   source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
@@ -391,7 +392,7 @@ gTrack = function(data = NULL, ##
     formatting = NA) {
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
-      edges = edges, vars = vars, colormaps = colormaps, height = height, ygap = ygap,
+      edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
       stack.gap = stack.gap, col = col, border = border, angle = angle,
       gr.colorfield = gr.colorfield, y.quantile = y.quantile,
       cex.label = cex.label, gr.cex.label.gr = gr.cex.label, gr.srt.label = gr.srt.label,
