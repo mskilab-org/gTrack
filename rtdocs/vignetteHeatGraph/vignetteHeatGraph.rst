@@ -103,11 +103,25 @@ Made Possible by **edges** parameter of **gTrack**
 Adding **styles** to a graph 
 ============================
 
-If a **matrix** is used to create a graph, color and style of edges can't be specified
-Instead of using a **matrix** use a **data frame** to specify those attributes. 
+If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
+
+
+.. sourcecode:: r
+    
+
+    graph = data.frame(from = 1:9, to = sample(1 + 1:9) , col = c('red', 'blue', 'green'))
 
 
 
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , edges = graph , stack.gap = 5))
+
+.. figure:: figure/colored-graph-1.png
+    :alt: plot of chunk colored-graph
+
+    plot of chunk colored-graph
 
 
 **Add a Heat map to the plot!**
