@@ -61,7 +61,7 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
 ##from column specifies the beginning node (range)
 ##to column specifies the end node (range)
 ##col specifies the color of the edge 
-..graph = data.frame(from = 1:9, to = sample(1 + 1:9) , col = c('red', 'blue', 'green'))
+..graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
 .. .. 
 
 .. {r colored-graph}
