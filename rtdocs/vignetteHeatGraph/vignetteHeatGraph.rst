@@ -103,12 +103,10 @@ Made Possible by **edges** parameter of **gTrack**
 Adding **styles** to a graph 
 ============================
 
+If a **matrix** is used to create a graph, color and style of edges can't be specified
+Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
-.. sourcecode:: r
-    
 
-    ##if a **matrix** is used to create a graph, color and style of edges can't be specified
-    ##Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
 
 
