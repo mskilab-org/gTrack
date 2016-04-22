@@ -80,6 +80,15 @@ Time to change the **width** of the graph
 ..plot(gTrack(gr, edges = graph, stack.gap = 5))
 .. .. 
 
+.. {r edit graph3}
+..graph$lty = c(1,2,3)
+.. .. 
+
+.. {r style-graph}
+## lty specifies the style of the edge (dashed line or not)
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. .. 
+
 **Add a Heat map to the plot!**
 .. {r heat map code}
 ##in order to create a heatmap for each node in the matrix, color intensity needs to be specified.
