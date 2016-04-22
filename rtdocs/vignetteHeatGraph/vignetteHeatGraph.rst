@@ -130,7 +130,7 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
 
     plot of chunk colored-graph
 
-Time to change the **width** of the graph
+Time to change the **width** of the graph by **lwd** parameter. 
 
 
 .. sourcecode:: r
@@ -152,10 +152,13 @@ Time to change the **width** of the graph
 
     plot of chunk width-graph
 
+Change style of edge by **lty** parameter. 
+
 
 .. sourcecode:: r
     
 
+    ## lty specifies the style of the edge (no dashes, big dashes, little dashes)
     graph$lty = c(1,2,3)
 
 
@@ -163,7 +166,6 @@ Time to change the **width** of the graph
 .. sourcecode:: r
     
 
-    ## lty specifies the style of the edge (dashed line or not)
     plot(gTrack(gr , edges = graph , stack.gap = 5))
 
 .. figure:: figure/style-graph-1.png
