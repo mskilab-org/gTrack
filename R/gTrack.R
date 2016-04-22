@@ -2802,8 +2802,8 @@ draw.grl = function(grl,
       # variant drawing
       ####
 
-      ##if (draw.var & is.null(var))
-      ##  var = varbase(gr, soft = var.soft)
+      if (draw.var & is.null(var))
+        var = bamUtils::varbase(gr, soft = var.soft)
 
       if (!is.null(var))
       {
