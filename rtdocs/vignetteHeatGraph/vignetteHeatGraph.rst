@@ -138,7 +138,7 @@ Time to change the **width** of the graph by **lwd** parameter.
 
     ## lwd column specifies the width of the edge 
      graph$lwd = runif(length(9))
-     graph$lwd = graph$lwd + 2
+     graph$lwd = graph$lwd + 1
 
 
 
@@ -160,26 +160,6 @@ Change style of edge by **lty** parameter.
 
     ## lty specifies the style of the edge (no dashes, big dashes, little dashes)
     graph$lwd <- NULL
-    graph
-
-
-::
-
-    ##   from to   col
-    ## 1    1  7   red
-    ## 2    2 10  blue
-    ## 3    3  4 green
-    ## 4    4  2   red
-    ## 5    5  3  blue
-    ## 6    6  9 green
-    ## 7    7  8   red
-    ## 8    8  6  blue
-    ## 9    9  5 green
-
-
-.. sourcecode:: r
-    
-
     graph$lty = c(1,2,3)
 
 
