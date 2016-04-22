@@ -58,7 +58,7 @@ heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
 
 **Combining the heat map and graph onto the same plot.Possible by concatenation**
 .. {r plot-HeatMap&Graph}
-plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
 .. .. 
 
 
