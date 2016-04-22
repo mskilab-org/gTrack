@@ -97,8 +97,6 @@ Vignette On Creating Heat maps and Graphs
 
     plot of chunk plot1 
 
-hello
-
 
 .. sourcecode:: r
     
