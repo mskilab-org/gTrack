@@ -15,9 +15,7 @@ Vignette On Creating Heat maps and Graphs
 
 ##create matrix to specify edges (links between nodes) and nodes are the ranges.
 
-.. comment
-   ##create an N*N matrix filled with 0s.
-
+##create an N*N matrix filled with 0s.
 ..graph = matrix(0 , nrow = 10 , ncol = 10)
 ##print how the matrix looks.
 ..graph
@@ -43,7 +41,7 @@ Vignette On Creating Heat maps and Graphs
 .. .. 
 
 .. {r plot1 , fig.width=5}
-##attach "graph" to the edges parameter.
+##use edges parameter to create graph. 
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
@@ -58,11 +56,9 @@ heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
 ..plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
 .. .. 
 
-
+**Combining the heat map and graph onto the same plot.Possible by concatenation**
 .. {r plot-HeatMap&Graph}
-##plot(c(gTrack(gr , edges = a, stack.gap = 5) , gTrack(gr , mdata = m2 , stack.gap = 5)) , gr.sub(si , 'chr', ''))
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)) , gr.sub(si , 'chr', ''))
 .. .. 
 
-**Combining the heat map and graph onto the same plot.Possible by concatenation**
 
-..{r plot 
