@@ -159,6 +159,7 @@ Change style of edge by **lty** parameter.
     
 
     ## lty specifies the style of the edge (no dashes, big dashes, little dashes)
+    graph$lwd <- NULL
     graph$lty = c(1,2,3)
 
 
