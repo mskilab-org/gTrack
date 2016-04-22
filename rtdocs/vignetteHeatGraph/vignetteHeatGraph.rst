@@ -173,6 +173,25 @@ Change style of edge by **lty** parameter.
 
     plot of chunk style-graph
 
+Change "curviness of the edges by adding **h** column
+
+
+.. sourcecode:: r
+    
+
+    graph$h = 10
+
+
+.. sourcecode:: r
+    
+
+    plot(gTrack(gr , edges = graph , stack.gap = 5))
+
+.. figure:: figure/curviness-graph-1.png
+    :alt: plot of chunk curviness-graph
+
+    plot of chunk curviness-graph
+
 **Add a Heat map to the plot!**
 
 .. sourcecode:: r
