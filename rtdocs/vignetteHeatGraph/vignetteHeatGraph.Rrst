@@ -117,8 +117,22 @@ plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap ,
 **Zooming** in and out
 
 .. {r plot-zoom}
-##zooming in and out is easy in gTrack. All you need to do is supply the arithmetic operation, like this:
-plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)))
+##firstly, in previous examples, the seqnames have been 'chr1', 'chr2', etc. But, in order to avoid ALL possible errors the seqnames should be 1,2,etc.
+##can easily change an existing GRanges object to fit that criteria.
+##gr.fix will find the largest coordinate for each seqname and subsequently save those values in seqlengths parameter 
+gr.fix(gr)
+
+##seqinfo will return the seqlengths for each seqname
+seqinfo(gr)
+
+##si2gr (a gUtils function) will generate and then return a GRanges object from the seqlength values
+si2gr(gr)
+
+##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
+si = si2gr(seqinfo(gr.fix(gr)))
+
+##last step: replace all 'chr' strings in GRanges with an empty string. 
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
 .. ..
 
 
