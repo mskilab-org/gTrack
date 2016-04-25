@@ -237,4 +237,18 @@ Increase **"curviness"** of the edges by adding **h** column
 
     plot of chunk plot-HeatMap&Graph
 
+**Zooming** in and out
+
+
+.. sourcecode:: r
+    
+
+    ##zooming in and out is easy in gTrack. All you need to do is supply the arithmetic operation, like this:
+    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)))
+
+.. figure:: figure/plot-zoom-1.png
+    :alt: plot of chunk plot-zoom
+
+    plot of chunk plot-zoom
+
 

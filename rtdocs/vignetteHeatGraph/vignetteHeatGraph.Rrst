@@ -114,4 +114,11 @@ heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
 plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
 .. .. 
 
+**Zooming** in and out
+
+.. {r plot-zoom}
+##zooming in and out is easy in gTrack. All you need to do is supply the arithmetic operation, like this:
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)))
+.. ..
+
 
