@@ -243,8 +243,127 @@ Increase **"curviness"** of the edges by adding **h** column
 .. sourcecode:: r
     
 
-    ##zooming in and out is easy in gTrack. All you need to do is supply the arithmetic operation, like this:
-    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)))
+    ##firstly, in previous examples, the seqnames have been 'chr1', 'chr2', etc. But, in order to avoid ALL possible errors the seqnames should be 1,2,etc.
+    ##can easily change an existing GRanges object to fit that criteria.
+    ##gr.fix will find the largest coordinate for each seqname and subsequently save those values in seqlengths parameter 
+    gr.fix(gr)
+
+
+::
+
+    ## GRanges object with 10 ranges and 2 metadata columns:
+    ##     seqnames    ranges strand |        GC             name
+    ##        <Rle> <IRanges>  <Rle> | <numeric>        <numeric>
+    ##   a     chr1  [ 1,  2]      * |         1                5
+    ##   b     chr2  [ 3,  4]      * |         2 5.55555555555556
+    ##   c     chr2  [ 5,  6]      * |         3 6.11111111111111
+    ##   d     chr2  [ 7,  8]      * |         4 6.66666666666667
+    ##   e     chr1  [ 9, 10]      * |         5 7.22222222222222
+    ##   f     chr1  [11, 12]      * |         6 7.77777777777778
+    ##   g     chr3  [13, 14]      * |         7 8.33333333333333
+    ##   h     chr3  [15, 16]      * |         8 8.88888888888889
+    ##   i     chr3  [17, 18]      * |         9 9.44444444444444
+    ##   j     chr3  [19, 20]      * |        10               10
+    ##   -------
+    ##   seqinfo: 3 sequences from an unspecified genome
+
+
+.. sourcecode:: r
+    
+
+    ##seqinfo will return the seqlengths for each seqname
+    seqinfo(gr)
+
+
+::
+
+    ## Seqinfo object with 3 sequences from an unspecified genome; no seqlengths:
+    ##   seqnames seqlengths isCircular genome
+    ##   chr1             NA         NA   <NA>
+    ##   chr2             NA         NA   <NA>
+    ##   chr3             NA         NA   <NA>
+
+
+.. sourcecode:: r
+    
+
+    ##si2gr (a gUtils function) will generate and then return a GRanges object from the seqlength values
+    si2gr(gr)
+
+
+::
+
+    ## GRanges object with 3 ranges and 0 metadata columns:
+    ##        seqnames    ranges strand
+    ##           <Rle> <IRanges>  <Rle>
+    ##   chr1     chr1    [1, 0]      +
+    ##   chr2     chr2    [1, 0]      +
+    ##   chr3     chr3    [1, 0]      +
+    ##   -------
+    ##   seqinfo: 3 sequences from an unspecified genome; no seqlengths
+
+
+.. sourcecode:: r
+    
+
+    ##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
+    si = si2gr(seqinfo(gr.fix(gr)))
+    
+    ##last step: replace all 'chr' strings in GRanges with an empty string. 
+    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 3 out-of-bound ranges located on sequences
+    ##   1, 2, and 3. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 3 out-of-bound ranges located on sequences
+    ##   1, 2, and 3. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
+
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   1. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   2. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   3. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
 
 .. figure:: figure/plot-zoom-1.png
     :alt: plot of chunk plot-zoom
