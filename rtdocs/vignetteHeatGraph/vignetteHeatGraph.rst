@@ -3,7 +3,6 @@ Vignette On Creating Heat maps and Graphs
 =========================================
 
 Creating a **Graph** to connect ranges
-=======================================
 
 Made Possible by **edges** parameter of **gTrack**
 
@@ -103,9 +102,7 @@ Made Possible by **edges** parameter of **gTrack**
 
     plot of chunk plot1 
 
-============================
-Adding **styles** to a graph 
-============================
+Adding **styles** to a graph
 
 If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
@@ -188,7 +185,7 @@ Change style of edge by **lty** parameter.
 
     plot of chunk style-graph
 
-Change **"curviness"** of the edges by adding **h** column
+Increase **"curviness"** of the edges by adding **h** column
 
 
 .. sourcecode:: r
