@@ -131,7 +131,8 @@ si2gr(gr)
 ##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
 si = si2gr(seqinfo(gr.fix(gr)))
 
-##last step: replace all 'chr' strings in GRanges with an empty string. 
+##last step: replace all 'chr' strings in GRanges with an empty string.
+options(warn=-1)
 plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
 .. ..
 
