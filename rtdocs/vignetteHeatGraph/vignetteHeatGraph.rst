@@ -309,61 +309,9 @@ Increase **"curviness"** of the edges by adding **h** column
     ##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
     si = si2gr(seqinfo(gr.fix(gr)))
     
-    ##last step: replace all 'chr' strings in GRanges with an empty string. 
+    ##last step: replace all 'chr' strings in GRanges with an empty string.
+    options(warn=-1)
     plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 3 out-of-bound ranges located on sequences
-    ##   1, 2, and 3. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 3 out-of-bound ranges located on sequences
-    ##   1, 2, and 3. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   1. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   2. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   3. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
 
 .. figure:: figure/plot-zoom-1.png
     :alt: plot of chunk plot-zoom
