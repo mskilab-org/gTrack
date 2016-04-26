@@ -28,8 +28,8 @@ Vignette Using a Small Data Set
 .. sourcecode:: r
     
 
-    ## Given a GRanges object, separate the data into "w" length tiles. Because the the only interval
-    ## in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles each of length 5 will be outputted. 
+    ## Given a GRanges object, separate it into "w" equally length tiles. The only interval
+    ## in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles, each of length 5 will be outputted. 
     gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 
 
