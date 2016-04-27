@@ -2698,7 +2698,7 @@ draw.grl = function(grl,
         labels = names(grl)
       else
         labels = values(grl)$labels
-
+    
       # make sure names are unique
       names(grl) = 1:length(grl);
 
@@ -2769,13 +2769,16 @@ draw.grl = function(grl,
           y = grl.props$y
         }
       }
-
       if (!is.null(grl.labelfield))
       {
         if (!is.na(grl.labelfield))
-          if (grl.labelfield %in% names(grl.props))
-            grl.props$grl.labels = grl.props[, grl.labelfield]
-      }
+            {
+                if (grl.labelfield %in% names(grl.props))
+                    grl.props$grl.labels = grl.props[, grl.labelfield]
+            }        
+        else if (!is.null(labels))
+            grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
+    }
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
