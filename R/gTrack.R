@@ -2802,10 +2802,19 @@ draw.grl = function(grl,
       # variant drawing
       ####
 
-      if (draw.var & is.null(var))
-        var = bamUtils::varbase(gr, soft = var.soft)
+    if (draw.var & is.null(var))
+        {
+                                        #        var = bamUtils::varbase(gr[gr.in(gr, windows)], soft = var.soft)
+            gix = which(gr.in(gr, windows))
+            var = varbase(gr[gix], soft = var.soft)
+            names(var) = gix            
+        }
+    else
+        gix = NULL
+        
 
-      if (!is.null(var))
+    if (!is.null(var))
+        if (class(var)=='GRangesList')
       {
         VAR.COL = get.varcol()
 
@@ -2813,13 +2822,22 @@ draw.grl = function(grl,
           VAR.COL[names(var.col)] = var.col;
 
         names(var) = NULL
-        var.group = as.numeric(as.data.frame(var)$element)
-        #            var.gr = gr.stripstrand(unlist(var))
-        var.gr = grl.unlist(var)
 
-        # inherit properties from gr
+        if (!is.null(gix))
+            names(var) = gix
+        else
+            names(var) = 1:length(var)
+        
+                                        #        var.group = as.numeric(as.data.frame(var)$element)
+        var.gr = grl.unlist(var)
+        var.group = names(var)[var.gr$grl.ix]
+        #            var.gr = gr.stripstrand(unlist(var))
+
+
+                                        # inherit properties from gr
+
         values(var.gr) = cbind(as.data.frame(values(var.gr)),
-                               as.data.frame(values(gr)[var.group, setdiff(names(values(gr)), c('labels'))]))
+                               as.data.frame(values(gr)[as.numeric(var.group), setdiff(names(values(gr)), c('labels'))]))
 
         var.gr$col.sig = as.character(var.gr$type);
         xix = var.gr$type == 'X'
@@ -2863,14 +2881,12 @@ draw.grl = function(grl,
           new.gr$grl.iix[unlist(new.ord)] = new.gr$grl.iix[unlist(new.ord)] + new.ix
 
           gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]
-
         }
 
         else
         {
           gr = grbind(gr, var.gr)
         }
-
       }
 
       if (length(gr)>0)
