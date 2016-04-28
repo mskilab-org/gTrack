@@ -333,8 +333,8 @@ gTrack = function(data = NULL, ##
                   cex.label = 1,
                   gr.cex.label = cex.label *0.8,
                   gr.srt.label = 0,
-                  col = alpha('black', 0.5),
-                  border = 'black', #'gray30',
+                  col = NA,
+                  border = NA,
                   angle = 15,
                   name = "",
                   gr.colorfield = NA,
@@ -391,6 +391,19 @@ gTrack = function(data = NULL, ##
                     labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
     formatting = NA) {
+
+    ## make border batch color, but be a little less transparent
+    if (is.na(col))
+        col = alpha('black', 0.5)
+    
+    if (is.na(border))
+        {
+            rgb = col2rgb(col, alpha = TRUE)            
+            border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
+        }
+
+
+    
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
       edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
@@ -2685,7 +2698,7 @@ draw.grl = function(grl,
         labels = names(grl)
       else
         labels = values(grl)$labels
-
+    
       # make sure names are unique
       names(grl) = 1:length(grl);
 
@@ -2756,13 +2769,16 @@ draw.grl = function(grl,
           y = grl.props$y
         }
       }
-
       if (!is.null(grl.labelfield))
       {
         if (!is.na(grl.labelfield))
-          if (grl.labelfield %in% names(grl.props))
-            grl.props$grl.labels = grl.props[, grl.labelfield]
-      }
+            {
+                if (grl.labelfield %in% names(grl.props))
+                    grl.props$grl.labels = grl.props[, grl.labelfield]
+            }        
+        else if (!is.null(labels))
+            grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
+    }
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
@@ -4686,6 +4702,9 @@ format_windows <- function(windows, .Object) {
         windows = si2gr(windows)
 
     windows = windows[width(windows)>0]  ## otherwise will get non-matching below
+    
+    if (is.null(windows$col))
+        windows$col = 'gray98'
 
 #    if (is.list(windows))
 #        windows = do.call('GRangesList', windows)
