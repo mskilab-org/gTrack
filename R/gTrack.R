@@ -1538,7 +1538,7 @@ setMethod('plot', c("gTrack","ANY"),
     values(l1) = cbind(as.data.frame(values(l1)), as.data.frame(values(links)[l1$query.id, , drop = FALSE]))
     GenomicRanges::strand(l1) = GenomicRanges::strand(links.p[[1]])[l1$query.id]
     l1$stack.id = win.u$grl.ix[l1$subject.id]
-    l1$y.pos = ylim.stacks$xaxis.pos[l1$stack.id]
+    browser()
     l1$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l1$subject.id,]$start, y = start(l1),
                       z = start(win.u[l1$subject.id]), a = window.segs.u$width[l1$subject.id] / width(win.u)[l1$subject.id])
 
