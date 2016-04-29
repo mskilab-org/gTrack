@@ -23,3 +23,23 @@ Graphing Mutations
 ..plot(c(gt.fusion, gt.genes))
 .. .. 
 
+**Add Exons by gr.labelfield**
+
+.. {r addingExons}
+##Create a column that keeps track of the exons
+
+..gene1$exon = 1:length(gene1)
+..gene2$exon = 1:length(gene2)
+..gene3$exon = 1:length(gene3)
+
+..grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
+..gt.genes = gTrack(grl, col = 'gray90', gr.labelfield = 'exon')
+..fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
+..gt.fusion = gTrack(fusion, draw.paths = FALSE)
+..gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+..win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+.. ..
+
+.. {r-plotList}
+..plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
+.. .. 

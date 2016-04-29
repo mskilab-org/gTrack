@@ -32,3 +32,33 @@ Graphing Mutations
 
     plot of chunk -plotPaths
 
+**Add Exons by gr.labelfield**
+
+
+.. sourcecode:: r
+    
+
+    ##Create a column that keeps track of the exons
+    
+    gene1$exon = 1:length(gene1)
+    gene2$exon = 1:length(gene2)
+    gene3$exon = 1:length(gene3)
+    
+    grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
+    gt.genes = gTrack(grl, col = 'gray90', gr.labelfield = 'exon')
+    fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
+    gt.fusion = gTrack(fusion, draw.paths = FALSE)
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+    win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
+
+.. figure:: figure/-plotList-1.png
+    :alt: plot of chunk -plotList
+
+    plot of chunk -plotList
