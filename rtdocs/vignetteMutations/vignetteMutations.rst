@@ -1,5 +1,5 @@
-Graphing Mutations
-==================
+Vignette Showing How to Graph Mutations 
+=======================================
 
 **Draw.paths**
 
