@@ -1,0 +1,9 @@
+Graphing Mutations
+==================
+
+.. {r generating GRanges}
+# To create fake genes, create two GRanges objects each filled with 5 random ranges from chromosomes 1 and 2. Ranges fall within the 1-100 sequence
+..gene1 = sort(sample(gr.tile('1:1-100-', 5), 5))
+..gene2 = sort(sample(gr.tile('2:1-100-', 5), 5))
+
+.. .. 
