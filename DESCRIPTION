@@ -27,4 +27,5 @@ License: GPL-2
 LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
 RoxygenNote: 5.0.1
-Suggests: testthat
+Suggests:
+    testthat
