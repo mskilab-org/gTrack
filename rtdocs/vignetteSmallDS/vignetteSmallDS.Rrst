@@ -8,22 +8,20 @@ Vignette Using a Small Data Set
 **tile ranges across GRanges**
 
 .. {r overlapping segments by gr.tile }
-## Create a GRanges object 
-..print(GRanges(1 , IRanges(1,100)))
-## Given a GRanges object, separate it into "w" equally length tiles. The only interval
-## in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles, each of length 5 will be outputted. 
+## Divide GRanges into "w" equally length tiles.
+#The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles, each of length 5 will be outputted. 
 
 ..gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 .. ..
 
 .. {r plot-tiles}
-## Plot how the tiles would like
+## Plot tiles 
 ..plot(gTrack(gr))
 .. .. 
 
 **Overlapping Tiles - gTrack(gr + n)**
 
-**indicate the degree of overlap**
+**specify degree of overlap**
 
 .. {r plot-overlappingtiles }
 ..plot(gTrack(gr+10))
