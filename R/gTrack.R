@@ -333,8 +333,8 @@ gTrack = function(data = NULL, ##
                   cex.label = 1,
                   gr.cex.label = cex.label *0.8,
                   gr.srt.label = 0,
-                  col = alpha('black', 0.5),
-                  border = 'black', #'gray30',
+                  col = NA,
+                  border = NA,
                   angle = 15,
                   name = "",
                   gr.colorfield = NA,
@@ -391,6 +391,19 @@ gTrack = function(data = NULL, ##
                     labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
     formatting = NA) {
+
+    ## make border batch color, but be a little less transparent
+    if (is.na(col))
+        col = alpha('black', 0.5)
+    
+    if (is.na(border))
+        {
+            rgb = col2rgb(col, alpha = TRUE)            
+            border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
+        }
+
+
+    
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
       edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
@@ -2028,8 +2041,9 @@ track.gencode = function(gencode = NULL,
   gr.labelfield,
   col,
   cached = T, ## if true will use cached version
-  cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack'),  ## location of cached copy
-  cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'),
+  cached.dir = Sys.getenv('GENCODE_DIR'),
+  cached.path = paste(cached.dir, "gencode.composite.rds", sep = '/'),  ## location of cached copy
+  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep = '/'),  ## location of cached copy
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
@@ -2037,7 +2051,31 @@ track.gencode = function(gencode = NULL,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
   ...)
-  {
+    {
+        
+        if (nchar(cached.dir)==0)
+            {
+                cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy        
+                cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack')
+            }
+
+        
+        if (!gene.collapse)
+            {
+                if (file.exists(cached.path))                  
+                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path))
+                else
+                    cat(sprintf('Caching gencode annotations to %s\n', cached.path))
+            }
+        else
+            {
+                if (file.exists(cached.path.collapsed))
+                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path.collapsed))
+                else
+                    cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
+            }
+        
+
     if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
         {
             cat('recreating composite gencode object\n')
@@ -2685,7 +2723,7 @@ draw.grl = function(grl,
         labels = names(grl)
       else
         labels = values(grl)$labels
-
+    
       # make sure names are unique
       names(grl) = 1:length(grl);
 
@@ -2756,13 +2794,16 @@ draw.grl = function(grl,
           y = grl.props$y
         }
       }
-
       if (!is.null(grl.labelfield))
       {
         if (!is.na(grl.labelfield))
-          if (grl.labelfield %in% names(grl.props))
-            grl.props$grl.labels = grl.props[, grl.labelfield]
-      }
+            {
+                if (grl.labelfield %in% names(grl.props))
+                    grl.props$grl.labels = grl.props[, grl.labelfield]
+            }        
+        else if (!is.null(labels))
+            grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
+    }
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
@@ -2802,10 +2843,21 @@ draw.grl = function(grl,
       # variant drawing
       ####
 
-      if (draw.var & is.null(var))
-        var = bamUtils::varbase(gr, soft = var.soft)
+    if (draw.var & is.null(var))
+        {
+                                        #        var = bamUtils::varbase(gr[gr.in(gr, windows)], soft = var.soft)
+            gix = which(gr.in(gr, windows))
+            var = varbase(gr[gix], soft = var.soft)
+            if (any(iix <- var$type == 'I'))
+                end(var[ix]) = end(var[ix])+1
+            names(var) = gix            
+        }
+    else
+        gix = NULL
+        
 
-      if (!is.null(var))
+    if (!is.null(var))
+        if (class(var)=='GRangesList')
       {
         VAR.COL = get.varcol()
 
@@ -2813,24 +2865,39 @@ draw.grl = function(grl,
           VAR.COL[names(var.col)] = var.col;
 
         names(var) = NULL
-        var.group = as.numeric(as.data.frame(var)$element)
-        #            var.gr = gr.stripstrand(unlist(var))
-        var.gr = grl.unlist(var)
 
-        # inherit properties from gr
+        if (!is.null(gix))
+            names(var) = gix
+        else
+            names(var) = 1:length(var)
+        
+                                        #        var.group = as.numeric(as.data.frame(var)$element)
+        var.gr = grl.unlist(var)
+        var.group = names(var)[var.gr$grl.ix]
+        #            var.gr = gr.stripstrand(unlist(var))
+
+
+                                        # inherit properties from gr
+
         values(var.gr) = cbind(as.data.frame(values(var.gr)),
-                               as.data.frame(values(gr)[var.group, setdiff(names(values(gr)), c('labels'))]))
+                  as.data.frame(values(gr)[as.numeric(var.group), setdiff(names(values(gr)), c('labels'))]))
+        
+        if (!is.null(gr.labelfield))
+            if (!is.na(gr.labelfield))
+                values(var.gr)[, gr.labelfield] = NA
 
         var.gr$col.sig = as.character(var.gr$type);
         xix = var.gr$type == 'X'
         var.gr$col.sig[xix] = paste(var.gr$col.sig[xix], var.gr$varbase[xix], sep = '')
         var.gr$col = VAR.COL[var.gr$col.sig]
         var.gr$border = var.gr$col
+        var.gr$first = FALSE
+        var.gr$last = FALSE
 
         if (draw.paths) ## if we are drawing paths, then need to setdiff variant vs non variant parts of edges and re-order
         {
           ## remove soft clips
-          var.gr = var.gr[var.gr$type != 'S']
+          var.gr = var.gr[!(var.gr$type %in% c('H',  'S'))]
           gr2 = gr;
           GenomicRanges::strand(var.gr) == GenomicRanges::strand(gr)[var.gr$grl.ix]
 
@@ -2846,14 +2913,13 @@ draw.grl = function(grl,
           tmp.ir = do.call(c, tmp.l)
           tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = GenomeInfoDb::seqlengths(gr), og.ix = tmp.ogix)
           tmp.ov = gr.findoverlaps(tmp.gr, var.gr)
-          tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]
+          tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]                   
           new.gr = tmp.gr[!(1:length(tmp.gr) %in% tmp.ov$query.id), ] ## only keep the non variant pieces
           GenomicRanges::strand(new.gr) = GenomicRanges::strand(gr)[new.gr$og.ix]
-          values(new.gr) = cbind(as.data.frame(values(gr)[new.gr$og.ix, ]) , og.ix = new.gr$og.ix)
-
+          values(new.gr) = cbind(as.data.frame(values(gr)[new.gr$og.ix, ]) , og.ix = new.gr$og.ix)                            
           var.gr$og.ix = var.gr$grl.ix
           GenomicRanges::strand(var.gr) = GenomicRanges::strand(gr)[var.gr$og.ix]
-          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
+#          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
 
           new.gr = grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
           new.gr$grl.iix = as.numeric(gr$grl.iix[new.gr$og.ix])
@@ -2863,14 +2929,12 @@ draw.grl = function(grl,
           new.gr$grl.iix[unlist(new.ord)] = new.gr$grl.iix[unlist(new.ord)] + new.ix
 
           gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]
-
         }
 
         else
         {
           gr = grbind(gr, var.gr)
         }
-
       }
 
       if (length(gr)>0)
@@ -3547,6 +3611,7 @@ draw.grl = function(grl,
           edges = merge(merge(edges, grl.segs[last.ix, c('group', 'from.gr')], by.x = 'from', by.y = 'group', all.x = T),
                         grl.segs[first.ix, c('group', 'to.gr')], by.x = 'to', by.y = 'group', all.x = T)
 
+          
           #                  edges$to.gr = first.ix[match(edges$to, grl.segs[first.ix, ]$group)]
           #                  edges$from.gr = last.ix[match(edges$from, grl.segs[last.ix, ]$group)]
 
@@ -4670,6 +4735,9 @@ format_windows <- function(windows, .Object) {
         windows = si2gr(windows)
 
     windows = windows[width(windows)>0]  ## otherwise will get non-matching below
+    
+    if (is.null(windows$col))
+        windows$col = 'gray98'
 
 #    if (is.list(windows))
 #        windows = do.call('GRangesList', windows)
@@ -5198,22 +5266,17 @@ get_seqinfo <- function(.Object, seqinfo) {
       x = .Object@data[[i]]
 
       if (is(x, 'GRanges') || is(x, 'GRangesList'))
-      {
-        if (is.null(slen))
-        {
-          slen = GenomeInfoDb::seqlengths(x)
-
-          if (any(is.na(slen)))
           {
-            if (is(x, 'GRanges'))
-              slen = GenomeInfoDb::seqlengths(gr.fix(x))
-            else if (is(x, 'GRangesList'))
-              slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+              slen = GenomeInfoDb::seqlengths(x)
+              
+              if (any(is.na(slen)))
+                  {
+                      if (is(x, 'GRanges'))
+                          slen = GenomeInfoDb::seqlengths(gr.fix(x))
+                      else if (is(x, 'GRangesList'))
+                          slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+                  }
           }
-        }
-        else
-          slen[GenomeInfoDb::seqlevels(x)] = pmax(slen[GenomeInfoDb::seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
-      }
       else if (is(x, 'ffTrack'))
       {
         if (is.null(slen))
