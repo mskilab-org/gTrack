@@ -28,9 +28,10 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
+
 setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
-{
-  .Object@data <- listify(data, GRanges)
+    {
+        .Object@data <- listify(data, GRanges)
   # if (is.null(data))
   #   .Object@data = list(GRanges())
   # else if (!is.list(data))
@@ -61,13 +62,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
     .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
   }
 
-  .Object@edges <- listify(edges, data.frame, length(.Object@data))
-  # if (is.null(edges))
-  #   .Object@edges = rep(list(data.frame()), length(.Object@data))
-  # else if (!is.list(edges) | inherits(edges, 'data.frame'))
-  #   .Object@edges = list(edges)
-  # else
-  #   .Object@edges = edges
+#  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+  if (is.null(edges))
+    .Object@edges = rep(list(data.frame()), length(.Object@data))
+  else if (!is.list(edges) | inherits(edges, 'data.frame'))
+    .Object@edges = list(edges)
+  else
+      .Object@edges = edges
 
   .Object@vars <- listify(vars, list, length(.Object@data))
   # if (is.null(vars))
@@ -84,7 +85,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
 
   if (any(edges.df))
-    .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
+      .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
     {
       if (nrow(x)>0)
       {
@@ -92,12 +93,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
           stop('edges data frame missing $to and $from columns')
 
         if (data.table::is.data.table(x))
-          x = as.data.frame(x)
+            x = as.data.frame(x)
+        x
       }
       else
         data.frame()
-    })
-
+  })
+ 
   if (any(edges.mat))
     .Object@edges[edges.mat] = lapply(which(edges.mat), function(x)
     {
@@ -107,7 +109,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
       tmp.edges = which(y>0, arr.ind = TRUE)
       return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
     })
-
+  
   .Object@colormap <- listify(colormaps, list)
   # if (is.null(colormaps))
   #   .Object@colormap = list(list())
@@ -207,24 +209,25 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
       new_object = c(new_object, o)
     }
     .Object = new_object
-  } else if (!is.na(y.field[1])) {
+  } else if (!all(is.na(y.field))) {
     formatting(.Object)$y.field <- y.field
     formatting(.Object)$yaxis <- yaxis
   }
   else {
     formatting(.Object)$y.field <- NA
     formatting(.Object)$yaxis <- TRUE
-  }
-
+}
   ##
   if (any(!is.na(y.field))) {
-    ix <- nchar(formatting(.Object)$name) == 0
-    formatting(.Object)$name[ix] <- y.field[ix]
+      ix <- nchar(formatting(.Object)$name) == 0
+      formatting(.Object)$name[ix] <- y.field[ix]
   }
-
-  validObject(.Object)
-  return(.Object)
+  
+  return(.Object)  
 })
+
+
+
 
 #' Construct a new \code{gTrack}
 #'
@@ -248,12 +251,14 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param label.suppress.grl vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)
 #' @param ygap vector or scalar numeric specifying gap between tracks
 #' @param stack.gap vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)
+#' @param cex.label size of top level label (e.g. GRAngesList item)
+#' @param cex.label.gr size of bottom level label (i.e. GRanges in a GrangesListitem, e.g. exons in a gene)
+#' @param gr.srt.label rotation of GRanges label
 #' @param ywid vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)
 #' @param col vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object
 #' @param border vector or scalar character specifying static border for polygons in track(s), if NA then $border is determine duing gr.colorfield / colormap or meta field $border of GRanges / GRangesList
 #' @param max.ranges vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)
 #' @param angle vector of scalar numeric specifying angle of polygons that represent signed range'
-#' @param lift vector or scalar logical flag specifying whether to lift this track to other chainedTrack
 #' items (only relevant if used within chainedTracks object)
 #' @param split vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)
 #' @param colormaps length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.
@@ -307,6 +312,10 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param sep.draw Logical allowing separators to be turned off [FALSE]
 #' @param cmap.min minimum saturating data value of color map for triangle plot
 #' @param cmap.max maximum saturating data value of color map for triangle plot
+#' @param labels.suppress whether to suppress labels (both GRangesList and GRanges)
+#' @param labels.suppress.gr whether to suppress GRanges labels
+#' @param labels.suppress.gr whether to suppress GRangesList labels
+#' @param ... additional formatting arguments to gTrack
 #'
 #' @name gTrack
 #' @rdname gTrack-class
@@ -321,12 +330,13 @@ gTrack = function(data = NULL, ##
                   height = 10,
                   ygap = 2,
                   stack.gap = 0,
-                  col = alpha('black', 0.5),
-                  border = 'black', #'gray30',
+                  cex.label = 1,
+                  gr.cex.label = cex.label *0.8,
+                  gr.srt.label = 0,
+                  col = NA,
+                  border = NA,
                   angle = 15,
                   name = "",
-                  lift = FALSE, ## whether to lift this track to other chainedTrack items
-                  split = FALSE, ## whether to split when lifting
                   gr.colorfield = NA,
                   y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                   y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
@@ -341,6 +351,8 @@ gTrack = function(data = NULL, ##
                   circles = FALSE,
                   lines = FALSE,
                   bars = FALSE,
+                  draw.paths = FALSE,
+                  draw.var = FALSE, 
                   triangle = !is.null(mdata),
                   max.ranges = 5e4, ## parameter to limit max number of ranges to draw on canvas, will downsample to this amount
                   source.file.chrsub = T, ## if source file has chr for seqnames this will sub it out
@@ -357,7 +369,7 @@ gTrack = function(data = NULL, ##
                   xaxis.suffix = "",
                   xaxis.round = 3,
                   xaxis.cex.label = 1,
-                  xaxis.newline = FALSE,
+                  xaxis.newline = TRUE,
                   xaxis.chronly = FALSE,
                   xaxis.width= TRUE,
                   xaxis.interval = 'auto',
@@ -374,12 +386,30 @@ gTrack = function(data = NULL, ##
                   m.bg.col = 'white',
                   cmap.min = NA,
                   cmap.max = NA,
+                    labels.suppress = F,
+                    labels.suppress.grl = labels.suppress,
+                    labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
-                  formatting = NA) {
-  new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
-      edges = edges, vars = vars, colormaps = colormaps, height = height, ygap = ygap,
-      stack.gap = stack.gap, col = col, border = border, angle = angle,
-      lift = lift, split = split, gr.colorfield = gr.colorfield, y.quantile = y.quantile,
+    formatting = NA) {
+
+    ## make border batch color, but be a little less transparent
+    if (is.na(col))
+        col = alpha('black', 0.5)
+    
+    if (is.na(border))
+        {
+            rgb = col2rgb(col, alpha = TRUE)            
+            border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
+        }
+
+
+    
+    ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
+    new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
+      edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
+      stack.gap = stack.gap, col = col, border = border, angle = angle, draw.var = draw.var,
+      gr.colorfield = gr.colorfield, y.quantile = y.quantile,
+      cex.label = cex.label, gr.cex.label.gr = gr.cex.label, gr.srt.label = gr.srt.label,
       y.cap = y.cap, lwd.border = lwd.border, hadj.label = hadj.label, vadj.label = vadj.label, smooth = smooth,
       round = round, ywid = ywid, ypad = ypad, seqinfo = seqinfo, circles = circles, lines = lines,
       bars = bars, triangle = triangle, max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
@@ -420,6 +450,7 @@ setValidity('gTrack', function(object)
     else
       if (nrow(object@formatting) != 0)
         problems = c(problems, 'Null trackdata object has incompatible fields');
+
 
       if (!all(sapply(object@edges, is.data.frame)))
         problems = c(problems, 'Some trackdata edges attributes are not data.frames')
@@ -805,14 +836,14 @@ setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
                 yaxis = do.call('c', lapply(args, function(y) formatting(y)$yaxis)))
   #out@mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata))
 
-  #formatting(out) <- do.call('rrbind', lapply(args, formatting))
+##  formatting(out) <- do.call('rrbind', lapply(args, formatting))
 
   if ('is.null' %in% names(formatting(out)))
   {
     is.n = out$is.null
     is.n[is.na(is.n)] = F
     out = out[!is.n]
-  }
+}
   return(out)
 })
 
@@ -1039,7 +1070,7 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 #' @aliases formatting<-,gTrack-method
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
 {
-  REQUIRED.COLUMNS = c('height', 'col', 'lift', 'ygap', 'y.field');
+  REQUIRED.COLUMNS = c('height', 'col', 'ygap', 'y.field');
   if (nrow(value) != length(.Object))
     stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
 
@@ -1131,8 +1162,8 @@ setMethod('show', 'gTrack', function(object)
 }
 
 # @importFrom graphics plot
-#if (!isGeneric("plot"))
-#   setGeneric("plot", function(x, ...) standardGeneric("plot"))
+if (!isGeneric("plot"))
+   setGeneric("plot", function(x, ...) standardGeneric("plot"))
 
 #' @name plot
 #' @title plot
@@ -1172,20 +1203,20 @@ setMethod('show', 'gTrack', function(object)
 setMethod('plot', c("gTrack","ANY"),
           #signature(x = "gTrack", y = "ANY"),
           function(x,  ##pplot  (for easy search)
-                                                                y,
-                                                                windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
-                                                                links = NULL, ## GRangesList of pairs of signed locations,
-                                                                gap = NULL,  ## spacing betwen windows (in bp)
-                                                                y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
-                                                                y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
-                                                                cex.xlabel = 1,
-                                                                cex.ylabel = 1,
-                                                                max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
-                                                                links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
-                                                                verbose=FALSE,
-                                                                legend.params = list(),
-                                                                ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
-)
+                   y,
+                   windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+                   links = NULL, ## GRangesList of pairs of signed locations,
+                   gap = NULL,  ## spacing betwen windows (in bp)
+                   y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
+                   y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
+                   cex.xlabel = 1,
+                   cex.ylabel = 1,
+                   max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
+                   links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
+                   verbose=FALSE,
+                   legend.params = list(),
+                   ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
+                   )
 {
   if (!missing(y))
     windows = y
@@ -1193,7 +1224,6 @@ setMethod('plot', c("gTrack","ANY"),
   .Object = x
   if (!missing(y))
     windows = y
-
 
   ## make sure we have min legend data
   if (!"xpos" %in% names(legend.params))
@@ -1260,6 +1290,7 @@ setMethod('plot', c("gTrack","ANY"),
   tmp.top.gaps = 0.5 * formatting(.Object)$ygap
   tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
   tmp.ylim.subplot = data.frame(start = c(tmp.bottom.gaps[1], tmp.bottom.gaps[1] +
+
                                             cumsum(formatting(.Object)$height[oth.ix] + tmp.top.gaps[oth.ix] + tmp.bottom.gaps[oth.ix+1])),
                                 end = cumsum(formatting(.Object)$height + tmp.top.gaps + tmp.bottom.gaps) - tmp.top.gaps)
 
@@ -1405,10 +1436,13 @@ setMethod('plot', c("gTrack","ANY"),
         else # otherwise use some arbitrary proportion around the value
           range.y = range.y + abs(range.y)*0.2*c(-1, 1)
       }
-
+      
       this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
 
-      if (!is.null(formatting(.Object)$y.cap)) ## cap values from top and bottom
+      if (is.null(formatting(.Object)$y.cap))
+          formatting(.Object)$y.cap = NA
+      
+      if (!is.na(formatting(.Object)$y.cap[j])) ## cap values from top and bottom
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
       else
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = TRUE)
@@ -1453,7 +1487,7 @@ setMethod('plot', c("gTrack","ANY"),
                       y.grid.cex = formatting(.Object)$yaxis.cex[j],
                       edges = edgs(.Object)[[j]])
     all.args <- c(main.args, all.args[!names(all.args) %in% names(main.args)])
-
+    
     # main.args = c(main.args, all.args[setdiff(names(all.args), names(main.args))]);
     #
     # other.args = dotdot.args
@@ -1602,8 +1636,8 @@ setMethod('plot', c("gTrack","ANY"),
     if (length(l1)>0 & length(l2)>0)
     {
       pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]
-      l1.paired = as.data.frame(l1)[pairs[,1], ]
-      l2.paired = as.data.frame(l2)[pairs[,2], ]
+      l1.paired = GenomicRanges::as.data.frame(l1)[pairs[,1], ]
+      l2.paired = GenomicRanges::as.data.frame(l2)[pairs[,2], ]
     }
     else
     {
@@ -1761,7 +1795,7 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 
     if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
     {
-      tmp.tel = aggregate(formula = end ~ seqnames, data = as.data.frame(ucsc.bands), FUN = max)
+      tmp.tel = aggregate(formula = end ~ seqnames, data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
       tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
                             seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
@@ -2007,8 +2041,9 @@ track.gencode = function(gencode = NULL,
   gr.labelfield,
   col,
   cached = T, ## if true will use cached version
-  cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack'),  ## location of cached copy
-  cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack'),
+  cached.dir = Sys.getenv('GENCODE_DIR'),
+  cached.path = paste(cached.dir, "gencode.composite.rds", sep = '/'),  ## location of cached copy
+  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep = '/'),  ## location of cached copy
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
@@ -2016,7 +2051,31 @@ track.gencode = function(gencode = NULL,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
   ...)
-  {
+    {
+        
+        if (nchar(cached.dir)==0)
+            {
+                cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy        
+                cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack')
+            }
+
+        
+        if (!gene.collapse)
+            {
+                if (file.exists(cached.path))                  
+                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path))
+                else
+                    cat(sprintf('Caching gencode annotations to %s\n', cached.path))
+            }
+        else
+            {
+                if (file.exists(cached.path.collapsed))
+                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path.collapsed))
+                else
+                    cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
+            }
+        
+
     if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
         {
             cat('recreating composite gencode object\n')
@@ -2109,9 +2168,9 @@ track.gencode = function(gencode = NULL,
     cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
 
     return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
-                     #gr.srt.label = gr.srt.label, cex.label = cex.label,
-                     #gr.cex.label = gr.cex.label,
-                     #labels.suppress.gr = labels.suppress.gr,
+                     gr.srt.label = gr.srt.label, cex.label = cex.label,
+                     gr.cex.label = gr.cex.label,
+                     labels.suppress.gr = labels.suppress.gr,
                      stack.gap = stack.gap, colormaps = cmap, ...)))
   }
 
@@ -2407,6 +2466,12 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     if (is.na(lines))
       lines = F
 
+
+    bars = ifelse(is.na(bars), FALSE, bars)
+    circles = ifelse(is.na(bars), FALSE, circles)
+    lines = ifelse(is.na(bars), FALSE, lines)
+
+    
     if (!circles & !lines & !bars)
     {
       main.args = list(x0 = x$pos1 - PAD, y0 = x$y-x$lwd/2, x1 = x$pos2 + PAD, y1 = x$y + x$lwd/2, col = x$col, border = x$border , angle = angle*c('*'=0, '+'=1, '-'=-1)[x$direction], lwd = x$lwd.border)
@@ -2463,24 +2528,23 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
           OFFSET = diff(par('usr')[3:4])/100
 
         if (adj.label[2] == 1)
-        {
-          text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]+x$lwd[has.label]/2+OFFSET, as.character(x$label[has.label]),
-               adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-        }
+            {
+                text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]+x$lwd[has.label]/2+OFFSET, as.character(x$label[has.label]),
+                     adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
+            }
         else if (adj.label[2] == 0.5)
-        {
-          text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label], as.character(x$label[has.label]),
-               adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-        }
+            {            
+                text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label], as.character(x$label[has.label]),
+                     adj = adj.label, cex = 0.5*cex.label, srt = srt.label)            
+            }
         else
-        {
-          text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]-x$lwd[has.label]/2-OFFSET, as.character(x$label[has.label]),
-               adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
-        }
-      }
+            {
+                text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]-x$lwd[has.label]/2-OFFSET, as.character(x$label[has.label]),
+                     adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
+            }
     }
   }
-
+} 
 }
 
 #' @name draw.grl
@@ -2659,7 +2723,7 @@ draw.grl = function(grl,
         labels = names(grl)
       else
         labels = values(grl)$labels
-
+    
       # make sure names are unique
       names(grl) = 1:length(grl);
 
@@ -2678,6 +2742,7 @@ draw.grl = function(grl,
       if (!is.null(gr.colorfield))
         if (is.na(gr.colorfield))
           gr.colorfield = NULL
+
 
       if (!is.null(gr.colormap))
         if (all(is.na(gr.colormap)))
@@ -2729,13 +2794,16 @@ draw.grl = function(grl,
           y = grl.props$y
         }
       }
-
       if (!is.null(grl.labelfield))
       {
         if (!is.na(grl.labelfield))
-          if (grl.labelfield %in% names(grl.props))
-            grl.props$grl.labels = grl.props[, grl.labelfield]
-      }
+            {
+                if (grl.labelfield %in% names(grl.props))
+                    grl.props$grl.labels = grl.props[, grl.labelfield]
+            }        
+        else if (!is.null(labels))
+            grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
+    }
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
@@ -2775,10 +2843,21 @@ draw.grl = function(grl,
       # variant drawing
       ####
 
-      ##if (draw.var & is.null(var))
-      ##  var = varbase(gr, soft = var.soft)
+    if (draw.var & is.null(var))
+        {
+                                        #        var = bamUtils::varbase(gr[gr.in(gr, windows)], soft = var.soft)
+            gix = which(gr.in(gr, windows))
+            var = varbase(gr[gix], soft = var.soft)
+            if (any(iix <- var$type == 'I'))
+                end(var[ix]) = end(var[ix])+1
+            names(var) = gix            
+        }
+    else
+        gix = NULL
+        
 
-      if (!is.null(var))
+    if (!is.null(var))
+        if (class(var)=='GRangesList')
       {
         VAR.COL = get.varcol()
 
@@ -2786,24 +2865,39 @@ draw.grl = function(grl,
           VAR.COL[names(var.col)] = var.col;
 
         names(var) = NULL
-        var.group = as.numeric(as.data.frame(var)$element)
-        #            var.gr = gr.stripstrand(unlist(var))
-        var.gr = grl.unlist(var)
 
-        # inherit properties from gr
+        if (!is.null(gix))
+            names(var) = gix
+        else
+            names(var) = 1:length(var)
+        
+                                        #        var.group = as.numeric(as.data.frame(var)$element)
+        var.gr = grl.unlist(var)
+        var.group = names(var)[var.gr$grl.ix]
+        #            var.gr = gr.stripstrand(unlist(var))
+
+
+                                        # inherit properties from gr
+
         values(var.gr) = cbind(as.data.frame(values(var.gr)),
-                               as.data.frame(values(gr)[var.group, setdiff(names(values(gr)), c('labels'))]))
+                  as.data.frame(values(gr)[as.numeric(var.group), setdiff(names(values(gr)), c('labels'))]))
+        
+        if (!is.null(gr.labelfield))
+            if (!is.na(gr.labelfield))
+                values(var.gr)[, gr.labelfield] = NA
 
         var.gr$col.sig = as.character(var.gr$type);
         xix = var.gr$type == 'X'
         var.gr$col.sig[xix] = paste(var.gr$col.sig[xix], var.gr$varbase[xix], sep = '')
         var.gr$col = VAR.COL[var.gr$col.sig]
         var.gr$border = var.gr$col
+        var.gr$first = FALSE
+        var.gr$last = FALSE
 
         if (draw.paths) ## if we are drawing paths, then need to setdiff variant vs non variant parts of edges and re-order
         {
           ## remove soft clips
-          var.gr = var.gr[var.gr$type != 'S']
+          var.gr = var.gr[!(var.gr$type %in% c('H',  'S'))]
           gr2 = gr;
           GenomicRanges::strand(var.gr) == GenomicRanges::strand(gr)[var.gr$grl.ix]
 
@@ -2819,14 +2913,13 @@ draw.grl = function(grl,
           tmp.ir = do.call(c, tmp.l)
           tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = GenomeInfoDb::seqlengths(gr), og.ix = tmp.ogix)
           tmp.ov = gr.findoverlaps(tmp.gr, var.gr)
-          tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]
+          tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]                   
           new.gr = tmp.gr[!(1:length(tmp.gr) %in% tmp.ov$query.id), ] ## only keep the non variant pieces
           GenomicRanges::strand(new.gr) = GenomicRanges::strand(gr)[new.gr$og.ix]
-          values(new.gr) = cbind(as.data.frame(values(gr)[new.gr$og.ix, ]) , og.ix = new.gr$og.ix)
-
+          values(new.gr) = cbind(as.data.frame(values(gr)[new.gr$og.ix, ]) , og.ix = new.gr$og.ix)                            
           var.gr$og.ix = var.gr$grl.ix
           GenomicRanges::strand(var.gr) = GenomicRanges::strand(gr)[var.gr$og.ix]
-          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
+#          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
 
           new.gr = grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
           new.gr$grl.iix = as.numeric(gr$grl.iix[new.gr$og.ix])
@@ -2836,14 +2929,12 @@ draw.grl = function(grl,
           new.gr$grl.iix[unlist(new.ord)] = new.gr$grl.iix[unlist(new.ord)] + new.ix
 
           gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]
-
         }
 
         else
         {
           gr = grbind(gr, var.gr)
         }
-
       }
 
       if (length(gr)>0)
@@ -3013,8 +3104,9 @@ draw.grl = function(grl,
 
               ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
               ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
-              ##clash = which(ir1 %over% (ir2 + path.stack.x.gap))
+#              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+#              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+              clash = which(ir1 %over% (ir2 + path.stack.x.gap))
               pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
               contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path.stack.y.gap, 0)[1]
             }
@@ -3188,7 +3280,7 @@ draw.grl = function(grl,
 
           if (!xaxis.chronly) {
             text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
-                 paste(xaxis.prefix, ' ',  seqnames(windows), ': ',newline,
+                 paste(xaxis.prefix, ' ',  seqnames(windows), ':',newline,
                        begin.text,'-', newline,
                        end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
                  cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
@@ -3519,6 +3611,7 @@ draw.grl = function(grl,
           edges = merge(merge(edges, grl.segs[last.ix, c('group', 'from.gr')], by.x = 'from', by.y = 'group', all.x = T),
                         grl.segs[first.ix, c('group', 'to.gr')], by.x = 'to', by.y = 'group', all.x = T)
 
+          
           #                  edges$to.gr = first.ix[match(edges$to, grl.segs[first.ix, ]$group)]
           #                  edges$from.gr = last.ix[match(edges$from, grl.segs[last.ix, ]$group)]
 
@@ -4635,28 +4728,39 @@ gr.stripstrand = function(gr)
 }
 
 format_windows <- function(windows, .Object) {
-  #if (is(windows, 'character'))
-  #  windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+    if (is(windows, 'character'))
+        windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
-  if (is(windows, 'Seqinfo'))
-    windows = si2gr(windows)
+    if (is(windows, 'Seqinfo'))
+        windows = si2gr(windows)
 
-  if (is.list(windows))
-    windows = do.call('GRangesList', windows)
+    windows = windows[width(windows)>0]  ## otherwise will get non-matching below
+    
+    if (is.null(windows$col))
+        windows$col = 'gray98'
 
-  if (!inherits(windows, 'GRangesList'))
-    windows = GenomicRanges::GRangesList(windows)
+#    if (is.list(windows))
+#        windows = do.call('GRangesList', windows)
 
-  if (sum(as.numeric(width(grl.unlist(windows))))==0)
-  {
+    ## collapse and match metadata back to original
+    tmp = reduce(gr.stripstrand(windows))
+    ix = gr.match(tmp, windows)
 
-    if (length(seqinfo(.Object))) {
-      windows = si2gr(seqinfo(.Object))
-    } else {
-      warning("no windows provided and no seqinfo. Drawing blank plot")
-      return(GRanges())
-    }
-  }
+    values(tmp) = values(windows)[ix, ]    
+    
+##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
+##        windows = GenomicRanges::GRangesList(windows)
+
+    if (sum(as.numeric(width(grl.unlist(windows))))==0)
+        {
+
+            if (length(seqinfo(.Object))) {
+                windows = si2gr(seqinfo(.Object))
+            } else {
+                warning("no windows provided and no seqinfo. Drawing blank plot")
+                return(GRanges())
+            }
+        }
 
   return (grl.unlist(windows))
 }
@@ -5090,295 +5194,6 @@ standardize_segs = function(seg, chr = FALSE)
   return(seg)
 }
 
-# varbase
-#
-# takes gr or gappedalignment object "reads" and uses cigar, MD, seq fields
-# to return variant bases and ranges
-#
-# returns grl (of same length as input) of variant base positions with character vector $varbase field populated with variant bases
-# for each gr item in grl[[k]], with the following handling for insertions, deletions, and substitution gr's:
-#
-# substitutions: nchar(gr$varbase) = width(gr) of the corresponding var
-# insertions: nchar(gr$varbase)>=1, width(gr) ==0
-# deletions: gr$varbase = '', width(gr)>=1
-#
-# Each gr also has $type flag which shows the cigar string code for the event ie
-# S = soft clip --> varbase represents clipped bases
-# I = insertion --> varbase represents inserted bases
-# D = deletion --> varbase is empty
-# X = mismatch --> varbase represents mismatched bases
-# @importFrom GenomicRanges GRangesList
-# @name varbase
-# @keywords internal
-# varbase = function(reads, soft = T, verbose = T)
-# {
-#   nreads = length(reads)
-#   if (inherits(reads, 'GRangesList'))
-#   {
-#     was.grl = T
-#     r.id = as.data.frame(reads)$element
-#     reads = unlist(reads)
-#   }
-#   else if (inherits(reads, 'data.frame'))
-#   {
-#     r.id = 1:nrow(reads)
-#     nreads = nrow(reads)
-#     was.grl = F
-#   }
-#   else
-#   {
-#     r.id = 1:length(reads)
-#     was.grl = F
-#   }
-#
-#   if (!inherits(reads, 'GRanges') & !inherits(reads, 'GappedAlignments') & !inherits(reads, 'data.frame'))
-#     stop('Reads must be either GRanges, GRangesList, or GappedAlignment object')
-#   else if (inherits(reads, 'data.frame'))
-#   {
-#     if (is.null(reads$cigar) | is.null(reads$seq))
-#       stop('Reads must have cigar and seq fields specified')
-#   }
-#   else if (is.null(values(reads)$cigar) | is.null(values(reads)$seq))
-#     stop('Reads must have cigar and seq fields specified')
-#
-#   if (is.data.frame(reads))
-#   {
-#     sl = NULL
-#     sn =  reads$seqnames
-#     cigar = as.character(reads$cigar)
-#     seq = as.character(reads$seq)
-#     str = reads$strand
-#
-#     if (!is.null(reads$MD))
-#       md = as.character(reads$MD)
-#     else
-#       md = rep(NA, length(cigar))
-#   }
-#   else
-#   {
-#     sl = seqlengths(reads)
-#     sn =  seqnames(reads)
-#     cigar = as.character(values(reads)$cigar)
-#     seq = as.character(values(reads)$seq)
-#     str = as.character(strand(reads))
-#
-#     if (!is.null(values(reads)$MD))
-#       md = as.character(values(reads)$MD)
-#     else
-#       md = rep(NA, length(cigar))
-#   }
-#
-#   if (!inherits(cigar, 'character') & !inherits(cigar, 'character') & !inherits(md, 'character'))
-#     stop('Input must be GRanges with seq, cigar, and MD fields populated or GappedAlignments object')
-#
-#   ix = which(!is.na(cigar))
-#
-#   if (length(ix)==0)
-#     return(rep(GRangesList(GRanges()), nreads))
-#
-#   cigar = cigar[ix]
-#   seq = seq[ix]
-#   md = md[ix]
-#   str = str[ix]
-#
-#   if (is.data.frame(reads))
-#   {
-#     r.start = reads$start[ix]
-#     r.end = reads$end[ix]
-#   }
-#   else
-#   {
-#     r.start = start(reads)[ix]
-#     r.end = end(reads)[ix];
-#   }
-#
-#   flip = str == '-'
-#
-#   seq = strsplit(seq, '')
-#
-#   cigar.vals = lapply(strsplit(cigar, "\\d+"), function(x) x[2:length(x)])
-#   cigar.lens = lapply(strsplit(cigar, "[A-Z]"), as.numeric)
-#
-#   clip.left = sapply(cigar.vals, function(x) x[1] == 'S')
-#   clip.right = sapply(cigar.vals, function(x) x[length(x)] == 'S')
-#
-#   if (any(clip.left))
-#     r.start[clip.left] = r.start[clip.left]-sapply(cigar.lens[which(clip.left)], function(x) x[1])
-#
-#   if (any(clip.right))
-#     r.end[clip.right] = r.end[clip.right]+sapply(cigar.lens[which(clip.right)], function(x) x[length(x)])
-#
-#   # split md string into chars after removing "deletion" signatures and also
-#   # any soft clipped base calls (bases followed by a 0
-#   md.vals = strsplit(gsub('([ATGC])', '|\\1|', gsub('\\^[ATGC]+', '|', md)), '\\|')
-#
-#   # ranges of different cigar elements relative to query ie read-centric coordinates
-#   starts.seq = lapply(1:length(cigar.lens), function(i)
-#   {
-#     x = c(0, cigar.lens[[i]])
-#     x[which(cigar.vals[[i]] %in% c('D', 'H', 'N'))+1] = 0  ## deletions have 0 width on query
-#     cumsum(x[1:(length(x)-1)])+1
-#   })
-#
-#   ends.seq = lapply(1:length(cigar.lens), function(i)
-#   {
-#     x = cigar.lens[[i]];
-#     x[which(cigar.vals[[i]] %in% c('D', 'H', 'N'))] = 0
-#     cumsum(x)
-#   })
-#
-#   # ranges of different cigar elements relative to reference coordinatse
-#   starts.ref = lapply(1:length(cigar.lens), function(i)
-#   {
-#     x = c(0, cigar.lens[[i]]);
-#     x[which(cigar.vals[[i]] %in% c('I'))+1] = 0 ## insertions have 0 width on reference / subject
-#     cumsum(x[1:(length(x)-1)]) + r.start[i]
-#   })
-#
-#   ends.ref = lapply(1:length(cigar.lens), function(i)
-#   {
-#     x = cigar.lens[[i]];
-#     x[which(cigar.vals[[i]] %in% c('I'))] = 0
-#     cumsum(x) + r.start[i] - 1
-#   })
-#
-#   # now using MD find coordinates of mismatched bases (using starts and ends of M regions)
-#
-#   # find coords of subs on genome
-#   tmp.pos = lapply(1:length(md.vals), function(i)
-#   {
-#     x = md.vals[[i]]
-#     nix = grepl('[ATGC]', x);
-#     if (!any(nix))
-#       return(c())
-#     p = rep(0, length(x))
-#     p[!nix] = as.numeric(x[!nix])
-#     p[nix] = 1
-#     s.pos.m = cumsum(p)[nix] ## position of subs in read
-#     mix = cigar.vals[[i]]=='M'
-#     m.st = cumsum(c(1, ends.seq[[i]][mix]-starts.seq[[i]][mix]+1))
-#     m.st.g = starts.ref[[i]][mix]
-#     m.st.r = starts.seq[[i]][mix]
-#     s.match = rep(NA, length(s.pos.m)) ## indices of matching "M" cigar element for each sub
-#     for (ii in 1:length(s.pos.m))
-#     {
-#       j = 0;
-#       done = FALSE
-#       for (j in 0:(length(m.st)-1))
-#         if (s.pos.m[ii] < m.st[j+1])
-#           break
-#       s.match[ii] = j
-#     }
-#
-#     s.pos.g = m.st.g[s.match] + s.pos.m-m.st[s.match]
-#     s.pos.r = m.st.r[s.match] + s.pos.m-m.st[s.match]
-#
-#     return(rbind(s.pos.g, s.pos.r))
-#   })
-#   subs.pos = lapply(tmp.pos, function(x) x[1,])
-#   subs.rpos = lapply(tmp.pos, function(x) x[2,])
-#   #  subs.base = lapply(md.vals, grep, pattern = '[ATGC]', value = T)
-#   subs.base = lapply(1:length(seq), function(x) seq[[x]][subs.rpos[[x]]])
-#
-#   # make sure md and cigar are consistent
-#   # (for some reason - sometimes soft clipped mismatches are included in MD leading to a longer MD string)
-#   # also some MD are NA
-#   mlen.cigar = sapply(1:length(ends.seq), function(x) {mix = cigar.vals[[x]]=='M'; sum(ends.seq[[x]][mix]-starts.seq[[x]][mix]+1)})
-#   mlen.md = sapply(md.vals, function(x) {ix = grepl('[ATGC]', x); sum(as.numeric(x[!ix])) + sum(nchar(x[ix]))})
-#   good.md = which(!is.na(md))
-#   #  good.md = which(mlen.md == mlen.cigar & !is.na(md))
-#
-#   if (any(na <- is.na(md)))
-#   {
-#     warning('MD field absent from one or more input reads')
-#     good.md = which(!na)
-#   }
-#
-#   # now make granges of subs
-#   if (length(good.md)>0)
-#   {
-#     if (any(mlen.md[good.md] != mlen.cigar[good.md]))
-#       warning('the lengths of some MD strings do not match the number of M positions on the corresponding CIGAR string: some variants may not be correctly mapped to the genome')
-#
-#     iix.md = unlist(lapply(good.md, function(x) rep(x, length(subs.pos[[x]]))))
-#     tmp = unlist(subs.pos[good.md])
-#     if (!is.null(tmp))
-#     {
-#       subs.gr = GRanges(sn[ix][iix.md], IRanges(tmp, tmp), strand = '*')
-#       values(subs.gr)$varbase = unlist(subs.base[good.md])
-#       values(subs.gr)$type = 'X'
-#       values(subs.gr)$iix = ix[iix.md]
-#     }
-#     else
-#       subs.gr = GRanges()
-#   }
-#   else
-#     subs.gr = GRanges()
-#
-#   iix = unlist(lapply(1:length(cigar.vals), function(x) rep(x, length(cigar.vals[[x]]))))
-#   cigar.vals = unlist(cigar.vals)
-#   cigar.lens = unlist(cigar.lens)
-#   starts.seq = unlist(starts.seq)
-#   ends.seq = unlist(ends.seq)
-#   starts.ref = unlist(starts.ref)
-#   ends.ref = unlist(ends.ref)
-#
-#   ## pick up other variants (including soft clipped and indel)
-#   is.var = cigar.vals != 'M'
-#   iix = iix[is.var]
-#   cigar.vals = cigar.vals[is.var]
-#   cigar.lens = cigar.lens[is.var]
-#   starts.ref = starts.ref[is.var]
-#   ends.ref = ends.ref[is.var]
-#   starts.seq = starts.seq[is.var]
-#   ends.seq = ends.seq[is.var]
-#   str <- str[iix] # JEREMIAH
-#
-#   if (length(cigar.vals)>0)
-#   {
-#     var.seq = lapply(1:length(cigar.vals),
-#                      function(i)
-#                      {
-#                        if (ends.seq[i]<starts.seq[i])
-#                          return('') # deletion
-#                        else
-#                          seq[[iix[i]]][starts.seq[i]:ends.seq[i]] #insertion
-#                      })
-#     other.gr = GRanges(sn[ix][iix], IRanges(starts.ref, ends.ref), strand = str, seqlengths = sl)
-#     values(other.gr)$varbase = sapply(var.seq, paste, collapse = '')
-#     values(other.gr)$type = cigar.vals
-#     values(other.gr)$iix = ix[iix];
-#
-#     out.gr = sort(c(subs.gr, other.gr))
-#   }
-#   else
-#     out.gr = subs.gr
-#
-#
-#   # add default colors to out.gr
-#   VAR.COL = get.varcol()
-#
-#   col.sig = as.character(out.gr$type)
-#   xix = out.gr$type == 'X'
-#   col.sig[xix] = paste(col.sig[xix], out.gr$varbase[xix], sep = '')
-#   out.gr$col = VAR.COL[col.sig]
-#   out.gr$border = out.gr$col
-#
-#   if (!soft)
-#     if (any(soft.ix <<- out.gr$type == 'S'))
-#       out.gr = out.gr[-which(soft.ix)]
-#
-#   out.grl = rep(GRangesList(GRanges()), nreads)
-#   out.iix = r.id[values(out.gr)$iix]
-#   values(out.gr)$iix = NULL
-#
-#   tmp.grl = split(out.gr, out.iix)
-#   out.grl[as.numeric(names(tmp.grl))] = tmp.grl
-#   values(out.grl)$qname[r.id] = reads$qname
-#
-#   return(out.grl)
-# }
-
 # seg.on.seg
 #
 # (data frame version of GenomicRanges %in%)
@@ -5451,22 +5266,17 @@ get_seqinfo <- function(.Object, seqinfo) {
       x = .Object@data[[i]]
 
       if (is(x, 'GRanges') || is(x, 'GRangesList'))
-      {
-        if (is.null(slen))
-        {
-          slen = GenomeInfoDb::seqlengths(x)
-
-          if (any(is.na(slen)))
           {
-            if (is(x, 'GRanges'))
-              slen = GenomeInfoDb::seqlengths(gr.fix(x))
-            else if (is(x, 'GRangesList'))
-              slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+              slen = GenomeInfoDb::seqlengths(x)
+              
+              if (any(is.na(slen)))
+                  {
+                      if (is(x, 'GRanges'))
+                          slen = GenomeInfoDb::seqlengths(gr.fix(x))
+                      else if (is(x, 'GRangesList'))
+                          slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+                  }
           }
-        }
-        else
-          slen[GenomeInfoDb::seqlevels(x)] = pmax(slen[GenomeInfoDb::seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
-      }
       else if (is(x, 'ffTrack'))
       {
         if (is.null(slen))

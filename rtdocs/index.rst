@@ -9,12 +9,12 @@ Welcome to gTrack's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   tutorial.rst	      
-   vignetteusingBAMS.rst	      
-   vignetteSmallData.rst
-	      
+   vignetteCNV/vignetteCNV.rst	      
+   vignetteSmallDS/vignetteSmallDS.rst
+   vignetteHeatGraph/vignetteHeatGraph.rst 
+      
 Indices and tables
 ==================
 
