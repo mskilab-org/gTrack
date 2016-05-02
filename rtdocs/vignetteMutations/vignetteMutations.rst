@@ -8,7 +8,7 @@ Vignette Showing How to Graph Mutations
     
 
     options(width = 100)
-    opts_chunk$set(fig.width=10, fig.height=5)
+    opts_chunk$set(fig.width=30, fig.height=5)
 
 
 
@@ -102,6 +102,7 @@ Vignette Showing How to Graph Mutations
 
 .. figure:: figure/plot-mutations-1.png
     :alt: plot of chunk plot-mutations
+    :width: 360px
 
     plot of chunk plot-mutations
 
