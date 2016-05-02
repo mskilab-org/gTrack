@@ -65,7 +65,7 @@ Vignette Showing How to Graph Mutations
 ..win = si2gr(fake.genome)
 .. ..
 
-.. {r mutations-plot, fig.width = 12}
+.. {r mutations-plot, fig.width = 10}
 ## 15 is great, but 12 is time. 
 plot(gt.mut, win)
 .. .. 
