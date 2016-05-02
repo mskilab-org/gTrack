@@ -62,3 +62,39 @@ Vignette Showing How to Graph Mutations
     :alt: plot of chunk -plotList
 
     plot of chunk -plotList
+
+**Example of How to Graph Variants** 
+
+
+.. sourcecode:: r
+    
+
+    ## Create a GRanges
+    fake.genome = c(chr1=1e4, chr2=1e3, chr3=5e3)
+    tiles = gr.tile(fake.genome, 1)
+    
+    ## Choose 5 random indices 
+    hotspots = sample(length(tiles), 5)
+    ##Create numeric vector representing each range in GRanges object. 
+    prob = rep(1, length(tiles))
+    ## Simulate hotspots by adding 50 to those random indices.
+    prob[hotspots] = prob[hotspots] + 50
+    
+    ## randomly select 2000 sequences. Probability of choosing variants is high.
+    mut = sample(tiles, 2000, prob = prob)
+    gt.mut = gTrack(mut)
+    win = si2gr(fake.genome)
+
+
+
+.. sourcecode:: r
+    
+
+    plot(gt.mut, win)
+
+.. figure:: figure/plot-mutations-1.png
+    :alt: plot of chunk plot-mutations
+
+    plot of chunk plot-mutations
+
+

@@ -47,7 +47,7 @@ Vignette Showing How to Graph Mutations
 **Example of How to Graph Variants** 
 
 .. {r hotspots}
-..create a GRanges
+## Create a GRanges
 ..fake.genome = c(chr1=1e4, chr2=1e3, chr3=5e3)
 ..tiles = gr.tile(fake.genome, 1)
 
@@ -62,7 +62,10 @@ Vignette Showing How to Graph Mutations
 ..mut = sample(tiles, 2000, prob = prob)
 ..gt.mut = gTrack(mut)
 ..win = si2gr(fake.genome)
-..ppdf(plot(gt.mut, win)
+.. ..
+
+.. {r plot-mutations}
+..plot(gt.mut, win)
 .. .. 
 
 
