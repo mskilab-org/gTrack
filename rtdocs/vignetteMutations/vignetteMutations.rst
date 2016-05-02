@@ -91,7 +91,7 @@ Vignette Showing How to Graph Mutations
 .. sourcecode:: r
     
 
-    ## 15 is great 
+    ## 15 is great, but 12 is time. 
     plot(gt.mut, win)
 
 .. figure:: figure/mutations-plot-1.png
