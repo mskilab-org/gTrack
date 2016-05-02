@@ -65,7 +65,7 @@ Vignette Showing How to Graph Mutations
 ..win = si2gr(fake.genome)
 .. ..
 
-.. {r mutations-plot, fig.width = 10}
+.. {r mutations-plot, fig.width = 8}
 plot(gt.mut, win)
 .. .. 
 
