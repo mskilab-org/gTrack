@@ -70,7 +70,7 @@ Vignette Showing How to Graph Mutations
     
 
     ## Create a GRanges
-    fake.genome = c(chr1=1e4, chr2=1e3, chr3=5e3)
+    fake.genome = c('1'=1e4, '2'=1e3, '3'=5e3)
     tiles = gr.tile(fake.genome, 1)
     
     ## Choose 5 random indices 
@@ -82,8 +82,7 @@ Vignette Showing How to Graph Mutations
     
     ## randomly select 2000 sequences. Probability of choosing variants is high.
     mut = sample(tiles, 2000, prob = prob)
-    gt.mut = gTrack(mut)
-    win = si2gr(fake.genome)
+    gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
 
 
 
