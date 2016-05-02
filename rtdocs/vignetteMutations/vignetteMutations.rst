@@ -83,6 +83,7 @@ Vignette Showing How to Graph Mutations
     ## randomly select 2000 sequences. Probability of choosing variants is high.
     mut = sample(tiles, 2000, prob = prob)
     gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
+    win = si2gr(fake.genome)
 
 
 
