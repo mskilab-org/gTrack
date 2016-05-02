@@ -3,6 +3,10 @@ Vignette Showing How to Graph Mutations
 
 **Draw.paths**
 
+.. {r setup}
+options(width = 100)
+.. .. 
+
 .. {r generating GRanges}
 ## To create fake genes, create two GRanges objects each filled with random ranges from chromosomes 1 and 2. Ranges fall within the 1-5e3 sequence
 

@@ -7,6 +7,13 @@ Vignette Showing How to Graph Mutations
 .. sourcecode:: r
     
 
+    options(width = 100)
+
+
+
+.. sourcecode:: r
+    
+
     ## To create fake genes, create two GRanges objects each filled with random ranges from chromosomes 1 and 2. Ranges fall within the 1-5e3 sequence
     
     gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
