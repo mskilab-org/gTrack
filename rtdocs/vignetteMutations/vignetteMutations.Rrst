@@ -69,7 +69,7 @@ opts_chunk$set(fig.width=30, fig.height=5)
 ..win = si2gr(fake.genome)
 .. ..
 
-.. {r plot-mutations, out.width='360px'}
+.. {r plot-mutations, out.width='1000px'}
 ..plot(gt.mut, win)
 .. .. 
 
