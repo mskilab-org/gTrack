@@ -102,7 +102,7 @@ Vignette Showing How to Graph Mutations
 
 .. figure:: figure/plot-mutations-1.png
     :alt: plot of chunk plot-mutations
-    :width: 360px
+    :width: 1000px
 
     plot of chunk plot-mutations
 
