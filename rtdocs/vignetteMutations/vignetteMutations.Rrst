@@ -5,7 +5,7 @@ Vignette Showing How to Graph Mutations
 
 .. {r setup}
 options(width = 100)
-opts_chunk$set(fig.width=10, fig.height=5)
+opts_chunk$set(fig.width=30, fig.height=5)
 .. .. 
 
 .. {r generating GRanges}
@@ -69,7 +69,7 @@ opts_chunk$set(fig.width=10, fig.height=5)
 ..win = si2gr(fake.genome)
 .. ..
 
-.. {r plot-mutations}
+.. {r plot-mutations, out.width='360px'}
 ..plot(gt.mut, win)
 .. .. 
 
