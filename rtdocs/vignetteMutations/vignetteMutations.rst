@@ -4,13 +4,6 @@ Vignette Showing How to Graph Mutations
 **Draw.paths**
 
 
-.. sourcecode:: r
-    
-
-    options(width = 100)
-    opts_chunk$set(fig.width=30, fig.height=5)
-
-
 
 .. sourcecode:: r
     
