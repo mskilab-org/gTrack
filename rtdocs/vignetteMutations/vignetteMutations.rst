@@ -8,6 +8,7 @@ Vignette Showing How to Graph Mutations
     
 
     options(width = 100)
+    opts_chunk$set(fig.width=10, fig.height=5)
 
 
 
