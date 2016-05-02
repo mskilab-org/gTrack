@@ -93,10 +93,10 @@ Vignette Showing How to Graph Mutations
 
     plot(gt.mut, win)
 
-.. figure:: figure/plot-mutations-1.png
-    :alt: plot of chunk plot-mutations
+.. figure:: figure/mutations-plot-1.png
+    :alt: plot of chunk mutations-plot
     :width: 1000px
 
-    plot of chunk plot-mutations
+    plot of chunk mutations-plot
 
 
