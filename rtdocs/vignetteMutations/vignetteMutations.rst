@@ -91,7 +91,7 @@ Vignette Showing How to Graph Mutations
 .. sourcecode:: r
     
 
-    # lot 
+    ## 15 is great 
     plot(gt.mut, win)
 
 .. figure:: figure/mutations-plot-1.png
