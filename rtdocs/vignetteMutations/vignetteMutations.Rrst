@@ -66,6 +66,7 @@ Vignette Showing How to Graph Mutations
 .. ..
 
 .. {r mutations-plot, fig.width = 8}
+# lot 
 plot(gt.mut, win)
 .. .. 
 
