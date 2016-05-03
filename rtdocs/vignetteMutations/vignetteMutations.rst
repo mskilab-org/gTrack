@@ -71,17 +71,8 @@ Graphing Variants Tutorial
 .. sourcecode:: r
     
 
-    mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
-
-
-::
-
-    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
-
-
-.. sourcecode:: r
+    ##..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
     
-
     win = si2gr(fake.genome)
     
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
