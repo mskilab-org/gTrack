@@ -73,32 +73,6 @@ Graphing Variants Tutorial
 
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
     
-    print(mut)
-
-
-::
-
-    ## GRanges object with 2000 ranges and 2 metadata columns:
-    ##          seqnames       ranges strand   |  query.id   tile.id
-    ##             <Rle>    <IRanges>  <Rle>   | <integer> <integer>
-    ##      [1]        3 [2736, 2736]      +   |         3     13736
-    ##      [2]        3 [2386, 2386]      +   |         3     13386
-    ##      [3]        1 [5550, 5550]      +   |         1      5550
-    ##      [4]        2 [ 925,  925]      +   |         2     10925
-    ##      [5]        1 [1266, 1266]      +   |         1      1266
-    ##      ...      ...          ...    ... ...       ...       ...
-    ##   [1996]        1 [9548, 9548]      +   |         1      9548
-    ##   [1997]        1 [9526, 9526]      +   |         1      9526
-    ##   [1998]        3 [3072, 3072]      +   |         3     14072
-    ##   [1999]        1 [ 446,  446]      +   |         1       446
-    ##   [2000]        2 [ 487,  487]      +   |         2     10487
-    ##   -------
-    ##   seqinfo: 3 sequences from an unspecified genome
-
-
-.. sourcecode:: r
-    
-
     win = si2gr(fake.genome)
     
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
