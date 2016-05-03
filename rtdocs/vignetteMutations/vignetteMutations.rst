@@ -99,3 +99,22 @@ Vignette Showing How to Graph Mutations
     plot of chunk mutations-plot
 
 
+.. sourcecode:: r
+    
+
+    mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+    gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
+
+
+
+.. sourcecode:: r
+    
+
+    plot(gt.mut, win)
+
+.. figure:: figure/mutations2-plot-1.png
+    :alt: plot of chunk mutations2-plot
+
+    plot of chunk mutations2-plot
+
+
