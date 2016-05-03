@@ -1,14 +1,19 @@
-Vignette Showing How to Graph Mutations 
-=======================================
+Vignette Showing How to Graph Relationships in The Genome 
+=========================================================
 
-**Draw.paths**
+Genes interact with each other, either on purpose such as epistasis or not such as DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrackcan perform such a task.
 
+In this vignette, the draw.paths and gr.labelfield and circle parameters of gTrack will be highlighted. In addition, GRangesList will be used and that may be effective for certain data sets, as will be shown. 
+
+To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will show when draw.paths is supplied and when it is not. Likewise, will be done for the gr.labelfield parameter. 
 
 
 .. sourcecode:: r
     
 
-    ## To create fake genes, create two GRanges objects each filled with random ranges from chromosomes 1 and 2. Ranges fall within the 1-5e3 sequence
+    ## To simulate mutations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. Their "strange" data will be graphed and because they are outliers, they will be easily visable. This vignette also highlights examples of how/when to use the following gTrack parameters: draw.paths, gr.labelfield.  
+    
+    ## To create fake genes, create two GRanges objects each filled with random ranges from chromosomes 1,2, and 3. 
     
     gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
     gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
@@ -25,12 +30,12 @@ Vignette Showing How to Graph Mutations
     
     gt.genes = gTrack(grl)
     
-    ## Plot but, connect ranges using draw.paths
+    ## Plot but, show how **effective** draw.paths and gr.labelfield can be.
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = FALSE, gr.labelfield = 'exon')
-    gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+    gt.fusion = gTrack(fusion, draw.paths = FALSE)
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
     
-    
+    ## separating the windows for the graph. 
     win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
 
 
