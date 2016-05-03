@@ -57,7 +57,7 @@ Graphing Variants Tutorial
 ..prob = .05 + exp(-d^2/10000)
 
 .. {r change graph}
-##..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
 
 ..print(mut)
 
