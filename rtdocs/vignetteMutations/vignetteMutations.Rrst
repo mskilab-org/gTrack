@@ -59,6 +59,8 @@ Graphing Variants Tutorial
 .. {r change graph}
 ##..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
 
+..print(mut)
+
 ..win = si2gr(fake.genome)
 
 gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
