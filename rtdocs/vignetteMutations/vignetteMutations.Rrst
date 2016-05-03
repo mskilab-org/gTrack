@@ -67,6 +67,15 @@ Vignette Showing How to Graph Mutations
 
 .. {r mutations-plot, fig.width = 15}
 plot(gt.mut, win)
+.. ..
+
+.. {r change graph}
+..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+..gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
+.. ..
+
+.. {r mutations2-plot, fig.width = 15}
+..plot(gt.mut, win)
 .. .. 
 
 
