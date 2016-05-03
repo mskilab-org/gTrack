@@ -14,44 +14,24 @@ Vignette Showing How to Graph Mutations
     gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
     gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
     
-    ## Combine into GRangesList
-    grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
-    gt.genes = gTrack(grl)
-    
-    ## Subset GRangesList and plot but, connect ranges using draw.paths
-    fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = TRUE)
-
-
-.. sourcecode:: r
-    
-
-    plot(c(gt.fusion, gt.genes))
-
-.. figure:: figure/-plotPaths-1.png
-    :alt: plot of chunk -plotPaths
-
-    plot of chunk -plotPaths
-
-**Add Exons by gr.labelfield**
-
-
-.. sourcecode:: r
-    
-
     ##Create a column that keeps track of the exons
     
     gene1$exon = 1:length(gene1)
     gene2$exon = 1:length(gene2)
     gene3$exon = 1:length(gene3)
     
+    ## Combine into GRangesList
     grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
-    gt.genes = gTrack(grl, col = 'gray90', gr.labelfield = 'exon')
+    
+    gt.genes = gTrack(grl)
+    
+    ## Plot but, connect ranges using draw.paths
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = FALSE)
-    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+    gt.fusion = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+    
+    
     win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
-
 
 
 .. sourcecode:: r
@@ -64,7 +44,7 @@ Vignette Showing How to Graph Mutations
 
     plot of chunk -plotList
 
-**Example of How to Graph Variants** 
+**Example of How to Graph Fake Variants** 
 
 
 .. sourcecode:: r
@@ -76,45 +56,45 @@ Vignette Showing How to Graph Mutations
     
     ## Choose 5 random indices 
     hotspots = sample(length(tiles), 5)
-    ##Create numeric vector representing each range in GRanges object. 
-    prob = rep(1, length(tiles))
-    ## Simulate hotspots by adding 50 to those random indices.
-    prob[hotspots] = prob[hotspots] + 50
     
-    ## randomly select 2000 sequences. Probability of choosing variants is high.
-    mut = sample(tiles, 2000, prob = prob)
-    gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
-    win = si2gr(fake.genome)
-
-
-
-.. sourcecode:: r
-    
-
-    plot(gt.mut, win)
-
-.. figure:: figure/mutations-plot-1.png
-    :alt: plot of chunk mutations-plot
-
-    plot of chunk mutations-plot
+    d = values(distanceToNearest(tiles, tiles[hotspots]))$distance
+    prob = .05 + exp(-d^2/10000)
 
 
 .. sourcecode:: r
     
 
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
-    gt.mut = gTrack(mut, circle = TRUE, stack.gap = 100)
+    
+    win = si2gr(fake.genome)
+    
+    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
+    gt.mut2 = gTrack(mut, circle = TRUE, stakc.gap = 2)
+
+
+::
+
+    ## Error in gTrack(mut, circle = TRUE, stakc.gap = 2): unused argument (stakc.gap = 2)
+
+
+.. sourcecode:: r
+    
+
+    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10)
+    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
 
 
 
 .. sourcecode:: r
     
 
-    plot(gt.mut, win)
+    plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 
-.. figure:: figure/mutations2-plot-1.png
-    :alt: plot of chunk mutations2-plot
 
-    plot of chunk mutations2-plot
+::
+
+    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'gt.mut2' not found
+
+
 
 
