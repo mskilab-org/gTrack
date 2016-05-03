@@ -27,7 +27,7 @@ Vignette Showing How to Graph Mutations
     
     ## Plot but, connect ranges using draw.paths
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+    gt.fusion = gTrack(fusion, draw.paths = FALSE, gr.labelfield = 'exon')
     gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
     
     
@@ -65,21 +65,20 @@ Vignette Showing How to Graph Mutations
     
 
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
-    
-    win = si2gr(fake.genome)
-    
-    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
-    gt.mut2 = gTrack(mut, circle = TRUE, stakc.gap = 2)
 
 
 ::
 
-    ## Error in gTrack(mut, circle = TRUE, stakc.gap = 2): unused argument (stakc.gap = 2)
+    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
 
 
 .. sourcecode:: r
     
 
+    win = si2gr(fake.genome)
+    
+    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
+    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
     gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10)
     gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
 
@@ -90,11 +89,9 @@ Vignette Showing How to Graph Mutations
 
     plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 
+.. figure:: figure/mutations2-plot-1.png
+    :alt: plot of chunk mutations2-plot
 
-::
-
-    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'gt.mut2' not found
-
-
+    plot of chunk mutations2-plot
 
 

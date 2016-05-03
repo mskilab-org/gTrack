@@ -60,7 +60,7 @@ gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
 .. ..
 
 .. {r mutations2-plot, fig.width = 15}
-..plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)x
+..plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 .. .. 
 
 
