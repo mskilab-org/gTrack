@@ -1,11 +1,14 @@
 Vignette Showing How to Graph Relationships in The Genome 
 =========================================================
 
-Genes interact with each other, either on purpose such as epistasis or not such as DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrackcan perform such a task.
+Genes interact with each other, either on purpose such as during epistasis or not such as during DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrack can perform such a task.
 
-In this vignette, the draw.paths and gr.labelfield and circle parameters of gTrack will be highlighted. In addition, GRangesList will be used and that may be effective for certain data sets, as will be shown. 
+In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. In addition, variants of a random collection of sequences will be graphed. These examples will use the GRangesList functionality provided by GenomicRanges.
 
-To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will show when draw.paths is supplied and when it is not. Likewise, will be done for the gr.labelfield parameter. 
+
+
+
+To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
 
 
 .. sourcecode:: r
@@ -32,8 +35,8 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing s
     
     ## Plot but, show how **effective** draw.paths and gr.labelfield can be.
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = FALSE)
-    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+    gt.fusion = gTrack(fusion, draw.paths = FALSE, gr.labelfield = 'exon')
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
     
     ## separating the windows for the graph. 
     win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
