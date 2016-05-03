@@ -1,12 +1,12 @@
-Vignette Showing How to Graph Relationships in The Genome 
+How to Graph Relationships in The Genome 
 =========================================================
 
 Genes interact with each other, either on purpose such as during epistasis or not such as during DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrack can perform such a task.
 
 In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. In addition, variants of a random collection of sequences will be graphed. These examples will use the GRangesList functionality provided by GenomicRanges.
 
-
-
+Parameters Tutorial
+~~~~~~~~~~~~~~~~~~~
 
 To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
 
@@ -14,10 +14,6 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing s
 .. sourcecode:: r
     
 
-    ## To simulate mutations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. Their "strange" data will be graphed and because they are outliers, they will be easily visable. This vignette also highlights examples of how/when to use the following gTrack parameters: draw.paths, gr.labelfield.  
-    
-    ## To create fake genes, create two GRanges objects each filled with random ranges from chromosomes 1,2, and 3. 
-    
     gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
     gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
     gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
@@ -52,7 +48,10 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing s
 
     plot of chunk -plotList
 
-**Example of How to Graph Fake Variants** 
+Graphing Variants Tutorial
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## To simulate mutations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. Their "strange" data will be graphed and because they are outliers, they will be easily visable. This vignette also highlights examples of how/when to use the following gTrack parameters: draw.paths, gr.labelfield.  
 
 
 .. sourcecode:: r
