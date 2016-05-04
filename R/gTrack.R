@@ -4674,9 +4674,8 @@ format_windows <- function(windows, .Object) {
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
     ix = gr.match(tmp, windows)
-
     values(tmp) = values(windows)[ix, ]    
-    
+    windows = tmp
 ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
 ##        windows = GenomicRanges::GRangesList(windows)
 
