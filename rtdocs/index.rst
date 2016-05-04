@@ -14,7 +14,8 @@ Contents:
    vignetteCNV/vignetteCNV.rst	      
    vignetteSmallDS/vignetteSmallDS.rst
    vignetteHeatGraph/vignetteHeatGraph.rst 
-      
+   vignetteMutations/vignetteMutations.rst 
+   
 Indices and tables
 ==================
 
