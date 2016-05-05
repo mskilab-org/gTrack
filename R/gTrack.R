@@ -386,17 +386,17 @@ gTrack = function(data = NULL, ##
                   m.bg.col = 'white',
                   cmap.min = NA,
                   cmap.max = NA,
-                    labels.suppress = F,
-                    labels.suppress.grl = labels.suppress,
-                    labels.suppress.gr = labels.suppress,
+    labels.suppress = FALSE,
+    labels.suppress.grl = labels.suppress,
+    labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
     formatting = NA) {
 
     ## make border batch color, but be a little less transparent
-    if (is.na(col))
+    if (is.na(col) & is.na(gr.colorfield) & is.null(colormaps))
         col = alpha('black', 0.5)
     
-    if (is.na(border))
+    if (is.na(border) & is.na(gr.colorfield) & is.null(colormaps))
         {
             rgb = col2rgb(col, alpha = TRUE)            
             border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
@@ -418,7 +418,8 @@ gTrack = function(data = NULL, ##
       grl.labelfield = grl.labelfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
       xaxis.suffix = xaxis.suffix, xaxis.round = xaxis.round, xaxis.interval = xaxis.interval,
       xaxis.cex.label = xaxis.cex.label, xaxis.newline = xaxis.newline,
-      xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
+        xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
+        labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
       xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
       xaxis.cex.tick = xaxis.cex.tick, sep.lty = sep.lty, sep.lwd = sep.lwd, sep.bg.col = sep.bg.col,
       sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, m.bg.col = m.bg.col,
@@ -1469,11 +1470,16 @@ setMethod('plot', c("gTrack","ANY"),
     }
 
     if (.Object[j]$bars && is.na(all.args$y0.bar))
-      all.args$y0.bar = this.ylim.subplot[j, 1]
+        all.args$y0.bar = this.ylim.subplot[j, 1]
+
+    if (.Object[j]$chr.sub)
+        tmp.windows = gr.sub(windows, 'chr', '')
+    else
+        tmp.windows = this.windows
 
     main.args <- list(grl=tmp.dat,y = this.y, ylim = ylim,
                       xaxis.pos = this.xaxis.pos,xaxis.pos.label = this.xaxis.pos.label,
-                      win.gap = win.gap[i],windows = this.windows,
+                      win.gap = win.gap[i],windows = tmp.windows,
                       new.plot = new.plot, new.axis = new.axis,
                       gr.colorfield = cfield,gr.colormap = cmap,
                       y.grid = this.y.grid, verbose=verbose,
@@ -2812,7 +2818,7 @@ draw.grl = function(grl,
       {
         ## ghetto solution if we get GRanges names snafu
         gr = unlist(grl);
-        c = textConnection(names(gr));
+        c = textConnection(names(gr));        
         cat('budget .. \n')
         if (length(gr)>0)
         {
@@ -4745,9 +4751,8 @@ format_windows <- function(windows, .Object) {
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
     ix = gr.match(tmp, windows)
-
     values(tmp) = values(windows)[ix, ]    
-    
+    windows = tmp
 ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
 ##        windows = GenomicRanges::GRangesList(windows)
 
@@ -5389,6 +5394,9 @@ get_seqinfo <- function(.Object, seqinfo) {
     if (any(.Object@formatting$chr.sub))
       names(slen) = gsub('chr', '', names(slen))
 
+    if (any(duplicated(names(slen))))
+        slen = data.table(len = slen, nm = names(slen))[, max(len), by = nm][, structure(len, names = nm)]
+            
     .Object@seqinfo = Seqinfo(seqnames = names(slen), seqlengths = slen);
 
   } else {
