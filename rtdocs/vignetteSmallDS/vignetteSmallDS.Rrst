@@ -16,22 +16,20 @@ gr.tile(gr , w) - Divide GRanges into tiles of length "w"
 ..plot(gTrack(gr))
 .. .. 
 
-gTrack(gr + n) - specify degree of overlap
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gTrack(gr + n) - Extend each range by "n" base pairs 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 .. {r plot-overlappingtiles }
-..plot(gTrack(gr+2))
+..plot(gTrack(gr+5))
 .. ..
 
-**stack.gap**
-
-**vector or scaler numeric specifiying x gap between stacking non-numeric GRanges or GRangesLists items in track(s).**
+stack.gap - Specify degree of spacing(in y-direction) between tiles. 
+~~~~~~~~~
 
 .. {r stack.gap}
 ..gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") ,
   c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) , end =
     c(2,4,6,8,10,12,14,16,18,20), names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
-..print(gr)
 .. ..
 
 .. {r plot-gr}
@@ -46,13 +44,14 @@ gTrack(gr + n) - specify degree of overlap
 ..plot(gTrack(gr , stack.gap = 3))
 .. ..
 
-**gTrack(gr , y.field = 'GC')**
-
-**vector or scalar numeric specifiying gap between tracks (add a dimension to the data)**
+y.field - Specify y-axis of graph 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. {r plot-y.fieldGC}
 ..plot(gTrack(gr , y.field = 'GC'))
 .. .. 
+
+bars - Plot data points as bars. 
 
 **gTrack(gr , bars = TRUE/FALSE)**
 
