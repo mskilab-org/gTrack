@@ -1,16 +1,16 @@
-Vignette Using a Small Data Set
+Customizing a Small Data Set
 ===============================
 
-gr.tile(gr , w)
-~~~~~~~~~~~~~~~
+In this vignette, examples of how to segment a data set such as a single GRanges object, how to specify the y-axis of a graph, how to color that same graph, how to add a color to each unique value will be shown. 
+
+gr.tile(gr , w) - Divide GRanges into tiles of length "w"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
     
 
-    ## Divide GRanges into tiles of length "w". 
-    #The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles, each of length 5 will be outputted. 
-    
+    #The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles of length 5 will be returned.
     gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 
 
@@ -34,20 +34,19 @@ gr.tile(gr , w)
 
 
 
-**Overlapping Tiles - gTrack(gr + n)**
-
-**specify degree of overlap**
-
+gTrack(gr + n) - specify degree of overlap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
 
 .. sourcecode:: r
     
 
-    plot(gTrack(gr+10))
+    plot(gTrack(gr+7))
 
 
 ::
 
-    ## Error in plot(gTrack(gr + 10)): could not find function "gTrack"
+    ## Error in plot(gTrack(gr + 7)): could not find function "gTrack"
 
 
 
