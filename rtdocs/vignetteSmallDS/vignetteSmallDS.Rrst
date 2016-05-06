@@ -20,7 +20,7 @@ gTrack(gr + n) - specify degree of overlap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 .. {r plot-overlappingtiles }
-..plot(gTrack(gr+7))
+..plot(gTrack(gr+2))
 .. ..
 
 **stack.gap**

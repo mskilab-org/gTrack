@@ -33,7 +33,7 @@ gTrack(gr + n) - specify degree of overlap
 .. sourcecode:: r
     
 
-    plot(gTrack(gr+7))
+    plot(gTrack(gr+2))
 
 .. figure:: figure/plot-overlappingtiles-1.png
     :alt: plot of chunk plot-overlappingtiles
