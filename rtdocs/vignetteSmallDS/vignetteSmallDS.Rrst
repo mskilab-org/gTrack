@@ -1,11 +1,8 @@
 Vignette Using a Small Data Set
 ===============================
 
-**Overlapping Segments**
-
-**gr.tile(gr , w)**
-
-**tile ranges across GRanges**
+gr.tile(gr , w)
+~~~~~~~~~~~~~~~
 
 .. {r overlapping segments by gr.tile }
 ## Divide GRanges into tiles of length "w". 
