@@ -99,6 +99,9 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-y.fieldGC
 
+bars - Plot data points as vertical bars 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 **gTrack(gr , bars = TRUE/FALSE)**
 
 
@@ -112,7 +115,10 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-bars
 
-**gTrack(gr , lines = TRUE/FALSE)**
+lines - Plot data points as lines.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+gTrack(gr , lines = TRUE/FALSE)
 
 
 .. sourcecode:: r
@@ -125,7 +131,10 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-lines
 
-**gTrack(gr , circles = TRUE/FALSE)**
+circles - Plot data points as circles. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+gTrack(gr , circles = TRUE/FALSE)
 
 
 .. sourcecode:: r
@@ -138,9 +147,8 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-circles
 
-**colorfield**
-
-**map values to colors! Legend is automatically added**
+colorfield - Specify mapping of colors to values.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -153,7 +161,8 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-colorfield
 
-**gr.colorfield**
+gr.colorfield - Automatically specify mapping of colors to values. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -166,7 +175,8 @@ y.field - Specify y-axis of graph
 
     plot of chunk plot-gr.colorfield
 
-**gr.labelfield**
+gr.labelfield - Plot values for each data point. 
+~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -178,16 +188,3 @@ y.field - Specify y-axis of graph
     :alt: plot of chunk plot-labelfield
 
     plot of chunk plot-labelfield
-
-**GRangesList**
-
-
-.. sourcecode:: r
-    
-
-    # first, create GRanges object for chroms 1-3. Each chrom stores regions of exons
-    chrom1 <- GRanges(seqnames=Rle(rep(1,5)) , ranges = IRanges(c(13214448,13377047,17190862,17284920,30741950) , end=c(13376489,17190004,17283075,30741656,30745210)))
-    chrom2 <- GRanges(seqnames=Rle(rep(2,5)) , ranges = IRanges(c(34675467,34737163,50880025,50882016,51098931) , end = c(34737057,50879519,50880979,51089715,51099793)))
-    chrom3 <- GRanges(seqnames=Rle(rep(3,5)) , ranges = IRanges(c(5883026,5888521,6651128,6655078,10251906) , end = c(5887648,6646543,6653332,10245198,10254797)))
-    chroms <- GRangesList("chrom1" = chrom1 , "chrom2" = chrom2 , "chrom3" = chrom3)
-
