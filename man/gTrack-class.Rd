@@ -23,8 +23,8 @@ gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
   xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
   xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
   sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
-  m.bg.col = "white", cmap.min = NA, cmap.max = NA, labels.suppress = F,
-  labels.suppress.grl = labels.suppress,
+  m.bg.col = "white", cmap.min = NA, cmap.max = NA,
+  labels.suppress = FALSE, labels.suppress.grl = labels.suppress,
   labels.suppress.gr = labels.suppress, bg.col = "white", formatting = NA)
 }
 \arguments{
