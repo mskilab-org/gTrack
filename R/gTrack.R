@@ -1574,8 +1574,9 @@ setMethod('plot', c("gTrack","ANY"),
       window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
                                                                                    "cmap.min","cmap.max", "m.sep.lwd","m.bg.col","leg.params",
                                                                                    "islog","gr.colormap")])
-    } else
+    } else {
       window.segs[[i]] <- do.call('draw.grl', all.args)
+    }
 
     this.tname = formatting(.Object[j])$name
 
@@ -1597,7 +1598,6 @@ setMethod('plot', c("gTrack","ANY"),
     win.u = this.windows
     win.u$grl.ix = 1  ##holdover from grangeslist windows
     ##win.u = gr.stripstrand(grl.unlist(windows))
-
     window.segs.u = do.call(rbind, window.segs)
     window.segs.u$width = window.segs.u$end - window.segs.u$start + 1
     window.segs.xlim = do.call('rbind', lapply(window.segs, function(x) data.frame(start = min(x$start), end = max(x$end))))
@@ -1631,7 +1631,7 @@ setMethod('plot', c("gTrack","ANY"),
     l2$x.pos = mapply(function(x,y,z,a) (y-z)*a + x, x = window.segs.u[l2$subject.id,]$start, y = start(l2),
                       z = start(win.u[l2$subject.id]), a = window.segs.u$width[l2$subject.id] / width(win.u)[l2$subject.id])
 
-
+    
     .fix.l = function(ll)
     {
       if (!is.null(links.feat))
@@ -3353,7 +3353,7 @@ draw.grl = function(grl,
       print('Returning ..')
       print(Sys.time() - now)
     }
-    return()
+    return(window.segs)
   }
 
   line.loc = NULL
@@ -4805,9 +4805,8 @@ format_windows <- function(windows, .Object) {
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
     ix = gr.match(tmp, windows)
-
     values(tmp) = values(windows)[ix, ]    
-    
+    windows = tmp
 ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
 ##        windows = GenomicRanges::GRangesList(windows)
 
