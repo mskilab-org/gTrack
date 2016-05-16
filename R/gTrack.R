@@ -1472,6 +1472,12 @@ setMethod('plot', c("gTrack","ANY"),
     if (.Object[j]$bars && is.na(all.args$y0.bar))
         all.args$y0.bar = this.ylim.subplot[j, 1]
 
+    if (is.null(.Object$chr.sub))
+        .Object$chr.sub = FALSE
+
+    if (is.na(.Object$chr.sub[j]))
+        .Object$chr.sub[j] = FALSE
+    
     if (.Object[j]$chr.sub)
         tmp.windows = gr.sub(windows, 'chr', '')
     else
