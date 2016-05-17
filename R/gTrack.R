@@ -217,9 +217,11 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
     formatting(.Object)$y.field <- NA
     formatting(.Object)$yaxis <- TRUE
 }
+        
   ##
   if (any(!is.na(y.field))) {
       ix <- nchar(formatting(.Object)$name) == 0
+      ix = ifelse(is.na(ix), FALSE, TRUE)
       formatting(.Object)$name[ix] <- y.field[ix]
   }
   
