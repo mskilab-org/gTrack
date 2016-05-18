@@ -1228,6 +1228,8 @@ setMethod('plot', c("gTrack","ANY"),
   if (!missing(y))
     windows = y
 
+  if (is(windows, 'character'))
+      windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
   
   ## make sure we have min legend data
   if (!"xpos" %in% names(legend.params))
@@ -1242,7 +1244,7 @@ setMethod('plot', c("gTrack","ANY"),
   window.segs = list();
   dotdot.args = list(...);
 
-  ## parse the windows into GRanges
+  ## parse the wind<ows into GRanges
   windows = format_windows(windows, .Object)
 
     ## if totally empty, plot blank and leave
@@ -4794,13 +4796,13 @@ gr.stripstrand = function(gr)
 
 format_windows <- function(windows, .Object) {
     if (is(windows, 'character'))
-        windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+        windows = BiocGenerics::unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
     if (is(windows, 'Seqinfo'))
         windows = si2gr(windows)
 
     if (is(windows, 'GRangesList'))
-        windows = unlist(windows)
+        windows = BiocGenerics::unlist(windows)
 
     windows = windows[width(windows)>0]  ## otherwise will get non-matching below
     
