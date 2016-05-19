@@ -6,6 +6,17 @@ How to Graph Structural Variations
 .. sourcecode:: r
     
 
+    getwd()
+
+
+::
+
+    ## [1] "/Users/knagdimov/Documents/gTrack/rtdocs/vignetteSVs"
+
+
+.. sourcecode:: r
+    
+
     ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
     cov = readRDS('inst/extdata/coverage.rds')
 
@@ -92,13 +103,18 @@ How to Graph Structural Variations
     ## pick an interesting junction and plot the genes, coverage, and genome graph around it
     ## the links argument specifies the junctions that are being drawn
     window = junctions[[290]] + 1e5
+
+
+
+
+.. sourcecode:: r
     
+
     plot(c(gt.ge, gt.cov, graph), window, links = junctions)
 
 
 ::
 
     ## Error in plot(c(gt.ge, gt.cov, graph), window, links = junctions): object 'gt.ge' not found
-
 
 
