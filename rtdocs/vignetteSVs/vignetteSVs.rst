@@ -17,25 +17,20 @@ How to Graph Structural Variations
 .. sourcecode:: r
     
 
-    ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
-    cov = readRDS('inst/extdata/coverage.rds')
+    set
 
 
 ::
 
-    ## Warning in gzfile(file, "rb"): cannot open compressed file 'inst/extdata/
-    ## coverage.rds', probable reason 'No such file or directory'
-
-
-
-::
-
-    ## Error in gzfile(file, "rb"): cannot open the connection
+    ## Error in eval(expr, envir, enclos): object 'set' not found
 
 
 .. sourcecode:: r
     
 
+    ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
+    cov = readRDS('~/Documents/gTrack/inst/extdata/coverage.rds')
+    
     ## wrap a gTrack around this, draw with blue circles, and label the track "Cov" and sets 0 as lower bound for all views 
     gt.cov = gTrack(cov, y.field = 'mean', circles = TRUE, col = 'blue', name = 'Cov')
 
