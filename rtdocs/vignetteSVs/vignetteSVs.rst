@@ -5,23 +5,13 @@ How to Graph Structural Variations
 .. sourcecode:: r
     
 
+    options(warn=-1)
     ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
     cov = readRDS('~/Documents/gTrack/inst/extdata/coverage.rds')
     
     ## wrap a gTrack around this, draw with blue circles, and label the track "Cov" and sets 0 as lower bound for all views 
     gt.cov = gTrack(cov, y.field = 'mean', circles = TRUE, col = 'blue', name = 'Cov')
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-.. sourcecode:: r
     
-
     ## this loads the junctions data from the cell line (GRangesList, where each item is a length 2 GRanges
     ## with strand information specifying the two locations and strands that are being fused) 
     junctions = readRDS('~/Documents/gTrack/inst/extdata/junctions.rds')
@@ -53,31 +43,6 @@ How to Graph Structural Variations
     
 
     plot(c(gt.ge, gt.cov, graph), window, links = junctions)
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRangesList", package = "GenomicRanges")>, : implicit list
-    ## embedding of S4 objects is deprecated
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
 
 .. figure:: figure/plot-firstSV-1.png
     :alt: plot of chunk plot-firstSV
