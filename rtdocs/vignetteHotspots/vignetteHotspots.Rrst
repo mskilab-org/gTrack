@@ -1,14 +1,14 @@
 How to Graph Relationships in The Genome 
 =========================================================
 
-Genes interact with each other, either on purpose such as during epistasis or not such as during DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrack can perform such a task.
+Genes interact with each other and gTrack is perfect in graphing these interactions. 
 
-In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. In addition, variants of a random collection of sequences will be graphed. These examples will use the GRangesList functionality provided by GenomicRanges.
+In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. They will be used in graphing the variants of a random collection of sequences. These examples will use the GRangesList functionality provided by GenomicRanges.
 
 Parameters Tutorial
 ~~~~~~~~~~~~~~~~~~~
 
-To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
+To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing RANDOM sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
 
 .. {r generating GRanges} 
 
@@ -40,10 +40,10 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing s
 ..plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
 .. .. 
 
-Graphing Variants Tutorial
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Graping Copy Number Variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## To simulate mutations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. Their "strange" data will be graphed and because they are outliers, they will be easily visable. This vignette also highlights examples of how/when to use the following gTrack parameters: draw.paths, gr.labelfield.  
+To **highlight** regions that are copy number variations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also highlights examples of how/when to use the gTrack **stack.gap** parameter.  
 
 .. {r hotspots}
 ## Create a GRanges
@@ -70,5 +70,3 @@ gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
 .. {r mutations2-plot, fig.width = 15}
 ..plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 .. .. 
-
-
