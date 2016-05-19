@@ -1,14 +1,14 @@
 How to Graph Relationships in The Genome 
 =========================================================
 
-Genes interact with each other, either on purpose such as during epistasis or not such as during DNA rearrangement in solid tumors. Both circumstances may wish to be graphed and gTrack can perform such a task.
+Genes interact with each other and gTrack is perfect in graphing these interactions. 
 
-In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. In addition, variants of a random collection of sequences will be graphed. These examples will use the GRangesList functionality provided by GenomicRanges.
+In this vignette, the **draw.paths** and **gr.labelfield** and **circle** parameters of gTrack will be highlighted. They will be used in graphing the variants of a random collection of sequences. These examples will use the GRangesList functionality provided by GenomicRanges.
 
 Parameters Tutorial
 ~~~~~~~~~~~~~~~~~~~
 
-To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
+To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing RANDOM sequences from chromosomes 1,2, and 3 will be created. Then, a graph will be shown when draw.paths is supplied and when it is not. Similarily will be done for the gr.labelfield parameter. 
 
 
 .. sourcecode:: r
@@ -48,10 +48,10 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing s
 
     plot of chunk -plotList
 
-Graphing Variants Tutorial
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Graping Copy Number Variations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## To simulate mutations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. Their "strange" data will be graphed and because they are outliers, they will be easily visable. This vignette also highlights examples of how/when to use the following gTrack parameters: draw.paths, gr.labelfield.  
+To **highlight** regions that are copy number variations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also highlights examples of how/when to use the gTrack **stack.gap** parameter.  
 
 
 .. sourcecode:: r
@@ -72,13 +72,58 @@ Graphing Variants Tutorial
     
 
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+
+
+::
+
+    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
+
+
+.. sourcecode:: r
     
+
     win = si2gr(fake.genome)
     
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
     gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
     gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
     gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
 
 
 
@@ -87,9 +132,9 @@ Graphing Variants Tutorial
 
     plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 
-.. figure:: figure/mutations2-plot-1.png
-    :alt: plot of chunk mutations2-plot
 
-    plot of chunk mutations2-plot
+::
+
+    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): object 'gt.mut0' not found
 
 
