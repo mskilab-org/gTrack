@@ -65,6 +65,21 @@ How to Graph Structural Variations
 
 ::
 
-    ## Error in do.call("rrbind", lapply(args, formatting)): could not find function "rrbind"
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/plot-firstSV-1.png
+    :alt: plot of chunk plot-firstSV
+
+    plot of chunk plot-firstSV
