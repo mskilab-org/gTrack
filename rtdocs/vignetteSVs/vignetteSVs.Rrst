@@ -1,7 +1,6 @@
 How to Graph Structural Variations
 =====================================
 
-
 .. {r load coverage file}
 ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
 ..cov = readRDS('~/Documents/gTrack/inst/extdata/coverage.rds')

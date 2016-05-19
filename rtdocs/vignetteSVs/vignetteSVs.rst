@@ -2,7 +2,6 @@ How to Graph Structural Variations
 =====================================
 
 
-
 .. sourcecode:: r
     
 
@@ -15,7 +14,9 @@ How to Graph Structural Variations
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -32,7 +33,7 @@ How to Graph Structural Variations
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "track.gencode"
+    ## Pulling gencode annotations from /Library/Frameworks/R.framework/Versions/3.3/Resources/library/gTrack/extdata/gencode.composite.collapsed.rds
 
 
 .. sourcecode:: r
@@ -56,6 +57,14 @@ How to Graph Structural Variations
 
 ::
 
-    ## Error in plot(c(gt.ge, gt.cov, graph), window, links = junctions): object 'gt.ge' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>, : implicit list
+    ## embedding of S4 objects is deprecated
+
+
+
+::
+
+    ## Error in do.call("rrbind", lapply(args, formatting)): could not find function "rrbind"
 
 
