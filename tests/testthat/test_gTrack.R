@@ -10,16 +10,16 @@ set.seed(137)
 mdat <- matrix(sample(10, 4, replace=TRUE), ncol=2, nrow=2)
 mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 
-test_that("gTrack receives input vals into format", {
-  g <- gTrack(gr, height=7, xaxis.chronly = TRUE, y.field="A", bars=TRUE, xaxis.suffix = "bp")
-  png("rtdocs/figures/basic_background_col.png", height=HI, width=WI);
-  plot(g,windows=reduce(g))
-  dev.off()
+#test_that("gTrack receives input vals into format", {
+  #g <- gTrack(gr, height=7, xaxis.chronly = TRUE, y.field="A", bars=TRUE, xaxis.suffix = "bp")
+  #png("rtdocs/figures/basic_background_col.png", height=HI, width=WI);
+  #plot(g,windows=reduce(g))
+  #dev.off()
 
-  g <- gTrack(gr, xaxis.chronly = TRUE, mdata=mdat)
+  #g <- gTrack(gr, xaxis.chronly = TRUE, mdata=mdat)
   #g2 <- gTrack(gr, height=7, xaxis.chronly = TRUE)
 
   #png("rtdocs/figures/basic_background_col.png", height=HI, width=WI);
   ##plot(g2, GRanges(1, IRanges(4,6)))
   #dev.off()
-})
+#})
