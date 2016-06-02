@@ -63,16 +63,32 @@ How to Graph Structural Variations
 
     ## Load in coverage data for the HCC1143 cell line 
      ocovh = readRDS('../../inst/extdata/10X/files/HCC1143/cov/cov.rds')
+
+
+::
+
+    ## Error in gzfile(file, "rb"): cannot open the connection
+
+
+.. sourcecode:: r
     
-     cov = gr.tile(seqlengths(ocovh, 5e3)
+
+     cov = gr.tile(seqlengths(ocovh, 5e3))
+
+
+::
+
+    ## Error in seqlengths(ocovh, 5000): unused argument (5000)
+
+
+.. sourcecode:: r
+    
+
      cov = readRDS("../../inst/extdata/segstats_cov.rds")
 
 
 ::
 
-    ## Error: <text>:5:2: unexpected symbol
-    ## 4:  cov = gr.tile(seqlengths(ocovh, 5e3)
-    ## 5:  cov
-    ##     ^
+    ## Error in gzfile(file, "rb"): cannot open the connection
 
 
