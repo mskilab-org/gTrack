@@ -39,6 +39,6 @@ How to Graph Structural Variations
 ## Load in coverage data for the HCC1143 cell line 
 .. ocovh = readRDS('../../inst/extdata/10X/files/HCC1143/cov/cov.rds')
 
-.. cov = gr.tile(seqlengths(ocovh, 5e3)
+.. cov = gr.tile(seqlengths(ocovh, 5e3))
 .. cov = readRDS("../../inst/extdata/segstats_cov.rds")
 .. ..
