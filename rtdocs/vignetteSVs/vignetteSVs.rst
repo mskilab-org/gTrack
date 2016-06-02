@@ -29,16 +29,7 @@ How to Graph Structural Variations
 
     ## wrap a gTrack around this, draw with blue circles, and label the track "Cov" and sets 0 as lower bound for all views 
     gt.cov = gTrack(cov, y.field = 'mean', circles = TRUE, col = 'blue', name = 'Cov')
-
-
-::
-
-    ## Error in .local(.Object, ...): check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files
-
-
-.. sourcecode:: r
     
-
     ## this loads the junctions data from the cell line (GRangesList, where each item is a length 2 GRanges
     ## with strand information specifying the two locations and strands that are being fused) 
     junctions = readRDS('inst/extdata/junctions.rds')
@@ -82,24 +73,16 @@ How to Graph Structural Variations
     window = junctions[[290]] + 1e5
 
 
-::
-
-    ## Error in eval(expr, envir, enclos): object 'junctions' not found
-
-
-
 
 .. sourcecode:: r
     
 
     plot(c(gt.ge, gt.cov, graph), window, links = junctions)
 
+.. figure:: figure/plot-firstSV-1.png
+    :alt: plot of chunk plot-firstSV
 
-::
-
-    ## Error in plot(c(gt.ge, gt.cov, graph), window, links = junctions): object 'gt.cov' not found
-
-
+    plot of chunk plot-firstSV
 
 
 .. sourcecode:: r
