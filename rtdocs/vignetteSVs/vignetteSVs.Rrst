@@ -53,5 +53,12 @@ How to Graph Structural Variations
 
 .. {r plot2ndgraph}
 ..plot(c(gt.ge, gt.cov, graph), window, links = junctions)
-
 .. ..
+
+.. {r matchedFile}
+## 4 windows corresponding to the 4 breakpoints involved in these two rearrangements.
+..window = unlist(junctions[jix]) + 250
+
+## pull the reads out in these windows from the tumor and normal bam file.
+treads = read.bam("../../files/tumor.bam", window)
+.. .. 
