@@ -36,9 +36,22 @@ How to Graph Structural Variations
 .. .. 
 
 .. {r edit graph}
-## Load in coverage data for the HCC1143 cell line 
-.. ocovh = readRDS('../../inst/extdata/10X/files/HCC1143/cov/cov.rds')
+..ix = 194
+..cwindow = junctions[[ix]]
 
-.. cov = gr.tile(seqlengths(ocovh, 5e3))
-.. cov = readRDS("../../inst/extdata/segstats_cov.rds")
+..jix = c(582, 583)
+..window = unlist(junctions[jix]) + 3e5
+
+## convert junctions to a data frame. values() returns values from the hash which is the junctions object, in this example.
+..values(junctions)$col = 'gray'
+..values(junctions)$lwd = 1
+..values(junctions)$lty = 2 ## dashed instead of dotted line style
+..values(junctions)$col[jix] = 'red'
+..values(junctions)$lwd[jix] = 3 ## thicker line width
+..values(junctions)$lty[jix] = 1 ## solid line style for junction of interest
+.. ..
+
+.. {r plot2ndgraph}
+..plot(c(gt.ge, gt.cov, graph), window, links = junctions)
+
 .. ..

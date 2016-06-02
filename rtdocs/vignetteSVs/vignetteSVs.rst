@@ -61,34 +61,28 @@ How to Graph Structural Variations
 .. sourcecode:: r
     
 
-    ## Load in coverage data for the HCC1143 cell line 
-     ocovh = readRDS('../../inst/extdata/10X/files/HCC1143/cov/cov.rds')
+    ix = 194
+    cwindow = junctions[[ix]]
+    
+    jix = c(582, 583)
+    window = unlist(junctions[jix]) + 3e5
+    
+    ## convert junctions to a data frame. values() returns values from the hash which is the junctions object, in this example.
+    values(junctions)$col = 'gray'
+    values(junctions)$lwd = 1
+    values(junctions)$lty = 2 ## dashed instead of dotted line style
+    values(junctions)$col[jix] = 'red'
+    values(junctions)$lwd[jix] = 3 ## thicker line width
+    values(junctions)$lty[jix] = 1 ## solid line style for junction of interest
 
-
-::
-
-    ## Error in gzfile(file, "rb"): cannot open the connection
 
 
 .. sourcecode:: r
     
 
-     cov = gr.tile(seqlengths(ocovh, 5e3))
+    plot(c(gt.ge, gt.cov, graph), window, links = junctions)
 
+.. figure:: figure/plot2ndgraph-1.png
+    :alt: plot of chunk plot2ndgraph
 
-::
-
-    ## Error in seqlengths(ocovh, 5000): unused argument (5000)
-
-
-.. sourcecode:: r
-    
-
-     cov = readRDS("../../inst/extdata/segstats_cov.rds")
-
-
-::
-
-    ## Error in gzfile(file, "rb"): cannot open the connection
-
-
+    plot of chunk plot2ndgraph
