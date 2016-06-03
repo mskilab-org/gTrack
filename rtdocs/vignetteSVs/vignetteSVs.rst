@@ -8,6 +8,7 @@ How to Graph Structural Variations
 
     ## make sure to load in these libraries
     library(gTrack)
+    library(bamUtils) ## to use read.bam function 
 
 
 
@@ -86,3 +87,54 @@ How to Graph Structural Variations
     :alt: plot of chunk plot2ndgraph
 
     plot of chunk plot2ndgraph
+
+Graping BAM data
+~~~~~~~~~~~~~~~~
+
+
+.. sourcecode:: r
+    
+
+    ## 4 windows corresponding to the 4 breakpoints involved in these two rearrangements.
+    window = unlist(junctions[jix]) + 250
+    
+    ## pull the reads out in these windows from the tumor and normal bam file.
+    treads = read.bam("../../files/tumor.bam", window)
+
+
+::
+
+    ## Error in value[[3L]](cond): failed to open BamFile: file(s) do not exist:
+    ##   '../../files/tumor.bam'
+
+
+.. sourcecode:: r
+    
+
+    nreads = read.bam("../../files/normal.bam", window)
+
+
+::
+
+    ## Error in value[[3L]](cond): failed to open BamFile: file(s) do not exist:
+    ##   '../../files/normal.bam'
+
+
+.. sourcecode:: r
+    
+
+    ## make them into gTracks
+    td.treads = gTrack(treads, draw.var = TRUE, name = 'Tumor reads')
+    td.nreads = gTrack(nreads, draw.var = TRUE, name = 'Normal reads')
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(gt.ge, td.nreads, td.treads), window, links = junctions)
+
+.. figure:: figure/graph_BAM_data-1.png
+    :alt: plot of chunk graph_BAM_data
+
+    plot of chunk graph_BAM_data
