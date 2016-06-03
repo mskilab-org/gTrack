@@ -99,30 +99,9 @@ Graping BAM data
     window = unlist(junctions[jix]) + 250
     
     ## pull the reads out in these windows from the tumor and normal bam file.
-    treads = read.bam("../../files/tumor.bam", window)
-
-
-::
-
-    ## Error in value[[3L]](cond): failed to open BamFile: file(s) do not exist:
-    ##   '../../files/tumor.bam'
-
-
-.. sourcecode:: r
+    treads = read.bam("../../inst/extdata/files/tumor.bam", window)
+    nreads = read.bam("../../inst/extdata/files/normal.bam", window)
     
-
-    nreads = read.bam("../../files/normal.bam", window)
-
-
-::
-
-    ## Error in value[[3L]](cond): failed to open BamFile: file(s) do not exist:
-    ##   '../../files/normal.bam'
-
-
-.. sourcecode:: r
-    
-
     ## make them into gTracks
     td.treads = gTrack(treads, draw.var = TRUE, name = 'Tumor reads')
     td.nreads = gTrack(nreads, draw.var = TRUE, name = 'Normal reads')
