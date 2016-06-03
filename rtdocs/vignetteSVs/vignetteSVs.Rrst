@@ -64,8 +64,8 @@ Graping BAM data
 ..window = unlist(junctions[jix]) + 250
 
 ## pull the reads out in these windows from the tumor and normal bam file.
-..treads = read.bam("../../files/tumor.bam", window)
-..nreads = read.bam("../../files/normal.bam", window)
+..treads = read.bam("../../inst/extdata/files/tumor.bam", window)
+..nreads = read.bam("../../inst/extdata/files/normal.bam", window)
 
 ## make them into gTracks
 ..td.treads = gTrack(treads, draw.var = TRUE, name = 'Tumor reads')
