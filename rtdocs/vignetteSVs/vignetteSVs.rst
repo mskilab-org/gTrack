@@ -8,7 +8,269 @@ How to Graph Structural Variations
 
     ## make sure to load in these libraries
     library(gTrack)
+
+
+::
+
+    ## Loading required package: GenomicRanges
+
+
+
+::
+
+    ## Loading required package: BiocGenerics
+
+
+
+::
+
+    ## Loading required package: parallel
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'BiocGenerics'
+
+
+
+::
+
+    ## The following objects are masked from 'package:parallel':
+    ## 
+    ##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    ##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+    ##     parLapplyLB, parRapply, parSapply, parSapplyLB
+
+
+
+::
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     IQR, mad, xtabs
+
+
+
+::
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     anyDuplicated, append, as.data.frame, cbind, colnames,
+    ##     do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    ##     grepl, intersect, is.unsorted, lapply, lengths, Map, mapply,
+    ##     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    ##     Position, rank, rbind, Reduce, rownames, sapply, setdiff,
+    ##     sort, table, tapply, union, unique, unsplit
+
+
+
+::
+
+    ## Loading required package: S4Vectors
+
+
+
+::
+
+    ## Loading required package: stats4
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'S4Vectors'
+
+
+
+::
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     colMeans, colSums, expand.grid, rowMeans, rowSums
+
+
+
+::
+
+    ## Loading required package: IRanges
+
+
+
+::
+
+    ## Loading required package: GenomeInfoDb
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'gTrack'
+
+
+
+::
+
+    ## The following object is masked from 'package:GenomicRanges':
+    ## 
+    ##     seqinfo<-
+
+
+
+::
+
+    ## The following object is masked from 'package:GenomeInfoDb':
+    ## 
+    ##     seqinfo<-
+
+
+.. sourcecode:: r
+    
+
     library(bamUtils) ## to use read.bam function 
+
+
+::
+
+    ## Loading required package: data.table
+
+
+
+::
+
+    ## data.table 1.9.6  For help type ?data.table or https://github.com/Rdatatable/data.table/wiki
+
+
+
+::
+
+    ## The fastest way to learn (by data.table authors): https://www.datacamp.com/courses/data-analysis-the-data-table-way
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'data.table'
+
+
+
+::
+
+    ## The following object is masked from 'package:GenomicRanges':
+    ## 
+    ##     shift
+
+
+
+::
+
+    ## The following object is masked from 'package:IRanges':
+    ## 
+    ##     shift
+
+
+
+::
+
+    ## Loading required package: Rsamtools
+
+
+
+::
+
+    ## Loading required package: Biostrings
+
+
+
+::
+
+    ## Loading required package: XVector
+
+
+
+::
+
+    ## Loading required package: rtracklayer
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'rtracklayer'
+
+
+
+::
+
+    ## The following object is masked _by_ '.GlobalEnv':
+    ## 
+    ##     import.ucsc
+
+
+
+::
+
+    ## Loading required package: GenomicAlignments
+
+
+
+::
+
+    ## Loading required package: SummarizedExperiment
+
+
+
+::
+
+    ## Loading required package: Biobase
+
+
+
+::
+
+    ## Welcome to Bioconductor
+    ## 
+    ##     Vignettes contain introductory material; view with
+    ##     'browseVignettes()'. To cite Bioconductor, see
+    ##     'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'GenomicAlignments'
+
+
+
+::
+
+    ## The following object is masked from 'package:data.table':
+    ## 
+    ##     last
+
+
+
+::
+
+    ## 
+    ## Attaching package: 'bamUtils'
+
+
+
+::
+
+    ## The following objects are masked _by_ '.GlobalEnv':
+    ## 
+    ##     bam.cov.gr, bam.cov.tile, bamflag, bamtag, count.clips,
+    ##     countCigar, counts2rpkm, get_seq, get.pairs.grl, read.bam,
+    ##     splice.cigar, varbase
+
 
 
 
@@ -117,3 +379,54 @@ Graping BAM data
     :alt: plot of chunk graph_BAM_data
 
     plot of chunk graph_BAM_data
+
+
+.. sourcecode:: r
+    
+
+    ## dividing tumor read pairs between those that support a rearrangement (i.e. hit multiple windows)
+    ## and concordant read pairs that lie only within a single window
+    
+    ## isolating normal
+    nreadsr = nreads[grl.in(nreads, window, logical = FALSE)>1]
+    nreadsc = nreads[grl.in(nreads, window, logical = FALSE)==1]
+    
+    td.treadsr = gTrack(treadsr, draw.var = TRUE, name = 'Tumor reads R', height = 30, angle = 45)
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'treadsr' not found
+
+
+.. sourcecode:: r
+    
+
+    td.nreadsr = gTrack(nreadsr, draw.var = TRUE, name = 'Normal reads R')
+    td.treadsc = gTrack(treadsc, draw.var = TRUE, name = 'Tumor reads C')
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'treadsc' not found
+
+
+.. sourcecode:: r
+    
+
+    td.nreadsc = gTrack(nreadsc, draw.var = TRUE, name = 'Normal reads C')
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(gt.ge, td.nreadsc, td.nreadsr, td.treadsc, td.treadsr), window, links = junctions)
+
+
+::
+
+    ## Error in plot(c(gt.ge, td.nreadsc, td.nreadsr, td.treadsc, td.treadsr), : object 'td.treadsc' not found
+
+
+

@@ -75,3 +75,22 @@ Graping BAM data
 .. {r graph_BAM_data}
 ..plot(c(gt.ge, td.nreads, td.treads), window, links = junctions)
 .. .. 
+
+.. {r dividing tumors}
+## dividing tumor read pairs between those that support a rearrangement (i.e. hit multiple windows)
+## and concordant read pairs that lie only within a single window
+
+## isolating normal
+..nreadsr = nreads[grl.in(nreads, window, logical = FALSE)>1]
+..nreadsc = nreads[grl.in(nreads, window, logical = FALSE)==1]
+
+..td.treadsr = gTrack(treadsr, draw.var = TRUE, name = 'Tumor reads R', height = 30, angle = 45)
+..td.nreadsr = gTrack(nreadsr, draw.var = TRUE, name = 'Normal reads R')
+..td.treadsc = gTrack(treadsc, draw.var = TRUE, name = 'Tumor reads C')
+..td.nreadsc = gTrack(nreadsc, draw.var = TRUE, name = 'Normal reads C')
+.. ..
+
+.. {r plotingTumors}
+..plot(c(gt.ge, td.nreadsc, td.nreadsr, td.treadsc, td.treadsr), window, links = junctions)
+.. ..
+
