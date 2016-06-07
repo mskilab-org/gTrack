@@ -87,8 +87,8 @@ Graping BAM data
 ..nreadsc = nreads[grl.in(nreads, window, logical = FALSE)==1]
 
 ..td.treadsr = gTrack(treadsr, draw.var = TRUE, name = 'Tumor reads R', height = 30, angle = 45)
-..td.nreadsr = gTrack(nreadsr, draw.var = TRUE, name = 'Normal reads R')
-..td.treadsc = gTrack(treadsc, draw.var = TRUE, name = 'Tumor reads C')
+..td.nreadsr = gTrack(nreadsr, draw.var = TRUE, name = 'Normal reads')
+..td.treadsc = gTrack(treadsc, draw.var = TRUE, name = 'Tumor reads')
 ..td.nreadsc = gTrack(nreadsc, draw.var = TRUE, name = 'Normal reads C')
 .. ..
 
