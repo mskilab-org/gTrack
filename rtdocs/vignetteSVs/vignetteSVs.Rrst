@@ -79,6 +79,8 @@ Graping BAM data
 .. {r dividing tumors}
 ## dividing tumor read pairs between those that support a rearrangement (i.e. hit multiple windows)
 ## and concordant read pairs that lie only within a single window
+..treadsr = treads[grl.in(treads, window, logical = FALSE)>1]
+..treadsc = treads[grl.in(treads, window, logical = FALSE)==1]
 
 ## isolating normal
 ..nreadsr = nreads[grl.in(nreads, window, logical = FALSE)>1]
