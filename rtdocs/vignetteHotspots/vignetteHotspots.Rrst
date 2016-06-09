@@ -12,9 +12,9 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
 
 .. {r generating GRanges} 
 
-..gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
-..gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
-..gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
+..gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
+..gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
+..gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
 
 ##Create a column that keeps track of the exons
 
