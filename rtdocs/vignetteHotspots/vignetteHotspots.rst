@@ -15,9 +15,38 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
     
 
     gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
-    gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
-    gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
+
+
+::
+
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+
+
+.. sourcecode:: r
     
+
+    gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
+
+
+::
+
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+
+
+.. sourcecode:: r
+    
+
+    gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
+
+
+::
+
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+
+
+.. sourcecode:: r
+    
+
     ##Create a column that keeps track of the exons
     
     gene1$exon = 1:length(gene1)
@@ -28,20 +57,72 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
     grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
     
     gt.genes = gTrack(grl)
+
+
+::
+
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
+
+
+.. sourcecode:: r
     
+
     ## Plot but, show how **effective** draw.paths and gr.labelfield can be.
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
     gt.fusion = gTrack(fusion, draw.paths = FALSE, gr.labelfield = 'exon')
-    gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+
+
+::
+
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
+
+
+.. sourcecode:: r
     
+
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
+
+
+::
+
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
+
+
+.. sourcecode:: r
+    
+
     ## separating the windows for the graph. 
-    win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+    win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+
+
+::
+
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
+
 
 
 .. sourcecode:: r
     
 
     plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
+
+
+::
+
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>, : implicit list
+    ## embedding of S4 objects is deprecated
+
 
 .. figure:: figure/-plotList-1.png
     :alt: plot of chunk -plotList
@@ -65,7 +146,23 @@ To **highlight** regions that are copy number variations, we first need to creat
     hotspots = sample(length(tiles), 5)
     
     d = values(distanceToNearest(tiles, tiles[hotspots]))$distance
+
+
+::
+
+    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values' for signature '"SortedByQueryHits"'
+
+
+.. sourcecode:: r
+    
+
     prob = .05 + exp(-d^2/10000)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'd' not found
+
 
 
 .. sourcecode:: r
@@ -76,7 +173,7 @@ To **highlight** regions that are copy number variations, we first need to creat
 
 ::
 
-    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
+    ## Error in sample.int(length(x), size, replace, prob): object 'prob' not found
 
 
 .. sourcecode:: r
