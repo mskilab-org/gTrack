@@ -14,34 +14,46 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
 .. sourcecode:: r
     
 
-    gene1 = sort(sample(gr.tile(parse.gr('1:1-5e3+'), 50), 5))
+    gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
 
 
 ::
 
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
 
 
 .. sourcecode:: r
     
 
-    gene2 = rev(sort(sample(gr.tile(parse.gr('2:1-5e3-'), 50), 12)))
+    gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
 
 
 ::
 
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
 
 
 .. sourcecode:: r
     
 
-    gene3 = sort(sample(gr.tile(parse.gr('3:1-5e3+'), 50), 8))
+    gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
 
 
 ::
 
-    ## Error in (function (classes, fdef, mtable) : unable to find an inherited method for function 'values<-' for signature '"GRanges"'
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
 
 
 .. sourcecode:: r
