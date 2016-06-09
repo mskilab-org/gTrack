@@ -33,7 +33,7 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
 ..gt.fusion.o = gTrack(fusion, draw.paths = TRUE, gr.labelfield = 'exon')
 
 ## separating the windows for the graph. 
-..win = parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+..win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
 ..
 
 .. {r-plotList}
