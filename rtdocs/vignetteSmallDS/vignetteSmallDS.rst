@@ -40,7 +40,7 @@ gTrack(gr + n) - Extend each range by "n" base pairs
 
     plot of chunk plot-overlappingtiles
 
-stack.gap - Specify degree of spacing(in y-direction) between tiles. 
+stack.gap - Specify degree of spacing(in x-direction) between tiles that are **ADJACENT** 
 ~~~~~~~~~
 
 
