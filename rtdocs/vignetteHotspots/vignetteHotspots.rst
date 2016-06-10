@@ -48,7 +48,7 @@ To simulate the draw.paths and gr.labelfield parameters, a GRangesList storing R
 
     plot of chunk -plotList
 
-Graping Copy Number Variations
+Graphing Copy Number Variations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To **highlight** regions that are copy number variations, we first need to create genes. Once those genes are made, a few sequences will be selected as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also highlights examples of how/when to use the gTrack **stack.gap** parameter.  
