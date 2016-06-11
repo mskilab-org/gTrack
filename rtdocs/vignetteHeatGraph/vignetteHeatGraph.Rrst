@@ -1,10 +1,12 @@
-=========================================
-Vignette On Creating Heat maps and Graphs
+How to Create Graphs
 =========================================
 
-Creating a **Graph** to connect ranges
+In certain situations, genes have been known to interact. For example, during chromosomal rearrangements, two genes may "swap" DNA. Graphing such a phenomenon is possible using gTrack. Additionally, the **edges** parameter will be utilized, helping users understand the context that in can be used. 
 
-Made Possible by **edges** parameter of **gTrack**
+Edges Parameter
+~~~~~~~~~~~~~~~
+
+In order to create a connected graph in gTrack, the **edges** parameter of gTrack is supplied a matrix of connections.  
 
 .. {r createGraph}
 ##create an N lengthed GRanges object that you want to have connections.

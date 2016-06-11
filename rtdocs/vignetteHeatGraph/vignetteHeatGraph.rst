@@ -1,10 +1,12 @@
-=========================================
-Vignette On Creating Heat maps and Graphs
+How to Create Graphs
 =========================================
 
-Creating a **Graph** to connect ranges
+In certain situations, genes have been known to interact. For example, during chromosomal rearrangements, two genes may "swap" DNA. Graphing such a phenomenon is possible using gTrack. Additionally, the **edges** parameter will be utilized, helping users understand the context that in can be used. 
 
-Made Possible by **edges** parameter of **gTrack**
+Edges Parameter
+~~~~~~~~~~~~~~~
+
+In order to create a connected graph in gTrack, the **edges** parameter of gTrack is supplied a matrix of connections.  
 
 
 .. sourcecode:: r
@@ -204,26 +206,6 @@ Increase **"curviness"** of the edges by adding **h** column
 
     plot of chunk curviness-graph
 
-**Add a Heat map to the plot!**
-
-.. sourcecode:: r
-    
-
-    ##in order to create a heatmap for each node in the matrix, color intensity needs to be specified.
-    ##to save time, a random N*N matrix filled with values from 1:100 is made.
-    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10);
-
-
-
-.. sourcecode:: r
-    
-
-    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
-
-.. figure:: figure/plot-heatmap-1.png
-    :alt: plot of chunk plot-heatmap
-
-    plot of chunk plot-heatmap
 
 **Combining the heat map and graph onto the same plot.Possible by concatenation**
 
@@ -232,10 +214,12 @@ Increase **"curviness"** of the edges by adding **h** column
 
     plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
 
-.. figure:: figure/plot-HeatMap&Graph-1.png
-    :alt: plot of chunk plot-HeatMap&Graph
 
-    plot of chunk plot-HeatMap&Graph
+::
+
+    ## Error in listify(mdata, matrix, length(.Object@data)): object 'heatMap' not found
+
+
 
 **Zooming** in and out
 
@@ -313,9 +297,11 @@ Increase **"curviness"** of the edges by adding **h** column
     options(warn=-1)
     plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
 
-.. figure:: figure/plot-zoom-1.png
-    :alt: plot of chunk plot-zoom
 
-    plot of chunk plot-zoom
+::
+
+    ## Error in listify(mdata, matrix, length(.Object@data)): object 'heatMap' not found
+
+
 
 
