@@ -75,16 +75,7 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 
     ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
-
-
-::
-
-    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
-
-
-.. sourcecode:: r
     
-
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, gr.labelfield = 'track')
     gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
