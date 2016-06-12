@@ -1,12 +1,12 @@
 How to Create Graphs
 =========================================
 
-During chromosomal rearrangements, translocations may occur and graphing such a phenomenon is possible with gTrack. Certain parameters such as **edges** will be used in this vignette. 
+During chromosomal rearrangements, translocations may occur and graphing such a phenomenon is possible with gTrack. However, the **edges** parameter must be used. This vignette will explain how to prepare a graph.  
 
 Edges Parameter
 ~~~~~~~~~~~~~~~
 
-In order to create a connected graph in gTrack, the **edges** parameter of gTrack must be supplied a matrix of connections.  
+In order to create a connected graph in gTrack, the **edges** parameter of gTrack must be supplied a matrix or a data frame of connections. 
 
 
 .. sourcecode:: r
@@ -45,7 +45,7 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 .. sourcecode:: r
     
 
-    ## Specify links between nodes by a matrix. Numeric 1s refer to a connection while conversely with 0s. 
+    ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s. 
     
     ##create an N*N matrix filled with 0s.
     graph = matrix(0 , nrow = 10 , ncol = 10)
