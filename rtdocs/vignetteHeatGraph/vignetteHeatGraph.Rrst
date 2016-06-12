@@ -1,15 +1,15 @@
 How to Create Graphs
 =========================================
 
-In certain situations, genes have been known to interact. For example, during chromosomal rearrangements, two genes may "swap" DNA. Graphing such a phenomenon is possible using gTrack. Additionally, the **edges** parameter will be utilized, helping users understand the context that in can be used. 
+During chromosomal rearrangements, translocations may occur and graphing such a phenomenon is possible with gTrack. Certain parameters such as **edges** will be used in this vignette. 
 
 Edges Parameter
 ~~~~~~~~~~~~~~~
 
-In order to create a connected graph in gTrack, the **edges** parameter of gTrack is supplied a matrix of connections.  
+In order to create a connected graph in gTrack, the **edges** parameter of gTrack must be supplied a matrix of connections.  
 
 .. {r createGraph}
-##create an N lengthed GRanges object that you want to have connections.
+##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph. 
 ..gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") ,
   c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) ,
   end = c(2,4,6,8,10,12,14,16,18,20),
@@ -17,18 +17,14 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
   GC=seq(1,10,length=10),
   name=seq(5,10,length=10))
 
-##print how it looks 
-..print(gr)
+..gr
 
-##create matrix to specify edges (links between nodes) and nodes are the ranges.
+## Specify links between nodes by a matrix. Numeric 1s refer to a connection while conversely with 0s. 
 
 ##create an N*N matrix filled with 0s.
 ..graph = matrix(0 , nrow = 10 , ncol = 10)
-##print how the matrix looks.
-..graph
 
-##the graph will be made by searching for coordinates in the matrix that have 1s.
-##set indices to 1.
+##set certain indices to 1.
 ..graph[1,3]=1
 ..graph[1,10]=1
 ..graph[2,5]=1
@@ -52,7 +48,8 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
-Adding **styles** to a graph
+Customizing the Graph
+~~~~~~~~~~~~~~~~~~~~~
 
 If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
 
