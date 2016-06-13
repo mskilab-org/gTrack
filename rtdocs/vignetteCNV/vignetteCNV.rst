@@ -2,8 +2,10 @@ How to Plot CNV Data
 =======================
 
 gTrack is capable of graphing CNV data, quickly. In this vignette, the y.field parameter will be used.
+
 y.field Parameter
 ~~~~~~~~~~~~~~~~~
+
 
 .. sourcecode:: r
     # load breast cancer CNV data from tcgaData.
