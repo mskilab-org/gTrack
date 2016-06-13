@@ -3,6 +3,9 @@ How to Create Heat Maps
 
 gTrack is able to create heat graphs and in this vignette, the steps to make one will be shown. In order to create one the **mdata** parameter of gTrack must be supplied a matrix. 
 
+mdata Parameter
+~~~~~~~~~~~~~~~
+
 
 .. sourcecode:: r
     
