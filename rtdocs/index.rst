@@ -13,7 +13,7 @@ Contents:
 
    vignetteCNV/vignetteCNV.rst	      
    vignetteSmallDS/vignetteSmallDS.rst
-   vignetteHeatGraph/vignetteHeatGraph.rst
+   vignetteGraph/vignetteGraph.rst
    vignetteHeatMap/vignetteHeatMap.rst
    vignetteHotspots/vignetteHotspots.rst 
    vignetteSVs/vignetteSVs.rst
