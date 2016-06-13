@@ -18,8 +18,8 @@ gTrack is able to create heat graphs and in this vignette, the steps to make one
 .. plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
 .. ..
 
-Zooming In and Out of a Graph
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Zooming In and Out
+~~~~~~~~~~~~~~~~~~
 
 .. {r editGraph}
 ## In order to zoom in and out, essentially the ranges of the sequences need to be stretched or shrinked.
