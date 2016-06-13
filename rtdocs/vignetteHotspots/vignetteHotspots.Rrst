@@ -5,8 +5,8 @@ Genes interact with each other and gTrack is capable of graphing them.
 
 In this vignette, the **draw.paths** and **circle** parameters of gTrack will aide in illustrating gene interactions. Specifically, they will be used in graphing variants in random sequences. 
 
-Parameters Tutorial
-~~~~~~~~~~~~~~~~~~~
+Using Draw.paths Parameter 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1,2, and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
 

@@ -5,8 +5,8 @@ Genes interact with each other and gTrack is capable of graphing them.
 
 In this vignette, the **draw.paths** and **circle** parameters of gTrack will aide in illustrating gene interactions. Specifically, they will be used in graphing variants in random sequences. 
 
-Parameters Tutorial
-~~~~~~~~~~~~~~~~~~~
+Using Draw.paths Parameter 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1,2, and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
 
@@ -75,7 +75,16 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 
     ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+
+
+::
+
+    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
+
+
+.. sourcecode:: r
     
+
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, gr.labelfield = 'track')
     gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
