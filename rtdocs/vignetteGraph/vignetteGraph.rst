@@ -81,8 +81,8 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 
     plot of chunk plot1 
 
-Customizing the Graph
-~~~~~~~~~~~~~~~~~~~~~
+Customizing a Graph 
+~~~~~~~~~~~~~~~~~~~
 
 If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
 
@@ -106,6 +106,9 @@ If a **matrix** is used to create a graph, color and style of edges cannot be sp
     :alt: plot of chunk colored-graph
 
     plot of chunk colored-graph
+
+lwd Column
+~~~~~~~~~~
 
 To change the width of the edges, use the **lwd** parameter. 
 
@@ -143,6 +146,9 @@ To change the width of the edges, use the **lwd** parameter.
 
     plot of chunk width-graph
 
+lty Column
+~~~~~~~~~~
+
 Change style of edge by **lty** parameter.
 
 
@@ -163,6 +169,9 @@ Change style of edge by **lty** parameter.
     :alt: plot of chunk style-graph
 
     plot of chunk style-graph
+
+h Column
+~~~~~~~~
 
 Increase **"curviness"** of the edges by adding **h** column.
 

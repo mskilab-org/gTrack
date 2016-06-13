@@ -48,8 +48,8 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
-Customizing the Graph
-~~~~~~~~~~~~~~~~~~~~~
+Customizing a Graph 
+~~~~~~~~~~~~~~~~~~~
 
 If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
 
@@ -64,6 +64,9 @@ If a **matrix** is used to create a graph, color and style of edges cannot be sp
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. .. 
 
+lwd Column
+~~~~~~~~~~
+
 To change the width of the edges, use the **lwd** parameter. 
 .. {r edit graph2}
 ##the "lwd" column specifies the width of the edge.
@@ -75,6 +78,9 @@ To change the width of the edges, use the **lwd** parameter.
 ..plot(gTrack(gr, edges = graph, stack.gap = 5))
 .. .. 
 
+lty Column
+~~~~~~~~~~
+
 Change style of edge by **lty** parameter.
 
 .. {r edit graph3}
@@ -85,6 +91,9 @@ Change style of edge by **lty** parameter.
 .. {r style-graph}
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
+
+h Column
+~~~~~~~~
 
 Increase **"curviness"** of the edges by adding **h** column.
 
