@@ -81,8 +81,8 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 
     plot of chunk plot1 
 
-Customizing a Graph 
-~~~~~~~~~~~~~~~~~~~
+col Column
+~~~~~~~~~~
 
 If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
 
