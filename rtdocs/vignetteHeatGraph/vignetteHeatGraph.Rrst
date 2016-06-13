@@ -51,12 +51,12 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 Customizing the Graph
 ~~~~~~~~~~~~~~~~~~~~~
 
-If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
+If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
 
 .. {r edit graph}
-##from column specifies the beginning node (range)
-##to column specifies the end node (range)
-##col specifies the color of the edge 
+##the "from" column specifies the beginning node (range).
+##the "to" column specifies the end node (range).
+##the "col" specifies the color of the edge.
 ..graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
 .. .. 
 
@@ -64,10 +64,9 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. .. 
 
-Time to change the **width** of the graph by **lwd** parameter. 
-
+To change the width of the edges, use the **lwd** parameter. 
 .. {r edit graph2}
-## lwd column specifies the width of the edge 
+##the "lwd" column specifies the width of the edge.
 .. graph$lwd = 1.844941
 .. graph
 .. ..
@@ -76,7 +75,7 @@ Time to change the **width** of the graph by **lwd** parameter.
 ..plot(gTrack(gr, edges = graph, stack.gap = 5))
 .. .. 
 
-Change style of edge by **lty** parameter. 
+Change style of edge by **lty** parameter.
 
 .. {r edit graph3}
 ## lty specifies the style of the edge (no dashes, big dashes, little dashes)
@@ -87,7 +86,7 @@ Change style of edge by **lty** parameter.
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. ..
 
-Increase **"curviness"** of the edges by adding **h** column
+Increase **"curviness"** of the edges by adding **h** column.
 
 .. {r edit curviness}
 ..graph$h = 10
