@@ -1,5 +1,5 @@
-How to Make a Heat Map
-======================
+How to Create Heat Maps 
+=======================
 
 gTrack is able to create heat graphs and in this vignette, the steps to make one will be shown. In order to create one the **mdata** parameter of gTrack must be supplied a matrix. 
 
@@ -36,8 +36,8 @@ gTrack is able to create heat graphs and in this vignette, the steps to make one
 
     plot of chunk plotheatmap
 
-Zooming In and Out of a Graph
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Zooming In and Out
+~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
