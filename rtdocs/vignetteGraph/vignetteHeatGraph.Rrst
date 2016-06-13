@@ -1,0 +1,127 @@
+How to Create Graphs
+=========================================
+
+During chromosomal rearrangements, translocations may occur and graphing such a phenomenon is possible with gTrack. However, the **edges** parameter must be used. This vignette will explain how to prepare a graph.  
+
+Edges Parameter
+~~~~~~~~~~~~~~~
+
+In order to create a connected graph in gTrack, the **edges** parameter of gTrack must be supplied a matrix or a data frame of connections. 
+
+.. {r createGraph}
+##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph. 
+..gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") ,
+  c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) ,
+  end = c(2,4,6,8,10,12,14,16,18,20),
+  names = head(letters,10)),
+  GC=seq(1,10,length=10),
+  name=seq(5,10,length=10))
+
+..gr
+
+## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s. 
+
+##create an N*N matrix filled with 0s.
+..graph = matrix(0 , nrow = 10 , ncol = 10)
+
+##set certain indices to 1.
+..graph[1,3]=1
+..graph[1,10]=1
+..graph[2,5]=1
+..graph[2,8]=1
+..graph[3,5]=1
+..graph[4,1]=1
+..graph[4,2]=1
+..graph[4,6]=1
+..graph[4,9]=1
+..graph[5,1]=1
+..graph[5,2]=1
+..graph[5,4]=1
+..graph[8,1]=1
+..graph[8,2]=1
+..graph[9,1]=1
+..graph[10,1]=1
+.. .. 
+
+.. {r plot1 , fig.width=5}
+##use edges parameter to create graph. 
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. ..
+
+Customizing the Graph
+~~~~~~~~~~~~~~~~~~~~~
+
+If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
+
+.. {r edit graph}
+##the "from" column specifies the beginning node (range).
+##the "to" column specifies the end node (range).
+##the "col" specifies the color of the edge.
+..graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
+.. .. 
+
+.. {r colored-graph}
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. .. 
+
+To change the width of the edges, use the **lwd** parameter. 
+.. {r edit graph2}
+##the "lwd" column specifies the width of the edge.
+.. graph$lwd = 1.844941
+.. graph
+.. ..
+
+.. {r width-graph}
+..plot(gTrack(gr, edges = graph, stack.gap = 5))
+.. .. 
+
+Change style of edge by **lty** parameter.
+
+.. {r edit graph3}
+## lty specifies the style of the edge (no dashes, big dashes, little dashes)
+..graph$lty = c(1,2,3)
+.. .. 
+
+.. {r style-graph}
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. ..
+
+Increase **"curviness"** of the edges by adding **h** column.
+
+.. {r edit curviness}
+..graph$h = 10
+..
+
+.. {r curviness-graph}
+..plot(gTrack(gr , edges = graph , stack.gap = 5))
+.. .. 
+
+
+**Combining the heat map and graph onto the same plot.Possible by concatenation**
+.. {r plot-HeatMap&Graph}
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
+.. .. 
+
+**Zooming** in and out
+
+.. {r plot-zoom}
+##firstly, in previous examples, the seqnames have been 'chr1', 'chr2', etc. But, in order to avoid ALL possible errors the seqnames should be 1,2,etc.
+##can easily change an existing GRanges object to fit that criteria.
+##gr.fix will find the largest coordinate for each seqname and subsequently save those values in seqlengths parameter 
+gr.fix(gr)
+
+##seqinfo will return the seqlengths for each seqname
+seqinfo(gr)
+
+##si2gr (a gUtils function) will generate and then return a GRanges object from the seqlength values
+si2gr(gr)
+
+##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
+si = si2gr(seqinfo(gr.fix(gr)))
+
+##last step: replace all 'chr' strings in GRanges with an empty string.
+options(warn=-1)
+plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
+.. ..
+
+
