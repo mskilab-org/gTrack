@@ -96,32 +96,3 @@ Increase **"curviness"** of the edges by adding **h** column.
 ..plot(gTrack(gr , edges = graph , stack.gap = 5))
 .. .. 
 
-
-**Combining the heat map and graph onto the same plot.Possible by concatenation**
-.. {r plot-HeatMap&Graph}
-plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
-.. .. 
-
-**Zooming** in and out
-
-.. {r plot-zoom}
-##firstly, in previous examples, the seqnames have been 'chr1', 'chr2', etc. But, in order to avoid ALL possible errors the seqnames should be 1,2,etc.
-##can easily change an existing GRanges object to fit that criteria.
-##gr.fix will find the largest coordinate for each seqname and subsequently save those values in seqlengths parameter 
-gr.fix(gr)
-
-##seqinfo will return the seqlengths for each seqname
-seqinfo(gr)
-
-##si2gr (a gUtils function) will generate and then return a GRanges object from the seqlength values
-si2gr(gr)
-
-##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
-si = si2gr(seqinfo(gr.fix(gr)))
-
-##last step: replace all 'chr' strings in GRanges with an empty string.
-options(warn=-1)
-plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
-.. ..
-
-

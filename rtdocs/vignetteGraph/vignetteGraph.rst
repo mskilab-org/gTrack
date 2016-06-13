@@ -84,15 +84,15 @@ In order to create a connected graph in gTrack, the **edges** parameter of gTrac
 Customizing the Graph
 ~~~~~~~~~~~~~~~~~~~~~
 
-If a **matrix** is used to create a graph, color and style of edges can't be specified.Instead of using a **matrix** use a **data frame** to specify those attributes. 
+If a **matrix** is used to create a graph, color and style of edges cannot be specified.Instead of using a **matrix**, a data frame can be used to specify those attributes. 
 
 
 .. sourcecode:: r
     
 
-    ##from column specifies the beginning node (range)
-    ##to column specifies the end node (range)
-    ##col specifies the color of the edge 
+    ##the "from" column specifies the beginning node (range).
+    ##the "to" column specifies the end node (range).
+    ##the "col" specifies the color of the edge.
     graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
 
 
@@ -107,13 +107,12 @@ If a **matrix** is used to create a graph, color and style of edges can't be spe
 
     plot of chunk colored-graph
 
-Time to change the **width** of the graph by **lwd** parameter. 
-
+To change the width of the edges, use the **lwd** parameter. 
 
 .. sourcecode:: r
     
 
-    ## lwd column specifies the width of the edge 
+    ##the "lwd" column specifies the width of the edge.
      graph$lwd = 1.844941
      graph
 
@@ -144,7 +143,7 @@ Time to change the **width** of the graph by **lwd** parameter.
 
     plot of chunk width-graph
 
-Change style of edge by **lty** parameter. 
+Change style of edge by **lty** parameter.
 
 
 .. sourcecode:: r
@@ -165,7 +164,7 @@ Change style of edge by **lty** parameter.
 
     plot of chunk style-graph
 
-Increase **"curviness"** of the edges by adding **h** column
+Increase **"curviness"** of the edges by adding **h** column.
 
 
 .. sourcecode:: r
@@ -183,103 +182,4 @@ Increase **"curviness"** of the edges by adding **h** column
     :alt: plot of chunk curviness-graph
 
     plot of chunk curviness-graph
-
-
-**Combining the heat map and graph onto the same plot.Possible by concatenation**
-
-.. sourcecode:: r
-    
-
-    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap , stack.gap = 5)))
-
-
-::
-
-    ## Error in listify(mdata, matrix, length(.Object@data)): object 'heatMap' not found
-
-
-
-**Zooming** in and out
-
-
-.. sourcecode:: r
-    
-
-    ##firstly, in previous examples, the seqnames have been 'chr1', 'chr2', etc. But, in order to avoid ALL possible errors the seqnames should be 1,2,etc.
-    ##can easily change an existing GRanges object to fit that criteria.
-    ##gr.fix will find the largest coordinate for each seqname and subsequently save those values in seqlengths parameter 
-    gr.fix(gr)
-
-
-::
-
-    ## GRanges object with 10 ranges and 2 metadata columns:
-    ##     seqnames    ranges strand |        GC             name
-    ##        <Rle> <IRanges>  <Rle> | <numeric>        <numeric>
-    ##   a     chr1  [ 1,  2]      * |         1                5
-    ##   b     chr2  [ 3,  4]      * |         2 5.55555555555556
-    ##   c     chr2  [ 5,  6]      * |         3 6.11111111111111
-    ##   d     chr2  [ 7,  8]      * |         4 6.66666666666667
-    ##   e     chr1  [ 9, 10]      * |         5 7.22222222222222
-    ##   f     chr1  [11, 12]      * |         6 7.77777777777778
-    ##   g     chr3  [13, 14]      * |         7 8.33333333333333
-    ##   h     chr3  [15, 16]      * |         8 8.88888888888889
-    ##   i     chr3  [17, 18]      * |         9 9.44444444444444
-    ##   j     chr3  [19, 20]      * |        10               10
-    ##   -------
-    ##   seqinfo: 3 sequences from an unspecified genome
-
-
-.. sourcecode:: r
-    
-
-    ##seqinfo will return the seqlengths for each seqname
-    seqinfo(gr)
-
-
-::
-
-    ## Seqinfo object with 3 sequences from an unspecified genome; no seqlengths:
-    ##   seqnames seqlengths isCircular genome
-    ##   chr1             NA         NA   <NA>
-    ##   chr2             NA         NA   <NA>
-    ##   chr3             NA         NA   <NA>
-
-
-.. sourcecode:: r
-    
-
-    ##si2gr (a gUtils function) will generate and then return a GRanges object from the seqlength values
-    si2gr(gr)
-
-
-::
-
-    ## GRanges object with 3 ranges and 0 metadata columns:
-    ##        seqnames    ranges strand
-    ##           <Rle> <IRanges>  <Rle>
-    ##   chr1     chr1    [1, 0]      +
-    ##   chr2     chr2    [1, 0]      +
-    ##   chr3     chr3    [1, 0]      +
-    ##   -------
-    ##   seqinfo: 3 sequences from an unspecified genome; no seqlengths
-
-
-.. sourcecode:: r
-    
-
-    ##putting these functions together, a range for each seqname will be available and arithmetic operations can be done to it and zooming is then possible.
-    si = si2gr(seqinfo(gr.fix(gr)))
-    
-    ##last step: replace all 'chr' strings in GRanges with an empty string.
-    options(warn=-1)
-    plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
-
-
-::
-
-    ## Error in listify(mdata, matrix, length(.Object@data)): object 'heatMap' not found
-
-
-
 
