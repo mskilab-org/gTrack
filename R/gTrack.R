@@ -220,9 +220,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
         
   ##
   if (any(!is.na(y.field))) {
-      ix <- nchar(formatting(.Object)$name) == 0
+      ix <- nchar(formatting(.Object)$title) == 0
       ix = ifelse(is.na(ix), FALSE, TRUE)
-      formatting(.Object)$name[ix] <- y.field[ix]
+      formatting(.Object)$title[ix] <- y.field[ix]
   }
   
   return(.Object)  
