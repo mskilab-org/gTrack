@@ -1,5 +1,5 @@
 Graphing Point Mutations
-~~~~~~~~~~~~~~~~~~~~~~~~
+========================
 
 To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **name** parameter.  
 
@@ -28,23 +28,14 @@ name Parameter
 
     ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
-
-
-::
-
-    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
-
-
-.. sourcecode:: r
     
-
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
 
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Error in gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0"): unused argument (name = "Track 0")
 
 
 .. sourcecode:: r
@@ -55,7 +46,7 @@ name Parameter
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Error in gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"): unused argument (name = "Track 2")
 
 
 .. sourcecode:: r
@@ -66,7 +57,7 @@ name Parameter
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Error in gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10"): unused argument (name = "Track 10")
 
 
 .. sourcecode:: r
@@ -77,7 +68,7 @@ name Parameter
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Error in gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50"): unused argument (name = "Track 50")
 
 
 
