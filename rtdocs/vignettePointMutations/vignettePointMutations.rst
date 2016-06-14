@@ -1,9 +1,9 @@
 Graphing Point Mutations
 ========================
 
-To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **title** parameter.  
+To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **name** parameter.  
 
-title Parameter
+name Parameter
 ~~~~~~~~~~~~~~
 
 
@@ -28,12 +28,57 @@ title Parameter
 
     ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+
+
+::
+
+    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
+
+
+.. sourcecode:: r
     
+
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
-    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, title = "Track 0")
-    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, title = "Track 2")
-    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, title = "Track 10")
-    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, title = "Track 50")
+    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
+    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
+    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
+
+.. sourcecode:: r
+    
+
+    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'mut' not found
+
 
 
 
@@ -46,6 +91,6 @@ title Parameter
 
 ::
 
-    ## Error in `[.data.frame`(x@formatting, , name): undefined columns selected
+    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): object 'gt.mut0' not found
 
 
