@@ -220,9 +220,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
         
   ##
   if (any(!is.na(y.field))) {
-      ix <- nchar(formatting(.Object)$title) == 0
+      ix <- nchar(formatting(.Object)$name) == 0
       ix = ifelse(is.na(ix), FALSE, TRUE)
-      formatting(.Object)$title[ix] <- y.field[ix]
+      formatting(.Object)$name[ix] <- y.field[ix]
   }
   
   return(.Object)  
@@ -243,7 +243,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' will be read. Displays a \code{warning} if the matrix is non-symmetric
 #' @param y.field vector or scalar character referencing meta data field of GRanges or GRangesList to use for "y axis" coordinate when plotting
 #' numeric tracks, (note: for a RleList or ffTrack this field is automatically set to "score"), default is NA for non-numeric tracks
-#' @param title vector or scalar character specifying title of this track, which will be displayed on label to the left of the track
+#' @param name vector or scalar character specifying name of this track, which will be displayed on label to the left of the track
 #' @param height vector or scalar numeric specifying height of track(s) (in relative units)
 #' @param gr.labelfield vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)
 #' @param grl.labelfield vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)
@@ -338,7 +338,7 @@ gTrack = function(data = NULL, ##
                   col = NA,
                   border = NA,
                   angle = 15,
-                  title = "",
+                  name = "",
                   gr.colorfield = NA,
                   y.quantile = 0.01, ## if y0 or y1 is not specified then will draw between y.quantile and 1-y.quantile of data
                   y.cap = T, ## whether to cap values at y0, y1 (only relevant if y.field specified)
@@ -407,7 +407,7 @@ gTrack = function(data = NULL, ##
 
     
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
-    new('gTrack', data = data, y.field = y.field, mdata = mdata, title = title, format = formatting,
+    new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
       edges = edges, vars = vars, draw.paths = draw.paths, colormaps = colormaps, height = height, ygap = ygap,
       stack.gap = stack.gap, col = col, border = border, angle = angle, draw.var = draw.var,
       gr.colorfield = gr.colorfield, y.quantile = y.quantile,
