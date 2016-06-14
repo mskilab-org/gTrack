@@ -44,7 +44,9 @@ name Parameter
 
 ::
 
-    ## Error in listify(data, GRanges): object 'mut' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -55,7 +57,9 @@ name Parameter
 
 ::
 
-    ## Error in listify(data, GRanges): object 'mut' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -66,7 +70,9 @@ name Parameter
 
 ::
 
-    ## Error in listify(data, GRanges): object 'mut' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -77,7 +83,9 @@ name Parameter
 
 ::
 
-    ## Error in listify(data, GRanges): object 'mut' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
 
 
 
@@ -91,6 +99,12 @@ name Parameter
 
 ::
 
-    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): object 'gt.mut0' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>, : implicit list embedding
+    ## of S4 objects is deprecated
 
 
+.. figure:: figure/mutations2-plot-1.png
+    :alt: plot of chunk mutations2-plot
+
+    plot of chunk mutations2-plot
