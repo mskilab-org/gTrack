@@ -54,7 +54,7 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 ..hotspots = sample(length(tiles), 5)
 
 ## for each sequence, calculate the shortest distance to one of the hotspots.
-..d = values(distanceToNearest(tiles, tiles[hotspots]))$distance
+..d = pmin(Inf, values(distanceToNearest(tiles, tiles[hotspots]))$distance, na.rm = TRUE)
 ## for sequences near the hotspots, the "prob" will be a higher positive number. It becomes smaller as it moves farther from the hotspot. 
 ..prob = .05 + exp(-d^2/10000)
 
@@ -64,7 +64,7 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 
 ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
 gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
-gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"))
+gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
 gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
 gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
 .. ..
