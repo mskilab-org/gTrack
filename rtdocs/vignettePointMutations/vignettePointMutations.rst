@@ -1,9 +1,9 @@
 Graphing Point Mutations
 ========================
 
-To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **name** parameter.  
+To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **title** parameter.  
 
-name Parameter
+title Parameter
 ~~~~~~~~~~~~~~
 
 
@@ -30,46 +30,10 @@ name Parameter
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
     
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
-    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
-
-
-::
-
-    ## Error in gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0"): unused argument (name = "Track 0")
-
-
-.. sourcecode:: r
-    
-
-    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
-
-
-::
-
-    ## Error in gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"): unused argument (name = "Track 2")
-
-
-.. sourcecode:: r
-    
-
-    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
-
-
-::
-
-    ## Error in gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10"): unused argument (name = "Track 10")
-
-
-.. sourcecode:: r
-    
-
-    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
-
-
-::
-
-    ## Error in gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50"): unused argument (name = "Track 50")
-
+    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, title = "Track 0")
+    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, title = "Track 2")
+    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, title = "Track 10")
+    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, title = "Track 50")
 
 
 
@@ -82,6 +46,6 @@ name Parameter
 
 ::
 
-    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): object 'gt.mut0' not found
+    ## Error in `[.data.frame`(x@formatting, , name): undefined columns selected
 
 
