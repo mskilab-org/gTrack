@@ -1,7 +1,10 @@
 Graphing Point Mutations
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **stack.gap** parameter.  
+To illustrate gTrack's functionality in graphing point mutations, a data set of sequences is created and a few of them will are picked as variants. This data will be graphed and because there are outliers (variants), they will be easily visable. This vignette also exemplifies how/when to use the gTrack **name** parameter.  
+
+name Parameter
+~~~~~~~~~~~~~~
 
 .. {r hotspots}
 ## create sequences from chromosomes 1-3. 
