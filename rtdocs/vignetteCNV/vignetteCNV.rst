@@ -30,7 +30,7 @@ y.field Parameter
     dtgr = GRanges(dt)
     
     # wrap a gTrack object around it and plot
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+    dtgt <- gTrack(dtgr , xaxis.chronly = TRUE, y.field = "Segment_Mean")
 
 .. sourcecode:: r
     
