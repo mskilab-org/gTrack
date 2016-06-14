@@ -8,7 +8,7 @@ In this vignette, the **draw.paths** and **circle** parameters of gTrack will ai
 Using Draw.paths Parameter 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1, , and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
+To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1,2, and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
 
 
 .. sourcecode:: r
@@ -67,22 +67,15 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
     
     ## Combine into GRangesList
     grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function "GRangesList"
-
-
-.. sourcecode:: r
     
-
     gt.genes = gTrack(grl)
 
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -90,22 +83,14 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
 
     ## Plot two graphs, one with and one without the draw.paths parameter. 
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function "GRangesList"
-
-
-.. sourcecode:: r
-    
-
     gt.fusion = gTrack(fusion, draw.paths = FALSE)
 
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -116,7 +101,9 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
 
 ::
 
-    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>)): implicit list
+    ## embedding of S4 objects is deprecated
 
 
 .. sourcecode:: r
@@ -144,9 +131,15 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
 
 ::
 
-    ## Error in plot(c(gt.genes, gt.fusion, gt.fusion.o), win + 1000): object 'gt.genes' not found
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRangesList", package = "GenomicRanges")>, : implicit list
+    ## embedding of S4 objects is deprecated
 
 
+.. figure:: figure/-plotList-1.png
+    :alt: plot of chunk -plotList
+
+    plot of chunk -plotList
 
 Graphing Copy Number Variations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,48 +153,14 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
     ## create sequences from chromosomes 1-3. 
     fake.genome = c('1'=1e4, '2'=1e3, '3'=5e3)
     tiles = gr.tile(fake.genome, 1)
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function "gr.tile"
-
-
-.. sourcecode:: r
     
-
     ## Choose 5 random indices. These indices will store the variants. 
     hotspots = sample(length(tiles), 5)
-
-
-::
-
-    ## Error in sample(length(tiles), 5): object 'tiles' not found
-
-
-.. sourcecode:: r
     
-
     ## for each sequence, calculate the shortest distance to one of the hotspots.
     d = values(distanceToNearest(tiles, tiles[hotspots]))$distance
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function "values"
-
-
-.. sourcecode:: r
-    
-
     ## for sequences near the hotspots, the "prob" will be a higher positive number. It becomes smaller as it moves farther from the hotspot. 
     prob = .05 + exp(-d^2/10000)
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'd' not found
-
 
 
 .. sourcecode:: r
@@ -231,16 +190,6 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
     
 
     win = si2gr(fake.genome)
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): could not find function "si2gr"
-
-
-.. sourcecode:: r
-    
-
     plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 
 
