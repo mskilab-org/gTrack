@@ -15,7 +15,7 @@ Contents:
    vignetteSmallDS/vignetteSmallDS.rst
    vignetteGraph/vignetteGraph.rst
    vignetteHeatMap/vignetteHeatMap.rst
-   vignetteHotspots/vignetteHotspots.rst 
+   vignettePointMutations/vignettePointMutations.rst 
    vignetteSVs/vignetteSVs.rst
       
 Indices and tables
