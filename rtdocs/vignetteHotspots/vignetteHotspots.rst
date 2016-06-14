@@ -8,7 +8,7 @@ In this vignette, the **draw.paths** and **circle** parameters of gTrack will ai
 Using Draw.paths Parameter 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1,2, and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
+To prepare a data set that illustrates the draw.paths parameter, a GRangesList storing RANDOM sequences in chromosomes 1, , and 3 is created. Then, two graphs, one with and one without the draw.paths parameter will be made. The difference in the two show the affect the draw.paths parameter has on graphs. 
 
 
 .. sourcecode:: r
