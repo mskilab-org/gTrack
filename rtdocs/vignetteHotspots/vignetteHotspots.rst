@@ -15,9 +15,50 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
     
 
     gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
-    gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
-    gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
+
+
+::
+
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
+
+
+.. sourcecode:: r
     
+
+    gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
+
+
+::
+
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
+
+
+.. sourcecode:: r
+    
+
+    gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
+
+
+::
+
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
+
+
+.. sourcecode:: r
+    
+
     ##Create a column that keeps a counter of the exon number.
     
     gene1$exon = 1:length(gene1)
@@ -26,16 +67,73 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
     
     ## Combine into GRangesList
     grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "GRangesList"
+
+
+.. sourcecode:: r
     
+
     gt.genes = gTrack(grl)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+
+
+.. sourcecode:: r
     
+
     ## Plot two graphs, one with and one without the draw.paths parameter. 
     fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-    gt.fusion = gTrack(fusion, draw.paths = FALSE)
-    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "GRangesList"
+
+
+.. sourcecode:: r
     
+
+    gt.fusion = gTrack(fusion, draw.paths = FALSE)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+
+
+.. sourcecode:: r
+    
+
+    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "gTrack"
+
+
+.. sourcecode:: r
+    
+
     ## separating the windows for the graph. 
     win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+
+
+::
+
+    ## Warning in hg_seqlengths(): hg_seqlengths: supply genome
+    ## seqlengths or set default with env variable DEFAULT_BSGENOME (e.g.
+    ## Sys.setenv(DEFAULT_BSGENOME = "BSgenome.Hsapiens.UCSC.hg19::Hsapiens").
+    ## DEFAULT_BSGENOME can also be set to a path or URL of a tab delimited text
+    ## *.chrom.sizes file
+
 
 
 .. sourcecode:: r
@@ -43,10 +141,12 @@ To prepare a data set that illustrates the draw.paths parameter, a GRangesList s
 
     plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
 
-.. figure:: figure/-plotList-1.png
-    :alt: plot of chunk -plotList
 
-    plot of chunk -plotList
+::
+
+    ## Error in plot(c(gt.genes, gt.fusion, gt.fusion.o), win + 1000): object 'gt.genes' not found
+
+
 
 Graphing Copy Number Variations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,14 +160,48 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
     ## create sequences from chromosomes 1-3. 
     fake.genome = c('1'=1e4, '2'=1e3, '3'=5e3)
     tiles = gr.tile(fake.genome, 1)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "gr.tile"
+
+
+.. sourcecode:: r
     
+
     ## Choose 5 random indices. These indices will store the variants. 
     hotspots = sample(length(tiles), 5)
+
+
+::
+
+    ## Error in sample(length(tiles), 5): object 'tiles' not found
+
+
+.. sourcecode:: r
     
+
     ## for each sequence, calculate the shortest distance to one of the hotspots.
     d = values(distanceToNearest(tiles, tiles[hotspots]))$distance
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "values"
+
+
+.. sourcecode:: r
+    
+
     ## for sequences near the hotspots, the "prob" will be a higher positive number. It becomes smaller as it moves farther from the hotspot. 
     prob = .05 + exp(-d^2/10000)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'd' not found
+
 
 
 .. sourcecode:: r
@@ -75,21 +209,21 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 
     ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
     mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
+    
+    ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
+    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
+    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"))
+    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
+    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
 
 
 ::
 
-    ## Error in sample.int(length(x), size, replace, prob): incorrect number of probabilities
+    ## Error: <text>:6:70: unexpected ')'
+    ## 5: gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
+    ## 6: gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"))
+    ##                                                                         ^
 
-
-.. sourcecode:: r
-    
-
-    ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
-    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, gr.labelfield = 'track')
-    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
-    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10)
-    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
 
 
 
@@ -97,9 +231,21 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
     
 
     win = si2gr(fake.genome)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): could not find function "si2gr"
+
+
+.. sourcecode:: r
+    
+
     plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
 
-.. figure:: figure/mutations2-plot-1.png
-    :alt: plot of chunk mutations2-plot
 
-    plot of chunk mutations2-plot
+::
+
+    ## Error in plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win): object 'gt.mut0' not found
+
+

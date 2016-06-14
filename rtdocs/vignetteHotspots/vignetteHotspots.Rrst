@@ -63,10 +63,10 @@ To illustrate gTrack's functionality in graphing copy number variations(CNVs), a
 ..mut = sample(tiles, 2000, prob = prob, replace = TRUE) 
 
 ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
-gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, gr.labelfield = 'track')
-gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2)
-gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10)
-gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50)
+gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
+gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2"))
+gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
+gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
 .. ..
 
 .. {r mutations2-plot, fig.width = 15}
