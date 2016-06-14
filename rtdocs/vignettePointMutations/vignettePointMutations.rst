@@ -40,53 +40,9 @@ name Parameter
 
     ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually. 
     gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-.. sourcecode:: r
-    
-
     gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-.. sourcecode:: r
-    
-
     gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-.. sourcecode:: r
-    
-
     gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 
 
@@ -95,14 +51,6 @@ name Parameter
 
     win = si2gr(fake.genome)
     plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>, : implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/mutations2-plot-1.png
     :alt: plot of chunk mutations2-plot
