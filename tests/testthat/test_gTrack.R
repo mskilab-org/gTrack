@@ -117,6 +117,8 @@ test_that("multipleTracks", {
     plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
 })
 
+
+if(FALSE) {
 test_that("draw.paths", {
     gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
     gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
@@ -142,6 +144,7 @@ test_that("draw.paths", {
     win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
     plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
 })
+}
 
 ## need to fix d variable. 
 
