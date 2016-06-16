@@ -7,6 +7,9 @@ gr.tile(gr , w) - Divide GRanges into tiles of length "w"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. {r overlapping segments by gr.tile }
+## DO NOT FORGET TO LOAD gUtils library.
+..library(gUtils)
+
 #The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles of length 5 will be returned.
 ..gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 .. ..
