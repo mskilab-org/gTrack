@@ -24,14 +24,6 @@ gr.tile(gr , w) - Divide GRanges into tiles of length "w"
     ## Plot tiles 
     plot(gTrack(gr))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plot-tiles-1.png
     :alt: plot of chunk plot-tiles
 
@@ -45,25 +37,6 @@ gTrack(gr + n) - Extend each range by "n" base pairs
     
 
     plot(gTrack(gr+5))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   1. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
 
 .. figure:: figure/plot-overlappingtiles-1.png
     :alt: plot of chunk plot-overlappingtiles
@@ -88,14 +61,6 @@ stack.gap - Specify degree of spacing(in x-direction) between **ADJACENT** tiles
 
     plot(gTrack(gr))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plot-gr-1.png
     :alt: plot of chunk plot-gr
 
@@ -107,14 +72,6 @@ stack.gap - Specify degree of spacing(in x-direction) between **ADJACENT** tiles
 
     plot(gTrack(gr , stack.gap = 2))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plot-stack.gap2-1.png
     :alt: plot of chunk plot-stack.gap2
 
@@ -125,14 +82,6 @@ stack.gap - Specify degree of spacing(in x-direction) between **ADJACENT** tiles
     
 
     plot(gTrack(gr , stack.gap = 3))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/plot-stack.gap3-1.png
     :alt: plot of chunk plot-stack.gap3
@@ -147,14 +96,6 @@ y.field - Specify y-axis of graph
     
 
     plot(gTrack(gr , y.field = 'GC'))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/plot-y.fieldGC-1.png
     :alt: plot of chunk plot-y.fieldGC
@@ -172,14 +113,6 @@ bars - Plot data points as vertical bars
 
     plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue'))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plot-bars-1.png
     :alt: plot of chunk plot-bars
 
@@ -195,14 +128,6 @@ gTrack(gr , lines = TRUE/FALSE)
     
 
     plot(gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple'))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/plot-lines-1.png
     :alt: plot of chunk plot-lines
@@ -220,20 +145,12 @@ gTrack(gr , circles = TRUE/FALSE)
 
     plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plot-circles-1.png
     :alt: plot of chunk plot-circles
 
     plot of chunk plot-circles
 
-colorfield - Specify mapping of colors to values.
+colormap - Specify mapping of colors to values.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -242,18 +159,10 @@ colorfield - Specify mapping of colors to values.
 
     plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
 
+.. figure:: figure/plot-colormap-1.png
+    :alt: plot of chunk plot-colormap
 
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
-.. figure:: figure/plot-colorfield-1.png
-    :alt: plot of chunk plot-colorfield
-
-    plot of chunk plot-colorfield
+    plot of chunk plot-colormap
 
 gr.colorfield - Automatically specify mapping of colors to values. 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -263,14 +172,6 @@ gr.colorfield - Automatically specify mapping of colors to values.
     
 
     plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC'))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/plot-gr.colorfield-1.png
     :alt: plot of chunk plot-gr.colorfield
@@ -285,14 +186,6 @@ gr.labelfield - Plot values for each data point.
     
 
     plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name'))
-
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
 
 .. figure:: figure/plot-labelfield-1.png
     :alt: plot of chunk plot-labelfield
