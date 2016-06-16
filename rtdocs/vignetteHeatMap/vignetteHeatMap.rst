@@ -28,14 +28,6 @@ mdata Parameter
 
      plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
 
-
-::
-
-    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
-    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
-    ## of S4 objects is deprecated
-
-
 .. figure:: figure/plotheatmap-1.png
     :alt: plot of chunk plotheatmap
 
@@ -46,12 +38,10 @@ mdata Parameter
     ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
      plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
 
+.. figure:: figure/plotheatmap-2.png
+    :alt: plot of chunk plotheatmap
 
-::
-
-    ## Error in .local(.Object, ...): object 'graph' not found
-
-
+    plot of chunk plotheatmap
 
 Zooming In and Out of a Graph
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,9 +66,7 @@ Zooming In and Out of a Graph
 
     plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
 
+.. figure:: figure/zoomedOutGraph-1.png
+    :alt: plot of chunk zoomedOutGraph
 
-::
-
-    ## Error in .local(.Object, ...): object 'graph' not found
-
-
+    plot of chunk zoomedOutGraph
