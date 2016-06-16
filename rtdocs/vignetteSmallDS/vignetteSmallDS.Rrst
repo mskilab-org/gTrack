@@ -81,10 +81,10 @@ gTrack(gr , circles = TRUE/FALSE)
 ..plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
 .. ..
 
-colorfield - Specify mapping of colors to values.
+colormap - Specify mapping of colors to values.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. {r plot-colorfield}
+.. {r plot-colormap}
 ..plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
 .. .. 
 
