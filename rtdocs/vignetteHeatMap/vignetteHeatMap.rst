@@ -10,6 +10,10 @@ mdata Parameter
 .. sourcecode:: r
     
 
+    ## DO NOT FORGET TO LOAD gUtils library.
+    library(gUtils)
+    
+    
     ## In order to create a heat map for each node in the matrix, color intensity needs to be specified.
     ## To illustrate, a random N*N matrix filled with values from 1:100 is used, but first a GRanges object is made.
     
@@ -24,6 +28,14 @@ mdata Parameter
 
      plot(gTrack(gr, mdata = heatMap, stack.gap = 5))
 
+
+::
+
+    ## Warning in `[<-`(`*tmp*`, null.ix, value = list(<S4 object of class
+    ## structure("GRanges", package = "GenomicRanges")>)): implicit list embedding
+    ## of S4 objects is deprecated
+
+
 .. figure:: figure/plotheatmap-1.png
     :alt: plot of chunk plotheatmap
 
@@ -34,10 +46,12 @@ mdata Parameter
     ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
      plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
 
-.. figure:: figure/plotheatmap-2.png
-    :alt: plot of chunk plotheatmap
 
-    plot of chunk plotheatmap
+::
+
+    ## Error in .local(.Object, ...): object 'graph' not found
+
+
 
 Zooming In and Out of a Graph
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +76,9 @@ Zooming In and Out of a Graph
 
     plot(c(gTrack(gr , edges = graph, stack.gap = 5) , gTrack(gr , mdata = heatMap, stack.gap = 5)) , gr.sub(si , 'chr' , '' )+20)
 
-.. figure:: figure/zoomedOutGraph-1.png
-    :alt: plot of chunk zoomedOutGraph
 
-    plot of chunk zoomedOutGraph
+::
+
+    ## Error in .local(.Object, ...): object 'graph' not found
+
+
