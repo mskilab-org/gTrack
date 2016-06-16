@@ -28,30 +28,28 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 ##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph.
 gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
 
-test_that("edges",  {   
-    ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
-
-
+## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
+##create an N*N matrix filled with 0s.
+graph = matrix(0 , nrow = 10 , ncol = 10)
+##set certain indices to 1.
+graph[1,3]=1
+graph[1,10]=1
+graph[2,5]=1
+graph[2,8]=1
+graph[3,5]=1
+graph[4,1]=1
+graph[4,2]=1
+graph[4,6]=1
+graph[4,9]=1
+graph[5,1]=1
+graph[5,2]=1
+graph[5,4]=1
+graph[8,1]=1
+graph[8,2]=1
+graph[9,1]=1
+graph[10,1]=1
     
-    ##create an N*N matrix filled with 0s.
-    graph = matrix(0 , nrow = 10 , ncol = 10)
-    ##set certain indices to 1.
-    graph[1,3]=1
-    graph[1,10]=1
-    graph[2,5]=1
-    graph[2,8]=1
-    graph[3,5]=1
-    graph[4,1]=1
-    graph[4,2]=1
-    graph[4,6]=1
-    graph[4,9]=1
-    graph[5,1]=1
-    graph[5,2]=1
-    graph[5,4]=1
-    graph[8,1]=1
-    graph[8,2]=1
-    graph[9,1]=1
-    graph[10,1]=1
+test_that("edges",  {   
     plot(gTrack(gr , edges = graph , stack.gap = 5))
 })
 
@@ -118,7 +116,6 @@ test_that("multipleTracks", {
 })
 
 
-if(FALSE) {
 test_that("draw.paths", {
     gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
     gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
@@ -144,7 +141,7 @@ test_that("draw.paths", {
     win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
     plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
 })
-}
+
 
 ## need to fix d variable. 
 
