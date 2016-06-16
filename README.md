@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/mskilab/gTrack.svg?branch=master)](https://travis-ci.org/mskilab/gTrack)
 [![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
-[![Coverage Status](https://coveralls.io/repos/github/mskilab/gTrack/badge.svg?)](https://coveralls.io/github/mskilab/gTrack?)
+[![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_100.svg)](https://coveralls.io/github/mskilab/gTrack?branch=master)
 
 gTrack
 ======
