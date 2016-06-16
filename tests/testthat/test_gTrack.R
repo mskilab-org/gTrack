@@ -23,3 +23,36 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
   ##plot(g2, GRanges(1, IRanges(4,6)))
   #dev.off()
 #})
+
+
+test_that("edgesParameter") {
+    ##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph.
+    gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
+
+    ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
+
+    ##create an N*N matrix filled with 0s.
+    graph = matrix(0 , nrow = 10 , ncol = 10)
+
+    ##set certain indices to 1.
+    graph[1,3]=1
+    graph[1,10]=1
+    graph[2,5]=1
+    graph[2,8]=1
+    graph[3,5]=1
+    graph[4,1]=1
+    graph[4,2]=1
+    graph[4,6]=1
+    graph[4,9]=1
+    graph[5,1]=1
+    graph[5,2]=1
+    graph[5,4]=1
+    graph[8,1]=1
+    graph[8,2]=1
+    graph[9,1]=1
+    graph[10,1]=1
+
+    plot(gTrack(gr , edges = graph , stack.gap = 5))
+}
+
+
