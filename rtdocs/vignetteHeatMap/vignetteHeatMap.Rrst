@@ -7,6 +7,11 @@ mdata Parameter
 ~~~~~~~~~~~~~~~
 
 .. {r createheatmap}
+
+## DO NOT FORGET TO LOAD gUtils library.
+..library(gUtils)
+
+
 ## In order to create a heat map for each node in the matrix, color intensity needs to be specified.
 ## To illustrate, a random N*N matrix filled with values from 1:100 is used, but first a GRanges object is made.
 
