@@ -25,7 +25,7 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 #})
 
 
-test_that("edgesParameter") {
+test_that("edges",  {
     ##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph.
     gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
 
@@ -53,6 +53,6 @@ test_that("edgesParameter") {
     graph[10,1]=1
 
     plot(gTrack(gr , edges = graph , stack.gap = 5))
-}
+})
 
 
