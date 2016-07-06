@@ -2,7 +2,7 @@ How to Graph CNV Data
 =====================
 
 .. {r-setup}
-..opts_chunk$set(fig.width=7, fig.height=13)
+..opts_chunk$set(fig.width=8, fig.height=13)
 .. .. 
 
 .. {r load-data}
