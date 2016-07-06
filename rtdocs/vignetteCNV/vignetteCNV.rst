@@ -5,7 +5,7 @@ How to Graph CNV Data
 .. sourcecode:: r
     
 
-    opts_chunk$set(fig.width=7, fig.height=16)
+    opts_chunk$set(fig.width=2, fig.height=2)
     opts_chunk$set(dev = 'pdf')
 
 
