@@ -121,10 +121,10 @@ How to Graph CNV Data
 
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot1-1.png
-    :alt: plot of chunk -plot1
+.. figure:: figure/plot1-1.png
+    :alt: plot of chunk plot1
 
-    plot of chunk -plot1
+    plot of chunk plot1
 
 
 .. sourcecode:: r
@@ -148,10 +148,10 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot2-1.png
-    :alt: plot of chunk -plot2
+.. figure:: figure/plot2-1.png
+    :alt: plot of chunk plot2
 
-    plot of chunk -plot2
+    plot of chunk plot2
 
 
 .. sourcecode:: r
@@ -173,10 +173,10 @@ How to Graph CNV Data
 
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot3-1.png
-    :alt: plot of chunk -plot3
+.. figure:: figure/plot3-1.png
+    :alt: plot of chunk plot3
 
-    plot of chunk -plot3
+    plot of chunk plot3
 
 
 .. sourcecode:: r
@@ -241,10 +241,10 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[2]+1e6)
 
-.. figure:: figure/-plot4-1.png
-    :alt: plot of chunk -plot4
+.. figure:: figure/plot4-1.png
+    :alt: plot of chunk plot4
 
-    plot of chunk -plot4
+    plot of chunk plot4
 
 
 .. sourcecode:: r
@@ -267,10 +267,10 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[2]+1e6)
 
-.. figure:: figure/-plot5-1.png
-    :alt: plot of chunk -plot5
+.. figure:: figure/plot5-1.png
+    :alt: plot of chunk plot5
 
-    plot of chunk -plot5
+    plot of chunk plot5
 
 
 .. sourcecode:: r

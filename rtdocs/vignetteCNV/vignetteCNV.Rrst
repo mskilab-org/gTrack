@@ -3,6 +3,7 @@ How to Graph CNV Data
 
 .. {r-setup}
 ..opts_chunk$set(fig.width=10, fig.height=16)
+
 .. .. 
 
 .. {r load-data}
@@ -85,7 +86,7 @@ How to Graph CNV Data
 
 .. ..
 
-.. {r-plot1}
+.. {r plot1}
 ..plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 .. ..
 
@@ -102,7 +103,7 @@ How to Graph CNV Data
             gt.amps, gt.amp.peaks, gt.amp.score)
 .. ..
 
-.. {r-plot2}
+.. {r plot2}
 ..plot(my.gt, amp.peaks[1]+1e6)
 .. ..
 
@@ -117,7 +118,7 @@ How to Graph CNV Data
 ..dgv = readRDS(system.file(c('extdata/files'), 'dgv.rds', package = 'gTrack'))
 .. .. 
 
-.. {r-plot3}
+.. {r plot3}
 ..plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 .. .. 
 
@@ -148,7 +149,7 @@ How to Graph CNV Data
 ### let's plot it:
 .. .. 
 
-.. {r-plot4}
+.. {r plot4}
 ..plot(my.gt, amp.peaks[2]+1e6)
 .. .. 
 
@@ -165,7 +166,7 @@ How to Graph CNV Data
 ..my.gt = c(ge, gt.amps, gt.amp.peaks, gt.amp.score)
 .. ..
 
-.. {r-plot5}
+.. {r plot5}
 ..plot(my.gt, amp.peaks[2]+1e6)
 .. ..
 
