@@ -134,18 +134,6 @@ How to Graph CNV Data
 ### and so likely real
 
 ### let's plot it:
-
-### indeed looks like this is a region around which people have previously
-### seen germline copy number variations, so it's likely an artifact
-
-### let's look at the next amp peak
-..print(amp.peaks[2])
-
-### this peak includes  CCND1 in addition to other genes
-### this peak is known to be a target of amplification in breast cancer
-### and so likely real
-
-### let's plot it:
 .. .. 
 
 .. {r plot4}
