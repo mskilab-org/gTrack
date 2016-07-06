@@ -8,7 +8,7 @@ gTrack
 
 R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges, common UCSC formats, ffTrack.  
 
-**License:** [GNU GPLv3][license]
+**License:** [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 Installation
 -----------
