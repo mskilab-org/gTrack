@@ -1,86 +1,110 @@
-How to Plot CNV Data
+Vignette Using CNV Data
 =======================
 
-gTrack is capable of graphing CNV data, quickly. In this vignette, the **y.field** parameter will be used.
-
-y.field Parameter
-~~~~~~~~~~~~~~~~~
-
-
-.. sourcecode:: r
-
-
-    # load breast cancer CNV data from tcgaData.
-    setwd("~/gTrack/inst/extdata/Level_3")
-    fn = list.files()
-    
-    # create data.tables for each patient but, combine them into one data.table.
-    dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
-    
-    # certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need
-    # to be converted into "numeric" vectors.
-    
-    dt$Start = type.convert(dt$Start)
-    dt$End = type.convert(dt$End)
-    
-    # because we are graphing segment mean, column also needs to be "numeric".
-    dt$Segment_Mean = type.convert(dt$Segment_Mean)
-    
-    # convert data.table into GRanges object.
-    dtgr = GRanges(dt)
-    
-    # wrap a gTrack object around it and plot
-    dtgt <- gTrack(dtgr , xaxis.chronly = TRUE, y.field = "Segment_Mean")
-
-.. sourcecode:: r
-    
-    plot(dtgt , window = dtgr[1:5])
-
-.. figure:: figure/plot-allSamples-1.png
-    :alt: plot of chunk plot-allSamples
-
-    plot of chunk plot-allSamples
-
 
 .. sourcecode:: r
     
 
-    # show amplifications only (use gUtils operators!)
-    dtgr = dtgr %Q% (Segment_Mean > 0)
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-
-
-
-.. sourcecode:: r
+    #### make sure to load gUtils
+    library(gTrack)
+    #### load in SCNA data
+    #### these are level 3 segments from over 1600 TCGA breast cancer cases
+    #### downloaded from the TCGA and converted to a single GRanges object 
+    scna = seg2gr(readRDS(system.file(c('extdata/files'), 'scna.rds', package = 'gTrack')))
     
-
-    plot(dtgt , window = dtgr[1:5])
-
-.. figure:: figure/plot-amplificationsAll-1.png
-    :alt: plot of chunk plot-amplificationsAll
-
-    plot of chunk plot-amplificationsAll
-
-
-.. sourcecode:: r
+    #### we define amplification events and deletion events
+    #### and then do a simple recurrence analysis on amplifications
     
-
-    # show deletions only (again, use gUtils operators!)
+    #### amplification events are defined using %Q% gUtils operator to filter
+    #### on scna metadata for segments with seg.mean greater than 1
+    #### greater than 50 markers and width less than 1MB
+     amps = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
     
-    # recreate the original GRanges object
-    dtgr = GRanges(dt)
-    # subset properly
-    dtgr = dtgr %Q% (Segment_Mean < 0)
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+    #### apply a similar filter to define deletions
+     dels = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
+    
+    #### compute the amplification "score" as the total number of amplification
+    #### events in a given region
+     amp.score = as(coverage(amps), 'GRanges')
+    
+    #### define the peaks of amplification as the 100 regions with
+    #### the highest amplification score
+     amp.peaks = amp.score %Q% (rev(order(score))) %Q% (1:100)
+    
+    #### "reduce" or merge the top peaks to find areas of recurrent amplification
+    amp.peaks = reduce(amp.peaks+1e5) %$% amp.peaks %Q% (rev(order(score)))
+    
+    ### do a similar analysis for dels
+    del.score = as(coverage(dels), 'GRanges')
+    del.peaks = del.score %Q% (rev(order(score))) %Q% (1:100)
+    del.peaks = reduce(del.peaks+1e5) %$% del.peaks %Q% (rev(order(score)))
+    
+    #### load in GRanges of GENCODE genes
+    genes = readRDS(system.file("extdata", 'genes.rds', package = "gTrack"))
+    
+    #### use %$% operator to annotate merged amp and del peaks with "gene name" metadata
+    amp.peaks = amp.peaks %$% genes[, 'gene_name']
+    del.peaks = del.peaks %$% genes[, 'gene_name']
+    
+    
+    ### now that we've computed scores and annotated peaks
+    ### we want to inspect these peaks and plot them with gTrack
+    
+    ### load in precomputed gTrack of hg19 GENCODE annotation
+    ### (note this is different from the GENCODE genes which is a GRanges
+    ### we loaded in a previous line .. this is purely for visualization)
+    ge = track.gencode()
 
+
+::
+
+    ## Pulling gencode annotations from /data/research/mski_lab/Software/R/gTrack/extdata/gencode.composite.collapsed.rds
 
 
 .. sourcecode:: r
     
 
-    plot(dtgt , window = dtgr[1:5])
+    #### build a gTrack of amps colored in red with black border
+    #### and one of dels colored in blue 
+    gt.amps = gTrack(amps,  col = 'red', name = 'Amps')
+    gt.dels = gTrack(dels, col = 'blue', name = 'Dels')
+    
+    #### build a gTrack of amp and del score as a line plot
+    gt.amp.score = gTrack(amp.score, y.field = 'score',
+        col = 'red', name = 'Amp score', line = TRUE)
+    gt.del.score = gTrack(del.score, y.field = 'score',
+        col = 'blue', name = 'Amp score', line = TRUE)
+    
+    #### build a gTrack of peaks of amp and del peaks
+    gt.amp.peaks = gTrack(amp.peaks, gr.labelfield = 'gene_name', 
+        col = 'pink', border = 'black', name = 'Amp peaks', height = 5)
+    gt.del.peaks = gTrack(del.peaks, gr.labelfield = 'gene_name',
+        col = 'lightblue', border = 'black', name = 'Amp peaks', height = 5)
+    
+    ### let's look at the top amplification peak
+    amp.peaks[1]
 
-.. figure:: figure/plot-deletionsAll-1.png
-    :alt: plot of chunk plot-deletionsAll
 
-    plot of chunk plot-deletionsAll
+::
+
+    ## GRanges object with 1 range and 2 metadata columns:
+    ##       seqnames               ranges strand |     score
+    ##          <Rle>            <IRanges>  <Rle> | <numeric>
+    ##   [1]        8 [39254760, 39606122]      * |  248.1608
+    ##                                                    gene_name
+    ##                                                  <character>
+    ##   [1] RP11-122L4.1, AC123767.1, CTD-2024D23.1, ADAM18, ADAM2
+    ##   -------
+    ##   seqinfo: 24 sequences from an unspecified genome
+
+
+.. sourcecode:: r
+    
+
+    ### interesting! this looks like a novel peak with genes that have
+    ### not previously been associated with breast cancer
+    ### ("RP11-122L4.1, AC123767.1, CTD-2024D23.1, ADAM18, ADAM2")
+    
+    ### let's look at the data supporting this peak - including
+    ### the underlying amp events, amp score, and peak region boundary
+
