@@ -24,7 +24,7 @@
 #' @author Marcin Imielinski
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 #' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
-setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', color.map = 'list', edges = 'list', vars = 'list'))
+setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
@@ -109,7 +109,7 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
       return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
     })
   
-  .Object@color.map <- listify(colormaps, list)
+  .Object@colormap <- listify(colormaps, list)
   # if (is.null(colormaps))
   #   .Object@colormap = list(list())
   # else if (!is.list(colormaps))
