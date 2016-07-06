@@ -1,8 +1,11 @@
 Vignette Using CNV Data
 =======================
 
-.. {r load-data}
+..{r-setup}
+..opts_chunk$set(out.width=5, out.height=5)
+.. .. 
 
+.. {r load-data}
 #### make sure to load gUtils
 ..library(gTrack)
 #### load in SCNA data
