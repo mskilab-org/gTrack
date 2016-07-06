@@ -46,7 +46,6 @@ Vignette Using CNV Data
     amp.peaks = amp.peaks %$% genes[, 'gene_name']
     del.peaks = del.peaks %$% genes[, 'gene_name']
     
-    
     ### now that we've computed scores and annotated peaks
     ### we want to inspect these peaks and plot them with gTrack
     
@@ -107,4 +106,176 @@ Vignette Using CNV Data
     
     ### let's look at the data supporting this peak - including
     ### the underlying amp events, amp score, and peak region boundary
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
+
+.. figure:: figure/-plot1-1.png
+    :alt: plot of chunk -plot1
+
+    plot of chunk -plot1
+
+
+.. sourcecode:: r
+    
+
+    ### hmm, something looks suspicious since all the segments have the same
+    ### start and end.  These could be copy number artifacts that often arise
+    ### in segmentation of array data, sometimes due to germline copy number
+    ### polymorphisms. 
+    
+    
+    ### to see this pattern more clearly, let's enlarge the
+    ### amplification track, also add the deletion data, and replot
+    my.gt = c(ge, gt.dels, gt.del.peaks, gt.del.score,
+                gt.amps, gt.amp.peaks, gt.amp.score)
+
+
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[1]+1e6)
+
+.. figure:: figure/-plot2-1.png
+    :alt: plot of chunk -plot2
+
+    plot of chunk -plot2
+
+
+.. sourcecode:: r
+    
+
+    ### interesting so this appears to also be a peak in the deletion analysis
+    ### and a region that accumulates both amplification and deletion calls in
+    ### many tumor samples.  This could either be a copy number polymorphism
+    ### or an artifact.
+    
+    ### let's load in a track of copy events from the Database of Germline Variation
+    ### which catalogues common copy changes in human populations
+    dgv = readRDS('files/dgv.rds')
+
+
+::
+
+    ## Error in gzfile(file, "rb"): cannot open the connection
+
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
+
+.. figure:: figure/-plot3-1.png
+    :alt: plot of chunk -plot3
+
+    plot of chunk -plot3
+
+
+.. sourcecode:: r
+    
+
+    ### indeed looks like this is a region around which people have previously
+    ### seen germline copy number variations, so it's likely an artifact
+    
+    ### let's look at the next amp peak
+    print(amp.peaks[2])
+
+
+::
+
+    ## GRanges object with 1 range and 2 metadata columns:
+    ##       seqnames                 ranges strand |     score    gene_name
+    ##          <Rle>              <IRanges>  <Rle> | <numeric>  <character>
+    ##   [1]        3 [131146388, 131388926]      * |  136.7496 MRPL3, CPNE4
+    ##   -------
+    ##   seqinfo: 24 sequences from an unspecified genome
+
+
+.. sourcecode:: r
+    
+
+    ### this peak includes  CCND1 in addition to other genes
+    ### this peak is known to be a target of amplification in breast cancer
+    ### and so likely real
+    
+    ### let's plot it:
+    
+    ### indeed looks like this is a region around which people have previously
+    ### seen germline copy number variations, so it's likely an artifact
+    
+    ### let's look at the next amp peak
+    print(amp.peaks[2])
+
+
+::
+
+    ## GRanges object with 1 range and 2 metadata columns:
+    ##       seqnames                 ranges strand |     score    gene_name
+    ##          <Rle>              <IRanges>  <Rle> | <numeric>  <character>
+    ##   [1]        3 [131146388, 131388926]      * |  136.7496 MRPL3, CPNE4
+    ##   -------
+    ##   seqinfo: 24 sequences from an unspecified genome
+
+
+.. sourcecode:: r
+    
+
+    ### this peak includes  CCND1 in addition to other genes
+    ### this peak is known to be a target of amplification in breast cancer
+    ### and so likely real
+    
+    ### let's plot it:
+
+
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[2]+1e6)
+
+.. figure:: figure/-plot4-1.png
+    :alt: plot of chunk -plot4
+
+    plot of chunk -plot4
+
+
+.. sourcecode:: r
+    
+
+    ### unlike the previous peak this has an enrichment of amplifications vs deletions
+    ### not known have a bunch of germline copy number changes in the DGV
+    
+    ### let's zoom in on the individual events, getting rid of the other tracks
+    ### increase the height of the amp track
+    ### and adding a black border to better define event boundaries
+    gt.amps$border = 'black'
+    gt.amps$height = 30
+    my.gt = c(ge, gt.amps, gt.amp.peaks, gt.amp.score)
+
+
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[2]+1e6)
+
+.. figure:: figure/-plot5-1.png
+    :alt: plot of chunk -plot5
+
+    plot of chunk -plot5
+
+
+.. sourcecode:: r
+    
+
+    ### here each red segment is a somatic amplification or gain in a different patietn
+    ### the peak looks real, in that the events have relatively random starts
+    ### and ends and cluster around this target gene. 
 
