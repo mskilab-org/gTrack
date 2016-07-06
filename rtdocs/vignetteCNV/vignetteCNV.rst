@@ -6,7 +6,6 @@ How to Graph CNV Data
     
 
     opts_chunk$set(fig.width=10, fig.height=10)
-    opts_chunk$set(dev = 'pdf')
 
 
 
@@ -122,7 +121,7 @@ How to Graph CNV Data
 
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot1-1.pdf
+.. figure:: figure/-plot1-1.png
     :alt: plot of chunk -plot1
 
     plot of chunk -plot1
@@ -149,7 +148,7 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot2-1.pdf
+.. figure:: figure/-plot2-1.png
     :alt: plot of chunk -plot2
 
     plot of chunk -plot2
@@ -174,7 +173,7 @@ How to Graph CNV Data
 
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/-plot3-1.pdf
+.. figure:: figure/-plot3-1.png
     :alt: plot of chunk -plot3
 
     plot of chunk -plot3
@@ -242,7 +241,7 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[2]+1e6)
 
-.. figure:: figure/-plot4-1.pdf
+.. figure:: figure/-plot4-1.png
     :alt: plot of chunk -plot4
 
     plot of chunk -plot4
@@ -268,7 +267,7 @@ How to Graph CNV Data
 
     plot(my.gt, amp.peaks[2]+1e6)
 
-.. figure:: figure/-plot5-1.pdf
+.. figure:: figure/-plot5-1.png
     :alt: plot of chunk -plot5
 
     plot of chunk -plot5
