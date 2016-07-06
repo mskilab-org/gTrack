@@ -1,8 +1,8 @@
-Vignette Using CNV Data
-=======================
+How to Graph CNV Data
+=====================
 
 .. {r-setup}
-..opts_chunk$set(out.width=15, out.height=5)
+..opts_chunk$set(fig.width=15, fig.height=5)
 .. .. 
 
 .. {r load-data}
