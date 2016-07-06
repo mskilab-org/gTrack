@@ -19,7 +19,7 @@ How to Graph CNV Data
 #### amplification events are defined using %Q% gUtils operator to filter
 #### on scna metadata for segments with seg.mean greater than 1
 #### greater than 50 markers and width less than 1MB
-.. amps = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
+.. amps = scna %Q% (seg.mean>1 & num.mark > 50 & width < 1e7)
 
 #### apply a similar filter to define deletions
 .. dels = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
