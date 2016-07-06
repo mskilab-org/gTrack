@@ -131,8 +131,8 @@ How to Graph CNV Data
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
 .. figure:: figure/plot1-1.pdf
-    :scale: 10 
-    :alt: plot of chunk plot1
+   :scale: 10 
+   :alt: plot of chunk plot1
 
     plot of chunk plot1
 
