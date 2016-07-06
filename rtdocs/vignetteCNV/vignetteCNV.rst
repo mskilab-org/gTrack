@@ -210,35 +210,6 @@ How to Graph CNV Data
     ### and so likely real
     
     ### let's plot it:
-    
-    ### indeed looks like this is a region around which people have previously
-    ### seen germline copy number variations, so it's likely an artifact
-    
-    ### let's look at the next amp peak
-    print(amp.peaks[2])
-
-
-::
-
-    ## GRanges object with 1 range and 2 metadata columns:
-    ##       seqnames               ranges strand |     score
-    ##          <Rle>            <IRanges>  <Rle> | <numeric>
-    ##   [1]       11 [68809874, 69577804]      * |  102.4002
-    ##                                                                                                                                                     gene_name
-    ##                                                                                                                                                   <character>
-    ##   [1] TPCN2, MIR3164, RP11-554A11.7, RP11-554A11.8, MYEOV, RP11-211G23.2, RP11-211G23.1, AP000439.1, AP000439.2, AP000439.5, AP000439.3, CCND1, ORAOV1, FGF19
-    ##   -------
-    ##   seqinfo: 24 sequences from an unspecified genome
-
-
-.. sourcecode:: r
-    
-
-    ### this peak includes  CCND1 in addition to other genes
-    ### this peak is known to be a target of amplification in breast cancer
-    ### and so likely real
-    
-    ### let's plot it:
 
 
 
