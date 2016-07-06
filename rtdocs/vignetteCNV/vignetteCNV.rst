@@ -5,16 +5,7 @@ How to Graph CNV Data
 .. sourcecode:: r
     
 
-    opts_chunk$set(fig.width=2in, fig.height=2in)
-    opts_chunk$set(dev = 'pdf')
-
-
-::
-
-    ## Error: <text>:1:28: unexpected symbol
-    ## 1: opts_chunk$set(fig.width=2in
-    ##                                ^
-
+    opts_chunk$set(fig.width=5, fig.height=10)
 
 
 
@@ -130,9 +121,8 @@ How to Graph CNV Data
 
     plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/plot1-1.pdf
-   :scale: 10 
-   :alt: plot of chunk plot1
+.. figure:: figure/plot1-1.png
+    :alt: plot of chunk plot1
 
     plot of chunk plot1
 
@@ -159,7 +149,6 @@ How to Graph CNV Data
     plot(my.gt, amp.peaks[1]+1e6)
 
 .. figure:: figure/plot2-1.png
-    :scale: 50 
     :alt: plot of chunk plot2
 
     plot of chunk plot2
