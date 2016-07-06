@@ -158,6 +158,7 @@ How to Graph CNV Data
     plot(my.gt, amp.peaks[1]+1e6)
 
 .. figure:: figure/plot2-1.png
+    :scale: 50 
     :alt: plot of chunk plot2
 
     plot of chunk plot2
