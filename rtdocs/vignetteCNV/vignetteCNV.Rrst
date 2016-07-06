@@ -2,7 +2,7 @@ Vignette Using CNV Data
 =======================
 
 .. {r-setup}
-..opts_chunk$set(out.width=5, out.height=5)
+..opts_chunk$set(out.width=15, out.height=5)
 .. .. 
 
 .. {r load-data}

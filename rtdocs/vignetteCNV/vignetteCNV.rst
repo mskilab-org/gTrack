@@ -5,7 +5,7 @@ Vignette Using CNV Data
 .. sourcecode:: r
     
 
-    opts_chunk$set(out.width=5, out.height=5)
+    opts_chunk$set(out.width=15, out.height=5)
 
 
 
@@ -123,7 +123,7 @@ Vignette Using CNV Data
 
 .. figure:: figure/-plot1-1.png
     :alt: plot of chunk -plot1
-    :width: 5
+    :width: 15
     :height: 5
 
     plot of chunk -plot1
@@ -152,7 +152,7 @@ Vignette Using CNV Data
 
 .. figure:: figure/-plot2-1.png
     :alt: plot of chunk -plot2
-    :width: 5
+    :width: 15
     :height: 5
 
     plot of chunk -plot2
@@ -179,7 +179,7 @@ Vignette Using CNV Data
 
 .. figure:: figure/-plot3-1.png
     :alt: plot of chunk -plot3
-    :width: 5
+    :width: 15
     :height: 5
 
     plot of chunk -plot3
@@ -249,7 +249,7 @@ Vignette Using CNV Data
 
 .. figure:: figure/-plot4-1.png
     :alt: plot of chunk -plot4
-    :width: 5
+    :width: 15
     :height: 5
 
     plot of chunk -plot4
@@ -277,7 +277,7 @@ Vignette Using CNV Data
 
 .. figure:: figure/-plot5-1.png
     :alt: plot of chunk -plot5
-    :width: 5
+    :width: 15
     :height: 5
 
     plot of chunk -plot5
