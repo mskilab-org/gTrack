@@ -1,6 +1,10 @@
 Vignette Using CNV Data
 =======================
 
+..{r-setup}
+..opts_chunk$set(out.width=5, out.height=5)
+.. .. 
+
 
 .. sourcecode:: r
     
