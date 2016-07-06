@@ -157,13 +157,7 @@ Vignette Using CNV Data
     
     ### let's load in a track of copy events from the Database of Germline Variation
     ### which catalogues common copy changes in human populations
-    dgv = readRDS('files/dgv.rds')
-
-
-::
-
-    ## Error in gzfile(file, "rb"): cannot open the connection
-
+    dgv = readRDS(system.file(c('extdata/files'), 'dgv.rds', package = 'gTrack'))
 
 
 
