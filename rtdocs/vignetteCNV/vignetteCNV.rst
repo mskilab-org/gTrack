@@ -25,7 +25,7 @@ How to Graph CNV Data
     #### amplification events are defined using %Q% gUtils operator to filter
     #### on scna metadata for segments with seg.mean greater than 1
     #### greater than 50 markers and width less than 1MB
-     amps = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
+     amps = scna %Q% (seg.mean>1 & num.mark > 50 & width < 1e7)
     
     #### apply a similar filter to define deletions
      dels = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
@@ -96,7 +96,7 @@ How to Graph CNV Data
     ## GRanges object with 1 range and 2 metadata columns:
     ##       seqnames               ranges strand |     score
     ##          <Rle>            <IRanges>  <Rle> | <numeric>
-    ##   [1]        8 [39254760, 39606122]      * |  248.1608
+    ##   [1]        8 [39254760, 39606122]      * |  253.9448
     ##                                                    gene_name
     ##                                                  <character>
     ##   [1] RP11-122L4.1, AC123767.1, CTD-2024D23.1, ADAM18, ADAM2
@@ -192,9 +192,12 @@ How to Graph CNV Data
 ::
 
     ## GRanges object with 1 range and 2 metadata columns:
-    ##       seqnames                 ranges strand |     score    gene_name
-    ##          <Rle>              <IRanges>  <Rle> | <numeric>  <character>
-    ##   [1]        3 [131146388, 131388926]      * |  136.7496 MRPL3, CPNE4
+    ##       seqnames               ranges strand |     score
+    ##          <Rle>            <IRanges>  <Rle> | <numeric>
+    ##   [1]       11 [68809874, 69577804]      * |  102.4002
+    ##                                                                                                                                                     gene_name
+    ##                                                                                                                                                   <character>
+    ##   [1] TPCN2, MIR3164, RP11-554A11.7, RP11-554A11.8, MYEOV, RP11-211G23.2, RP11-211G23.1, AP000439.1, AP000439.2, AP000439.5, AP000439.3, CCND1, ORAOV1, FGF19
     ##   -------
     ##   seqinfo: 24 sequences from an unspecified genome
 
@@ -218,9 +221,12 @@ How to Graph CNV Data
 ::
 
     ## GRanges object with 1 range and 2 metadata columns:
-    ##       seqnames                 ranges strand |     score    gene_name
-    ##          <Rle>              <IRanges>  <Rle> | <numeric>  <character>
-    ##   [1]        3 [131146388, 131388926]      * |  136.7496 MRPL3, CPNE4
+    ##       seqnames               ranges strand |     score
+    ##          <Rle>            <IRanges>  <Rle> | <numeric>
+    ##   [1]       11 [68809874, 69577804]      * |  102.4002
+    ##                                                                                                                                                     gene_name
+    ##                                                                                                                                                   <character>
+    ##   [1] TPCN2, MIR3164, RP11-554A11.7, RP11-554A11.8, MYEOV, RP11-211G23.2, RP11-211G23.1, AP000439.1, AP000439.2, AP000439.5, AP000439.3, CCND1, ORAOV1, FGF19
     ##   -------
     ##   seqinfo: 24 sequences from an unspecified genome
 
@@ -240,6 +246,18 @@ How to Graph CNV Data
     
 
     plot(my.gt, amp.peaks[2]+1e6)
+
+
+::
+
+    ## budget ..
+
+
+
+::
+
+    ## Error in (function (...) : all elements in '...' must be GRanges objects
+
 
 .. figure:: figure/plot4-1.png
     :alt: plot of chunk plot4
