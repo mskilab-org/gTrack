@@ -10,6 +10,9 @@ gr.tile(gr , w) - Divide GRanges into tiles of length "w"
 .. sourcecode:: r
     
 
+    ## DO NOT FORGET TO LOAD gUtils library.
+    library(gUtils)
+    
     #The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles of length 5 will be returned.
     gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 
@@ -147,7 +150,7 @@ gTrack(gr , circles = TRUE/FALSE)
 
     plot of chunk plot-circles
 
-colorfield - Specify mapping of colors to values.
+colormap - Specify mapping of colors to values.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -156,10 +159,10 @@ colorfield - Specify mapping of colors to values.
 
     plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
 
-.. figure:: figure/plot-colorfield-1.png
-    :alt: plot of chunk plot-colorfield
+.. figure:: figure/plot-colormap-1.png
+    :alt: plot of chunk plot-colormap
 
-    plot of chunk plot-colorfield
+    plot of chunk plot-colormap
 
 gr.colorfield - Automatically specify mapping of colors to values. 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

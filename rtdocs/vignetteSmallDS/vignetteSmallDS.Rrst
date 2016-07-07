@@ -7,6 +7,9 @@ gr.tile(gr , w) - Divide GRanges into tiles of length "w"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. {r overlapping segments by gr.tile }
+## DO NOT FORGET TO LOAD gUtils library.
+..library(gUtils)
+
 #The only interval in this GRanges object has a range of length 100, it'll be divided by 5 and thus, 20 tiles of length 5 will be returned.
 ..gr <- gr.tile(GRanges(1, IRanges(1,100)), w=5)
 .. ..
@@ -78,10 +81,10 @@ gTrack(gr , circles = TRUE/FALSE)
 ..plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
 .. ..
 
-colorfield - Specify mapping of colors to values.
+colormap - Specify mapping of colors to values.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. {r plot-colorfield}
+.. {r plot-colormap}
 ..plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
 .. .. 
 
