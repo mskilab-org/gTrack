@@ -28,8 +28,7 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
-
-setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
+setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, color.maps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
     {
         .Object@data <- listify(data, GRanges)
   # if (is.null(data))
