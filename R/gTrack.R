@@ -126,9 +126,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 
   ## convert options to formatting string
   if (!is.data.frame(format) && is.na(format))
-    .Object@formatting = as.data.frame(list(...), stringsAsFactors=FALSE)
+    .Object@formatting = as.data.frame(c(list(y.field = y.field), list(...)), stringsAsFactors=FALSE)
   else if (is.data.frame(format) && nrow(format) == length(.Object))
-    .Object@formatting <- format #formatting(.Object) <- format
+    .Object@formatting <- cbind(data.frame(y.field = y.field), format) #formatting(.Object) <- format
   else
     stop("Expecting formatting (as supplied directly to constructor) to be data.frame of nrow = length(gTrack)")
 
@@ -189,7 +189,8 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   # if (any(nix <- is.na(.Object@formatting$border)))
   #   .Object@formatting$border[nix] = .Object@formatting$col[nix]
 
-  ## set the seqinfo if not provided
+        ## set the seqinfo if not provided
+ 
   .Object <- get_seqinfo(.Object, seqinfo)
 
   ## replicate if length y.field > 1 and length dat is 1
@@ -403,8 +404,6 @@ gTrack = function(data = NULL, ##
             rgb = col2rgb(col, alpha = TRUE)            
             border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
         }
-
-
     
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
@@ -484,6 +483,7 @@ setValidity('gTrack', function(object)
       if (length(object@data) != length(object@colormap))
         problems = c(problems, 'Length of object is not the same length as colormap')
 
+  
       if (any(ix <- sapply(object@data, class) == 'character'))
       {
         for (iix in which(ix))
@@ -1220,7 +1220,7 @@ setMethod('plot', c("gTrack","ANY"),
                    legend.params = list(),
                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                    )
-{
+              {
   if (!missing(y))
     windows = y
 
@@ -2868,16 +2868,16 @@ draw.grl = function(grl,
       gr = tryCatch(grl.unlist(grl), error = function(e)
       {
         ## ghetto solution if we get GRanges names snafu
-        gr = unlist(grl);
-        c = textConnection(names(gr));        
-        cat('budget .. \n')
-        if (length(gr)>0)
-        {
-          gr$grl.ix = read.delim(c, sep = '.', header = F)[,1];
-          #            gr$grl.iix = levapply(rep(1, length(gr)), gr$grl.ix, FUN = function(x) 1:length(x))
-          gr$grl.iix = data.table::data.table(ix = gr$grl.ix)[, iix := 1:length(ix), by = ix][, iix]
-        }
-        close(c)
+          gr = unlist(grl);
+          if (length(gr)>0)           
+              {
+                  tmpc = textConnection(names(gr));                  
+                  cat('budget .. \n')
+                  gr$grl.ix = read.delim(tmpc, sep = '.', header = F)[,1];
+                                        #            gr$grl.iix = levapply(rep(1, length(gr)), gr$grl.ix, FUN = function(x) 1:length(x))
+                  gr$grl.iix = data.table::data.table(ix = gr$grl.ix)[, iix := 1:length(ix), by = ix][, iix]
+                  close(tmpc)
+              }
         return(gr)
       })
 
@@ -5317,10 +5317,14 @@ get_seqinfo <- function(.Object, seqinfo) {
 
   if (is.na(seqinfo) & is.list(.Object@data)) {
 
-    slen = c()
+      slen = c()
+      if (is.null(formatting(.Object)$yaxis))
+          formatting(.Object)$yaxis = NA
     for (i in 1:length(.Object@data))
     {
-      x = .Object@data[[i]]
+        x = .Object@data[[i]]
+
+        
 
       if (is(x, 'GRanges') || is(x, 'GRangesList'))
           {
@@ -5344,7 +5348,7 @@ get_seqinfo <- function(.Object, seqinfo) {
       }
       else if (inherits(x, 'RleList'))
       {
-        .Object@data[[i]] = as(x, 'RleList')
+          .Object@data[[i]] = as(x, 'RleList')
         formatting(.Object)[i, 'yaxis'] = TRUE
         slen = structure(sapply(x, length), names = names(x))
       }
