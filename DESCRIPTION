@@ -14,7 +14,7 @@ Depends:
     GenomicRanges (>= 1.8)
 Imports:
     IRanges (>= 2.0),
-    S4Vectors (>= 0.8),
+    S4Vectors (>= 0.4),
     GenomeInfoDb (>= 1.2),
     gUtils,
     RColorBrewer,
