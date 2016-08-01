@@ -6,7 +6,7 @@
 \alias{[,gTrack,ANY,ANY,ANY-method}
 \title{[}
 \usage{
-\S4method{[}{gTrack,ANY,ANY,ANY}(x, i)
+\S4method{[}{gTrack,ANY,ANY}(x, i)
 }
 \arguments{
 \item{x}{\code{gTrack} object}

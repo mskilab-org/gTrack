@@ -19,7 +19,6 @@ Imports:
     gUtils,
     RColorBrewer,
     data.table,
-    spatstat,
     methods,
     rtracklayer,
     BiocGenerics
@@ -28,4 +27,6 @@ LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
 RoxygenNote: 5.0.1
 Suggests:
-    testthat
+    testthat,
+    spatstat
+    
