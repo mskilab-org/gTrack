@@ -393,16 +393,6 @@ gTrack = function(data = NULL, ##
     labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
     formatting = NA) {
-
-    ## make border batch color, but be a little less transparent
-    if (is.na(col) & is.na(gr.colorfield) & is.null(colormaps))
-        col = alpha('black', 0.5)
-    
-    if (is.na(border) & is.na(gr.colorfield) & is.null(colormaps))
-        {
-            rgb = col2rgb(col, alpha = TRUE)            
-            border = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
-        }
     
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
@@ -1370,7 +1360,7 @@ setMethod('plot', c("gTrack","ANY"),
 
     ## adjust y0 .bar
     if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j])))
-      formatting(.Object)$y0.bar[j] = 0
+        formatting(.Object)$y0.bar[j] = NA
 
     ## smooth the y.field data
     if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') && !is.na(formatting(.Object)$smooth[j]))
@@ -2810,13 +2800,15 @@ draw.grl = function(grl,
         if (all(is.na(col)))
           col = NULL
 
+
+    ## postpone further color processing until later
       if (is.null(col))
-        if (!is.null(values(grl)$col))
-          col = values(grl)$col
-      else if (is.null(gr.colorfield) & is.null(gr.colormap))
-        col = 'black'
-      else
-        col = NA
+          if (!is.null(values(grl)$col))
+              col = values(grl)$col
+          else if (is.null(gr.colorfield) & is.null(gr.colormap))
+              col = NA # 'black'
+          else
+              col = NA
 
       if (is.na(col.backbone))
         col.backbone = NULL
@@ -2824,11 +2816,11 @@ draw.grl = function(grl,
       if (is.null(col.backbone))
         col.backbone = col
 
-      if (is.na(border))
-        border = NULL
+#      if (is.na(border))
+#        border = NULL
 
       if (is.null(border))
-        border = col
+          border = NA
 
       grl.props = cbind(data.frame(group = names(grl), col = col, stringsAsFactors = F), as.data.frame(values(grl)))
       grl.props$border = border;
@@ -3046,7 +3038,7 @@ draw.grl = function(grl,
       grl.segs$col = as.character(grl.segs$col)
       grl.segs$group = as.character(grl.segs$group)
       grl.segs$strand = as.character(grl.segs$strand)
-
+  
       if (!is.null(gr.labelfield))
         if (!is.na(gr.labelfield))
           if (gr.labelfield %in% names(grl.segs))
@@ -3430,12 +3422,17 @@ draw.grl = function(grl,
     #            grl.segs$ywid[na.ix] = min((max(grl.segs$y[na.ix])-min(grl.segs$y[na.ix]))/length(unique(grl.segs$y))/1.25, diff(ylim.subplot)/5)
     #          }
 
-    if (is.null(gr.colorfield))
-        gr.colorfield = NA
+
+    #########################################
+    ## border / color logic finally
+    #########################################
 
     
+    if (is.null(gr.colorfield))
+        gr.colorfield = NA
+    
     if (gr.colorfield %in% names(grl.segs))
-        {            
+        {
             if (is.null(gr.colormap))
                 {
                     uval = unique(as.character(grl.segs[, gr.colorfield]))
@@ -3443,15 +3440,19 @@ draw.grl = function(grl,
                 }
             
             cols = gr.colormap[as.character(grl.segs[, gr.colorfield])];
-            grl.segs$col[!is.na(cols)] = cols[!is.na(cols)]
-            
-            if (is.null(grl.segs$border))
-                grl.segs$border[!is.na(cols)] = cols[!is.na(cols)]
-            else if (any(is.na(grl.segs$border))) ## only override border if unspecified
-                {
-                    ix = !is.na(cols) & is.na(grl.segs$border)
-                    grl.segs$border[ix] = cols[ix]
-                }
+            grl.segs$col[!is.na(cols)] = cols[!is.na(cols)]            
+        }    
+    else
+        {
+            if (any(ix <- is.na(grl.segs$col)))
+                grl.segs$col[ix] = alpha('black', 0.5)           
+        }
+
+    ## border if unspecified will be a darker and less transparent version of the color
+    if (any(ix <- is.na(grl.segs$border)))
+        {
+            rgb = col2rgb(grl.segs$col[ix], alpha = TRUE)            
+            grl.segs$border[ix] = rgb(rgb['red', ]/255, rgb['green', ]/255, rgb['blue', ]/255, alpha = 0.9)
         }
             
     if (leg.params$plot && length(gr.colormap)>0)
@@ -3488,6 +3489,7 @@ draw.grl = function(grl,
     if (!is.na(lines))
       if (lines)
         grl.segs = grl.segs[order(grl.segs$pos1), ]
+
 
     draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, points = points, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
 
