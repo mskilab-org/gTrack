@@ -23,6 +23,7 @@
 #' @exportClass gTrack
 #' @author Marcin Imielinski
 #' @importFrom methods setClass setGeneric setMethod setRefClass
+#' @import rtracklayer 
 #' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
@@ -69,7 +70,8 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   else
       .Object@edges = edges
 
-  .Object@vars <- listify(vars, list, length(.Object@data))
+
+        .Object@vars <- listify(vars, list, length(.Object@data))
   # if (is.null(vars))
   #   .Object@vars = rep(list(list()), length(.Object@data))
   # else if (!is.list(edgevars) | inherits(vars, 'data.frame'))
@@ -77,8 +79,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   # else
   #   .Object@vars = vars
 
-  null.ix = sapply(.Object@data, is.null)
-  .Object@data[null.ix] = GRanges()
+
+        
+        null.ix = sapply(.Object@data, is.null)
+        
+        if (any(null.ix))
+            .Object@data[null.ix] = list(GRanges())
+
 
   edges.df = sapply(.Object@edges, is.data.frame)
   edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
@@ -107,7 +114,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
         warning('dimensions of matrix do not match length of track data item.  Adjacency matrix of edges should be square and have as many rows as there are input ranges in the corresponding gTrack item')
       tmp.edges = which(y>0, arr.ind = TRUE)
       return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
-    })
+  })
+
+        
   
   .Object@colormap <- listify(colormaps, list)
   # if (is.null(colormaps))
@@ -1357,7 +1366,7 @@ setMethod('plot', c("gTrack","ANY"),
       tmp.dat = tt$t
       pre.filtered = tt$p
     }
-
+    
     ## adjust y0 .bar
     if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j])))
         formatting(.Object)$y0.bar[j] = NA
@@ -1465,6 +1474,9 @@ setMethod('plot', c("gTrack","ANY"),
       ## if need, bump the range to include ybar base
       # if (formatting(.Object)$y0.bar[j] < min(unlist(this.ylim.subplot[j, ])))
       #   this.ylim.subplot[j,'start'] <- formatting(.Object)$y0.bar[j]
+
+      if (is.na(formatting(.Object)$y0.bar[j]))
+          formatting(.Object)$y0.bar[j] = 0
 
       all.args$y0.bar = affine.map(formatting(.Object)$y0.bar[j], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
       if (formatting(.Object)$yaxis[j])
@@ -2539,11 +2551,12 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
       }
 
       if (bars)
-      {
+          {
         if (is.null(y0.bar))
-          y0.bar = par('usr')[3]
-
-        rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = x$col, lwd = x$lwd.border/2)
+            y0.bar = par('usr')[3]
+        
+        rect(x$pos1, ifelse(y0.bar<x$y, rep(y0.bar, nrow(x)), x$y), x$pos2, ifelse(y0.bar<x$y, x$y, rep(y0.bar, nrow(x))),
+             col = x$col, border = x$col, lwd = x$lwd.border/2)
         #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
       }
 
@@ -4936,8 +4949,16 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
 
         if (!is.character(si))
         {
-          if (formatting(.Object)[j, 'source.file.chrsub'])
-            sel = gr.fix(gr.chr(this.windows), si, drop = TRUE)
+            if (formatting(.Object)[j, 'source.file.chrsub'])
+                {
+                    sel = gr.fix(gr.chr(this.windows), si, drop = TRUE)            
+                }
+            else
+                sel = gr.fix(this.windows, si, drop = TRUE)
+
+            if (length(this.windows)>0 & length(sel)==0)
+                warning('zero ranges intersecting UCSC file sequences selection perhaps source.file.chrsub parameter needs to be fixed?')
+            
 
           tmp.dat = rtracklayer::import(f, selection = sel, asRangedData = FALSE)
 
@@ -4945,12 +4966,12 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
             tmp.dat = gUtils::gr.sub(tmp.dat, 'chr', '')
 
           if (is.na(formatting(.Object)$y.field[j]))
-            formatting(.Object)$y.field[j] = 'score'
+              formatting(.Object)$y.field[j] = 'score'
 
         }
       }
       else
-      {
+          {
         tmp.dat = rtracklayer::import(f, asRangedData = FALSE)
 
         if (formatting(.Object)[j, 'source.file.chrsub'])
@@ -5452,7 +5473,7 @@ get_seqinfo <- function(.Object, seqinfo) {
       names(slen) = gsub('chr', '', names(slen))
 
     if (any(duplicated(names(slen))))
-        slen = data.table(len = slen, nm = names(slen))[, max(len), by = nm][, structure(len, names = nm)]
+        slen = data.table(len = slen, nm = names(slen))[, list(len = max(len)), by = nm][, structure(len, names = nm)]
             
     .Object@seqinfo = Seqinfo(seqnames = names(slen), seqlengths = slen);
 
