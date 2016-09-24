@@ -14,12 +14,11 @@ Depends:
     GenomicRanges (>= 1.8)
 Imports:
     IRanges (>= 2.0),
-    S4Vectors (>= 0.8),
+    S4Vectors (>= 0.4),
     GenomeInfoDb (>= 1.2),
     gUtils,
     RColorBrewer,
     data.table,
-    spatstat,
     methods,
     rtracklayer,
     BiocGenerics
@@ -28,4 +27,6 @@ LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
 RoxygenNote: 5.0.1
 Suggests:
-    testthat
+    testthat,
+    spatstat
+    

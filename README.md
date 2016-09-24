@@ -2,12 +2,13 @@
 [![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/mskilab/gTrack/badge.svg?branch=master)](https://coveralls.io/github/mskilab/gTrack?branch=master)
 
+
 gTrack
 ======
 
 R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges, common UCSC formats, ffTrack.  
 
-**License:** [GNU GPLv3][license]
+**License:** [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 Installation
 -----------
