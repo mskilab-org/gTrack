@@ -1,194 +1,271 @@
-Vignette Using CNV Data
-=======================
-
-**Operations on CNV data of one sample** 
+How to Graph CNV Data
+=====================
 
 
 .. sourcecode:: r
     
 
-    library(gUtils)
+    opts_chunk$set(fig.width=8, fig.height=13)
+
+
+
+.. sourcecode:: r
+    
+
+    #### make sure to load gUtils
     library(gTrack)
-    opts_chunk$set(fig.width = 5 , fig.height = 5)
+    #### load in SCNA data
+    #### these are level 3 segments from over 1600 TCGA breast cancer cases
+    #### downloaded from the TCGA and converted to a single GRanges object 
+    scna = seg2gr(readRDS(system.file(c('extdata/files'), 'scna.rds', package = 'gTrack')))
     
-    setwd("~/Documents/gTrack/gTrack/")
-    ##load data from TCGA
+    #### we define amplification events and deletion events
+    #### and then do a simple recurrence analysis on amplifications
     
-    tcgaData <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg18.seg.txt")
+    #### amplification events are defined using %Q% gUtils operator to filter
+    #### on scna metadata for segments with seg.mean greater than 1
+    #### greater than 50 markers and width less than 1MB
+     amps = scna %Q% (seg.mean>1 & num.mark > 50 & width < 1e7)
     
-    ## convert data.frame to GRanges object
+    #### apply a similar filter to define deletions
+     dels = scna %Q% (seg.mean<(-1) & num.mark > 50 & width < 1e7)
     
-    tcgagr <- GRanges(tcgaData)
+    #### compute the amplification "score" as the total number of amplification
+    #### events in a given region
+     amp.score = as(coverage(amps), 'GRanges')
     
-    # wrap gTrack around TCGA GRanges object
+    #### define the peaks of amplification as the 100 regions with
+    #### the highest amplification score
+     amp.peaks = amp.score %Q% (rev(order(score))) %Q% (1:100)
     
-    tcgagt <- gTrack(tcgagr)
-
-
-
-.. sourcecode:: r
+    #### "reduce" or merge the top peaks to find areas of recurrent amplification
+    amp.peaks = reduce(amp.peaks+1e5) %$% amp.peaks %Q% (rev(order(score)))
     
-
-    # plot gTrack object
+    ### do a similar analysis for dels
+    del.score = as(coverage(dels), 'GRanges')
+    del.peaks = del.score %Q% (rev(order(score))) %Q% (1:100)
+    del.peaks = reduce(del.peaks+1e5) %$% del.peaks %Q% (rev(order(score)))
     
-    plot(tcgagt)
-
-.. figure:: figure/plot-entireData-1.png
-    :alt: plot of chunk plot-entireData
-
-    plot of chunk plot-entireData
-
-
-.. sourcecode:: r
+    #### load in GRanges of GENCODE genes
+    genes = readRDS(system.file("extdata", 'genes.rds', package = "gTrack"))
     
-
-    # Changed default number of windows (from entire genome to the first five windows).
-    # Windows argument requires a subset of a GRanges Object. Check documentation for more details.
-    plot(tcgagt , window = tcgagr[1:5])
-
-.. figure:: figure/plot-subsetofData-1.png
-    :alt: plot of chunk plot-subsetofData
-
-    plot of chunk plot-subsetofData
-
-
-.. sourcecode:: r
+    #### use %$% operator to annotate merged amp and del peaks with "gene name" metadata
+    amp.peaks = amp.peaks %$% genes[, 'gene_name']
+    del.peaks = del.peaks %$% genes[, 'gene_name']
     
-
-    # use amplifications/deletions as y-values
-    tcgagt <- gTrack(tcgagr , y.field="Segment_Mean")
-    plot(tcgagt , windows = tcgagr[1:5] , col = "red")
-
-.. figure:: figure/plot-amplifcations-1.png
-    :alt: plot of chunk plot-amplifcations
-
-    plot of chunk plot-amplifcations
-
-
-.. sourcecode:: r
+    ### now that we've computed scores and annotated peaks
+    ### we want to inspect these peaks and plot them with gTrack
     
-
-    # add a second sample to the graph
-    # create gTrack object for sample
-    
-    setwd("~/Documents/gTrack/gTrack/")
-    tcgaData2 <- read.delim("inst/extdata/BEAUX_p_TCGA_b109_SNP_2N_GenomeWideSNP_6_A01_772082.hg19.seg.txt")
-    tcgagr2 <- GRanges(tcgaData2)
-    tcgagt2 <- gTrack(tcgagr2 , y.field="Segment_Mean")
-
-
-
-.. sourcecode:: r
-    
-
-    # plot the two samples
-    plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red")
-
-.. figure:: figure/plot-twoSamples-1.png
-    :alt: plot of chunk plot-twoSamples
-
-    plot of chunk plot-twoSamples
-
-
-.. sourcecode:: r
-    
-
-    # physically separate gaps between tracks
-    plot(c(tcgagt2 , tcgagt), windows = tcgagr2[1:5] , col = "red" , ygap = 5)
+    ### load in precomputed gTrack of hg19 GENCODE annotation
+    ### (note this is different from the GENCODE genes which is a GRanges
+    ### we loaded in a previous line .. this is purely for visualization)
+    ge = track.gencode()
 
 
 ::
 
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
-    ## shorter object length
-
-    ## Warning in ywid * grl.segs$ywid: longer object length is not a multiple of
-    ## shorter object length
-
-
-.. figure:: figure/plot-ygap-1.png
-    :alt: plot of chunk plot-ygap
-
-    plot of chunk plot-ygap
+    ## Pulling gencode annotations from /data/research/mski_lab/Software/R/gTrack/extdata/gencode.composite.collapsed.rds
 
 
 .. sourcecode:: r
     
 
-    # study of the CNVs in breast cancer
-    setwd("~/Documents/gTrack/gTrack/inst/extdata/Level_3")
-    fn = list.files()
+    #### build a gTrack of amps colored in red with black border
+    #### and one of dels colored in blue 
+    gt.amps = gTrack(amps,  col = 'red', name = 'Amps')
+    gt.dels = gTrack(dels, col = 'blue', name = 'Dels')
     
-    # create data.tables for each patient but, combine them into one HUGE data.table using rbindlist
-    dt = rbindlist(lapply(fn , function(x) fread(x , colClasses = "character")[ , file:=x]))
+    #### build a gTrack of amp and del score as a line plot
+    gt.amp.score = gTrack(amp.score, y.field = 'score',
+        col = 'red', name = 'Amp score', line = TRUE)
+    gt.del.score = gTrack(del.score, y.field = 'score',
+        col = 'blue', name = 'Amp score', line = TRUE)
     
-    # certain arguments (window) of gTrack require numeric vectors. Thus, "character" vectors need
-    # to be converted into "numeric" vectors.
+    #### build a gTrack of peaks of amp and del peaks
+    gt.amp.peaks = gTrack(amp.peaks, gr.labelfield = 'gene_name', 
+        col = 'pink', border = 'black', name = 'Amp peaks', height = 5)
+    gt.del.peaks = gTrack(del.peaks, gr.labelfield = 'gene_name',
+        col = 'lightblue', border = 'black', name = 'Amp peaks', height = 5)
     
-    dt$Start = type.convert(dt$Start)
-    dt$End = type.convert(dt$End)
-    
-    # because we are graphing segment mean, that column also needs to be "numeric"
-    dt$Segment_Mean = type.convert(dt$Segment_Mean)
-    
-    # convert data.table into GRanges object
-    dtgr = GRanges(dt)
-    
-    # wrap a gTrack object around it and plot
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+    ### let's look at the top amplification peak
+    amp.peaks[1]
 
+
+::
+
+    ## GRanges object with 1 range and 2 metadata columns:
+    ##       seqnames               ranges strand |     score
+    ##          <Rle>            <IRanges>  <Rle> | <numeric>
+    ##   [1]        8 [39254760, 39606122]      * |  253.9448
+    ##                                                    gene_name
+    ##                                                  <character>
+    ##   [1] RP11-122L4.1, AC123767.1, CTD-2024D23.1, ADAM18, ADAM2
+    ##   -------
+    ##   seqinfo: 24 sequences from an unspecified genome
 
 
 .. sourcecode:: r
     
 
-    plot(dtgt , window = dtgr[1:5])
-
-.. figure:: figure/plot-allSamples-1.png
-    :alt: plot of chunk plot-allSamples
-
-    plot of chunk plot-allSamples
-
-
-.. sourcecode:: r
+    ### interesting! this looks like a novel peak with genes that have
+    ### not previously been associated with breast cancer
+    ### ("RP11-122L4.1, AC123767.1, CTD-2024D23.1, ADAM18, ADAM2")
     
-
-    # show amplifications only (use gUtils operators!)
-    dtgr = dtgr %Q% (Segment_Mean > 0)
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
+    ### let's look at the data supporting this peak - including
+    ### the underlying amp events, amp score, and peak region boundary
 
 
 
 .. sourcecode:: r
     
 
-    plot(dtgt , window = dtgr[1:5])
+    plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
 
-.. figure:: figure/plot-amplificationsAll-1.png
-    :alt: plot of chunk plot-amplificationsAll
+.. figure:: figure/plot1-1.png
+    :alt: plot of chunk plot1
 
-    plot of chunk plot-amplificationsAll
-
-
-.. sourcecode:: r
-    
-
-    # show deletions only (again, use gUtils operators!)
-    
-    # recreate the original GRanges object
-    dtgr = GRanges(dt)
-    # subset properly
-    dtgr = dtgr %Q% (Segment_Mean < 0)
-    dtgt <- gTrack(dtgr , y.field = "Segment_Mean")
-
+    plot of chunk plot1
 
 
 .. sourcecode:: r
     
 
-    plot(dtgt , window = dtgr[1:5])
+    ### hmm, something looks suspicious since all the segments have the same
+    ### start and end.  These could be copy number artifacts that often arise
+    ### in segmentation of array data, sometimes due to germline copy number
+    ### polymorphisms. 
+    
+    
+    ### to see this pattern more clearly, let's enlarge the
+    ### amplification track, also add the deletion data, and replot
+    my.gt = c(ge, gt.dels, gt.del.peaks, gt.del.score,
+                gt.amps, gt.amp.peaks, gt.amp.score)
 
-.. figure:: figure/plot-deletionsAll-1.png
-    :alt: plot of chunk plot-deletionsAll
 
-    plot of chunk plot-deletionsAll
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[1]+1e6)
+
+.. figure:: figure/plot2-1.png
+    :alt: plot of chunk plot2
+
+    plot of chunk plot2
+
+
+.. sourcecode:: r
+    
+
+    ### interesting so this appears to also be a peak in the deletion analysis
+    ### and a region that accumulates both amplification and deletion calls in
+    ### many tumor samples.  This could either be a copy number polymorphism
+    ### or an artifact.
+    
+    ### let's load in a track of copy events from the Database of Germline Variation
+    ### which catalogues common copy changes in human populations
+    dgv = readRDS(system.file(c('extdata/files'), 'dgv.rds', package = 'gTrack'))
+
+
+
+.. sourcecode:: r
+    
+
+    plot(c(ge, gt.amps, gt.amp.peaks, gt.amp.score), amp.peaks[1]+1e6)
+
+.. figure:: figure/plot3-1.png
+    :alt: plot of chunk plot3
+
+    plot of chunk plot3
+
+
+.. sourcecode:: r
+    
+
+    ### indeed looks like this is a region around which people have previously
+    ### seen germline copy number variations, so it's likely an artifact
+    
+    ### let's look at the next amp peak
+    print(amp.peaks[2])
+
+
+::
+
+    ## GRanges object with 1 range and 2 metadata columns:
+    ##       seqnames               ranges strand |     score
+    ##          <Rle>            <IRanges>  <Rle> | <numeric>
+    ##   [1]       11 [68809874, 69577804]      * |  102.4002
+    ##                                                                                                                                                     gene_name
+    ##                                                                                                                                                   <character>
+    ##   [1] TPCN2, MIR3164, RP11-554A11.7, RP11-554A11.8, MYEOV, RP11-211G23.2, RP11-211G23.1, AP000439.1, AP000439.2, AP000439.5, AP000439.3, CCND1, ORAOV1, FGF19
+    ##   -------
+    ##   seqinfo: 24 sequences from an unspecified genome
+
+
+.. sourcecode:: r
+    
+
+    ### this peak includes  CCND1 in addition to other genes
+    ### this peak is known to be a target of amplification in breast cancer
+    ### and so likely real
+    
+    ### let's plot it:
+
+
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[2]+1e6)
+
+
+::
+
+    ## budget ..
+
+
+
+::
+
+    ## Error in (function (...) : all elements in '...' must be GRanges objects
+
+
+.. figure:: figure/plot4-1.png
+    :alt: plot of chunk plot4
+
+    plot of chunk plot4
+
+
+.. sourcecode:: r
+    
+
+    ### unlike the previous peak this has an enrichment of amplifications vs deletions
+    ### not known have a bunch of germline copy number changes in the DGV
+    
+    ### let's zoom in on the individual events, getting rid of the other tracks
+    ### increase the height of the amp track
+    ### and adding a black border to better define event boundaries
+    gt.amps$border = 'black'
+    gt.amps$height = 30
+    my.gt = c(ge, gt.amps, gt.amp.peaks, gt.amp.score)
+
+
+
+.. sourcecode:: r
+    
+
+    plot(my.gt, amp.peaks[2]+1e6)
+
+.. figure:: figure/plot5-1.png
+    :alt: plot of chunk plot5
+
+    plot of chunk plot5
+
+
+.. sourcecode:: r
+    
+
+    ### here each red segment is a somatic amplification or gain in a different patietn
+    ### the peak looks real, in that the events have relatively random starts
+    ### and ends and cluster around this target gene. 
+
