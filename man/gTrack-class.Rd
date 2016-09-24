@@ -6,22 +6,18 @@
 \alias{gTrack-class}
 \title{Construct a new \code{gTrack}}
 \usage{
-gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
-  vars = NULL, colormaps = NULL, height = 10, ygap = 2, stack.gap = 0,
-  cex.label = 1, gr.cex.label = cex.label * 0.8, gr.srt.label = 0,
-  col = NA, border = NA, angle = 15, name = "", gr.colorfield = NA,
-  y.quantile = 0.01, y.cap = T, lwd.border = 1, hadj.label = 1,
-  vadj.label = 0.5, smooth = NA, round = NA, ywid = NA, ypad = 0,
-  seqinfo = NA, circles = FALSE, lines = FALSE, bars = FALSE,
-  draw.paths = FALSE, draw.var = FALSE, triangle = !is.null(mdata),
-  max.ranges = 50000, source.file.chrsub = T, y0.bar = NA,
-  yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
+gTrack(data = NULL, xaxis = gxaxis(), y.field = NA, mdata = NULL,
+  edges = NULL, vars = NULL, colormaps = NULL, height = 10, ygap = 2,
+  stack.gap = 0, cex.label = 1, gr.cex.label = cex.label * 0.8,
+  gr.srt.label = 0, col = NA, border = NA, angle = 15, name = "",
+  gr.colorfield = NA, y.quantile = 0.01, y.cap = T, lwd.border = 1,
+  hadj.label = 1, vadj.label = 0.5, smooth = NA, round = NA,
+  ywid = NA, ypad = 0, seqinfo = NA, circles = FALSE, lines = FALSE,
+  bars = FALSE, draw.paths = FALSE, draw.var = FALSE,
+  triangle = !is.null(mdata), max.ranges = 50000, source.file.chrsub = T,
+  y0.bar = NA, yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
   chr.sub = TRUE, edgevars = NA, gr.labelfield = NA,
-  grl.labelfield = NA, xaxis.prefix = "", xaxis.unit = 1,
-  xaxis.suffix = "", xaxis.round = 3, xaxis.cex.label = 1,
-  xaxis.newline = TRUE, xaxis.chronly = FALSE, xaxis.width = TRUE,
-  xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
-  xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
+  grl.labelfield = NA, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
   sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
   m.bg.col = "white", cmap.min = NA, cmap.max = NA,
   labels.suppress = FALSE, labels.suppress.grl = labels.suppress,
@@ -102,22 +98,6 @@ a set of spline curves.  (formatting)}
 
 \item{grl.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)}
 
-\item{xaxis.unit}{vector or scalar numeric specifying the unit that will be used in describing x axis coordinates (TODO: move to display)  (formatting)}
-
-\item{xaxis.suffix}{vector or scalar numeric specifying the suffix that will be used in describin x axis coordinates (TODO: move to display) (formatting)}
-
-\item{xaxis.round}{vector or scalar non-neg integer specifying number of decimals to round xaxis coordinate labels (formatting)}
-
-\item{xaxis.newline}{vector or scalar logical specifying whether to draw a newline in the xaxis coordinate labels (formatting)}
-
-\item{xaxis.width}{Logical scalar specifying whether to add window width to xaxis window labels [TRUE]}
-
-\item{xaxis.label.angle}{vector or scalar numeric between 0 and 360 specifying angle with which to draw xaxis coordinate labels (formatting)}
-
-\item{xaxis.ticklen}{Scalar numeric specifying lengths for axis ticks  (formatting)}
-
-\item{xaxis.cex.tick}{Scalar numeric specifying expansion factor for axis tick labels  (formatting)}
-
 \item{sep.lty}{Scalar integer specifying line style for window separators [2] (dashed line)}
 
 \item{sep.lwd}{Scalar numeric specifying line thickness for window separators [1]}
@@ -145,8 +125,6 @@ a set of spline curves.  (formatting)}
 \item{cex.label.gr}{size of bottom level label (i.e. GRanges in a GrangesListitem, e.g. exons in a gene)}
 
 \item{split}{vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)}
-
-\item{xaxis.nticks}{vector or scalar positive integer specifying how many xaxis ticks to optimally draw (formatting)}
 
 \item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
 
@@ -203,6 +181,7 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
   \item{formatting}{\code{data.frame} holding all of the formatting options}
   \item{mdata}{\code{matrix} holding interaction data between genomic loci (e.g. hiC)}
   \item{vars}{List of variants associated with track}
+  \item{xaxis}{gxaxis object holding all of the xaxis formatting data}
 }
 }
 \author{
