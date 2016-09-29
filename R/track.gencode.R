@@ -42,7 +42,7 @@ track.gencode = function(gencode = NULL,
                          gr.srt.label = 0,
                          gr.cex.label = 0.3,
                          cex.label = 0.5,
-                         labels.suppress.gr = T,
+                         #labels.suppress.gr = T,
                          drop.rp11 = TRUE,
                          stack.gap = 1e6,
                          ...)
@@ -162,9 +162,10 @@ track.gencode = function(gencode = NULL,
 
   cmap = list(type = c(gene = bg.col, transcript = bg.col, exon = cds.col, start_codon = st.col, stop_codon = en.col, UTR = utr.col))
 
-  return(suppressWarnings(gTrack(gencode.composite, col = NA, grl.labelfield = 'id', gr.labelfield = 'exon_number',
-                                 gr.srt.label = gr.srt.label, cex.label = cex.label,
-                                 gr.cex.label = gr.cex.label,
-                                 labels.suppress.gr = labels.suppress.gr,
+  ## set the label params
+  lab <- glabel(grl.labelfield = 'id', gr.labelfield = 'exon_number', gr.angle = gr.srt.label,
+                gr.cex = cex.label, grl.cex = cex.label)
+
+  return(suppressWarnings(gTrack(gencode.composite, col = NA, label = lab,
                                  stack.gap = stack.gap, colormaps = cmap, ...)))
 }

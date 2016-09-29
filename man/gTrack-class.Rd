@@ -6,22 +6,16 @@
 \alias{gTrack-class}
 \title{Construct a new \code{gTrack}}
 \usage{
-gTrack(data = NULL, xaxis = gxaxis(), y.field = NA, mdata = NULL,
-  edges = NULL, vars = NULL, colormaps = NULL, height = 10, ygap = 2,
-  stack.gap = 0, cex.label = 1, gr.cex.label = cex.label * 0.8,
-  gr.srt.label = 0, col = NA, border = NA, angle = 15, name = "",
-  gr.colorfield = NA, y.quantile = 0.01, y.cap = T, lwd.border = 1,
-  hadj.label = 1, vadj.label = 0.5, smooth = NA, round = NA,
-  ywid = NA, ypad = 0, seqinfo = NA, circles = FALSE, lines = FALSE,
-  bars = FALSE, draw.paths = FALSE, draw.var = FALSE,
-  triangle = !is.null(mdata), max.ranges = 50000, source.file.chrsub = T,
-  y0.bar = NA, yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
-  chr.sub = TRUE, edgevars = NA, gr.labelfield = NA,
-  grl.labelfield = NA, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
-  sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1,
-  m.bg.col = "white", cmap.min = NA, cmap.max = NA,
-  labels.suppress = FALSE, labels.suppress.grl = labels.suppress,
-  labels.suppress.gr = labels.suppress, bg.col = "white", formatting = NA)
+gTrack(data = NULL, xaxis = gaxis(), yaxis = gaxis(),
+  legend = glegend(), path = gpath(), separator = gsep(),
+  label = glabel(), y.field = NA, mdata = NULL, edges = NULL,
+  vars = NULL, colormaps = NULL, height = 10, ygap = 2, stack.gap = 0,
+  col = NA, border = "black", angle = 15, name = "",
+  gr.colorfield = NA, lwd.border = 1, smooth = NA, round = NA,
+  ywid = NA, ypad = 0, seqinfo = NA, plot.type = "ranges",
+  draw.paths = FALSE, draw.var = FALSE, triangle = !is.null(mdata),
+  gr.labelfield = NA, max.ranges = 50000, chr.sub = TRUE, edgevars = NA,
+  cmap.min = NA, cmap.max = NA, bg.col = "white", formatting = NA)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
@@ -41,17 +35,11 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 
 \item{colormaps}{length(.Object) length named list of named vectors whose entry i maps uniques value of a data field to colors.  The data.field is specified by the name of the list entry, and the unique values / colors are specified by the named vector.}
 
-\item{height}{vector or scalar numeric specifying height of track(s) (in relative units)}
+\item{height}{height of track(s) (in relative units)}
 
 \item{ygap}{vector or scalar numeric specifying gap between tracks}
 
 \item{stack.gap}{vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)}
-
-\item{cex.label}{size of top level label (e.g. GRAngesList item)}
-
-\item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
-
-\item{gr.srt.label}{rotation of GRanges label}
 
 \item{col}{vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object}
 
@@ -60,23 +48,15 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 \item{angle}{vector of scalar numeric specifying angle of polygons that represent signed range'
 items (only relevant if used within chainedTracks object)}
 
-\item{name}{vector or scalar character specifying name of this track, which will be displayed on label to the left of the track}
+\item{name}{name of this track, which will be displayed on label to the left of the track}
 
 \item{lwd.border}{vector or scalar integer specifying the thickness of the polygon borders (formatting)}
-
-\item{hadj.label}{vector or scalar numeric specifying the horizontal adjustment of the range labels (formatting)}
-
-\item{vadj.label}{vector or scalar numeric specifying the vertical adjustment of the range labels (formatting)}
 
 \item{ywid}{vector or scalar numeric specifying the y-extent of individual ranges (in local plot coordinates)}
 
 \item{ypad}{vector or scalar numeric between 0 and 1 specifying how much whitespace padding to add within panel (formatting)}
 
-\item{circles}{vector or scalar logical specifying whether to scatter plot range data (formatting)}
-
-\item{lines}{vector or scalar logical specifying whether to line plot range data (formatting)}
-
-\item{bars}{vector or scalar logical specifying whether to bar plot range data (formatting)}
+\item{plot.type}{range plot (\code{ranges}), scatter plot (\code{scatter}), line plot (\code{line}), or bar plot (\code{bars})}
 
 \item{draw.paths}{vector or scalar logical specifying whether to interpret GRangesLists as "paths" and connect them with a
 a set of spline curves.  (formatting)}
@@ -86,79 +66,13 @@ a set of spline curves.  (formatting)}
 
 \item{max.ranges}{vector or scalar numeric specifying what is the max number of ranges to plot in a window (formatting)}
 
-\item{source.file.chrsub}{vector or scalar logical specifying whether or not sub "chr" out of any external files (e.g. UCSC style files) (formatting)}
-
-\item{y0.bar}{vector or scalar numeric specifying where to draw the lower boundary of a bar in a bar plot (only applicable if bars == T) (formatting)}
-
-\item{yaxis}{vector or scalar logical specifying whether to print yaxis (formatting)}
-
-\item{yaxis.pretty}{vector or scalar positive integer specifying how many ticks to optimally draw on yaxis (formatting)}
-
-\item{gr.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)}
-
-\item{grl.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)}
-
-\item{sep.lty}{Scalar integer specifying line style for window separators [2] (dashed line)}
-
-\item{sep.lwd}{Scalar numeric specifying line thickness for window separators [1]}
-
-\item{sep.bg.col}{Color (supplied by name or hex code) for the background of the windows [gray95]}
-
-\item{sep.draw}{Logical allowing separators to be turned off [FALSE]}
-
 \item{cmap.min}{minimum saturating data value of color map for triangle plot}
 
 \item{cmap.max}{maximum saturating data value of color map for triangle plot}
 
-\item{labels.suppress}{whether to suppress labels (both GRangesList and GRanges)}
-
-\item{labels.suppress.gr}{whether to suppress GRanges labels}
-
-\item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
-
-\item{label.suppress}{vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)}
-
-\item{label.suppress.gr}{vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)}
-
-\item{label.suppress.grl}{vector or scalar logical flag specifying whether to suppress GRangesList label drawing  (formatting)}
-
-\item{cex.label.gr}{size of bottom level label (i.e. GRanges in a GrangesListitem, e.g. exons in a gene)}
-
 \item{split}{vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)}
 
-\item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
-
-\item{y.grid.col}{vector or scalar character specifying color of "gridlines" used to specify numeric track data (formatting)}
-
-\item{y.grid.cex}{vector or scalar non-neg numeric specifying character expansion for y tick / y grid labels (formatting)}
-
-\item{y.grid.lty}{vector or scalar positive integer specifying line style of y grid lines for numeric tracks (formatting)}
-
-\item{y.grid.lwd}{vector or scalar positive integer specifying thickness of y grid lines for numeric tracks (formatting)}
-
-\item{y.grid.labx}{vector or scalar positive integer specifying fraction of xlim left of plot to place y axis labels (formatting)}
-
-\item{path.col}{vector or scalar character specifying color of path (only applicable for tracks in which draw.paths = T) (formatting)}
-
-\item{path.col.arrow}{vector or scalar character specifying color of arrow of path (only applicable for tracks in which draw.paths = T) (formatting)}
-
-\item{path.cex.arrow}{vector or scalar numeric > 0 specifying expansion factor of arrow of path (only applicable for tracks
-in which draw.paths = T)  (formatting)}
-
-\item{path.stack.y.gap}{vector or scalar numeric > 0 specifying y stack gap of paths (only applicable for tracks in which draw.paths = T)  (formatting)}
-
-\item{path.stack.x.gap}{vector or scalar numeric > 0 specifying x stack gap for paths  (only applicable for tracks in which draw.paths = T)  (formatting)}
-
-\item{path.cex.v}{vector or scalar numeric > 0 specifying vertical bulge of sline in paths (only applicable for tracks in which draw.paths = T)  (formatting)}
-
-\item{path.cex.h}{vector or scalar numeric > 0 specifying horizontal bulge of spline in paths (formatting)
-(only applicable for tracks in which draw.paths = T)  (formatting)}
-
 \item{draw.backbone}{vector or scalar logical specifying whether to draw "backbone" connecting different items in a GRangesList item (formatting)}
-
-\item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
-
-\item{labels.suppress.gr}{whether to suppress GRangesList labels}
 
 \item{...}{additional formatting arguments to gTrack}
 }
@@ -181,7 +95,8 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
   \item{formatting}{\code{data.frame} holding all of the formatting options}
   \item{mdata}{\code{matrix} holding interaction data between genomic loci (e.g. hiC)}
   \item{vars}{List of variants associated with track}
-  \item{xaxis}{gxaxis object holding all of the xaxis formatting data}
+  \item{xaxis}{gaxis object holding all of the xaxis formatting data}
+  \item{yaxis}{list of gaxis object holding all of the yaxis formatting data}
 }
 }
 \author{

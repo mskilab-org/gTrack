@@ -6,30 +6,23 @@
 \usage{
 draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   draw.paths = FALSE, draw.var = FALSE, var = NULL, var.col = NULL,
-  var.soft = T, windows, win.gap = NULL, stack.gap, xaxis.pos = NULL,
-  xaxis.pos.label = NULL, min.gapwidth = 1, col = NULL, border = NA,
-  col.backbone = alpha("gray", 0.8), gr.colorfield, gr.colormap = NULL,
-  gr.labelfield = NULL, grl.labelfield = NULL, leg.params, labels = NULL,
-  labels.suppress = FALSE, labels.suppress.grl = labels.suppress,
-  labels.suppress.gr = labels.suppress, spc.label = 0.05, adj.label = c(0,
-  1), cex.label = 1, gr.cex.label = 0.8 * cex.label, gr.srt.label = 0,
-  gr.adj.label = c(0, 0.5), new.plot, new.axis, sep.draw, sep.lty, sep.lwd,
-  sep.bg.col, y.pad, xaxis, ylim.grid = ylim, y.grid = NA,
+  var.soft = TRUE, windows, win.gap = NULL, stack.gap, min.gapwidth = 1,
+  col = NULL, border, lwd.border, col.backbone = alpha("gray", 0.8),
+  gr.colorfield, gr.colormap, gr.labelfield, label, leg.params, new.plot,
+  new.axis, separator, y.pad, xaxis, yaxis, ylim.grid = ylim, y.grid = NA,
   y.grid.col = alpha("gray", 0.5), y.grid.pretty = 5, y.grid.cex = 1,
-  y.grid.lty = 2, y.grid.lwd = 1, path.col = "black",
-  path.col.arrow = "black", path.cex.arrow = 1, path.stack.y.gap = 1,
-  path.stack.x.gap = 0, path.cex.v = 1, path.cex.h = 1,
-  draw.backbone = TRUE, xlim = c(0, 20000), points = NA, circles = F,
-  bars = FALSE, y0.bar = NULL, lines = FALSE, angle, verbose = FALSE,
-  triangle = FALSE, ylim.parent = NULL, legend.params = list(plot = TRUE),
-  bg.col = "white", ...)
+  y.grid.lty = 2, y.grid.lwd = 1, path, y0.bar, draw.backbone = TRUE,
+  xlim = c(0, 20000), points = NA, plot.type = "ranges", angle,
+  triangle = FALSE, ylim.parent = NULL, bg.col, ...)
 }
 \description{
 wrapper function around draw.ranges to draw GRangesList across a set of genomic windows
-By default, these windows correspond to the smallest set of "covered" regions (ie containing at least one
+By default, these windows correspond to the smallest set of "covered"
+regions (ie containing at least one
 grl in their span, but can also be specified as an argument.
 
-basically same idea as draw.granges, except can more compactly draw / stack paired / group reads or
+basically same idea as draw.granges, except can more compactly
+draw / stack paired / group reads or
 gene models / alignments and deal with "grouped" intervals
 
 additional values features of input grl that can impact drawing:
@@ -45,8 +38,10 @@ and will display variant ranges according to color scheme in arg "var.col"
 XA, XT, XG, XC --> colors of base substitutions
 S, D, I --> colors of sooutft clipped, deletions, insertions
 e.g.
-var.col = c(XA = 'blue', S = 'yellow', 'I' = green') would replace the default variant coloring of
-"A" substitutions, soft clipped regions, and insertions with blue, yellow, and green colors, respectively.
+var.col = c(XA = 'blue', S = 'yellow', 'I' = green') would replace
+the default variant coloring of
+"A" substitutions, soft clipped regions, and insertions with blue, yellow, and green colors,
+respectively.
 }
 \author{
 Marcin Imielinski

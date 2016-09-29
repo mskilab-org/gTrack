@@ -42,12 +42,6 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     #else
     y = IRanges::disjointBins(IRanges::ranges(x))
 
-  #if (inherits(x, 'Rle'))
-  #  x = RangedData(x)
-
-  if (inherits(x, 'GappedAlignments'))
-    x = as(x, 'GRanges')
-
   if (inherits(x, 'Ranges') | inherits(x, 'GRanges') | inherits(x, 'RangedData'))
     x = standardize_segs(x)
 
@@ -155,23 +149,19 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     else
     {
       if (!is.na(points))
-      {
         points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, border = x$border, col = x$col, cex = x$lwd.border)
-      }
 
-      if (circles)
-      {
+      if (circles) {
         points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
         points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
       }
 
-      if (bars)
-      {
+      if (bars) {
         if (is.null(y0.bar))
           y0.bar = par('usr')[3]
 
         rect(x$pos1, ifelse(y0.bar<x$y, rep(y0.bar, nrow(x)), x$y), x$pos2, ifelse(y0.bar<x$y, x$y, rep(y0.bar, nrow(x))),
-             col = x$col, border = x$col, lwd = x$lwd.border/2)
+             col = x$col, border = x$border, lwd = x$lwd.border/2)
         #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
       }
 

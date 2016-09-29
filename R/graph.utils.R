@@ -316,6 +316,24 @@ readData = function(..., environment = NULL) {
   data(..., envir = my.env);
   return(as.list(my.env))
 }
+
+#' @keywords internal
+gr.flatten = function(gr, gap = 0)
+{
+  if (length(gr) == 0)
+    return(data.frame())
+  else if (length(gr) == 1)
+    return(data.frame(start = 1, end = width(gr) + 1)) ## added +1 for [1,2] is width 2
+  else
+  {
+    starts = as.numeric(cumsum(c(1, width(gr[1:(length(gr)-1)])+gap)))
+    #ends = as.numeric(starts+width(gr)-1) ## [1,2] is width 1
+    ends = as.numeric(starts+width(gr)) ## [1,2] is width 2
+    return(cbind(data.frame(start=starts, end=ends), as.data.frame(mcols(gr))))
+  }
+}
+
+
 #' gr.flatmap
 #'
 #' Takes \code{GRanges} pile and maps onto a flattened coordinate system defined by windows (GRanges object)

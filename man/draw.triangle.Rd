@@ -5,9 +5,9 @@
 \title{draw.triangle}
 \usage{
 draw.triangle(grl, mdata, y, ylim.parent = NULL, windows = NULL,
-  win.gap = NULL, m.bg.col, sigma = NA, col.min = "white",
-  col.max = "red", gr.colormap = NA, cmap.min, cmap.max, m.sep.lwd,
-  leg.params, min.gapwidth = 1, islog = FALSE)
+  win.gap = NULL, separator, sigma = NA, col.min = "white",
+  col.max = "red", gr.colormap = NA, cmap.min, cmap.max, leg.params,
+  min.gapwidth = 1, islog = FALSE)
 }
 \description{
 internal draw.triangle function

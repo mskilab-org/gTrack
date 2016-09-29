@@ -11,20 +11,15 @@ draw.triangle <- function(grl,mdata,y,
                           ylim.parent=NULL,
                           windows = NULL,
                           win.gap = NULL,
-                          m.bg.col,
+                          separator,
                           sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs
                           col.min='white',
                           col.max='red',
                           gr.colormap = NA,
-                          cmap.min, cmap.max, m.sep.lwd,
+                          cmap.min, cmap.max,
                           leg.params,
                           min.gapwidth = 1,
                           islog = FALSE) {
-
-  # if (!is.null(gr.colormap)) {
-  #   if (!is.null(names(gr.colormap)))
-  #     palette.colors = names(gr.colormap)
-  # }
 
   ylim.subplot = NULL
 
@@ -64,7 +59,7 @@ draw.triangle <- function(grl,mdata,y,
   mapped = gr.flatmap(gr, windows, win.gap);
   grl.segs = mapped$grl.segs;
   window.segs = mapped$window.segs;
-  winlim = range(c(window.segs$start, window.segs$end + 1)) ## 3/20/16 added +1
+  winlim = range(c(window.segs$start, window.segs$end))
   mdata = as.matrix(mdata)[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)]
 
   if (!is.na(sigma)) ## MARCIN: if blur use spatstat library to blur matrix for n base pairs but making sure we don't bleed across windows
@@ -89,11 +84,10 @@ draw.triangle <- function(grl,mdata,y,
     }
 
   ## transform into plot coordinates
-  grl.segs$pos1 = affine.map(grl.segs$pos1, winlim, ylim = xlim) #d 4 down
-  grl.segs$pos2 = affine.map(grl.segs$pos2 + 1, winlim, ylim = xlim) ## +1 added
-
+  grl.segs$pos1 = affine.map(grl.segs$pos1, winlim, ylim = xlim)
+  grl.segs$pos2 = affine.map(pmin(grl.segs$pos2+1, winlim[2]), winlim, ylim = xlim) ## 160925 added +1
   window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
-  window.segs$end = affine.map(window.segs$end + 1, winlim, ylim = xlim) ## 3/20/16 added +1 to make [5,6][7,8] adjacent, etc
+  window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
 
   #####################
   ## send to plotting device
@@ -112,31 +106,11 @@ draw.triangle <- function(grl,mdata,y,
   ## draw blank background
   rect(xlim[1]-diff(xlim)*0.1, ylim.subplot[1], xlim[2], ylim.subplot[2], border = NA, col = 'white')
 
-  ## draw the background BOXES
-  if (nrow(window.segs) > 1) {
-    bgx = .all.xpairs(window.segs$start, window.segs$end)
-    out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1)
-
-    ## affine map to local coorinates
-    out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
-    if (m.sep.lwd > 0)
-      polygon(out$x, out$y, col=m.bg.col, lwd=m.sep.lwd)
-    else
-      polygon(out$x, out$y, col=m.bg.col, border=NA)
-  }
-
-  ## draw the background triangles
-  out = triangle(x1=window.segs$start, x2=window.segs$end, y=y0, y0=y0, y1=y1)
-
-  out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
-  #out$y[seq(from=2, to=length(out$y), by=4)] <- affine.map(out$y[seq(from=2, to=length(out$y), by=4)], xlim=dlim, ylim=ylim.subplot)
-  if (m.sep.lwd > 0)
-    polygon(out$x, out$y, col=m.bg.col, lwd=m.sep.lwd)
-  else
-    polygon(out$x, out$y, col=m.bg.col, border=NA)
-
-  if (nrow(grl.segs) == 0)
+  ## empty, so just draw bounding box and leave
+  if (nrow(grl.segs) == 0) {
+    draw_bounding_triangle(window.segs, y0, y1, dlim, ylim.subplot, separator)
     return(window.segs)
+  }
 
   ################
   ## plot the data
@@ -191,6 +165,9 @@ draw.triangle <- function(grl,mdata,y,
   cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
   #cr <- cs[ceiling(out.t$col) - cmap.min + 1]
   polygon(out.t$x, out.t$y, col=cr, border=NA)
+
+  ## now plot the box around the data
+  draw_bounding_triangle(window.segs, y0, y1, dlim, ylim.subplot, separator)
 
   legend.cex = leg.params$cex
   if (is.null(legend.cex))
@@ -402,4 +379,28 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 
   return(bgx)
 
+}
+
+draw_bounding_triangle <- function(window.segs, y0, y1, dlim, ylim.subplot, separator) {
+
+  ## draw the background BOXES
+  if (nrow(window.segs) > 1) {
+    bgx = .all.xpairs(window.segs$start, window.segs$end)
+    out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1)
+
+    ## affine map to local coorinates
+    out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
+    if (separator$lwd > 0)
+      polygon(out$x, out$y, col=NA, lwd=separator$lwd) ## should be NA col because then it is see-through
+    else
+      polygon(out$x, out$y, col=NA, border=NA)
+  }
+
+  ## draw the background triangles
+  out = triangle(x1=window.segs$start, x2=window.segs$end, y=y0, y0=y0, y1=y1)
+  out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
+  if (separator$lwd > 0)
+    polygon(out$x, out$y, col=NA, lwd=separator$lwd)
+  else
+    polygon(out$x, out$y, col=NA, border=NA)
 }
