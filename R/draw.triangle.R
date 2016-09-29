@@ -330,10 +330,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
   return(list(x=out.x, y=out.y, col=col))
 }
 
-
-# @description
-# internal draw.triangle function
-# @keywords internal
+#' @keywords internal
 .geti <- function(x1, x2) {
   if (length(x1) != length(x2))
     stop('x1 and x2 need to be same length')
@@ -356,7 +353,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 }
 
 # internal draw.triangle function
-# @keywords internal
+#' @keywords internal
 .all.xpairs <- function(start, end) {
   if (length(start) != length(end)) {
     warning('.all.diamonds: lengths of input need to be same. Reducing')
@@ -381,6 +378,7 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
 
 }
 
+#' @keywords internal
 draw_bounding_triangle <- function(window.segs, y0, y1, dlim, ylim.subplot, separator) {
 
   ## draw the background BOXES

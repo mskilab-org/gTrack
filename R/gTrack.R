@@ -24,7 +24,7 @@
 #' @author Marcin Imielinski
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 #' @import rtracklayer
-#' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
+#' @importFrom gUtils grbind
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo',
                                   formatting = 'data.frame', colormap = 'list', edges = 'list',
                                   legend='list', ## a list of glegend objects, one per track
@@ -422,10 +422,10 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
     return(x@mdata)
 
   if (is.null(igr))
-    igr = si2gr(x)
+    igr = gUtils::si2gr(x)
 
   if (is.null(jgr))
-    jgr = si2gr(x)
+    jgr = gUtils::si2gr(x)
 
   if (is(igr, 'Rle'))
     igr = as.character(igr)
@@ -434,10 +434,10 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
     jgr = as.character(jgr)
 
   if (is.character(igr))
-    igr = si2gr(x)[igr]
+    igr = gUtils::si2gr(x)[igr]
 
   if (is.character(jgr))
-    jgr = si2gr(x)[jgr]
+    jgr = gUtils::si2gr(x)[jgr]
 
   if (length(igr)==0 | length(jgr)==0)
     return(NULL)
@@ -446,10 +446,10 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
   {
     if (is.null(x@mdata[[y]]))
       return(NULL)
-    i = gUtils::gr.in(x@data[[y]], igr)
-    j = gUtils::gr.in(x@data[[y]], jgr)
-    rown = dedup(gr.string(x@data[[y]][i]))
-    coln = dedup(gr.string(x@data[[y]][j]))
+    i = gr.in(x@data[[y]], igr)
+    j = gr.in(x@data[[y]], jgr)
+    rown = dedup(gUtils::gr.string(x@data[[y]][i]))
+    coln = dedup(gUtils::gr.string(x@data[[y]][j]))
     tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
     rownames(tmp) = rown
     colnames(tmp) = coln
@@ -531,8 +531,6 @@ setMethod('length', 'gTrack', function(x)
 #' @param x \code{gTrack} object to retrieve reduced \code{GRanges} from
 #' @param ... additional arguments to GRanges reduce function
 #' @return \code{GRanges} with the minimal footprint of the \code{gTrack} data
-#' @importFrom GenomicRanges reduce
-#' @importFrom gUtils gr.sub
 #' @docType methods
 #' @rdname reduce-methods
 #' @aliases reduce,gTrack-method
@@ -558,9 +556,9 @@ setMethod('reduce', 'gTrack', function(x, ... )
   }
 
   if (length(x)==1)
-    return(reduce(.dat2gr(x@data[[1]]), ...))
+    return(GenomicRanges::reduce(.dat2gr(x@data[[1]]), ...))
   else
-    return(reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
+    return(GenomicRanges::reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
 })
 
 #uppressWarnings(removeMethod('seqinfo', 'gTrack')) ## takes care of stupid R 2.15 bug
@@ -603,7 +601,7 @@ setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
 {
   .Object@seqinfo = value;
-  .Object@data = lapply(dat(.Object), gr.fix, value)
+  .Object@data = lapply(dat(.Object), gUtils::gr.fix, value)
   validObject(.Object)
   return(.Object)
 });
@@ -1013,7 +1011,7 @@ setMethod('plot', c("gTrack"), #,"ANY"),
           #signature(x = "gTrack", y = "ANY"),
           function(x,  ##pplot  (for easy search)
                    y, ## dummy for taking in windows if not named
-                   windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+                   windows = gUtils::si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                    links = NULL, ## GRangesList of pairs of signed locations,
                    gap = NULL,  ## spacing betwen windows (in bp)
                    y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
@@ -1224,7 +1222,7 @@ setMethod('plot', c("gTrack"), #,"ANY"),
                 .Object$chr.sub[j] = FALSE
 
               if (.Object[j]$chr.sub)
-                tmp.windows = gr.sub(windows, 'chr', '')
+                tmp.windows = gUtils::gr.sub(windows, 'chr', '')
               else
                 tmp.windows = this.windows
 
@@ -1439,7 +1437,7 @@ draw.grl = function(grl,
     if (!is.na(label$grl.labelfield) && label$grl.labelfield %in% names(grl.props))
       grl.props$grl.labels = grl.props[, label$grl.labelfield]
 
-    gr = tryCatch(grl.unlist(grl), error = function(e) {
+    gr = tryCatch(gUtils::grl.unlist(grl), error = function(e) {
       ## ghetto solution if we get GRanges names snafu
       gr = unlist(grl);
       if (length(gr)>0)
@@ -1502,7 +1500,7 @@ draw.grl = function(grl,
           names(var) = 1:length(var)
 
         #        var.group = as.numeric(as.data.frame(var)$element)
-        var.gr = grl.unlist(var)
+        var.gr = gUtils::grl.unlist(var)
         if (length(var.gr)>0)
         {
           var.group = names(var)[var.gr$grl.ix]
@@ -1547,7 +1545,7 @@ draw.grl = function(grl,
             tmp.ogix = rep(as.numeric(names(tmp.ix)), sapply(tmp.l, length))
             tmp.ir = do.call(c, tmp.l)
             tmp.gr = GenomicRanges::GRanges(seqnames(gr)[tmp.ogix], tmp.ir, seqlengths = GenomeInfoDb::seqlengths(gr), og.ix = tmp.ogix)
-            tmp.ov = gr.findoverlaps(tmp.gr, var.gr)
+            tmp.ov = gUtils::gr.findoverlaps(tmp.gr, var.gr)
             tmp.ov = tmp.ov[tmp.gr$og.ix[tmp.ov$query.id] == var.gr$grl.ix[tmp.ov$subject.id] ]
             new.gr = tmp.gr[!(1:length(tmp.gr) %in% tmp.ov$query.id), ] ## only keep the non variant pieces
             GenomicRanges::strand(new.gr) = GenomicRanges::strand(gr)[new.gr$og.ix]
@@ -1556,7 +1554,7 @@ draw.grl = function(grl,
             GenomicRanges::strand(var.gr) = GenomicRanges::strand(gr)[var.gr$og.ix]
             #          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
 
-            new.gr = grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
+            new.gr = gUtils::grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
             new.gr$grl.iix = as.numeric(gr$grl.iix[new.gr$og.ix])
             new.ord = mapply(function(x, y, z) if (y[1]) x[order(z)] else rev(x[order(z)]),
                              split(1:length(new.gr), new.gr$og.ix), split(as.logical(GenomicRanges::strand(new.gr)=='+'), new.gr$og.ix), split(start(new.gr), new.gr$og.ix))
@@ -1569,7 +1567,7 @@ draw.grl = function(grl,
 
         else
         {
-          gr = grbind(gr, var.gr)
+          gr = gUtils::grbind(gr, var.gr)
         }
       }
 
@@ -1588,7 +1586,7 @@ draw.grl = function(grl,
       if (is(windows, 'GRangesList'))
         windows = unlist(windows)
     else  ## assume it's a seqinfo object or an object that has a seq
-      windows = si2gr(windows)
+      windows = gUtils::si2gr(windows)
 
     if (is.null(win.gap))
       win.gap = mean(width(windows))*0.2
@@ -1720,8 +1718,8 @@ draw.grl = function(grl,
 
             ir1 = IRanges::IRanges(contig.lim[1:(i-1), 'pos1'], contig.lim[1:(i-1), 'pos2'])
             ir2 = IRanges::IRanges(contig.lim[i, 'pos1'], contig.lim[i, 'pos2'])
-            #              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
-            #              clash = which(gUtils::gr.in(ir1, ir2 + path.stack.x.gap))
+            #              clash = which(gr.in(ir1, ir2 + path.stack.x.gap))
+            #              clash = which(gr.in(ir1, ir2 + path.stack.x.gap))
             clash = which(ir1 %over% (ir2 + path$stack.x.gap))
             pick = clash[which.max(contig.lim$y.bin[clash] + contig.lim$height[clash])]
             contig.lim$y.bin[i] = c(contig.lim$y.bin[pick] + contig.lim$height[pick] + path$stack.y.gap, 0)[1]
@@ -1971,7 +1969,7 @@ draw.grl = function(grl,
     ## edges, grl.segs
     if (!is.null(edges))
       if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
-        draw.edges(edges, grl.segs, ylim.subplot, y.pad)
+        draw.edges(gr, edges, grl.segs, ylim.subplot, y.pad)
 
     if (nrow(grl.segs)>0 & !is.null(grl.props$grl.labels))
     {
@@ -2031,7 +2029,7 @@ format_windows <- function(windows, .Object) {
     windows = BiocGenerics::unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
   if (is(windows, 'Seqinfo'))
-    windows = si2gr(windows)
+    windows = gUtils::si2gr(windows)
 
   if (is(windows, 'GRangesList'))
     windows = BiocGenerics::unlist(windows)
@@ -2046,24 +2044,24 @@ format_windows <- function(windows, .Object) {
 
   ## collapse and match metadata back to original
   tmp = reduce(gr.stripstrand(windows))
-  ix = gr.match(tmp, windows)
+  ix = gUtils::gr.match(tmp, windows)
   values(tmp) = values(windows)[ix, ]
   windows = tmp
   ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
   ##        windows = GenomicRanges::GRangesList(windows)
 
-  if (sum(as.numeric(width(grl.unlist(windows))))==0)
+  if (sum(as.numeric(width(gUtils::grl.unlist(windows))))==0)
   {
 
     if (length(seqinfo(.Object))) {
-      windows = si2gr(seqinfo(.Object))
+      windows = gUtils::si2gr(seqinfo(.Object))
     } else {
       warning("no windows provided and no seqinfo. Drawing blank plot")
       return(GRanges())
     }
   }
 
-  return (grl.unlist(windows))
+  return (gUtils::grl.unlist(windows))
 }
 
 prep_defaults_for_plotting <- function(.Object) {
@@ -2128,7 +2126,7 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
         pre.filtered = T
 
         if (!is.character(si)) {
-            sel = gr.fix(this.windows, si, drop = TRUE)
+            sel = gUtils::gr.fix(this.windows, si, drop = TRUE)
 
           if (length(this.windows)>0 & length(sel)==0)
             warning('zero ranges intersecting UCSC file sequences selection. Perhaps "chr" prefix mismatch?')
@@ -2175,8 +2173,8 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
       {
         vals = values(tmp.dat)
         nm = names(tmp.dat)
-        tmp2 = grl.unlist(tmp.dat)
-        tmp2 = tmp2[gUtils::gr.in(tmp2, this.windows)]
+        tmp2 = gUtils::grl.unlist(tmp.dat)
+        tmp2 = tmp2[gr.in(tmp2, this.windows)]
         ##tmp2 = tmp2[tmp2 %over% this.windows]
         tmp.dat = GenomicRanges::split(tmp2, tmp2$grl.ix)
         values(tmp.dat) = vals[as.numeric(names(tmp.dat)), ]
@@ -2184,7 +2182,7 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
       }
     else if (length(tmp.dat)>.Object$max.ranges[j])
     {
-      tmp.dat = tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+      tmp.dat = tmp.dat[gr.in(tmp.dat, this.windows)]
       ##tmp.dat = tmp.dat[tmp.dat %over% this.windows]
       pre.filtered = TRUE
     }
@@ -2209,10 +2207,10 @@ smooth_yfield <- function(.Object, j, tmp.dat) {
     tmp = round(tmp, .Object$round[j])
 
   tmp = as(tmp, 'GRanges')
-  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+  tmp = tmp[gr.in(tmp, tmp.dat)]
   ##tmp = tmp[tmp %over% tmp.dat]
   tmp.val = tmp$score
-  values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+  values(tmp) = values(tmp.dat)[gUtils::gr.match(tmp, tmp.dat), , drop = F]
   values(tmp)[, .Object$y.field[j]] = tmp.val
   tmp.dat = tmp
 
@@ -2229,7 +2227,7 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
   y1.global = max(values(tmp.dat)[, .Object$y.field[j]], na.rm = TRUE)
 
   if (!pre.filtered)
-    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+    tmp.dat.r <- tmp.dat[gr.in(tmp.dat, this.windows)]
   ##tmp.dat.r <- tmp.dat[tmp.dat %over% this.windows]
   else
     tmp.dat.r = tmp.dat
@@ -2464,9 +2462,9 @@ get_seqinfo <- function(.Object, seqinfo) {
         if (any(is.na(slen)))
         {
           if (is(x, 'GRanges'))
-            slen = GenomeInfoDb::seqlengths(gr.fix(x))
+            slen = GenomeInfoDb::seqlengths(gUtils::gr.fix(x))
           else if (is(x, 'GRangesList'))
-            slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+            slen = GenomeInfoDb::seqlengths(gUtils::gr.fix(unlist(x)))
         }
       }
       else if (is(x, 'ffTrack'))
@@ -2582,7 +2580,7 @@ get_seqinfo <- function(.Object, seqinfo) {
         seqinfo = GenomeInfoDb::seqinfo(seqinfo);
 
       .Object@seqinfo = seqinfo;
-      .Object@data = lapply(.Object@data, gr.fix, seqinfo)
+      .Object@data = lapply(.Object@data, gUtils::gr.fix, seqinfo)
     }
 
   }

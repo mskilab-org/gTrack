@@ -6,8 +6,9 @@
 \alias{plot,gTrack,ANY-method}
 \title{plot}
 \usage{
-\S4method{plot}{gTrack,ANY}(x, y, windows = si2gr(seqinfo(x)), links = NULL,
-  gap = NULL, y.heights = NULL, y.gaps = NULL, max.ranges = NA, ...)
+\S4method{plot}{gTrack,ANY}(x, y, windows = gUtils::si2gr(seqinfo(x)),
+  links = NULL, gap = NULL, y.heights = NULL, y.gaps = NULL,
+  max.ranges = NA, ...)
 }
 \arguments{
 \item{windows}{GRanges specifying windows to view (can also be GRangesList), default is whole genome}

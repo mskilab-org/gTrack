@@ -2,54 +2,36 @@
 [![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
 [![Coverage Status](https://coveralls.io/repos/github/mskilab/gTrack/badge.svg?branch=master)](https://coveralls.io/github/mskilab/gTrack?branch=master)
 
+R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges
 
-gTrack
-======
+**License:** [Artistic-2.0][license]
 
-R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges, common UCSC formats, ffTrack.  
+Table of contents
+=================
 
-**License:** [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+  * [Installation](#installation)
+  * [Documentation](#documentation)
+  * [Description](#description)
+  * [Attributions](#attributions)
 
 Installation
------------
+------------
 
-1. Install devtools from CRAN (if you don't have it already)
-
-  ```
-  install.packages('devtools')
-  ```
-
-2. Load devtools
-
-  ```
-  library(devtools)
-  ````
-
-3. Install gUtils (if you don't have it already)
-
-  ```
-  install_github('mskilab/gUtils')
-  ````
-
-
-4. Install gTrack
-
-  ```
-  install_github('mskilab/gTrack')
-  ````
-
-See documentation
+```R
+  devtools::install_github('mskilab/gUtils') 
+  devtools::install_github('mskilab/gTrack')
+```
 
 [Read the docs](http://gtrack.readthedocs.org/en/latest/)
 [R Documentation](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
 
-Tutorial 
---------
+Description
+-----------
 
 Attributions
 ------------
-> Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College. Developed while a fellow in the Matthew Meyerson Lab, Dana Farber Cancer Institute, Broad Institute
+* Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College and New York Genome Center
+* Jeremiah Wala - Harvard MD-PhD candidate, Beroukhim Lab, Dana Farber Cancer Institute and Broad Institute
+* Khagay Nagdimov - Undergraduate student, NYU
 
-> Jeremiah Wala - Harvard MD-PhD candidate, Bioinformatics and Integrative Genomics, Rameen Beroukhim Lab, Dana Farber Cancer Institute
-
-[license]: https://github.com/jwalabroad/gTrack/blob/master/LICENSE
+[license]: https://github.com/mskilab/gTrack/blob/master/LICENSE

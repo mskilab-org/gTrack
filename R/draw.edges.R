@@ -1,4 +1,4 @@
-draw.edges <- function(edges, grl.segs, ylim.subplot, y.pad) {
+draw.edges <- function(gr, edges, grl.segs, ylim.subplot, y.pad) {
 
 if (data.table::is.data.table(edges))
   edges = as.data.frame(edges)

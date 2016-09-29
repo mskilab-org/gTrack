@@ -38,6 +38,9 @@ graph[9,1]=1
 graph[10,1]=1
 
 test_that("edges",  {
+  gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
+  gr <- gr.nochr(gr)
+  end(gr) <- end(gr) - 1
   g <- gTrack(gr, edges = graph , stack.gap = 5,
               xaxis=gaxis(interval = 4, newline=FALSE))
   plot(g)
@@ -120,6 +123,9 @@ test_that("gr.labelfield", {
 })
 
 test_that("col", {
+  gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
+  gr <- gr.nochr(gr)
+  end(gr) <- end(gr) - 1
     graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) ,
                        col = c('red', 'blue', 'green'))
     plot(gTrack(gr , edges = graph , stack.gap = 5))

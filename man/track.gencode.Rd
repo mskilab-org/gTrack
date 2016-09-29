@@ -12,7 +12,7 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
   cached.path = paste(cached.dir, "gencode.composite.rds", sep = "/"),
   cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds",
   sep = "/"), gr.srt.label = 0, gr.cex.label = 0.3, cex.label = 0.5,
-  labels.suppress.gr = T, drop.rp11 = TRUE, stack.gap = 1e+06, ...)
+  drop.rp11 = TRUE, stack.gap = 1e+06, ...)
 }
 \arguments{
 \item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
@@ -37,8 +37,6 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
 
 \item{gr.cex.label}{scalar numeric > 0 specifying character expansion on exon label}
 
-\item{labels.suppress.gr}{scalar logical specifying whether to suppress exon label plotting}
-
 \item{stack.gap}{stack.gap argument to gTrack}
 
 \item{...}{additional arguments passed down to gTrack}
@@ -46,6 +44,8 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
 \item{rg}{(optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import}
 
 \item{cds.utr}{scalar character representing background color for UTR}
+
+\item{labels.suppress.gr}{scalar logical specifying whether to suppress exon label plotting}
 }
 \description{
 Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.

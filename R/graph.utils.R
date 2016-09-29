@@ -208,7 +208,6 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
 #' @param scalar positive integer of number of colors to return
 #' @param palette any brewer.pal palette to begin with (default 'Accent')
 #'
-#' @export
 #' @keywords internal
 #' @author Marcin Imielinski
 brewer.master = function(n, palette = 'Accent')
@@ -389,8 +388,19 @@ gr.flatmap = function(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FA
   return(list(grl.segs = grl.segs, window.segs = window.segs))
 }
 
+#' @keywords internal
 gr.stripstrand = function(gr)
 {
   GenomicRanges::strand(gr) = "*"
   return(gr)
+}
+
+#' @keywords internal
+gr.in = function(query, subject, ...)
+{
+  tmp = gr.findoverlaps(query, subject, ...)
+  out = rep(FALSE, length(query))
+  out[tmp$query.id] = TRUE
+
+  return(out)
 }
