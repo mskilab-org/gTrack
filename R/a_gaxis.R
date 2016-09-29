@@ -34,7 +34,7 @@ setMethod('initialize', 'gaxis', function(.Object, ...) ## only place NON format
 #' @rdname gaxis-class
 #' @export
 gaxis = function( tick.adjust.x = 1.0001, tick.adjust.y = 0.50001,
-                  label.adjust.x = 0.5, label.adjust.y = 0,
+                  label.adjust.x = 0.5, label.adjust.y = 1,
                   prefix = "", unit = 1,
                   suffix = "", round = 3,
                   cex.label = 1, newline = TRUE,

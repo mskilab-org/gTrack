@@ -1,3 +1,4 @@
+#' @keywords internal
 draw.edges <- function(gr, edges, grl.segs, ylim.subplot, y.pad) {
 
 if (data.table::is.data.table(edges))

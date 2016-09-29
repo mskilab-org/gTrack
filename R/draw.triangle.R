@@ -1,5 +1,3 @@
-
-
 #' @name draw.triangle
 #' @title draw.triangle
 #' @description
