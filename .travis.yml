@@ -1,42 +1,25 @@
-## See https://github.com/metacran/r-builder for details.
-
 language: r
 sudo: required
 
+env:
+  global:
+    secure: qZuoLwcmcGyP91k+HDLw/RGsSybSvYwFUu0h8F+f2wcdr6pEAcfvz5cneRnRJEJQzR392LF465ALQ//0VlxvMELgkFOYKQrGnOjhwH635dqIziPctdr6EHEJieZN4FrR2zB6sMwqET721Z+mjGld2F57WPACd+bxFOwneuuKwFH1rIwzYoS3id+9G+iErit0//8MzJIqJDXxpjxSXOQwDEdInUDWlo3vmVJTcTliEvpZ8cHIZb9/NMZJYHM0Mtyyiae7Fw2KmvxlhsnTGW9h5If3GhqX7QIwV0vITQs7YcsRfIS3M6afodD31jxyT4ybUB5iyR838AG5Do75rATwE7rkkaqzM8EzEHET9vrir2zHR3UEkB02BgGwUIR7j6334Aej+u7RsZjigOuwHR2ceUEnv31OQqcbWVLzpjsmmHAW0sXtsTIKzxi0NUuYty/JeSYA6RosXdIp2mSAQXZIMW+u5pDlZAVx2n4RhaGlaj8B+dILnc4yDKAWwmbgzyDdQUBKH6OuEU4sPjquwc18LtyhDHb9/rUfoaOemtqhnKMPfMBfXtpIluwh2pz9j33LG8VwnFBfWQIpVFafFxlc/MJRNO0GeIUeb1qtOVMqeXCWNXVEkDdalRUuu9PMdB7Lj9bJBfykA9VnINzHLCMsgRmr70gLeKM0kUxsRklR4Fk=
+## above is COVERALLS_TOKEN
+
 before_install:
-  - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
-  - chmod 755 pkg-build.sh
-  - ./pkg-build.sh bootstrap
-  - ./install_bioc.sh
-
+- curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
+- chmod 755 pkg-build.sh
+- ./pkg-build.sh bootstrap
+- ./install_bioc.sh
 install:
-  - ./pkg-build.sh install_deps
-
+- ./pkg-build.sh install_deps
 script:
-  - ./pkg-build.sh run_tests
-
+- ./pkg-build.sh run_tests
 after_failure:
-  - ./pkg-build.sh dump_logs
-
+- ./pkg-build.sh dump_logs
 after_success:
-  - Rscript -e 'covr::coveralls()'
-
+- Rscript -e 'covr::coveralls()'
 notifications:
   email:
     on_success: change
     on_failure: change
-
-#env:
-#  matrix:
-#    - RVERSION=oldrel
-#    - RVERSION=release
-#    - RVERSION=devel
-
-#language: r
-#sudo: required
-
-#bioc_packages:
-# - GenomicRanges
-
-#env:
-# - "_R_CHECK_FORCE_SUGGESTS_=0"
