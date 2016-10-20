@@ -5,7 +5,7 @@
 \title{connectors}
 \usage{
 connectors(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
-  type = "S", f.arrow = T, b.arrow = F, nsteps = 100, cex.arrow = 1,
+  type = "S", f.arrow = T, b.arrow = F, nsteps = 20, cex.arrow = 1,
   col.arrow = "black", lwd = 1, lty = 1, col = "black")
 }
 \description{

@@ -228,9 +228,9 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 }
 
   if (any(!is.na(y.field))) {
-      ix <- nchar(formatting(.Object)$track.name) == 0
+      ix <- nchar(formatting(.Object)$name) == 0
       ix = ifelse(is.na(ix), TRUE, FALSE)
-      formatting(.Object)$track.name[ix] <- y.field[ix]
+      formatting(.Object)$name[ix] <- y.field[ix]
   }
 
 
@@ -660,8 +660,7 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
 #' @author Marcin Imielinski
 setMethod('$', 'gTrack', function(x, name)
 {
-                                        #  return(x@formatting[, name])
-    return(x@formatting[[name]])
+  return(x@formatting[, name])
 })
 
 #' @name $<-
@@ -1272,7 +1271,7 @@ setMethod('plot', c("gTrack","ANY"),
   .Object$legend.title = ifelse(!is.na(.Object$legend.title), .Object$legend.title,
       ifelse(has.colormap, names(colormap(.Object))[1:length(.Object)],
              ifelse(has.colorfield, .Object$gr.colorfield,
-                    ifelse(!is.na(.Object$track.name), .Object$track.name, ''))))
+                    ifelse(!is.na(.Object$name), .Object$name, ''))))
   
     ## add last minute formatting changes to gTrack
   if (length(dotdot.args)>0)
@@ -1360,6 +1359,13 @@ setMethod('plot', c("gTrack","ANY"),
     pre.filtered = FALSE;
     if (.Object@formatting$triangle[j])
       pre.filtered = TRUE
+
+    ## subsample if we need to for enforcing max.ranges
+    if (!is.na(formatting(.Object)$max.ranges[j]) && formatting(.Object)$max.ranges[j] > 0) {
+      tt <- enforce_max_ranges(.Object, pre.filtered, j, tmp.dat, this.windows)
+      tmp.dat = tt$t
+      pre.filtered = tt$p
+    }
     
     ## adjust y0 .bar
     if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j])))
@@ -1367,14 +1373,7 @@ setMethod('plot', c("gTrack","ANY"),
 
     ## smooth the y.field data
     if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') && !is.na(formatting(.Object)$smooth[j]))
-        tmp.dat <- smooth_yfield(.Object, j, tmp.dat)
-    
-    ## subsample if we need to for enforcing max.ranges
-    if (!is.na(formatting(.Object)$max.ranges[j]) && formatting(.Object)$max.ranges[j] > 0) {
-        tt <- enforce_max_ranges(.Object, pre.filtered, j, tmp.dat, this.windows)
-        tmp.dat = tt$t
-        pre.filtered = tt$p
-    }
+      tmp.dat <- smooth_yfield(.Object, j, tmp.dat)
 
     ## fix y limits and apply log transform if needed
     if (!is.na(formatting(.Object)$y.field[j]) && (is.na(formatting(.Object)$y0[j]) || is.na(formatting(.Object)$y1[j])))
@@ -1498,7 +1497,6 @@ setMethod('plot', c("gTrack","ANY"),
     if (.Object[j]$bars && is.na(all.args$y0.bar))
         all.args$y0.bar = this.ylim.subplot[j, 1]
 
-    
     if (is.null(.Object$chr.sub))
         .Object$chr.sub = FALSE
 
@@ -1582,7 +1580,6 @@ setMethod('plot', c("gTrack","ANY"),
 
     window.segs = list();
     ##window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
-
     if (formatting(.Object[j])$triangle)
     {
       window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
@@ -1592,7 +1589,7 @@ setMethod('plot', c("gTrack","ANY"),
       window.segs[[i]] <- do.call('draw.grl', all.args)
     }
 
-    this.tname = formatting(.Object[j])$track.name
+    this.tname = formatting(.Object[j])$name
 
     if (!is.na(this.tname))
     {
@@ -2678,11 +2675,8 @@ draw.grl = function(grl,
                     gr.cex.label = 0.8 * cex.label,
                     gr.srt.label = 0,
                     gr.adj.label = c(0,0.5),
-                    new.plot, new.axis, 
-                    sep.lty = 2,
-                    sep.lwd = 1,
-                    sep.bg.col = 'gray95',
-                    sep.draw = TRUE,
+                    new.plot, new.axis, sep.draw, sep.lty, sep.lwd,
+                    sep.bg.col,
                     y.pad,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair (def was 0.05)
                     xaxis.prefix, xaxis.suffix, xaxis.unit, xaxis.round, xaxis.interval, xaxis.pos,
                     xaxis.pos.label, xaxis.cex.label, xaxis.newline, xaxis.chronly, xaxis.ticklen,
@@ -3988,7 +3982,7 @@ bernsteinp = function(n, m)
 #' @name Marcin Imielinski
 #' @keywords internal
 connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
-                      type = "S", f.arrow = T, b.arrow = F, nsteps = 100,
+                      type = "S", f.arrow = T, b.arrow = F, nsteps = 20,
                       cex.arrow = 1, col.arrow = 'black', lwd = 1, lty = 1, col = 'black')
 
 {
@@ -4825,7 +4819,7 @@ format_windows <- function(windows, .Object) {
         windows = BiocGenerics::unlist(windows)
 
     windows = windows[width(windows)>0]  ## otherwise will get non-matching below
-
+    
     if (is.null(windows$col))
         windows$col = 'gray98'
 
@@ -4835,7 +4829,7 @@ format_windows <- function(windows, .Object) {
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
     ix = gr.match(tmp, windows)
-    values(tmp) = values(windows)[ix, , drop = FALSE]
+    values(tmp) = values(windows)[ix, ]    
     windows = tmp
 ##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
 ##        windows = GenomicRanges::GRangesList(windows)
@@ -5046,35 +5040,21 @@ enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) 
 }
 
 smooth_yfield <- function(.Object, j, tmp.dat) {
-    tmp = GenomicRanges::coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]])
 
-    ## calculate footprint of input ranges so we only smooth that region + $smooth parameter window around it
-    ## so as to save time not smoothing entire genome worth of 0s (not clear why feature not already included in S4 vectors runmean)
-    tmpfp = as(GenomicRanges::coverage(tmp.dat), 'GRanges')
-    tmpfp = gr2dt(reduce(tmpfp[tmpfp$score!=0])+formatting(.Object)$smooth[j]) ## 
-    tmpfp[, seqnames := as.character(seqnames)]
-
-    tmpfp[, end := pmin(lengths(tmp)[as.character(seqnames)], end)]
-    tmpfp[, start := pmax(start, 1)]
-
-    for (i in 1:nrow(tmpfp))
-    {
-        tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]] =
-
-                S4Vectors::runmean(tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]], 
-                                   k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'drop', na.rm = TRUE)
-    }
+  tmp = S4Vectors::runmean(GenomicRanges::coverage(tmp.dat, weight = values(tmp.dat)[, formatting(.Object)$y.field[j]]),
+                           k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'constant', na.rm = TRUE)
 
   if (!is.na(formatting(.Object)$round[j]))
     tmp = round(tmp, formatting(.Object)$round[j])
-    
-    tmp = as(tmp, 'GRanges')
-    tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
-    ##tmp = tmp[tmp %over% tmp.dat]
-    tmp.val = tmp$score
-    values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
-    values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-    tmp.dat = tmp    
+
+  tmp = as(tmp, 'GRanges')
+  tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+  ##tmp = tmp[tmp %over% tmp.dat]
+  tmp.val = tmp$score
+  values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+  values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
+  tmp.dat = tmp
+
 }
 
 format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows) {
