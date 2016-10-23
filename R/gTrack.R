@@ -1263,6 +1263,14 @@ setMethod('plot', c("gTrack","ANY"),
 
   if (is.null(formatting(.Object)$legend.title))
       formatting(.Object)$legend.title = NA
+
+  if (is.null(formatting(.Object)$track.name))
+  {
+      if (is.null(formatting(.Object)$name))
+          formatting(.Object)$track.name = formatting(.Object)$name
+      else
+          formatting(.Object)$track.name = NA
+  }
   
   has.colormap = sapply(colormap(.Object), length)>0
   has.colorfield = !is.na(formatting(.Object)$gr.colorfield)
