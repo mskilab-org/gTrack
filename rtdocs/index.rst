@@ -18,7 +18,8 @@ Contents:
    vignetteHotspots/vignetteHotspots.rst 
    vignettePointMutations/vignettePointMutations.rst 
    vignetteSVs/vignetteSVs.rst
-      
+   super_enhancers/super_enhancers.rst
+
 Indices and tables
 ==================
 
