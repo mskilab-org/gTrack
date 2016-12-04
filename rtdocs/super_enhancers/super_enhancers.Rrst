@@ -5,7 +5,7 @@ To illustrate gTrack's capability in exploring data sets such as
 ChiP-Seq data
 
 
-.. {bash loading_data}
+.. {r loading_data}
 ## The methods section of
 http://www.nature.com/ng/journal/v48/n2/full/ng.3470.html stated that
 GISTIC analyses were performed on the TCGA data available on the TCGA
