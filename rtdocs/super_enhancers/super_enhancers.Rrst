@@ -20,7 +20,7 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 ## gzip -d all_cancers.seg.gz
 .. ..
 
-.. {r starting_analysis}
+.. {r starting_analysis, fig.width = 15}
 
 ##############################                         ##############################
 
