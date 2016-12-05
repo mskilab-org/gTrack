@@ -130,11 +130,11 @@ library(gUtils) ## for dt2gr
 Reading bigWig in gTrack
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. {r bigWig, fig.width = 15, fig.height = 15 }
+.. {r bigWig, fig.width = 15, fig.height = 15}
 ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
 
 ## fold change.
-..plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434')))
+..plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434'))
 
 ### store gencode genes.
 ..ge = track.gencode()
