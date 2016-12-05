@@ -43,27 +43,8 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     ## seg_data <- fread('../../inst/extdata/files/all_cancers.seg')
     
     seg_data[Log2.Ratio <= 0, data_sign := "deletion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data[Log2.Ratio > 0, data_sign := "insertion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
-
-
-.. sourcecode:: r
     
-
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
 
@@ -71,19 +52,6 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
 ::
 
     ## Warning in dt2gr(seg_data): coercing to GRanges via non-standard columns
-
-
-
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data' not found
 
 
 .. sourcecode:: r
@@ -99,12 +67,10 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     ## if you want the colors to be chosen automatically. 
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
 
+.. figure:: figure/starting_analysis_plot-1.png
+    :alt: plot of chunk starting_analysis_plot
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges' not found
-
-
+    plot of chunk starting_analysis_plot
 
 
 .. sourcecode:: r
@@ -113,12 +79,10 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors.
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))))
 
+.. figure:: figure/starting_analysis_plot2-1.png
+    :alt: plot of chunk starting_analysis_plot2
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges' not found
-
-
+    plot of chunk starting_analysis_plot2
 
 
 .. sourcecode:: r
@@ -126,16 +90,7 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
 
     ## Subset to MYC enhancer amplification regions.
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
-
-
-.. sourcecode:: r
     
-
     ## coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 
@@ -147,19 +102,6 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
 
 
 
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
-
-
-
 
 .. sourcecode:: r
     
@@ -167,12 +109,10 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors. 
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
 
+.. figure:: figure/starting_analysis_plot3-1.png
+    :alt: plot of chunk starting_analysis_plot3
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
-
-
+    plot of chunk starting_analysis_plot3
 
 Using parse.gr
 ~~~~~~~~~~~~~~
@@ -193,12 +133,10 @@ Using parse.gr
     win <- myc_se
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
+.. figure:: figure/plot_MYC_enhancers-1.png
+    :alt: plot of chunk plot_MYC_enhancers
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
-
-
+    plot of chunk plot_MYC_enhancers
 .. sourcecode:: r
     
 
@@ -207,12 +145,10 @@ Using parse.gr
     win <- myc_se
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
+.. figure:: figure/plot_MYC_enhancers-2.png
+    :alt: plot of chunk plot_MYC_enhancers
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
-
-
+    plot of chunk plot_MYC_enhancers
 .. sourcecode:: r
     
 
@@ -222,9 +158,38 @@ Using parse.gr
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 27624 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 27624 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
 
 
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   8. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
+
+.. figure:: figure/plot_MYC_enhancers-3.png
+    :alt: plot of chunk plot_MYC_enhancers
+
+    plot of chunk plot_MYC_enhancers
 
 
 .. sourcecode:: r
@@ -236,20 +201,10 @@ Using parse.gr
     
     ##############################                         ##############################
     
-    ## max width is 50MB to remove very broad copy number changes.
-    ## min width is 20KB to exclude artifacts.
+    ## max width is not 50 MB (actually 30KB) to remove very broad copy number changes.
+    ## min width is not 20KB to exclude artifacts.
     
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 
 
@@ -257,19 +212,6 @@ Using parse.gr
 
     ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
     ## columns
-
-
-
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
 
 
 .. sourcecode:: r
@@ -280,9 +222,42 @@ Using parse.gr
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 641 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
 
 
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 641 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
+
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   8. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
+
+.. figure:: figure/setting_thresholds-1.png
+    :alt: plot of chunk setting_thresholds
+
+    plot of chunk setting_thresholds
 
 
 .. sourcecode:: r
@@ -298,22 +273,12 @@ Using parse.gr
     
     ## There are more insertions than deletions.
     sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
-
-
-::
-
-    ## Error in sort(seg_data_chrom8$Log2.Ratio): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     length(sorted_ratios) ## 70K
 
 
 ::
 
-    ## Error in eval(expr, envir, enclos): object 'sorted_ratios' not found
+    ## [1] 4458
 
 
 .. sourcecode:: r
@@ -321,16 +286,6 @@ Using parse.gr
 
     #### -1 and 2
     seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8_2 <- dt2gr(seg_data_chrom8_2)
 
 
@@ -338,19 +293,6 @@ Using parse.gr
 
     ## Warning in dt2gr(seg_data_chrom8_2): coercing to GRanges via non-standard
     ## columns
-
-
-
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_2' not found
 
 
 .. sourcecode:: r
@@ -361,9 +303,42 @@ Using parse.gr
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_2' not found
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 477 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
 
 
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 477 out-of-bound ranges located on
+    ##   sequence 8. Note that only ranges located on a non-circular
+    ##   sequence whose length is not NA can be considered out-of-bound
+    ##   (use seqlengths() and isCircular() to get the lengths and
+    ##   circularity flags of the underlying sequences). You can use trim()
+    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+    ##   information.
+
+
+
+::
+
+    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+    ##   8. Note that only ranges located on a non-circular sequence whose
+    ##   length is not NA can be considered out-of-bound (use seqlengths()
+    ##   and isCircular() to get the lengths and circularity flags of the
+    ##   underlying sequences). You can use trim() to trim these ranges.
+    ##   See ?`trim,GenomicRanges-method` for more information.
+
+
+.. figure:: figure/random_fact-1.png
+    :alt: plot of chunk random_fact
+
+    plot of chunk random_fact
 .. sourcecode:: r
     
 
@@ -428,9 +403,28 @@ Reading bigWig in gTrack
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/bigWig-2.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
 .. sourcecode:: r
     
 
@@ -440,36 +434,36 @@ Reading bigWig in gTrack
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/bigWig-3.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
 .. sourcecode:: r
     
 
     ### Split the copy number data into two objects - one for insertions & other for deletions.
     
     seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
     
-
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
 
 
@@ -477,19 +471,6 @@ Reading bigWig in gTrack
 
     ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
     ## standard columns
-
-
-
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
 
 
 .. sourcecode:: r
@@ -502,15 +483,6 @@ Reading bigWig in gTrack
 
     ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
     ## standard columns
-
-    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
 
 
 .. sourcecode:: r
@@ -522,20 +494,37 @@ Reading bigWig in gTrack
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/bigWig-4.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
 .. sourcecode:: r
     
 
     plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
+.. figure:: figure/bigWig-5.png
+    :alt: plot of chunk bigWig
 
-::
-
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
-
-
+    plot of chunk bigWig
 
 
 .. sourcecode:: r
@@ -543,27 +532,8 @@ Reading bigWig in gTrack
 
     ### Filtering broad events
     seg_data_chrom8_deletions2 <- seg_data_chrom8_deletions[Log2.Ratio >= -0.6]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_deletions' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data_chrom8_insertions2 <- seg_data_chrom8_insertions[Log2.Ratio >= 0.6]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_insertions' not found
-
-
-.. sourcecode:: r
     
-
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
 
 
@@ -571,19 +541,6 @@ Reading bigWig in gTrack
 
     ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
     ## standard columns
-
-
-
-::
-
-    ## Warning in is(segs, "data.table"): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
 
 
 .. sourcecode:: r
@@ -597,15 +554,6 @@ Reading bigWig in gTrack
     ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
     ## standard columns
 
-    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
-
 
 .. sourcecode:: r
     
@@ -615,9 +563,28 @@ Reading bigWig in gTrack
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/filter_broad_events-1.png
+    :alt: plot of chunk filter_broad_events
+
+    plot of chunk filter_broad_events
 .. sourcecode:: r
     
 
@@ -625,16 +592,6 @@ Reading bigWig in gTrack
     
     ## Subset to MYC enhancer amplifications regions.
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
-
-
-.. sourcecode:: r
-    
-
     ## coerce data.table into GRanges because gTrack operates on GRanges. 
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 
@@ -644,74 +601,20 @@ Reading bigWig in gTrack
     ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
     ## columns
 
-    ## Warning in dt2gr(seg_data_chrom8): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
-
 
 .. sourcecode:: r
     
 
+    ## max width is 10MB. 
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 10e6]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
     
-
     seg_data_chrom8_deletions <- seg_data_chrom8[Log2.Ratio <= 0, data_sign := "deletion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data_chrom8_insertions <- seg_data_chrom8[Log2.Ratio > 0, data_sign := "insertion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
     
-
+    
     seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
-
-
-.. sourcecode:: r
     
-
     gray = 'gray20'
     gt.h3k36 = gTrack('~/DB/Roadmap/consolidated//E114-H3K36me3.pval.signal.bigwig', name = 'H3K36me3', bar = TRUE, col = gray)
     gt.h3k4 = gTrack('~/DB/Roadmap/consolidated//E114-H3K4me3.pval.signal.bigwig', name = 'H3K4me3', bar = TRUE, col = gray)
@@ -722,27 +625,7 @@ Reading bigWig in gTrack
     
     THRESH = 1
     seg_data_chrom8_deletions <- seg_data_chrom8_deletions[Log2.Ratio >= -THRESH]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_deletions' not found
-
-
-.. sourcecode:: r
-    
-
     seg_data_chrom8_insertions <- seg_data_chrom8_insertions[Log2.Ratio >= THRESH]
-
-
-::
-
-    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_insertions' not found
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
 
 
@@ -750,15 +633,6 @@ Reading bigWig in gTrack
 
     ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
     ## standard columns
-
-    ## Warning in dt2gr(seg_data_chrom8_insertions): restarting interrupted
-    ## promise evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
 
 
 .. sourcecode:: r
@@ -772,15 +646,6 @@ Reading bigWig in gTrack
     ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
     ## standard columns
 
-    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
-    ## evaluation
-
-
-
-::
-
-    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
-
 
 .. sourcecode:: r
     
@@ -790,40 +655,64 @@ Reading bigWig in gTrack
 
 ::
 
-    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
 
 
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/filter_broad_events-2.png
+    :alt: plot of chunk filter_broad_events
+
+    plot of chunk filter_broad_events
 .. sourcecode:: r
     
 
     acov = as(coverage(seg_ranges_chrom8_insertions), 'GRanges')
-
-
-::
-
-    ## Error in coverage(seg_ranges_chrom8_insertions): object 'seg_ranges_chrom8_insertions' not found
-
-
-.. sourcecode:: r
-    
-
     dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
-
-
-::
-
-    ## Error in coverage(seg_ranges_chrom8_deletions): object 'seg_ranges_chrom8_deletions' not found
-
-
-.. sourcecode:: r
-    
-
     plot(c(gt.rnapos, gt.enh, gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
 
 
 ::
 
-    ## Error in listify(data, GRanges): object 'acov' not found
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
+
+.. figure:: figure/filter_broad_events-3.png
+    :alt: plot of chunk filter_broad_events
+
+    plot of chunk filter_broad_events
+
+::
+
+    ## numeric(0)
 
 
 
