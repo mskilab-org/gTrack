@@ -1,20 +1,20 @@
 How to Graph Super Enhancers
 ============================
 
-To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
-
+To illustrate gTrack's capability in exploring data sets such as ChIP-Seq data as well as reading BigWig data sets. This entire vignette attemps to replicate Zhang, X. et al (2016) which identified focally amplified super enhancers in epithelial cancers. 
 
 
 .. sourcecode:: r
     
 
     ## The methods section of http://www.nature.com/ng/journal/v48/n2/full/ng.3470.html stated
-    ## that GISTIC analyses were performed on the TCGA data available on the TCGA copy number
-    ## portal which is created by the Broad Institute of MIT and Harvard.
+    ## that GISTIC (used to find copy number variations) analyses were performed on available TCGA data
+    ## TCGA data was found on the TCGA copy number portal which is created by the Broad Institute of
+    ## MIT and Harvard.
     
     ## After finding version 3.0 of the SNP pipeline on 22 October 2014, clicking on the IGV
-    ## session and an XML document (http://portals.broadinstitute.org/tcga/gisticIgv/session.xml?analysisId=21&tissueId=548&type=.xml)
-    ## was returned which stored the web path to the *.seg.gz file. I downloaded that and found
+    ## session returned an XML document (http://portals.broadinstitute.org/tcga/gisticIgv/session.xml?analysisId=21&tissueId=548&type=.xml)
+    ## which stored the web path to the *.seg.gz file. I downloaded that and found
     ## that it stored the log2 ratios (tumor coverage / normal coverage).
     
     ## wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/all_cancers.seg.gz
@@ -22,6 +22,9 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     
     ## gzip -d all_cancers.seg.gz
 
+
+Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -40,11 +43,52 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## seg_data <- fread('../../inst/extdata/files/all_cancers.seg')
     
     seg_data[Log2.Ratio <= 0, data_sign := "deletion"]
-    seg_data[Log2.Ratio > 0, data_sign := "insertion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
+
+
+.. sourcecode:: r
     
+
+    seg_data[Log2.Ratio > 0, data_sign := "insertion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
+
+
+.. sourcecode:: r
+    
+
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
+
+
+::
+
+    ## Warning in dt2gr(seg_data): coercing to GRanges via non-standard columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data' not found
+
+
+.. sourcecode:: r
     
+
     ## first glimpse (gotta know what the data looks like). Probably should zoom in before even starting.
 
 
@@ -55,10 +99,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## if you want the colors to be chosen automatically. 
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
 
-.. figure:: figure/starting_analysis_plot-1.png
-    :alt: plot of chunk starting_analysis_plot
 
-    plot of chunk starting_analysis_plot
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges' not found
+
+
 
 
 .. sourcecode:: r
@@ -67,10 +113,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors.
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))))
 
-.. figure:: figure/starting_analysis_plot2-1.png
-    :alt: plot of chunk starting_analysis_plot2
 
-    plot of chunk starting_analysis_plot2
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges' not found
+
+
 
 
 .. sourcecode:: r
@@ -78,9 +126,38 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 
     ## Subset to MYC enhancer amplification regions.
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
+
+
+.. sourcecode:: r
     
+
     ## coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
+    ## columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
+
 
 
 
@@ -90,10 +167,15 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors. 
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
 
-.. figure:: figure/starting_analysis_plot3-1.png
-    :alt: plot of chunk starting_analysis_plot3
 
-    plot of chunk starting_analysis_plot3
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
+
+Using parse.gr
+~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -111,10 +193,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     win <- myc_se
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
-.. figure:: figure/plot_MYC_enhancers-1.png
-    :alt: plot of chunk plot_MYC_enhancers
 
-    plot of chunk plot_MYC_enhancers
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 .. sourcecode:: r
     
 
@@ -123,20 +207,24 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     win <- myc_se
     plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
-.. figure:: figure/plot_MYC_enhancers-2.png
-    :alt: plot of chunk plot_MYC_enhancers
 
-    plot of chunk plot_MYC_enhancers
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 .. sourcecode:: r
     
 
     ## it looks like both regions have focal insertions and deletions. 
     plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 
-.. figure:: figure/plot_MYC_enhancers-3.png
-    :alt: plot of chunk plot_MYC_enhancers
 
-    plot of chunk plot_MYC_enhancers
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 
 
 .. sourcecode:: r
@@ -152,13 +240,49 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## min width is 20KB to exclude artifacts.
     
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
+    ## columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 
-.. figure:: figure/setting_thresholds-1.png
-    :alt: plot of chunk setting_thresholds
 
-    plot of chunk setting_thresholds
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 
 
 .. sourcecode:: r
@@ -174,12 +298,22 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     
     ## There are more insertions than deletions.
     sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
+
+
+::
+
+    ## Error in sort(seg_data_chrom8$Log2.Ratio): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     length(sorted_ratios) ## 70K
 
 
 ::
 
-    ## [1] 4458
+    ## Error in eval(expr, envir, enclos): object 'sorted_ratios' not found
 
 
 .. sourcecode:: r
@@ -187,14 +321,49 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 
     #### -1 and 2
     seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
-    seg_ranges_chrom8_2 <- dt2gr(seg_data_chrom8_2)
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
+
+    seg_ranges_chrom8_2 <- dt2gr(seg_data_chrom8_2)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_2): coercing to GRanges via non-standard
+    ## columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_2' not found
+
+
+.. sourcecode:: r
+    
+
     plot(gTrack(seg_ranges_chrom8_2, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8_2+10e6)
 
-.. figure:: figure/random_fact-1.png
-    :alt: plot of chunk random_fact
 
-    plot of chunk random_fact
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_2' not found
+
+
 .. sourcecode:: r
     
 
@@ -214,6 +383,23 @@ Reading bigWig in gTrack
     
     ## fold change.
     plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434'))
+
+
+::
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
+    ## worries, just letting you know
+
+
+
+::
+
+    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
+    ## just letting you know
+
 
 .. figure:: figure/bigWig-1.png
     :alt: plot of chunk bigWig
@@ -239,47 +425,117 @@ Reading bigWig in gTrack
     
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
 
-.. figure:: figure/bigWig-2.png
-    :alt: plot of chunk bigWig
 
-    plot of chunk bigWig
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 .. sourcecode:: r
     
 
     ### with super-enhancers. 
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/bigWig-3.png
-    :alt: plot of chunk bigWig
 
-    plot of chunk bigWig
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8' not found
+
+
 .. sourcecode:: r
     
 
     ### Split the copy number data into two objects - one for insertions & other for deletions.
     
     seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
+
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
-    seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
+    ## standard columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
+
+
+.. sourcecode:: r
     
+
+    seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
+    ## standard columns
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
     ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/bigWig-4.png
-    :alt: plot of chunk bigWig
 
-    plot of chunk bigWig
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+
+
 .. sourcecode:: r
     
 
     plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/bigWig-5.png
-    :alt: plot of chunk bigWig
 
-    plot of chunk bigWig
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+
+
 
 
 .. sourcecode:: r
@@ -287,17 +543,81 @@ Reading bigWig in gTrack
 
     ### Filtering broad events
     seg_data_chrom8_deletions2 <- seg_data_chrom8_deletions[Log2.Ratio >= -0.6]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
     seg_data_chrom8_insertions2 <- seg_data_chrom8_insertions[Log2.Ratio >= 0.6]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_insertions' not found
+
+
+.. sourcecode:: r
     
+
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
-    seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
+    ## standard columns
+
+
+
+::
+
+    ## Warning in is(segs, "data.table"): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
+
+
+.. sourcecode:: r
     
+
+    seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
+    ## standard columns
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/filter_broad_events-1.png
-    :alt: plot of chunk filter_broad_events
 
-    plot of chunk filter_broad_events
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+
+
 .. sourcecode:: r
     
 
@@ -305,18 +625,93 @@ Reading bigWig in gTrack
     
     ## Subset to MYC enhancer amplifications regions.
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data' not found
+
+
+.. sourcecode:: r
+    
+
     ## coerce data.table into GRanges because gTrack operates on GRanges. 
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
+    ## columns
+
+    ## Warning in dt2gr(seg_data_chrom8): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
+
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 10e6]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
+
     seg_data_chrom8_deletions <- seg_data_chrom8[Log2.Ratio <= 0, data_sign := "deletion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     seg_data_chrom8_insertions <- seg_data_chrom8[Log2.Ratio > 0, data_sign := "insertion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
-    
+
     seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
-    seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
     
+
+    seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8' not found
+
+
+.. sourcecode:: r
+    
+
     gray = 'gray20'
     gt.h3k36 = gTrack('~/DB/Roadmap/consolidated//E114-H3K36me3.pval.signal.bigwig', name = 'H3K36me3', bar = TRUE, col = gray)
     gt.h3k4 = gTrack('~/DB/Roadmap/consolidated//E114-H3K4me3.pval.signal.bigwig', name = 'H3K4me3', bar = TRUE, col = gray)
@@ -327,30 +722,108 @@ Reading bigWig in gTrack
     
     THRESH = 1
     seg_data_chrom8_deletions <- seg_data_chrom8_deletions[Log2.Ratio >= -THRESH]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
     seg_data_chrom8_insertions <- seg_data_chrom8_insertions[Log2.Ratio >= THRESH]
+
+
+::
+
+    ## Error in eval(expr, envir, enclos): object 'seg_data_chrom8_insertions' not found
+
+
+.. sourcecode:: r
+    
+
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
+    ## standard columns
+
+    ## Warning in dt2gr(seg_data_chrom8_insertions): restarting interrupted
+    ## promise evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_insertions' not found
+
+
+.. sourcecode:: r
+    
+
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+
+::
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
+    ## standard columns
+
+    ## Warning in dt2gr(seg_data_chrom8_deletions): restarting interrupted promise
+    ## evaluation
+
+
+
+::
+
+    ## Error in is(segs, "data.table"): object 'seg_data_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/filter_broad_events-2.png
-    :alt: plot of chunk filter_broad_events
 
-    plot of chunk filter_broad_events
+::
+
+    ## Error in listify(data, GRanges): object 'seg_ranges_chrom8_insertions' not found
+
+
 .. sourcecode:: r
     
 
     acov = as(coverage(seg_ranges_chrom8_insertions), 'GRanges')
-    dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
-    plot(c(gt.rnapos, gt.enh, gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
 
-.. figure:: figure/filter_broad_events-3.png
-    :alt: plot of chunk filter_broad_events
-
-    plot of chunk filter_broad_events
 
 ::
 
-    ## numeric(0)
+    ## Error in coverage(seg_ranges_chrom8_insertions): object 'seg_ranges_chrom8_insertions' not found
+
+
+.. sourcecode:: r
+    
+
+    dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
+
+
+::
+
+    ## Error in coverage(seg_ranges_chrom8_deletions): object 'seg_ranges_chrom8_deletions' not found
+
+
+.. sourcecode:: r
+    
+
+    plot(c(gt.rnapos, gt.enh, gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
+
+
+::
+
+    ## Error in listify(data, GRanges): object 'acov' not found
 
 
 
