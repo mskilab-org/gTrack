@@ -32,7 +32,7 @@ library(gTrack) ## main sauce.
 library(gUtils) ## for dt2gr 
 
 ## Load coverage data into data.table. Very fast, thanks data.table.
-..seg_data <- fread('../../inst/extdata/files/all_cancers.seg')
+## seg_data <- fread('../../inst/extdata/files/all_cancers.seg')
 
 ## Coerce into GRanges from data.table because gTrack operates on GRanges.
 ..seg_ranges <- dt2gr(seg_data)
