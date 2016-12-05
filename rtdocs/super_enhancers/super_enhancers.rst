@@ -66,3 +66,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 
 
 
+.. sourcecode:: r
+    
+
+    ## first MYC(myc) (s)uper-(e)nhancer.
+    myc_se <- parse.gr(c('8:129543949-129554294'))
+    
+    ## zoom into that region to view CNA.
+    win <- myc_se
+

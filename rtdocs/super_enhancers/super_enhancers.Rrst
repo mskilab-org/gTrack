@@ -46,4 +46,10 @@ library(gUtils) ## for dt2gr
 
 .. {r plot_MYC_enhancers}
 
+## first MYC(myc) (s)uper-(e)nhancer.
+..myc_se <- parse.gr(c('8:129543949-129554294'))
+
+## zoom into that region to view CNA.
+win <- myc_se
+
 .. .. 
