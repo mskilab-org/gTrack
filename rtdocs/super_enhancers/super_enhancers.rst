@@ -50,13 +50,18 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     
     ## coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+
+
+.. sourcecode:: r
     
+
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
 
-.. figure:: figure/starting_analysis-1.png
-    :alt: plot of chunk starting_analysis
+.. figure:: figure/starting_analysis_plot-1.png
+    :alt: plot of chunk starting_analysis_plot
 
-    plot of chunk starting_analysis
+    plot of chunk starting_analysis_plot
 
 
 

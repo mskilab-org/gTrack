@@ -45,9 +45,10 @@ library(gUtils) ## for dt2gr
 
 ## coerce into GRanges from data.table because gTrack operates on GRanges.
 ..seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+.. ..
 
+.. {r starting_analysis_plot, fig.width = 15} 
 ..plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
-
 .. .. 
 
 
