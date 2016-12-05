@@ -47,10 +47,15 @@ library(gUtils) ## for dt2gr
 ..seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 .. ..
 
-.. {r starting_analysis_plot, fig.width = 15, fig.height = 15} 
+.. {r starting_analysis_plot, fig.width = 15, fig.height = 15}
+## if you want the colors to be chosen automatically. 
 ..plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
 .. .. 
 
+.. {r starting_analysis_plot2, fig.width = 15, fig.height = 15}
+## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors.
+..plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))))
+.. ..
 
 .. {r plot_MYC_enhancers}
 ##############################                         ##############################
@@ -81,7 +86,5 @@ library(gUtils) ## for dt2gr
 
 ..seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
 ..seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
-
-
 .. .. 
 
