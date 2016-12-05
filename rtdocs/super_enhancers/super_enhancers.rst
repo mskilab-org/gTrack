@@ -22,9 +22,6 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/sample_info.txt
     
     gzip -d all_cancers.seg.gz
-    
-    ## command grouping to view some content of the files. 
-    head -1 all_cancers.seg & tail all_cancers.seg
 
 
 ::
