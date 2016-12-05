@@ -69,8 +69,8 @@ library(gUtils) ## for dt2gr
 ..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
 .. .. 
 
-Using parse.gr
-~~~~~~~~~~~~~~
+Using parse.gr (gUtils)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. {r plot_MYC_enhancers, fig.width = 15, fig.height = 15}
 ##############################                         ##############################
@@ -120,7 +120,7 @@ Using parse.gr
 
 ## There are more insertions than deletions.
 ..sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
-..length(sorted_ratios) ## 70K
+..length(sorted_ratios)
 
 #### -1 and 2
 ..seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
@@ -140,7 +140,7 @@ Reading bigWig in gTrack
 ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
 
 ## fold change.
-..plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434'))
+..plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig'), win = parse.gr('8:128635434-128941434'))
 
 ### store gencode genes.
 ..ge = track.gencode()
@@ -150,7 +150,7 @@ Reading bigWig in gTrack
 
 ..plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
 
-### with super-enhancers. 
+### plotting regions witout super-enhancers.
 ..plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128735434-129641434'))
 
 ### Split the copy number data into two objects - one for insertions & other for deletions.
@@ -162,8 +162,9 @@ Reading bigWig in gTrack
 ..seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
 
 ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
-..plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+..plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
+## view the density of insertions.
 ..plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 .. .. 
 
