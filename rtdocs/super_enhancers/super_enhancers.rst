@@ -213,33 +213,38 @@ Reading bigWig in gTrack
     ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
     
     ## fold change.
-    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = seg_ranges_chrom8)
-
-.. figure:: figure/bigWig-1.png
-    :alt: plot of chunk bigWig
-
-    plot of chunk bigWig
-.. sourcecode:: r
+    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434')))
     
-
     ### store gencode genes.
     ge = track.gencode()
-
-
-::
-
-    ## Pulling gencode annotations from /gpfs/commons/groups/imielinski_lab/lib/R-3.3.0/gTrack/extdata/gencode.composite.collapsed.rds
-
-
-.. sourcecode:: r
     
-
     ### Plot ENCODE, peak super-enhancer, and copy number data. 
     ### without super-enhancers.
     
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
+    
+    ### with super-enhancers. 
+    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128735434-129641434'))
+    
+    ### Split the copy number data into two objects - one for insertions & other for deletions.
+    
+    seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
+    seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
+    
+    seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
+    seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+    
+    ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
+    plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+    
+    plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/bigWig-2.png
-    :alt: plot of chunk bigWig
 
-    plot of chunk bigWig
+::
+
+    ## Error: <text>:4:130: unexpected ')'
+    ## 3: ## fold change.
+    ## 4: plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434')))
+    ##                                                                                                                                     ^
+
+
