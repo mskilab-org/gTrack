@@ -47,16 +47,7 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
-
-
-::
-
-    ## Warning in dt2gr(seg_data): coercing to GRanges via non-standard columns
-
-
-.. sourcecode:: r
     
-
     ## first glimpse (gotta know what the data looks like). Probably should zoom in before even starting.
 
 
@@ -95,13 +86,6 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 
 
-::
-
-    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
-    ## columns
-
-
-
 
 .. sourcecode:: r
     
@@ -114,8 +98,8 @@ Using dt2gr (gUtils) and y.field (gTrack) and gr.colorfield and colormaps
 
     plot of chunk starting_analysis_plot3
 
-Using parse.gr
-~~~~~~~~~~~~~~
+Using parse.gr (gUtils)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 
 .. sourcecode:: r
@@ -155,37 +139,6 @@ Using parse.gr
     ## it looks like both regions have focal insertions and deletions. 
     plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 27624 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 27624 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   8. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
-
 .. figure:: figure/plot_MYC_enhancers-3.png
     :alt: plot of chunk plot_MYC_enhancers
 
@@ -206,53 +159,7 @@ Using parse.gr
     
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
-    ## columns
-
-
-.. sourcecode:: r
-    
-
     plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 641 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 641 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   8. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
 
 .. figure:: figure/setting_thresholds-1.png
     :alt: plot of chunk setting_thresholds
@@ -273,7 +180,7 @@ Using parse.gr
     
     ## There are more insertions than deletions.
     sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
-    length(sorted_ratios) ## 70K
+    length(sorted_ratios)
 
 
 ::
@@ -287,53 +194,8 @@ Using parse.gr
     #### -1 and 2
     seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
     seg_ranges_chrom8_2 <- dt2gr(seg_data_chrom8_2)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_2): coercing to GRanges via non-standard
-    ## columns
-
-
-.. sourcecode:: r
     
-
     plot(gTrack(seg_ranges_chrom8_2, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8_2+10e6)
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 477 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 477 out-of-bound ranges located on
-    ##   sequence 8. Note that only ranges located on a non-circular
-    ##   sequence whose length is not NA can be considered out-of-bound
-    ##   (use seqlengths() and isCircular() to get the lengths and
-    ##   circularity flags of the underlying sequences). You can use trim()
-    ##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-    ##   information.
-
-
-
-::
-
-    ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-    ##   8. Note that only ranges located on a non-circular sequence whose
-    ##   length is not NA can be considered out-of-bound (use seqlengths()
-    ##   and isCircular() to get the lengths and circularity flags of the
-    ##   underlying sequences). You can use trim() to trim these ranges.
-    ##   See ?`trim,GenomicRanges-method` for more information.
-
 
 .. figure:: figure/random_fact-1.png
     :alt: plot of chunk random_fact
@@ -357,24 +219,7 @@ Reading bigWig in gTrack
     ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
     
     ## fold change.
-    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434'))
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
+    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig'), win = parse.gr('8:128635434-128941434'))
 
 .. figure:: figure/bigWig-1.png
     :alt: plot of chunk bigWig
@@ -400,27 +245,6 @@ Reading bigWig in gTrack
     
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
 
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
-
 .. figure:: figure/bigWig-2.png
     :alt: plot of chunk bigWig
 
@@ -428,29 +252,8 @@ Reading bigWig in gTrack
 .. sourcecode:: r
     
 
-    ### with super-enhancers. 
+    ### plotting regions witout super-enhancers.
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128735434-129641434'))
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
 
 .. figure:: figure/bigWig-3.png
     :alt: plot of chunk bigWig
@@ -465,52 +268,10 @@ Reading bigWig in gTrack
     seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
     
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
     
-
     ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
-    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
+    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
 .. figure:: figure/bigWig-4.png
     :alt: plot of chunk bigWig
@@ -519,6 +280,7 @@ Reading bigWig in gTrack
 .. sourcecode:: r
     
 
+    ## view the density of insertions.
     plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
 .. figure:: figure/bigWig-5.png
@@ -535,51 +297,9 @@ Reading bigWig in gTrack
     seg_data_chrom8_insertions2 <- seg_data_chrom8_insertions[Log2.Ratio >= 0.6]
     
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
     
-
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
 
 .. figure:: figure/filter_broad_events-1.png
     :alt: plot of chunk filter_broad_events
@@ -594,17 +314,7 @@ Reading bigWig in gTrack
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
     ## coerce data.table into GRanges because gTrack operates on GRanges. 
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
-    ## columns
-
-
-.. sourcecode:: r
     
-
     ## max width is 10MB. 
     seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 10e6]
     
@@ -627,51 +337,8 @@ Reading bigWig in gTrack
     seg_data_chrom8_deletions <- seg_data_chrom8_deletions[Log2.Ratio >= -THRESH]
     seg_data_chrom8_insertions <- seg_data_chrom8_insertions[Log2.Ratio >= THRESH]
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_insertions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
-    
-
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8_deletions): coercing to GRanges via non-
-    ## standard columns
-
-
-.. sourcecode:: r
-    
-
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
 
 .. figure:: figure/filter_broad_events-2.png
     :alt: plot of chunk filter_broad_events
@@ -683,27 +350,6 @@ Reading bigWig in gTrack
     acov = as(coverage(seg_ranges_chrom8_insertions), 'GRanges')
     dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
     plot(c(gt.rnapos, gt.enh, gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(query, subject, ...): seqlength mismatch .. no
-    ## worries, just letting you know
-
-
-
-::
-
-    ## Warning in gr.findoverlaps(gr, windows): seqlength mismatch .. no worries,
-    ## just letting you know
-
 
 .. figure:: figure/filter_broad_events-3.png
     :alt: plot of chunk filter_broad_events
