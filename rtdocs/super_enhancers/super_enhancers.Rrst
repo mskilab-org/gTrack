@@ -15,10 +15,10 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 ## was returned which stored the web path to the *.seg.gz file. I downloaded that and found
 ## that it stored the log2 ratios (tumor coverage / normal coverage).
 
-..wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/all_cancers.seg.gz
-..wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/sample_info.txt
+## wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/all_cancers.seg.gz
+## wget http://www.broadinstitute.org/igvdata/tcga/tcgascape/141024_update/sample_info.txt
 
-..gzip -d all_cancers.seg.gz
+## gzip -d all_cancers.seg.gz
 .. ..
 
 .. {r starting_analysis}
