@@ -83,9 +83,12 @@ library(gUtils) ## for dt2gr
 ..myc_se <- parse.gr(c('8:129166547-129190290'))
 ..win <- myc_se
 ..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
+
+## it looks like both regions have focal insertions and deletions. 
+..plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 .. ..
 
-.. {r setting_thresholds}
+.. {r setting_thresholds, fig.width = 15, fig.height = 15}
 ##############################                         ##############################
 
 ##############################    Setting Thresholds   ##############################
@@ -97,5 +100,40 @@ library(gUtils) ## for dt2gr
 
 ..seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
 ..seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+..plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 .. .. 
 
+.. {r random_fact}
+## explore data set for determining threshold for log2 ratio.
+
+##############################                         ##############################
+
+##############################       Random Fact       ##############################
+
+##############################                         ##############################
+
+## There are more insertions than deletions.
+..sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
+..length(sorted_ratios) ## 70K
+..tail(sorted_ratios, 37000) ## still positive.
+
+#### -1 and 2
+..seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
+..seg_ranges_chrom8_2 <- dt2gr(seg_data_chrom8_2)
+
+..plot(gTrack(seg_ranges_chrom8_2, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8_2+10e6)
+
+#############################                          ################################
+             # Not much of a change, will ignore setting thresholds for Log2.Ratio
+############################                           ################################
+.. .. 
+
+Reading bigWig in gTrack
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. {r bigWig, fig.width = 15, fig.height = 15 }
+## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
+
+## fold change.
+..plot(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = seg_ranges_chrom8)
+.. .. 
