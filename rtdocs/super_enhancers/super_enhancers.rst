@@ -56,6 +56,7 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 .. sourcecode:: r
     
 
+    ## if you want the colors to be chosen automatically. 
     plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
 
 .. figure:: figure/starting_analysis_plot-1.png
@@ -63,6 +64,17 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
 
     plot of chunk starting_analysis_plot
 
+
+.. sourcecode:: r
+    
+
+    ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors.
+    plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))))
+
+.. figure:: figure/starting_analysis_plot2-1.png
+    :alt: plot of chunk starting_analysis_plot2
+
+    plot of chunk starting_analysis_plot2
 
 
 .. sourcecode:: r
