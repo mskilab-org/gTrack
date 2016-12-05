@@ -79,10 +79,10 @@ library(gUtils) ## for dt2gr
 ..win <- myc_se
 ..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
-
 ## second MYC super-enhancer
 ..myc_se <- parse.gr(c('8:129166547-129190290'))
 ..win <- myc_se
+..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 .. ..
 
 .. {r setting_thresholds}
