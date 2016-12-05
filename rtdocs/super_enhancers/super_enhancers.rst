@@ -213,19 +213,49 @@ Reading bigWig in gTrack
     ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
     
     ## fold change.
-    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434')))
+    plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434'))
+
+.. figure:: figure/bigWig-1.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
+.. sourcecode:: r
     
+
     ### store gencode genes.
     ge = track.gencode()
+
+
+::
+
+    ## Pulling gencode annotations from /gpfs/commons/groups/imielinski_lab/lib/R-3.3.0/gTrack/extdata/gencode.composite.collapsed.rds
+
+
+.. sourcecode:: r
     
+
     ### Plot ENCODE, peak super-enhancer, and copy number data. 
     ### without super-enhancers.
     
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
+
+.. figure:: figure/bigWig-2.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
+.. sourcecode:: r
     
+
     ### with super-enhancers. 
     plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128735434-129641434'))
+
+.. figure:: figure/bigWig-3.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
+.. sourcecode:: r
     
+
     ### Split the copy number data into two objects - one for insertions & other for deletions.
     
     seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
@@ -236,15 +266,19 @@ Reading bigWig in gTrack
     
     ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
     plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
-    
-    plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
 
 ::
 
-    ## Error: <text>:4:130: unexpected ')'
-    ## 3: ## fold change.
-    ## 4: plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = parse.gr('8:128635434-128941434')))
-    ##                                                                                                                                     ^
+    ## Error in validObject(.Object): invalid class "gTrack" object: External file /gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig is not a valid and existing .bw / .bigwig file
 
 
+.. sourcecode:: r
+    
+
+    plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
+
+.. figure:: figure/bigWig-4.png
+    :alt: plot of chunk bigWig
+
+    plot of chunk bigWig
