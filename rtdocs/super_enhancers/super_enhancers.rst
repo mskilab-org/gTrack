@@ -83,10 +83,17 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
 
 
-..{ starting_analysis_plot3, fig.width = 15, fig.height = 15}
-## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors. 
-..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
-.. .. 
+
+.. sourcecode:: r
+    
+
+    ## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors. 
+    plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
+
+.. figure:: figure/starting_analysis_plot3-1.png
+    :alt: plot of chunk starting_analysis_plot3
+
+    plot of chunk starting_analysis_plot3
 
 
 .. sourcecode:: r
