@@ -103,7 +103,7 @@ library(gUtils) ## for dt2gr
 ..plot(gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8+10e6)
 .. .. 
 
-.. {r random_fact}
+.. {r random_fact, fig.width = 15, fig.height = 15}
 ## explore data set for determining threshold for log2 ratio.
 
 ##############################                         ##############################
@@ -115,7 +115,6 @@ library(gUtils) ## for dt2gr
 ## There are more insertions than deletions.
 ..sorted_ratios <- sort(seg_data_chrom8$'Log2.Ratio')
 ..length(sorted_ratios) ## 70K
-..tail(sorted_ratios, 37000) ## still positive.
 
 #### -1 and 2
 ..seg_data_chrom8_2 <- seg_data_chrom8[Log2.Ratio >= -1 & Log2.Ratio <= 2]
@@ -135,5 +134,14 @@ Reading bigWig in gTrack
 ## bigWig downloaded from https://www.encodeproject.org/experiments/ENCSR000AUI/
 
 ## fold change.
-..plot(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = seg_ranges_chrom8)
+..plot(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), win = seg_ranges_chrom8)
+
+### store gencode genes.
+..ge = track.gencode()
+
+### Plot ENCODE, peak super-enhancer, and copy number data. 
+### without super-enhancers.
+
+..plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green'), gTrack(seg_ranges_chrom8, colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), ge), win = parse.gr('8:128635434-128941434'))
+
 .. .. 
