@@ -66,7 +66,7 @@ library(gUtils) ## for dt2gr
 ..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
 .. .. 
 
-.. {r plot_MYC_enhancers}
+.. {r plot_MYC_enhancers, fig.width = 15, fig.height = 15}
 ##############################                         ##############################
 
 ##############################    Plot MYC Enhancers   ##############################
@@ -77,6 +77,8 @@ library(gUtils) ## for dt2gr
 ..myc_se <- parse.gr(c('8:129543949-129554294'))
 ## zoom into that region to view CNA.
 ..win <- myc_se
+..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
+
 
 ## second MYC super-enhancer
 ..myc_se <- parse.gr(c('8:129166547-129190290'))
