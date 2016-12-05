@@ -45,11 +45,7 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
     
-    ## Subset to MYC enhancer amplification regions.
-    seg_data_chrom8 <- seg_data[ Chromosome == 8]
-    
-    ## coerce into GRanges from data.table because gTrack operates on GRanges.
-    seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+    ## first glimpse (gotta know what the data looks like). Probably should zoom in before even starting.
 
 
 
@@ -75,6 +71,22 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     :alt: plot of chunk starting_analysis_plot2
 
     plot of chunk starting_analysis_plot2
+
+
+.. sourcecode:: r
+    
+
+    ## Subset to MYC enhancer amplification regions.
+    seg_data_chrom8 <- seg_data[ Chromosome == 8]
+    
+    ## coerce into GRanges from data.table because gTrack operates on GRanges.
+    seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+
+..{ starting_analysis_plot3, fig.width = 15, fig.height = 15}
+## if you want to manually set the colors. Better because red/blue can be chosen instead of some random colors. 
+..plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win = seg_ranges_chrom8)
+.. .. 
 
 
 .. sourcecode:: r
