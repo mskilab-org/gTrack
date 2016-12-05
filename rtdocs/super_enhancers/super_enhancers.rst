@@ -39,6 +39,9 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## Load coverage data into data.table. Very fast, thanks data.table.
     ## seg_data <- fread('../../inst/extdata/files/all_cancers.seg')
     
+    seg_data[Log2.Ratio <= 0, data_sign := "deletion"]
+    seg_data[Log2.Ratio > 0, data_sign := "insertion"]
+    
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
     
@@ -47,15 +50,49 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     
     ## coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+    
+    plot(gTrack(seg_ranges, y.field = 'Log2.Ratio', gr.colorfield = 'data_sign'))
+
+.. figure:: figure/starting_analysis-1.png
+    :alt: plot of chunk starting_analysis
+
+    plot of chunk starting_analysis
 
 
 
 .. sourcecode:: r
     
 
+    ##############################                         ##############################
+    
+    ##############################    Plot MYC Enhancers   ##############################
+    
+    ##############################                         ##############################
+    
     ## first MYC(myc) (s)uper-(e)nhancer.
     myc_se <- parse.gr(c('8:129543949-129554294'))
-    
     ## zoom into that region to view CNA.
     win <- myc_se
+    
+    ## second MYC super-enhancer
+    myc_se <- parse.gr(c('8:129166547-129190290'))
+    win <- myc_se
+
+
+
+.. sourcecode:: r
+    
+
+    ##############################                         ##############################
+    
+    ##############################    Setting Thresholds   ##############################
+    
+    ##############################                         ##############################
+    
+    ## max width is 50MB to remove very broad copy number changes.
+    ## min width is 20KB to exclude artifacts.
+    
+    seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 30e3]
+    seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
 
