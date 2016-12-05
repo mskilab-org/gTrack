@@ -265,20 +265,18 @@ Reading bigWig in gTrack
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
     
     ### with super-enhancers & gencode & ChIP-seq & insertions/deletions split.
-    plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
+.. figure:: figure/bigWig-4.png
+    :alt: plot of chunk bigWig
 
-::
-
-    ## Error in validObject(.Object): invalid class "gTrack" object: External file /gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig is not a valid and existing .bw / .bigwig file
-
-
+    plot of chunk bigWig
 .. sourcecode:: r
     
 
     plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 
-.. figure:: figure/bigWig-4.png
+.. figure:: figure/bigWig-5.png
     :alt: plot of chunk bigWig
 
     plot of chunk bigWig
@@ -294,14 +292,12 @@ Reading bigWig in gTrack
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
     
-    plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
+.. figure:: figure/filter_broad_events-1.png
+    :alt: plot of chunk filter_broad_events
 
-::
-
-    ## Error in validObject(.Object): invalid class "gTrack" object: External file /gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig is not a valid and existing .bw / .bigwig file
-
-
+    plot of chunk filter_broad_events
 .. sourcecode:: r
     
 
@@ -334,25 +330,27 @@ Reading bigWig in gTrack
     seg_data_chrom8_insertions <- seg_data_chrom8_insertions[Log2.Ratio >= THRESH]
     seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
     seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
-    plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+    plot(c(gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
 
+.. figure:: figure/filter_broad_events-2.png
+    :alt: plot of chunk filter_broad_events
 
-::
-
-    ## Error in validObject(.Object): invalid class "gTrack" object: External file /gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig is not a valid and existing .bw / .bigwig file
-
-
+    plot of chunk filter_broad_events
 .. sourcecode:: r
     
 
     acov = as(coverage(seg_ranges_chrom8_insertions), 'GRanges')
     dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
-    plot(c(gt.rnapos, gt.enh, gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
+    plot(c(gt.rnapos, gt.enh, gTrack('~/my_git_packages/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
 
+.. figure:: figure/filter_broad_events-3.png
+    :alt: plot of chunk filter_broad_events
+
+    plot of chunk filter_broad_events
 
 ::
 
-    ## Error in validObject(.Object): invalid class "gTrack" object: External file /gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig is not a valid and existing .bw / .bigwig file
+    ## numeric(0)
 
 
 
