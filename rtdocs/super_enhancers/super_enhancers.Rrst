@@ -160,3 +160,52 @@ Reading bigWig in gTrack
 
 ..plot(gTrack(seg_ranges_chrom8_insertions, y.field = "Log2.Ratio", col = "blue"), win = parse.gr('8:128735434-129641434'))
 .. .. 
+
+.. {r filter_broad_events, fig.width = 15, fig.height = 15}
+### Filtering broad events
+..seg_data_chrom8_deletions2 <- seg_data_chrom8_deletions[Log2.Ratio >= -0.6]
+..seg_data_chrom8_insertions2 <- seg_data_chrom8_insertions[Log2.Ratio >= 0.6]
+
+..seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
+..seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+
+..plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+
+### Replicable pipeline
+
+## Subset to MYC enhancer amplifications regions.
+..seg_data_chrom8 <- seg_data[ Chromosome == 8]
+## coerce data.table into GRanges because gTrack operates on GRanges. 
+..seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
+
+..seg_data_chrom8 <- seg_data_chrom8[End.bp - Start.bp <= 10e6]
+
+..seg_data_chrom8_deletions <- seg_data_chrom8[Log2.Ratio <= 0, data_sign := "deletion"]
+..seg_data_chrom8_insertions <- seg_data_chrom8[Log2.Ratio > 0, data_sign := "insertion"]
+
+
+..seg_data_chrom8_insertions <- seg_data_chrom8[data_sign == "insertion"]
+..seg_data_chrom8_deletions <- seg_data_chrom8[data_sign == "deletion"]
+
+..gray = 'gray20'
+..gt.h3k36 = gTrack('~/DB/Roadmap/consolidated//E114-H3K36me3.pval.signal.bigwig', name = 'H3K36me3', bar = TRUE, col = gray)
+..gt.h3k4 = gTrack('~/DB/Roadmap/consolidated//E114-H3K4me3.pval.signal.bigwig', name = 'H3K4me3', bar = TRUE, col = gray)
+..gt.enh = gTrack('~/DB/Roadmap/consolidated//E114-H3K27ac.pval.signal.bigwig', name = 'H3K27Ac', bar = TRUE, col = gray)
+..gt.open = gTrack('~/DB/Roadmap/consolidated//E114-DNase.pval.signal.bigwig', name = 'DNAase', bar = TRUE, col = gray)
+..gt.rnapos = gTrack('~/DB/Roadmap/consolidated/E114.A549.norm.pos.bw', name = 'RNAseq+', bar = TRUE, col = gray)
+..gt.rnaneg = gTrack('~/DB/Roadmap/consolidated/E114.A549.norm.neg.bw', name = 'RNAseq-', bar = TRUE, col = gray, y0 = 0, y1 = 1200)
+
+..THRESH = 1
+..seg_data_chrom8_deletions <- seg_data_chrom8_deletions[Log2.Ratio >= -THRESH]
+..seg_data_chrom8_insertions <- seg_data_chrom8_insertions[Log2.Ratio >= THRESH]
+..seg_ranges_chrom8_insertions <- dt2gr(seg_data_chrom8_insertions)
+..seg_ranges_chrom8_deletions <- dt2gr(seg_data_chrom8_deletions)
+..plot(c(gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))
+
+..acov = as(coverage(seg_ranges_chrom8_insertions), 'GRanges')
+..dcov = as(coverage(seg_ranges_chrom8_deletions), 'GRanges')
+..plot(c(gt.rnapos, gt.enh, gTrack('/gpfs/commons/home/knagdimov/super_enhancers/db/ENCFF038AQV.bigWig', color = 'green', bar = TRUE), gTrack(acov, 'score', bar = TRUE), gTrack(dcov, 'score', bar = TRUE),  gTrack(seg_ranges_chrom8_insertions, col = "blue"), gTrack(seg_ranges_chrom8_deletions, col = "red"), ge), win = parse.gr('8:128735434-129641434'))+1e6
+
+.. ..
+
+
