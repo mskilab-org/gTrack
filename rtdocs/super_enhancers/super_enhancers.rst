@@ -121,7 +121,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     ## second MYC super-enhancer
     myc_se <- parse.gr(c('8:129166547-129190290'))
     win <- myc_se
+    plot(gTrack(seg_ranges_chrom8, y.field = 'Log2.Ratio', colormaps = list('data_sign' = c(insertion = "blue", deletion = "red"))), win)
 
+.. figure:: figure/plot_MYC_enhancers-2.png
+    :alt: plot of chunk plot_MYC_enhancers
+
+    plot of chunk plot_MYC_enhancers
 
 
 .. sourcecode:: r
