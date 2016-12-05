@@ -41,28 +41,12 @@ To illustrate gTrack's capability in exploring data sets such as ChiP-Seq data
     
     ## Coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges <- dt2gr(seg_data)
-
-
-::
-
-    ## Warning in dt2gr(seg_data): coercing to GRanges via non-standard columns
-
-
-.. sourcecode:: r
     
-
     ## Subset to MYC enhancer amplification regions.
     seg_data_chrom8 <- seg_data[ Chromosome == 8]
     
     ## coerce into GRanges from data.table because gTrack operates on GRanges.
     seg_ranges_chrom8 <- dt2gr(seg_data_chrom8)
-
-
-::
-
-    ## Warning in dt2gr(seg_data_chrom8): coercing to GRanges via non-standard
-    ## columns
-
 
 
 
