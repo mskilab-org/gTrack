@@ -24,7 +24,7 @@ draw.grl(grl, y = NULL, ylim = NULL, ywid = NULL, edges = NULL,
   path.col = "black", path.col.arrow = "black", path.cex.arrow = 1,
   path.stack.y.gap = 1, path.stack.x.gap = 0, path.cex.v = 1,
   path.cex.h = 1, draw.backbone = NULL, xlim = c(0, 20000), points = NA,
-  circles = F, bars = F, y0.bar = NULL, lines = F, angle,
+  circles = FALSE, bars = FALSE, y0.bar = NULL, lines = F, angle,
   verbose = FALSE, triangle = FALSE, ylim.parent = NULL,
   legend.params = list(plot = TRUE), bg.col = "white", ...)
 }
