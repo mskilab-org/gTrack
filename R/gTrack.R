@@ -1266,12 +1266,12 @@ setMethod('plot', c("gTrack","ANY"),
 
   if (is.null(formatting(.Object)$track.name))
   {
-      if (is.null(formatting(.Object)$name))
+      if (!is.null(formatting(.Object)$name))
           formatting(.Object)$track.name = formatting(.Object)$name
       else
           formatting(.Object)$track.name = NA
   }
-  
+
   has.colormap = sapply(colormap(.Object), length)>0
   has.colorfield = !is.na(formatting(.Object)$gr.colorfield)
   formatting(.Object)$legend = formatting(.Object)$legend == TRUE & (has.colormap | has.colorfield)
@@ -1453,8 +1453,12 @@ setMethod('plot', c("gTrack","ANY"),
       }
 
       if (!is.null(tmp.dat$ywid)) ## remove any weird infinite ywids
-        if (any(ix <- is.infinite(tmp.dat$ywid)))
-          tmp.dat$ywid[ix] = NA
+          {
+              if (any(ix <- is.infinite(tmp.dat$ywid)))
+                  tmp.dat$ywid[ix] = NA
+          }
+      else
+          tmp.dat$ywid = NA
 
       if (is.null(range.y)) ## if y range is empty then pull from data
         range.y = range(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T);
@@ -1503,6 +1507,12 @@ setMethod('plot', c("gTrack","ANY"),
       ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)
     }
 
+    if (is.null(.Object[j]$bars))
+        formatting(.Object)$bars[j] = FALSE
+    else if (is.na(.Object[j]$bars))
+        formatting(.Object)$bars[j] = FALSE   
+    
+    
     if (.Object[j]$bars && is.na(all.args$y0.bar))
         all.args$y0.bar = this.ylim.subplot[j, 1]
 
@@ -2717,8 +2727,8 @@ draw.grl = function(grl,
                     draw.backbone = NULL,
                     xlim = c(0, 20000), # xlim of canvas
                     points = NA, ## if non NA then will draw a given point with pch style
-                    circles = F, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
-                    bars = F,
+                    circles = FALSE, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
+                    bars = FALSE,
                     y0.bar = NULL,
                     lines = F,
                     angle, # angle of barbs to indicate directionality of ranges
@@ -2732,6 +2742,16 @@ draw.grl = function(grl,
   now = Sys.time();
   ylim.subplot = NULL
   empty.plot = FALSE
+
+  ## last minute defaults (patch)
+  if (is.na(xaxis.width))
+      xaxis.width = TRUE
+
+  if (is.na(xaxis.chronly))
+      xaxis.chronly = FALSE
+  
+  if (is.na(xaxis.label.angle))
+      xaxis.label.angle = 0
 
   if (length(grl)>0)
   {
