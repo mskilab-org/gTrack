@@ -3297,6 +3297,18 @@ draw.grl = function(grl,
         xaxis.pos.label = xaxis.pos - 0.04*diff(ylim)
     }
 
+    if (is.na(sep.draw))        
+        sep.draw = TRUE;
+
+    if (is.na(xaxis.width))        
+        xaxis.width = TRUE;
+    
+    if (is.na(sep.lwd))
+        sep.lwd = 1;
+
+    if (is.na(sep.lty))
+        sep.lty = 2;
+    
         if (sep.draw && length(windows)>1)
         {
           #rect(window.segs$end[1:(nrow(window.segs)-1)], rep(ylim[1], nrow(window.segs)-1),
@@ -3356,8 +3368,17 @@ draw.grl = function(grl,
             else
               width.text = paste('(', prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
                                                        width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','),  ')', sep = '')
-          }
+        }
+          
+          if (is.na(xaxis.unit))
+              xaxis.unit = 1
 
+          if (is.na(xaxis.round))
+              xaxis.round = 3
+
+          if (is.na(newline))
+              newline = '\n'
+          
           begin.text = prettyNum(pmax(floor(1/xaxis.unit),
                                       ifelse(rep(xaxis.unit == 1, length(windows)), start(windows), round(start(windows)/xaxis.unit, xaxis.round))),
                                  big.mark = ',')
@@ -3365,17 +3386,23 @@ draw.grl = function(grl,
           end.text = prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)), end(windows),
                                       round(end(windows)/xaxis.unit, xaxis.round)), big.mark = ',')
 
+          if (is.na(xaxis.label.angle))
+              xaxis.label.angle = 0
+
+          if (is.na(xaxis.chronly))        
+              xaxis.chronly = FALSE;
+          
           if (!xaxis.chronly) {
             text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
                  paste(xaxis.prefix, ' ',  seqnames(windows), ':',newline,
                        begin.text,'-', newline,
                        end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
-                 cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
+                 cex = xaxis.cex.label*0.8, adj = c(0.5, 0), srt=xaxis.label.angle)
           } else {
             text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
                  paste(xaxis.prefix, ' ',  seqnames(windows),
                        sep = ''),
-                 cex = xaxis.cex.label*0.8, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
+                 cex = xaxis.cex.label*0.8, adj = c(0.5, 0), srt=xaxis.label.angle)
           }
         }
   }
