@@ -13,4 +13,3 @@ Function to plot color bar
 http://stackoverflow.com/questions/9314658/colorbar-from-custom-colorramppalette
 }
 \keyword{internal}
-

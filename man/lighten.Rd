@@ -15,4 +15,3 @@ lightens / darkens colors by brighness factor f (in -255 .. 255) that will make 
 Marcin Imielinski
 }
 \keyword{internal}
-

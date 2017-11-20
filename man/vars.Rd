@@ -14,4 +14,3 @@ Get variants associated with track
 Marcin Imielinski
 }
 \keyword{internal}
-

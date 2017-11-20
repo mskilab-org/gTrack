@@ -17,4 +17,3 @@ Display a \code{gTrack} object
 \author{
 Marcin Imielinski
 }
-

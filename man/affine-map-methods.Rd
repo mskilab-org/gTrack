@@ -23,4 +23,3 @@ if cap.max or cap.min == T then values outside of the range will be capped at mi
 Marcin Imielinski
 }
 \keyword{internal}
-

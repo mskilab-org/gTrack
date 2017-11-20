@@ -34,4 +34,3 @@ nsteps determines how many segments used to approximate the curve
 all args except nsteps can be vecorized
 }
 \keyword{internal}
-

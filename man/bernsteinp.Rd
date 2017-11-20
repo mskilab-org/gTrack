@@ -22,4 +22,3 @@ an m x 2 matrix of m equally spaced points along the curve
 Marcin Imielinski
 }
 \keyword{internal}
-

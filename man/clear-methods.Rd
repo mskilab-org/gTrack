@@ -21,4 +21,3 @@ clear(gTrack)
 \author{
 Marcin Imielinski
 }
-

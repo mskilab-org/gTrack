@@ -23,4 +23,3 @@ colormap(gt)
 \author{
 Marcin Imielinski
 }
-

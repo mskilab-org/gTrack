@@ -5,9 +5,10 @@
 \title{draw.triangle}
 \usage{
 draw.triangle(grl, mdata, y, ylim.parent = NULL, windows = NULL,
-  win.gap = NULL, m.bg.col, sigma = NA, col.min = "white",
-  col.max = "red", gr.colormap = NA, cmap.min, cmap.max, m.sep.lwd,
-  leg.params, min.gapwidth = 1, islog = FALSE)
+  win.gap = NULL, m.bg.col = NA, sigma = NA, col.min = "white",
+  col.max = "red", gr.colormap = NA, cmap.min = NA, cmap.max = NA,
+  m.sep.lwd = NA, legend = TRUE, leg.params = list(), min.gapwidth = 1,
+  islog = FALSE)
 }
 \description{
 internal draw.triangle function
@@ -16,4 +17,3 @@ internal draw.triangle function
 Jeremiah Wala
 }
 \keyword{internal}
-

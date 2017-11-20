@@ -26,4 +26,3 @@ edgs(gt)[[1]] <- new.edges.
 \author{
 Marcin Imielinski
 }
-

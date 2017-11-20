@@ -19,4 +19,3 @@ length(gt)
 \author{
 Marcin Imielinski
 }
-

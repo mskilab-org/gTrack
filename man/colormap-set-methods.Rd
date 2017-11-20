@@ -23,4 +23,3 @@ to a set of colors.
 usage:
 colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
 }
-

@@ -24,4 +24,3 @@ reduce(gt) # outputs a GRanges
 \author{
 Marcin Imielinski
 }
-
