@@ -3462,6 +3462,7 @@ draw.grl = function(grl,
 
         draw_x_ticks(xaxis.interval, windows, mapped, winlim, xlim, ylim, xaxis.pos, xaxis.suffix, xaxis.unit, xaxis.cex.tick, xaxis.ticklen, xaxis.round)
         
+
           # then (label) text
         newline <- ifelse(xaxis.newline, '\n', '')
         
@@ -3472,6 +3473,7 @@ draw.grl = function(grl,
                 width.text = paste('(', paste(prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
                                                                width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','), xaxis.suffix),  ')', sep = '')
             else
+
                 width.text = paste('(', prettyNum(ifelse(rep(xaxis.unit == 1, length(windows)),
                                                          width(windows), round(width(windows)/xaxis.unit, 2)), big.mark = ','),  ')', sep = '')
         }
@@ -3488,6 +3490,7 @@ draw.grl = function(grl,
                  paste(xaxis.prefix, ' ',  seqnames(windows), ':',newline,
                        begin.text,'-', newline,
                        end.text, ' ', xaxis.suffix, newline, width.text, sep = ''),
+
                  cex = xaxis.cex.label*0.7, srt = 0, adj = c(0.5, 0), srt=xaxis.label.angle)
         } else {
             text(rowMeans(window.segs[, c('start', 'end')]), rep(xaxis.pos.label, nwin),
