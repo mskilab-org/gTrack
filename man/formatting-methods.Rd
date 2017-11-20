@@ -24,4 +24,3 @@ If you want to access particular fields of the formatting data.frame, just use t
 \author{
 Marcin Imielinski
 }
-

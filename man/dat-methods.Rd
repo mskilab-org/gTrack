@@ -23,4 +23,3 @@ dat(gt)
 \author{
 Marcin Imielinski
 }
-

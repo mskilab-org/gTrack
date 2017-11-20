@@ -10,4 +10,3 @@ readData(..., environment = NULL)
 utility function to load data files into variables
 }
 \keyword{internal}
-

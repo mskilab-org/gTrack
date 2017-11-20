@@ -13,4 +13,3 @@ Clip polygons
 Jeremiah Wala
 }
 \keyword{internal}
-

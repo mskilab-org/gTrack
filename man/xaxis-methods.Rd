@@ -23,4 +23,3 @@ formatting the x-axis
 \author{
 Jeremiah Wala
 }
-

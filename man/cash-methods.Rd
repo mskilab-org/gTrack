@@ -19,4 +19,3 @@ Accessing columns of gTrack formatting data.frame
 \author{
 Marcin Imielinski
 }
-

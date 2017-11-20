@@ -13,4 +13,3 @@ blend(cols)
 Blends colors
 }
 \keyword{internal}
-

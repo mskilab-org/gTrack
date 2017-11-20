@@ -23,4 +23,3 @@ formatting the windows and their separators
 \author{
 Jeremiah Wala
 }
-

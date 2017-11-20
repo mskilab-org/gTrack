@@ -22,4 +22,3 @@ Relabels duplicates in a character vector with .1, .2, .3
 (where "." can be replaced by any user specified suffix)
 }
 \keyword{internal}
-
