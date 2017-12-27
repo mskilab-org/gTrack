@@ -2125,7 +2125,7 @@ track.gencode = function(gencode = NULL,
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
-  labels.suppress.gr = T,
+  labels.suppress.gr = FALSE,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
   ...)
