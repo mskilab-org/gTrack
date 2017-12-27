@@ -21,4 +21,3 @@ seqinfo(gt)
 \author{
 Marcin Imielinski
 }
-

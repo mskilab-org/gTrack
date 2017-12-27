@@ -22,4 +22,3 @@ c(gt1, gt2, gt3) # returns a gTrack object with the component tracks "stacked"
 \author{
 Marcin Imielinski
 }
-

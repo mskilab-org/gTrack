@@ -3,8 +3,8 @@
 \docType{methods}
 \name{mdata}
 \alias{mdata}
-\alias{mdata,gTrack,ANY,ANY,ANY-method}
 \alias{mdata,gTrack-method}
+\alias{mdata,gTrack,ANY,ANY,ANY-method}
 \title{mdata}
 \usage{
 mdata(x, igr = NULL, jgr = NULL)
@@ -27,4 +27,3 @@ mdata(gt, igr, jgr)
 \author{
 Jeremiah Wala
 }
-

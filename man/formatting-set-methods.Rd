@@ -25,4 +25,3 @@ formatting(td)$height <- 2
 #can also just use $ directly, like for a data frame, which is more convenient
 td$height <- 2
 }
-

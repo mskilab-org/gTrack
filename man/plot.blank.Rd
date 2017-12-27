@@ -16,4 +16,3 @@ Shortcut for making blank plot with no axes
 Marcin Imielinski
 }
 \keyword{internal}
-

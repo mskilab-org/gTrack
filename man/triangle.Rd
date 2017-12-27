@@ -13,4 +13,3 @@ internal draw.triangle function
 Marcin Imielinski
 }
 \keyword{internal}
-

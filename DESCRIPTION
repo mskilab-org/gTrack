@@ -11,7 +11,9 @@ Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
 Depends:
     R (>= 3.1.0),
-    GenomicRanges (>= 1.8)
+    GenomicRanges (>= 1.8),
+    data.table,
+    Matrix
 Imports:
     IRanges (>= 2.0),
     S4Vectors (>= 0.4),
@@ -20,13 +22,14 @@ Imports:
     RColorBrewer,
     data.table,
     methods,
+    Rcpp,
     rtracklayer,
     BiocGenerics
+LinkingTo: Rcpp
 License: GPL-2
 LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests:
     testthat,
     spatstat
-    

@@ -21,4 +21,3 @@ underlying GRanges object $from, $to and additional formats $col $lwd $lty
 usage:
 edgs(gt)
 }
-

@@ -24,4 +24,3 @@ and end of last on existing plot
 Marcin Imielinski
 }
 \keyword{internal}
-

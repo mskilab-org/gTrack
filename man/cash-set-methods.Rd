@@ -26,4 +26,3 @@ gt$gr.colorfield[1] = 'readtype'
 \author{
 Marcin Imielinski
 }
-

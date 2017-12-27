@@ -19,4 +19,3 @@ Values below and above val.min and val.max are mapped to col.max and col.max res
 Marcin Imielinski
 }
 \keyword{internal}
-
