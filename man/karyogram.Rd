@@ -24,4 +24,3 @@ Returns gTrack displaying band pattern for hg18 or hg19 karyotype
 \author{
 Marcin Imielinski
 }
-

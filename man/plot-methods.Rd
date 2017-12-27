@@ -46,4 +46,3 @@ display(gt, '2', links = ra) # here, the entire chromosome 2 is shown, with rear
 \author{
 Marcin Imielinski, Jeremiah Wala
 }
-

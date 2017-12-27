@@ -15,4 +15,3 @@ Takes and returns segs data frame standardized to a single format (ie $chr, $pos
 if chr = TRUE will ensure "chr" prefix is added to chromossome(if does not exist)
 }
 \keyword{internal}
-

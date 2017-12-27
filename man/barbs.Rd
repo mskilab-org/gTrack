@@ -23,4 +23,3 @@ Note: the shape will NOT be necessarily contained inside the box outlined by x0,
 Marcin Imielinski
 }
 \keyword{internal}
-

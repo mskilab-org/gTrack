@@ -2,9 +2,9 @@
 % Please edit documentation in R/gTrack.R
 \docType{methods}
 \name{seqinfo<-}
-\alias{seqinfo,gTrack-method}
 \alias{seqinfo<-}
 \alias{seqinfo<-,gTrack-method}
+\alias{seqinfo,gTrack-method}
 \title{seqinfo,-}
 \usage{
 seqinfo(.Object) <- value
@@ -22,4 +22,3 @@ set seqinfo property of gTrack
 \author{
 Marcin Imielinski
 }
-

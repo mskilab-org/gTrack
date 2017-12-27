@@ -33,4 +33,3 @@ $grl.segs = data frame of input gr's "lifted" onto new flattened coordinate spac
 $window.segs = the coordinates of input windows in the new flattened (and squeezed) space
 }
 \keyword{internal}
-

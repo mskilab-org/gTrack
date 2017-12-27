@@ -20,4 +20,3 @@ Makes a lot of brewer colors using entire brewer palette
 Marcin Imielinski
 }
 \keyword{internal}
-

@@ -13,4 +13,3 @@ internal draw.triangle function
 Jeremiah Wala
 }
 \keyword{internal}
-

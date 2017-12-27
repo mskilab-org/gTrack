@@ -24,4 +24,3 @@ Return the portion of the gTrack
 \author{
 Jeremiah Wala
 }
-
