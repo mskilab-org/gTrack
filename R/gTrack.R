@@ -26,7 +26,7 @@
 #' @author Marcin Imielinski
 #' @importFrom methods setClass setGeneric setMethod setRefClass
 #' @import rtracklayer 
-#' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
+#' @importFrom gUtils grl.unlist si2gr gr.bind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
@@ -749,7 +749,7 @@ setMethod('reduce', 'gTrack', function(x, ... )
   if (length(x)==1)
     return(reduce(.dat2gr(x@data[[1]]), ...))
   else
-    return(reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
+    return(reduce(do.call('gr.bind', lapply(x@data, .dat2gr)), ... ))
 })
 
 #uppressWarnings(removeMethod('seqinfo', 'gTrack')) ## takes care of stupid R 2.15 bug
@@ -1813,10 +1813,10 @@ setMethod('plot', c("gTrack","ANY"),
     }
 
     if (length(l1)>0)
-      l.unpaired = grbind(l.unpaired, l1[setdiff(1:length(l1), p1)])
+      l.unpaired = gr.bind(l.unpaired, l1[setdiff(1:length(l1), p1)])
 
     if (length(l2)>0)
-      l.unpaired = grbind(l.unpaired, l2[setdiff(1:length(l2), p2)])
+      l.unpaired = gr.bind(l.unpaired, l2[setdiff(1:length(l2), p2)])
 
     if (length(l.unpaired)>0)
     {
@@ -2420,7 +2420,7 @@ track.gencode = function(gencode = NULL,
 #                 if (!is.null(ex))
 #                     {
 #                         old.ex = ex;
-#                         ex = sort(unique(gUtils::grbind(ex, new.ex)))
+#                         ex = sort(unique(gUtils::gr.bind(ex, new.ex)))
 #                         if (verbose)
 #                             cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
 #                     }
@@ -3106,7 +3106,7 @@ draw.grl = function(grl,
                         GenomicRanges::strand(var.gr) = GenomicRanges::strand(gr)[var.gr$og.ix]
                                         #          var.gr$group = as.numeric(as.character(gr$group[var.gr$og.ix]))
 
-                        new.gr = grbind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
+                        new.gr = gr.bind(new.gr, var.gr, gr[setdiff(1:length(gr), var.gr$grl.ix)])
                         new.gr$grl.iix = as.numeric(gr$grl.iix[new.gr$og.ix])
                         new.ord = mapply(function(x, y, z) if (y[1]) x[order(z)] else rev(x[order(z)]),
                             split(1:length(new.gr), new.gr$og.ix), split(as.logical(GenomicRanges::strand(new.gr)=='+'), new.gr$og.ix), split(start(new.gr), new.gr$og.ix))
@@ -3115,12 +3115,12 @@ draw.grl = function(grl,
 
                         gr = new.gr[order(new.gr$group, new.gr$grl.iix), ]
                     }
-                gr = grbind(gr, var.gr)
+                gr = gr.bind(gr, var.gr)
             }
 
         else
         {
-          gr = grbind(gr, var.gr)
+          gr = gr.bind(gr, var.gr)
         }
       }
 
