@@ -218,27 +218,25 @@ test_that('gTrack(), col', {
 
 
 
-test_that("lwd", {
-    graph$lwd = 1.844941
-    plot(gTrack(gr, edges = graph, stack.gap = 5))
-})
+#test_that("lwd", {
+#    graph$lwd = 1.844941
+#    plot(gTrack(gr, edges = graph, stack.gap = 5))
+#})
 
-test_that("lty", {
-    graph$lty = c(1,2,3)
-    plot(gTrack(gr , edges = graph , stack.gap = 5))
-})
+#test_that("lty", {
+#    graph$lty = c(1,2,3)
+#    plot(gTrack(gr , edges = graph , stack.gap = 5))
+#})
 
-test_that("h", {
-    graph$h = 10 
-    plot(gTrack(gr , edges = graph , stack.gap = 5))
-})
+#test_that("h", {
+#    graph$h = 10 
+#    plot(gTrack(gr , edges = graph , stack.gap = 5))
+#})
 
-
-test_that("mdata",{
-    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
-    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))   
-})
-
+#test_that("mdata",{
+#    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
+#    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))   
+#})
 
 
 
@@ -250,10 +248,11 @@ test_that("mdata",{
 
 
 
-test_that("multipleTracks", {
-    ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
-    plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
-})
+
+#test_that("multipleTracks", {
+#    ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
+#    plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
+#})
 
 if (FALSE) {
 test_that("draw.paths", {
@@ -314,5 +313,5 @@ test_that("name", {
 }
 
 test_that("track.gencode", {
-    expect_equal(track.gencode(), NA) ## check it runs correctly
+    expect_error(track.gencode(), NA) ## check it runs correctly
 })

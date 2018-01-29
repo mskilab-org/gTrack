@@ -31,213 +31,230 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
-setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
-    {
-        .Object@data <- listify(data, GRanges)
-  # if (is.null(data))
-  #   .Object@data = list(GRanges())
-  # else if (!is.list(data))
-  #   .Object@data = list(data)
-  # else
-  #   .Object@data = data;
+## only place NON formatting fields here. The rest passed with ...
+setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...){
+    .Object@data <- listify(data, GRanges)
+    # if (is.null(data))
+    #   .Object@data = list(GRanges())
+    # else if (!is.list(data))
+    #   .Object@data = list(data)
+    # else
+    #   .Object@data = data;
 
-  if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'character', 'RleList', 'ffTrack'))))
-    stop('check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
-
-  .Object@mdata <- listify(mdata, matrix, length(.Object@data))
-  # if (is.null(mdata))
-  #   .Object@mdata = rep(list(matrix()), length(.Object@data))
-  # else if (is.matrix(mdata) | inherits(mdata, 'Matrix'))
-  #   .Object@mdata = list(mdata)
-  # else if (is.list(mdata))
-  #   .Object@mdata = mdata
-  # else
-  #   stop('optional arg mdata must be a square matrix of same dimensions as data GRanges')
-
-  for (i in 1:length(.Object))
-    if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix'))
-      stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
-  else if (!identical(.Object@mdata[[i]], matrix()))
-  {
-    if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2)))
-        stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
-    if (inherits(.Object@mdata[[i]], 'Matrix'))
-        .Object@mdata[[i]] = (Matrix::t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-    else
-        .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-  }
-
-#  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
-  if (is.null(edges))
-    .Object@edges = rep(list(data.frame()), length(.Object@data))
-  else if (!is.list(edges) | inherits(edges, 'data.frame'))
-    .Object@edges = list(edges)
-  else
-      .Object@edges = edges
-
-
-        .Object@vars <- listify(vars, list, length(.Object@data))
-  # if (is.null(vars))
-  #   .Object@vars = rep(list(list()), length(.Object@data))
-  # else if (!is.list(edgevars) | inherits(vars, 'data.frame'))
-  #   .Object@vars = list(vars)
-  # else
-  #   .Object@vars = vars
-        
-        null.ix = sapply(.Object@data, is.null)
-        
-        if (any(null.ix))
-            .Object@data[null.ix] = list(GRanges())
-
-
-  edges.df = sapply(.Object@edges, is.data.frame)
-  edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
-
-  if (any(edges.df))
-      .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
-    {
-      if (nrow(x)>0)
-      {
-        if (!all(c('from', 'to') %in% names(x)))
-          stop('edges data frame missing $to and $from columns')
-
-        if (data.table::is.data.table(x))
-            x = as.data.frame(x)
-        x
-      }
-      else
-        data.frame()
-  })
- 
-  if (any(edges.mat))
-    .Object@edges[edges.mat] = lapply(which(edges.mat), function(x)
-    {
-      y = .Object@edges[[x]]
-      if (nrow(y) != length(.Object@data[[x]]) & ncol(y) != length(.Object@data[[x]]))
-          warning('dimensions of matrix do not match length of track data item.  Adjacency matrix of edges should be square and have as many rows as there are input ranges in the corresponding gTrack item')
-      tmp.edges = Matrix::which(y>0, arr.ind = TRUE)
-      return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
-  })
-
-        
-
-  .Object@colormap <- listify(colormaps, list)
-  # if (is.null(colormaps))
-  #   .Object@colormap = list(list())
-  # else if (!is.list(colormaps))
-  #   .Object@colormap = list(colormaps)
-  # else
-  #   .Object@colormap = colormaps;
-
-  if (length(.Object@colormap)==1)
-    .Object@colormap = rep(.Object@colormap, length(.Object@data))
-
-  if (is.null(names(.Object@colormap)))
-    names(.Object@colormap) = NA
-
-  ## convert options to formatting string
-  if (!is.data.frame(format) && is.na(format))
-    .Object@formatting = as.data.frame(c(list(y.field = y.field), list(...)), stringsAsFactors=FALSE)
-  else if (is.data.frame(format) && nrow(format) == length(.Object))
-    .Object@formatting <- cbind(data.frame(y.field = y.field), format) #formatting(.Object) <- format
-  else
-    stop("Expecting formatting (as supplied directly to constructor) to be data.frame of nrow = length(gTrack)")
-
-  # if (length(setdiff(c(length(height), length(col), length(lift), length(format)), c(1, length(.Object@data))))>0)
-  #   stop('Length of formatting attributes (height, lift, format, col) have to be either 1 or the gTrack object length');
-
-  ## figure out seqinfo from provided tracks, make sure that all the seqinfos are compatible
-  ## if only Rle's provided
-
-  ## JEREMIAH 3/20/16 t.name does not need default
-  # if (is.na(name))
-  #   t.name = names(.Object@data)
-  # else
-  #   t.name = name
-  # if (is.null(t.name))
-  #   if (!all(is.na(y.field)))
-  #     t.name = y.field
-  #
-  # if (is.null(t.name))
-  #   t.name = rep(NA, length(.Object@data))
-
-
-  # .Object@formatting = data.frame(name = t.name, height = height, ygap = ygap, stack.gap = stack.gap,
-  #                                 lift = lift, split = split, angle = angle, format = format, col = col,
-  #                                 lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border,
-  #                                 hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth,
-  #                                 round = round, vadj.label = vadj.label, y.field = y.field,
-  #                                 circles = circles, bars = bars, y0.bar = y0.bar, lines = lines,
-  #                                 source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex,
-  #                                 max.ranges = max.ranges, yaxis = yaxis,
-  #                                 yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle,
-  #                                 is.null = is.null, stringsAsFactors = FALSE)
-
-  # .Object@formatting$y0 = NA
-  # .Object@formatting$y1 = NA
-
-  # other.args = list(...)
-  #
-  # avail.args <- c("")
-  # if (any(!names(other.args) %in% avail.args))
-  #
-  #   if (length(other.args)>0)
-  #     for (i in 1:length(other.args))
-  #       .Object@formatting[, names(other.args)[i]] = other.args[[i]]
-  #
-  # if (!is.null(.Object@formatting$label))
-  #   .Object@formatting$label = NULL
-
-  ## JEREMIAH DO THIS LATER, no need to track now. 3/20/2016. Confusing to bc of formatting issue
-  ## turn off the colors if a colormap is supplied
-  # cix = sapply(.Object@colormap, length)>0 | !is.na(.Object@formatting$gr.colorfield)
-  # if (any(cix))
-  #   .Object@formatting$col[cix] = NA
-  # ## set the default color
-  # if (any(nix <- !cix & is.na(.Object@formatting$col)))
-  #   .Object@formatting$col[nix] = alpha('black', 0.5)
-  # ## set the default border
-  # if (any(nix <- is.na(.Object@formatting$border)))
-  #   .Object@formatting$border[nix] = .Object@formatting$col[nix]
-
-        ## set the seqinfo if not provided
- 
-  .Object <- get_seqinfo(.Object, seqinfo)
-
-  ## replicate if length y.field > 1 and length dat is 1
-  #if (length(y.field)>1 & length(.Object)==1)
-  #  .Object@data = rep(.Object@data, length(y.field))
-
-  ## if single data input but multiple yfields, replicate
-
-  if (length(y.field) > 1 && length(.Object@data) == 1) {
-    new_object = .Object
-    new_object$y.field = y.field[1]
-    new_object$yaxis = yaxis[1]
-    for (i in 2:length(y.field)) {
-      o = .Object
-      o$y.field = y.field[i]
-      o$yaxis = yaxis[i]
-      new_object = c(new_object, o)
+    if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'character', 'RleList', 'ffTrack')))){
+        stop('Error: check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
     }
-    .Object = new_object
-  } else if (!all(is.na(y.field))) {
-    formatting(.Object)$y.field <- y.field
-    formatting(.Object)$yaxis <- yaxis
-  }
-  else {
-    formatting(.Object)$y.field <- NA
-    formatting(.Object)$yaxis <- TRUE
-  }
+
+    .Object@mdata <- listify(mdata, matrix, length(.Object@data))
+    # if (is.null(mdata))
+    #   .Object@mdata = rep(list(matrix()), length(.Object@data))
+    # else if (is.matrix(mdata) | inherits(mdata, 'Matrix'))
+    #   .Object@mdata = list(mdata)
+    # else if (is.list(mdata))
+    #   .Object@mdata = mdata
+    # else
+    #   stop('optional arg mdata must be a square matrix of same dimensions as data GRanges')
+
+    for (i in 1:length(.Object)){
+        if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix')){
+            stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
+        }
+        else if (!identical(.Object@mdata[[i]], matrix())){
+            if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2))){
+                stop('Error: mdata for each entry must be a square matrix of same dimensions as data GRanges')
+            }
+            else if (inherits(.Object@mdata[[i]], 'Matrix')){
+                .Object@mdata[[i]] = (Matrix::t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
+            }
+            else{
+                .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
+            }
+        }
+    }
+
+    ##  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+    if (is.null(edges)){
+        .Object@edges = rep(list(data.frame()), length(.Object@data))
+    }
+    else if (!is.list(edges) | inherits(edges, 'data.frame')){
+        .Object@edges = list(edges)
+    }
+    else{
+        .Object@edges = edges
+    }
+
+
+    .Object@vars <- listify(vars, list, length(.Object@data))
+    ## if (is.null(vars))
+    ##   .Object@vars = rep(list(list()), length(.Object@data))
+    ## else if (!is.list(edgevars) | inherits(vars, 'data.frame'))
+    ##   .Object@vars = list(vars)
+    ## else
+    ##   .Object@vars = vars
+        
+    null.ix = sapply(.Object@data, is.null)
+        
+    if (any(null.ix)){
+        .Object@data[null.ix] = list(GRanges())
+    }
+
+
+
+    edges.df = sapply(.Object@edges, is.data.frame)
+    edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
+
+    if (any(edges.df)){
+        .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x){
+            if (nrow(x)>0){
+                if (!all(c('from', 'to') %in% names(x))){
+                    stop('Error: edges data frame missing $to and $from columns')
+                }
+                if (data.table::is.data.table(x)){
+                    x = as.data.frame(x)
+                }
+                x
+            }
+            else{
+                data.frame()
+            }
+        })
+    }
+ 
+    if (any(edges.mat)){
+        .Object@edges[edges.mat] = lapply(which(edges.mat), function(x){
+            y = .Object@edges[[x]]
+            if (nrow(y) != length(.Object@data[[x]]) & ncol(y) != length(.Object@data[[x]])){
+                warning('Warning: dimensions of matrix do not match length of track data item.  Adjacency matrix of edges should be square and have as many rows as there are input ranges in the corresponding gTrack item')
+            }
+            tmp.edges = Matrix::which(y>0, arr.ind = TRUE)
+            return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
+        })
+
+    }
+        
+
+    .Object@colormap <- listify(colormaps, list)
+    # if (is.null(colormaps))
+    #   .Object@colormap = list(list())
+    # else if (!is.list(colormaps))
+    #   .Object@colormap = list(colormaps)
+    # else
+    #   .Object@colormap = colormaps;
+
+    if (length(.Object@colormap)==1){
+        .Object@colormap = rep(.Object@colormap, length(.Object@data))
+    }
+
+    if (is.null(names(.Object@colormap))){
+        names(.Object@colormap) = NA
+    }
+
+    ## convert options to formatting string
+    if (!is.data.frame(format) && is.na(format)){
+        .Object@formatting = as.data.frame(c(list(y.field = y.field), list(...)), stringsAsFactors=FALSE)
+    }
+    else if (is.data.frame(format) && nrow(format) == length(.Object)){
+        .Object@formatting <- cbind(data.frame(y.field = y.field), format) #formatting(.Object) <- format
+    }
+    else{
+        stop("Error: Expecting formatting (as supplied directly to constructor) to be data.frame of nrow = length(gTrack)")
+    }
+
+    # if (length(setdiff(c(length(height), length(col), length(lift), length(format)), c(1, length(.Object@data))))>0)
+    #   stop('Length of formatting attributes (height, lift, format, col) have to be either 1 or the gTrack object length');
+
+    ## figure out seqinfo from provided tracks, make sure that all the seqinfos are compatible
+    ## if only Rle's provided
+
+    ## JEREMIAH 3/20/16 t.name does not need default
+    # if (is.na(name))
+    #   t.name = names(.Object@data)
+    # else
+    #   t.name = name
+    # if (is.null(t.name))
+    #   if (!all(is.na(y.field)))
+    #     t.name = y.field
+    #
+    # if (is.null(t.name))
+    #   t.name = rep(NA, length(.Object@data))
+
+
+    # .Object@formatting = data.frame(name = t.name, height = height, ygap = ygap, stack.gap = stack.gap,
+    #                                 lift = lift, split = split, angle = angle, format = format, col = col,
+    #                                 lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border,
+    #                                 hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth,
+    #                                 round = round, vadj.label = vadj.label, y.field = y.field,
+    #                                 circles = circles, bars = bars, y0.bar = y0.bar, lines = lines,
+    #                                 source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex,
+    #                                 max.ranges = max.ranges, yaxis = yaxis,
+    #                                 yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle,
+    #                                 is.null = is.null, stringsAsFactors = FALSE)
+
+    # .Object@formatting$y0 = NA
+    # .Object@formatting$y1 = NA
+
+    # other.args = list(...)
+    #
+    # avail.args <- c("")
+    # if (any(!names(other.args) %in% avail.args))
+    #
+    #   if (length(other.args)>0)
+    #     for (i in 1:length(other.args))
+    #       .Object@formatting[, names(other.args)[i]] = other.args[[i]]
+    #
+    # if (!is.null(.Object@formatting$label))
+    #   .Object@formatting$label = NULL
+
+    ## JEREMIAH DO THIS LATER, no need to track now. 3/20/2016. Confusing to bc of formatting issue
+    ## turn off the colors if a colormap is supplied
+    # cix = sapply(.Object@colormap, length)>0 | !is.na(.Object@formatting$gr.colorfield)
+    # if (any(cix))
+    #   .Object@formatting$col[cix] = NA
+    # ## set the default color
+    # if (any(nix <- !cix & is.na(.Object@formatting$col)))
+    #   .Object@formatting$col[nix] = alpha('black', 0.5)
+    # ## set the default border
+    # if (any(nix <- is.na(.Object@formatting$border)))
+    #   .Object@formatting$border[nix] = .Object@formatting$col[nix]
+
+    ## set the seqinfo if not provided
+ 
+    .Object <- get_seqinfo(.Object, seqinfo)
+
+    ## replicate if length y.field > 1 and length dat is 1
+    #if (length(y.field)>1 & length(.Object)==1)
+    #  .Object@data = rep(.Object@data, length(y.field))
+
+    ## if single data input but multiple yfields, replicate
+
+    if (length(y.field) > 1 && length(.Object@data) == 1) {
+        new_object = .Object
+        new_object$y.field = y.field[1]
+        new_object$yaxis = yaxis[1]
+        for (i in 2:length(y.field)) {
+            o = .Object
+            o$y.field = y.field[i]
+            o$yaxis = yaxis[i]
+            new_object = c(new_object, o)
+        }
+        .Object = new_object
+    } 
+    else if (!all(is.na(y.field))) {
+        formatting(.Object)$y.field <- y.field
+        formatting(.Object)$yaxis <- yaxis
+    }
+    else {
+        formatting(.Object)$y.field <- NA
+        formatting(.Object)$yaxis <- TRUE
+    }
                 
-  if (any(!is.na(y.field))) {
-      ix <- nchar(formatting(.Object)$track.name) == 0
-      ix = ifelse(is.na(ix), TRUE, FALSE)
-      formatting(.Object)$track.name[ix] <- y.field[ix]
-  }
+    if (any(!is.na(y.field))) {
+        ix <- nchar(formatting(.Object)$track.name) == 0
+        ix = ifelse(is.na(ix), TRUE, FALSE)
+        formatting(.Object)$track.name[ix] <- y.field[ix]
+    }
 
-
-  return(.Object)  
+    return(.Object)  
 })
 
 
@@ -401,11 +418,11 @@ gTrack = function(data = NULL, ##
                   m.bg.col = NA,
                   cmap.min = NA,
                   cmap.max = NA,
-    labels.suppress = FALSE,
-    labels.suppress.grl = labels.suppress,
-    labels.suppress.gr = labels.suppress,
+                  labels.suppress = FALSE,
+                  labels.suppress.grl = labels.suppress,
+                  labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
-    formatting = NA) {
+                  formatting = NA) {
     
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
@@ -421,8 +438,8 @@ gTrack = function(data = NULL, ##
       grl.labelfield = grl.labelfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
       xaxis.suffix = xaxis.suffix, xaxis.round = xaxis.round, xaxis.interval = xaxis.interval,
       xaxis.cex.label = xaxis.cex.label, xaxis.newline = xaxis.newline,
-        xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
-        labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
+      xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
+      labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
       xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
       xaxis.cex.tick = xaxis.cex.tick, sep.lty = sep.lty, sep.lwd = sep.lwd, sep.bg.col = sep.bg.col,
       sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, m.bg.col = m.bg.col,
@@ -432,123 +449,135 @@ gTrack = function(data = NULL, ##
 
 setValidity('gTrack', function(object)
 {
-  problems = c();
+    problems = c();
 
-  ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
-  ## deprecated a while ago... 3/20/16
+    ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
+    ## deprecated a while ago... 3/20/16
 
 
-  ##ALLOWED.FORMATS = list(RleList = c('scatter', 'line', 'bar', 'ranges'), SimpleRleList = c('scatter', 'line', 'bar', 'ranges'), GRanges = c('ranges'), GRangesList = c('ranges'), character = c('ranges'), ffTrack = 'ranges');
+    ##ALLOWED.FORMATS = list(RleList = c('scatter', 'line', 'bar', 'ranges'), SimpleRleList = c('scatter', 'line', 'bar', 'ranges'), GRanges = c('ranges'), GRangesList = c('ranges'), character = c('ranges'), ffTrack = 'ranges');
 
-  if (length(object@data)>0)
-    if (!all(sapply(object@data, function(x) class(x) %in% ALLOWED.DATA.CLASSES)))
-      problems = c(problems, (paste('One or more of the provided data objects in data slot are not of the allowed data classes', paste(ALLOWED.DATA.CLASSES, collapse = ", "))))
-    else
-    {
-      # for (i in 1:nrow(object@formatting))
-      #   if (!(object@formatting$format[i] %in% ALLOWED.FORMATS[[class(object@data[[i]])]]))
-      #     problems = c(problems, sprintf('Format specified for data track %s (%s) is not allowed.  Available formats for this track are: %s.', i, object@formatting$format[i], paste(ALLOWED.FORMATS[[class(object@data[[i]])]], collapse = ", ")))
-      if (length(object@data) != nrow(object@formatting))
-        problems = c(problems, 'Length of data is not equal to the number of formatting entries')
+    if (length(object@data)>0){
+        if (!all(sapply(object@data, function(x) class(x) %in% ALLOWED.DATA.CLASSES))){
+            problems = c(problems, (paste('One or more of the provided data objects in data slot are not of the allowed data classes', paste(ALLOWED.DATA.CLASSES, collapse = ", "))))
+        }
+        else{
+            # for (i in 1:nrow(object@formatting))
+            #   if (!(object@formatting$format[i] %in% ALLOWED.FORMATS[[class(object@data[[i]])]]))
+            #     problems = c(problems, sprintf('Format specified for data track %s (%s) is not allowed.  Available formats for this track are: %s.', i, object@formatting$format[i], paste(ALLOWED.FORMATS[[class(object@data[[i]])]], collapse = ", ")))
+            if (length(object@data) != nrow(object@formatting)){
+                problems = c(problems, 'Length of data is not equal to the number of formatting entries')
+            }
+        }
     }
-    else
-      if (nrow(object@formatting) != 0)
-        problems = c(problems, 'Null trackdata object has incompatible fields');
+    else{
+        if (nrow(object@formatting) != 0){
+            problems = c(problems, 'Null trackdata object has incompatible fields');
+        }
 
 
-      if (!all(sapply(object@edges, is.data.frame)))
-        problems = c(problems, 'Some trackdata edges attributes are not data.frames')
-      else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T)))
-        problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
-      else if (any(!sapply(1:length(object@data), function(x)
-        if (nrow(object@edges[[x]])>0)
-          all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
-        else T)))
-        problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
+        if (!all(sapply(object@edges, is.data.frame))){
+            problems = c(problems, 'Some trackdata edges attributes are not data.frames')
+        }
+        else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T))){
+            problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
+        }
+        else if (any(!sapply(1:length(object@data), function(x){
+            if (nrow(object@edges[[x]])>0){
+                all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
+            }
+            else{
+                TRUE
+            })))
+        }
+    }
+      
+    problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
-      if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field))
-      {
+    if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field)){
         nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
-        if (any(nix))
-          tmp = sapply(which(nix), function(x) object$y.field[x] %in% names(values(dat(object)[[x]])))
-        else
-          tmp = TRUE
+        if (any(nix)){
+            tmp = sapply(which(nix), function(x) object$y.field[x] %in% names(values(dat(object)[[x]])))
+        }
+        else{
+            tmp = TRUE
+        }
 
-        if (any(!tmp))
-        {
-          problems = c(problems, paste('These y.fields are not found in their respective GRanges object:',
+        if (any(!tmp)){
+            problems = c(problems, paste('These y.fields are not found in their respective GRanges object:',
                                        paste(object$y.field[nix][!tmp], collapse = ', ')))
         }
-      }
+    }
 
-
-      if (length(object@data) != length(object@colormap))
+    if (length(object@data) != length(object@colormap)){
         problems = c(problems, 'Length of object is not the same length as colormap')
+    }
 
   
-      if (any(ix <- sapply(object@data, class) == 'character'))
-      {
-        for (iix in which(ix))
-        {
-          x = object@data[[iix]]
+    if (any(ix <- sapply(object@data, class) == 'character')){
+        for (iix in which(ix)){
+            x = object@data[[iix]]
 
-          if (grepl('(\\.bw$)|(\\.bigwig$)', x, ignore.case = T))
-          {
-            f = BigWigFile(normalizePath(x))
-            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            if (is.null(slen))
-              problems = c(problems, sprintf('External file %s is not a valid and existing .bw / .bigwig file', x))
-          }
-          else if (grepl('\\.wig', x, ignore.case = T))
-          {
-            f = WIGFile(normalizePath(x))
-            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            if (is.null(slen))
-              problems = c(problems, sprintf('External file %s is not a valid and existing .wig file', x))
+            if (grepl('(\\.bw$)|(\\.bigwig$)', x, ignore.case = T)){
+                f = BigWigFile(normalizePath(x))
+                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                if (is.null(slen)){
+                    problems = c(problems, sprintf('External file %s is not a valid and existing .bw / .bigwig file', x))
+                }
+            }
+            else if (grepl('\\.wig', x, ignore.case = T)){
+                f = WIGFile(normalizePath(x))
+                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                if (is.null(slen)){
+                    problems = c(problems, sprintf('External file %s is not a valid and existing .wig file', x))
+                }
 
-          }
-          else if (grepl('\\.bed', x, ignore.case = T))
-          {
-            f = BEDFile(normalizePath(x))
-            #                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            #                        if (is.null(slen))
-            #                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
-          }
-          else if (grepl('\\.gff', x, ignore.case = T))
-          {
-            f = GFFFile(normalizePath(x))
-            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            if (is.null(slen))
-              problems = c(problems, sprintf('External file %s is not a valid and existing .gff file', x))
-          }
-          else if (grepl('\\.2bit', x, ignore.case = T))
-          {
-            f = TwoBitFile(normalizePath(x))
-            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            if (is.null(slen))
-              problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
-
-          }
-          else if (grepl('\\.bedgraph', x, ignore.case = T))
-          {
-            f = BEDGraphFile(normalizePath(x))
-            #                       slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-            #                       if (is.null(slen))
-            #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
-          }
-          else
-            problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
+            }
+            else if (grepl('\\.bed', x, ignore.case = T)){
+                f = BEDFile(normalizePath(x))
+                #                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                #                        if (is.null(slen))
+                #                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
+            }
+            else if (grepl('\\.gff', x, ignore.case = T)){
+                f = GFFFile(normalizePath(x))
+                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                if (is.null(slen)){
+                    problems = c(problems, sprintf('External file %s is not a valid and existing .gff file', x))
+                }
+            }
+            else if (grepl('\\.2bit', x, ignore.case = T)){
+                f = TwoBitFile(normalizePath(x))
+                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                if (is.null(slen)){
+                    problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
+                }
+            }
+            else if (grepl('\\.bedgraph', x, ignore.case = T)){
+                f = BEDGraphFile(normalizePath(x))
+                #                       slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                #                       if (is.null(slen))
+                #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
+            }
+            else{
+                problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
+            }
         }
-      }
+    }
 
-      if (length(problems)==0)
+    if (length(problems)==0){
         TRUE
-      else
+    }
+    else{
         problems
+    }
 }
 );
 
 #suppressWarnings(removeMethod('[', 'gTrack')) ## takes care of stupid R 2.15 bug
+
+
+
 
 #' @name [
 #' @title [
@@ -567,22 +596,26 @@ setValidity('gTrack', function(object)
 #' @author Marcin Imielinski
 setMethod('[', 'gTrack', function(x, i)
 {
-  if (is.logical(i))
-    i = which(i)
-  x@data = x@data[i]
-  x@seqinfo = x@seqinfo
-  #            x@height = x@height[i]
-  x@formatting = x@formatting[i, ]
-  x@colormap = x@colormap[i]
-  x@edges = x@edges[i]
+    if (is.logical(i)){
+        i = which(i)
+    }
+    x@data = x@data[i]
+    x@seqinfo = x@seqinfo
+    ##  x@height = x@height[i]
+    x@formatting = x@formatting[i, ]
+    x@colormap = x@colormap[i]
+    x@edges = x@edges[i]
 
-  if (.hasSlot(x, 'mdata'))
-    x@mdata = x@mdata[i]
-  else
-    x@mdata = rep(list(matrix()), length(x))
+    if (.hasSlot(x, 'mdata')){
+        x@mdata = x@mdata[i]
+    }
+    else{
+        x@mdata = rep(list(matrix()), length(x))
+    }
 
-  return(x)
+    return(x)
 })
+
 
 #' @name mdata
 #' @title mdata
@@ -606,47 +639,62 @@ setGeneric('mdata', function(x, igr=NULL, jgr=NULL) standardGeneric('mdata'))
 #' @aliases mdata,gTrack,ANY,ANY,ANY-method
 setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, jgr = igr)
 {
-  if (is.null(igr) & is.null(jgr))
-    return(x@mdata)
+    if (is.null(igr) & is.null(jgr)){
+        return(x@mdata)
+    }
 
-  if (is.null(igr))
-    igr = si2gr(x)
+    if (is.null(igr)){
+        igr = si2gr(x)
+    }
 
-  if (is.null(jgr))
-    jgr = si2gr(x)
+    if (is.null(jgr)){
+        jgr = si2gr(x)
+    }
 
-  if (is(igr, 'Rle'))
-    igr = as.character(igr)
+    if (is(igr, 'Rle')){
+        igr = as.character(igr)
+    }
 
-  if (is(jgr, 'Rle'))
-    jgr = as.character(jgr)
+    if (is(jgr, 'Rle')){
+        jgr = as.character(jgr)
+    }
 
-  if (is.character(igr))
-    igr = si2gr(x)[igr]
+    if (is.character(igr)){
+        igr = si2gr(x)[igr]
+    }
 
-  if (is.character(jgr))
-    jgr = si2gr(x)[jgr]
+    if (is.character(jgr)){
+        jgr = si2gr(x)[jgr]
+    }
 
-  if (length(igr)==0 | length(jgr)==0)
-    return(NULL)
+    if (length(igr)==0 | length(jgr)==0){
+        return(NULL)
+    }
 
-  out = lapply(1:length(x), function(y)
-  {
-    if (is.null(x@mdata[[y]]))
-      return(NULL)
-    i = gUtils::gr.in(x@data[[y]], igr)
-    j = gUtils::gr.in(x@data[[y]], jgr)
-    rown = dedup(gr.string(x@data[[y]][i]))
-    coln = dedup(gr.string(x@data[[y]][j]))
-    tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
-    rownames(tmp) = rown
-    colnames(tmp) = coln
-    return(tmp)
-  })
-  if (length(x)==1)
-    out = out[[1]]
-  return(out)
+    out = lapply(1:length(x), function(y){
+        if (is.null(x@mdata[[y]])){
+            return(NULL)
+        }
+        i = gUtils::gr.in(x@data[[y]], igr)
+        j = gUtils::gr.in(x@data[[y]], jgr)
+        rown = dedup(gr.string(x@data[[y]][i]))
+        coln = dedup(gr.string(x@data[[y]][j]))
+        tmp = (x@mdata[[y]][i, j] + t(x@mdata[[y]][j, i]))/2
+        rownames(tmp) = rown
+        colnames(tmp) = coln
+        return(tmp)
+    })
+    if (length(x)==1){
+        out = out[[1]]
+    }
+    return(out)
 })
+
+
+
+
+
+
 
 #' @name $
 #' @title $
@@ -663,9 +711,14 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
 #' @author Marcin Imielinski
 setMethod('$', 'gTrack', function(x, name)
 {
-                                        #  return(x@formatting[, name])
+    ##  return(x@formatting[, name])
     return(x@formatting[[name]])
 })
+
+
+
+
+
 
 #' @name $<-
 #' @title $<-
@@ -688,9 +741,12 @@ setMethod('$', 'gTrack', function(x, name)
 #' @author Marcin Imielinski
 setMethod('$<-', 'gTrack', function(x, name, value)
 {
-  x@formatting[, name] = value
-  return(x)
+    x@formatting[, name] = value
+    return(x)
 })
+
+
+
 
 #' @name length
 #' @title length
@@ -707,7 +763,7 @@ setMethod('$<-', 'gTrack', function(x, name, value)
 #' @author Marcin Imielinski
 setMethod('length', 'gTrack', function(x)
 {   
-  return(length(x@data))
+    return(length(x@data))
 })
 
 #' @name reduce
@@ -729,27 +785,30 @@ setMethod('length', 'gTrack', function(x)
 #' @author Marcin Imielinski
 setMethod('reduce', 'gTrack', function(x, ... )
 {
-  if (length(x)==0)
-    return(GRanges(seqlengths = GenomeInfoDb::seqlengths(x)))
-
-  .dat2gr = function(y)
-  {
-    if (is(y, 'Rle'))
-    {
-      y[is.na(y)] = 0;
-      out = as(y!=0, 'GRanges');
-      return(out[out$score])
+    if (length(x)==0){
+        return(GRanges(seqlengths = GenomeInfoDb::seqlengths(x)))
     }
-    else if (is(y, 'GRangesList'))
-      gr.stripstrand(unlist(y))
-    else
-      gr.stripstrand(y)
-  }
 
-  if (length(x)==1)
-    return(reduce(.dat2gr(x@data[[1]]), ...))
-  else
-    return(reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
+    .dat2gr = function(y){
+        if (is(y, 'Rle')){
+            y[is.na(y)] = 0;
+            out = as(y!=0, 'GRanges');
+            return(out[out$score])
+        }
+        else if (is(y, 'GRangesList')){
+            gr.stripstrand(unlist(y))
+        }
+        else{
+            gr.stripstrand(y)
+        } 
+    }
+
+    if (length(x)==1){
+        return(reduce(.dat2gr(x@data[[1]]), ...))
+    }
+    else{
+        return(reduce(do.call('grbind', lapply(x@data, .dat2gr)), ... ))
+    }
 })
 
 #uppressWarnings(removeMethod('seqinfo', 'gTrack')) ## takes care of stupid R 2.15 bug
@@ -770,7 +829,7 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' @author Marcin Imielinski
 setMethod("seqinfo", signature(x = "gTrack"), function(x)
 {
-  return(x@seqinfo)
+    return(x@seqinfo)
 })
 
 #' @name seqinfo<-
@@ -792,11 +851,14 @@ setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 #' @aliases seqinfo,gTrack-method
 setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
 {
-  .Object@seqinfo = value;
-  .Object@data = lapply(dat(.Object), gr.fix, value)
-  validObject(.Object)
-  return(.Object)
+    .Object@seqinfo = value;
+    .Object@data = lapply(dat(.Object), gr.fix, value)
+    validObject(.Object)
+    return(.Object)
 });
+
+
+
 
 #' @name c
 #' @title c
@@ -815,23 +877,27 @@ setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
 #' @author Marcin Imielinski
 setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
 {
-  args = list(x, ...)
+    args = list(x, ...)
 
-  if (any(ix <- sapply(args, inherits, 'trackData')))
+    if (any(ix <- sapply(args, inherits, 'trackData'))){
     args[ix] = lapply(args[ix], function(y) {class(y) = 'gTrack'; return(y)})
+    }
 
-  if (any(!sapply(args, inherits, 'gTrack')))
-    stop('some objects in gTrack concatenation are not gTrack')
+    if (any(!sapply(args, inherits, 'gTrack'))){
+        stop('Error: some objects in gTrack concatenation are not gTrack')
+    }
 
-  has.mdata = sapply(args, .hasSlot, 'mdata')
+    has.mdata = sapply(args, .hasSlot, 'mdata')
 
-  if (any(!has.mdata))
-    for (j in which(!has.mdata))
-      args[[j]]@mdata = rep(list(matrix()), length(args[[j]]))
+    if (any(!has.mdata)){
+        for (j in which(!has.mdata)){
+            args[[j]]@mdata = rep(list(matrix()), length(args[[j]]))
+        }
+    }
 
-  args = args[!sapply(args, is.null)]
+    args = args[!sapply(args, is.null)]
 
-  out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),
+    out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),
                 #                             seqinfo = do.call('c', lapply(1:length(args), function(y) args[[y]]@seqinfo)),
                 colormaps = do.call('c', lapply(args, function(y) y@colormap)),
                 edges = do.call('c', lapply(args, function(y) y@edges)),
@@ -839,26 +905,33 @@ setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
                 format = do.call('rrbind', lapply(args, formatting)),
                 y.field = do.call('c', lapply(args, function(y) formatting(y)$y.field)),
                 yaxis = do.call('c', lapply(args, function(y) formatting(y)$yaxis)))
-  #out@mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata))
+    #out@mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata))
 
-  if (is.null(out$name))
-      out$name = NA
+    if (is.null(out$name)){
+        out$name = NA
+    }
       
-  if (!is.null(out$track.name))
-      out$name = ifelse(is.na(out$name), out$track.name, out$name)
+    if (!is.null(out$track.name)){
+        out$name = ifelse(is.na(out$name), out$track.name, out$name)
+    }
 
-  out$track.name = NULL
+    out$track.name = NULL
       
-##  formatting(out) <- do.call('rrbind', lapply(args, formatting))
+    ##  formatting(out) <- do.call('rrbind', lapply(args, formatting))
 
-  if ('is.null' %in% names(formatting(out)))
-  {
-    is.n = out$is.null
-    is.n[is.na(is.n)] = F
-    out = out[!is.n]
-}
+    if ('is.null' %in% names(formatting(out))){
+        is.n = out$is.null
+        is.n[is.na(is.n)] = F
+        out = out[!is.n]
+    }
+
   return(out)
 })
+
+
+
+
+
 
 #' @name formatting
 #' @title formatting
@@ -895,12 +968,12 @@ setGeneric('xaxis', function(.Object) standardGeneric('xaxis'))
 #' @rdname xaxis-methods
 #' @aliases xaxis,gTrack-method
 setMethod('xaxis', 'gTrack', function(.Object) {
-  xaxis.fields <- c("xaxis.prefix", "xaxis.suffix", "xaxis.unit",
+    xaxis.fields <- c("xaxis.prefix", "xaxis.suffix", "xaxis.unit",
                     "xaxis.round", "xaxis.interval", "xaxis.pos",
                     "xaxis.nticks", "xaxis.pos.label",
                     "xaxis.cex.label","xaxis.newline", "xaxis.chronly",
                     "xaxis.width", "xaxis.label.angle","xaxis.ticklen")
-  return(.Object@formatting[,which(colnames(.Object@formatting) %in% xaxis.fields)])
+    return(.Object@formatting[,which(colnames(.Object@formatting) %in% xaxis.fields)])
 })
 
 #' @name sep
@@ -920,16 +993,15 @@ setGeneric('sep', function(.Object) standardGeneric('sep'))
 #' @rdname sep-methods
 #' @aliases sep,gTrack-method
 setMethod('sep', 'gTrack', function(.Object) {
-  sep.fields <- c("sep.lty", "sep.lwd", "sep.bg.col", "sep.draw")
-  return(.Object@formatting[,which(colnames(.Object@formatting) %in% sep.fields)])
-
+    sep.fields <- c("sep.lty", "sep.lwd", "sep.bg.col", "sep.draw")
+    return(.Object@formatting[,which(colnames(.Object@formatting) %in% sep.fields)])
 })
 
 #' @rdname formatting-methods
 #' @aliases formatting,gTrack-method
 setMethod('formatting', 'gTrack', function(.Object)
 {
-  return(.Object@formatting)
+    return(.Object@formatting)
 })
 
 #' @name edgs
@@ -953,8 +1025,8 @@ setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 #' @aliases edgs,gTrack-method
 setMethod('edgs', 'gTrack', function(.Object)
 {
-  #             .Object = list(...)[[1]]
-  return(.Object@edges)
+    ##  .Object = list(...)[[1]]
+    return(.Object@edges)
 })
 
 
@@ -970,9 +1042,12 @@ setGeneric('vars', function(.Object) standardGeneric('vars'))
 #' @author Marcin Imielinski
 setMethod('vars', 'gTrack', function(.Object)
 {
-  #             .Object = list(...)[[1]]
-  return(.Object@vars)
+    ##             .Object = list(...)[[1]]
+    return(.Object@vars)
 })
+
+
+
 
 #' @name edgs<-
 #' @title edgs<-
@@ -992,23 +1067,32 @@ setMethod('vars', 'gTrack', function(.Object)
 #' @author Marcin Imielinski
 setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 
+
+
+
 #' @rdname edgs-set-methods
 #' @aliases edgs<-,gTrack-method
 setMethod('edgs<-', 'gTrack', function(.Object, value)
 {
-  if (!all(sapply(value, is.data.frame)))
-    stop('edges attribute must be a list of data.frames')
+    if (!all(sapply(value, is.data.frame))){
+        stop('edges attribute must be a list of data.frames')
+    }
 
-  non.empty = sapply(value, nrow)>0
+    non.empty = sapply(value, nrow)>0
 
-  if (any(non.empty) )
-    if (!all(sapply(value[non.empty], function(x) all(c('from', 'to') %in% colnames(x)))))
-      stop('data.frames of edges field of gTrack must be either empty or have $from and $to fields specified')
+    if (any(non.empty)){
+        if (!all(sapply(value[non.empty], function(x) all(c('from', 'to') %in% colnames(x))))){
+            stop('data.frames of edges field of gTrack must be either empty or have $from and $to fields specified')
+        }
+    }
 
-  .Object@edges = value
-  validObject(.Object)
-  return(.Object)
+    .Object@edges = value
+    validObject(.Object)
+    return(.Object)
 })
+
+
+
 
 #' @name clear
 #' @title clear
@@ -1029,10 +1113,10 @@ setGeneric('clear', function(.Object) standardGeneric('clear'))
 #' @aliases clear,gTrack-method
 setMethod('clear', 'gTrack', function(.Object)
 {
-  .Object = .Object[1]
-  .Object@data[[1]] =  .Object@data[[1]][NULL]
-  validObject(.Object)
-  return(.Object);
+    .Object = .Object[1]
+    .Object@data[[1]] =  .Object@data[[1]][NULL]
+    validObject(.Object)
+    return(.Object);
 })
 
 
@@ -1057,7 +1141,7 @@ setGeneric('dat', function(.Object) standardGeneric('dat'))
 #' @aliases dat,gTrack-method
 setMethod('dat', 'gTrack', function(.Object)
 {
-  return(.Object@data)
+    return(.Object@data)
 })
 
 #' @name formatting<-
@@ -1083,16 +1167,18 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 #' @aliases formatting<-,gTrack-method
 setReplaceMethod('formatting', 'gTrack', function(.Object, value)
 {
-  REQUIRED.COLUMNS = c('height', 'col', 'ygap', 'y.field');
-  if (nrow(value) != length(.Object))
-    stop('Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
+    REQUIRED.COLUMNS = c('height', 'col', 'ygap', 'y.field');
+    if (nrow(value) != length(.Object)){
+        stop('Error: Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
+    }
 
-  if (length(setdiff(REQUIRED.COLUMNS, colnames(value))))
-    stop('Replacement data frame is missing some columns')
-  .Object@formatting = value;
+    if (length(setdiff(REQUIRED.COLUMNS, colnames(value)))){
+        stop('Error: Replacement data frame is missing some columns')
+    }
+    .Object@formatting = value;
 
-  validObject(.Object)
-  return(.Object)
+    validObject(.Object)
+    return(.Object)
 });
 
 
@@ -1116,7 +1202,7 @@ setGeneric('colormap', function(.Object) standardGeneric('colormap'))
 #' @aliases colormap,gTrack-method
 setMethod('colormap', 'gTrack', function(.Object)
 {
-  return(.Object@colormap)
+    return(.Object@colormap)
 })
 
 
@@ -1140,10 +1226,13 @@ setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 #' @aliases colormap<-,gTrack-method
 setReplaceMethod('colormap', 'gTrack', function(.Object, value)
 {
-  .Object@colormap = value;
-  validObject(.Object)
-  return(.Object)
+    .Object@colormap = value;
+    validObject(.Object)
+    return(.Object)
 });
+
+
+
 #' @name show
 #' @title show
 #' @description Display a \code{gTrack} object
@@ -1155,9 +1244,10 @@ setReplaceMethod('colormap', 'gTrack', function(.Object, value)
 #' @author Marcin Imielinski
 setMethod('show', 'gTrack', function(object)
 {
-  cat(sprintf('gTrack object with %s tracks with formatting:\n', length(object)))
-  print(formatting(object))
+    cat(sprintf('gTrack object with %s tracks with formatting:\n', length(object)))
+    print(formatting(object))
 })
+
 
 ### utility function to allow "softer" matching of seqinfo's of genomes in chains
 .identical.seqinfo = function(a, b)
@@ -1175,8 +1265,9 @@ setMethod('show', 'gTrack', function(object)
 }
 
 # @importFrom graphics plot
-if (!isGeneric("plot"))
+if (!isGeneric("plot")){
     setGeneric("plot", function(x, ...) standardGeneric("plot"))
+}
 
 
 #' Improved \code{rbind} for intersecting/union columns of \code{data.frames} or \code{data.tables}
@@ -1194,30 +1285,33 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
     dfs = dfs[!sapply(dfs, is.null)]
     dfs = dfs[sapply(dfs, ncol) > 0]
 
-    if (any(mix <- sapply(dfs, class) == 'matrix'))
+    if (any(mix <- sapply(dfs, class) == 'matrix')){
         dfs[mix] = lapply(dfs, as.data.frame)
+    }
 
     names.list = lapply(dfs, names)
     cols = unique(unlist(names.list))
     unshared = lapply(names.list, function(x) setdiff(cols, x))
     ix = which(sapply(dfs, nrow) > 0)
-    if (any(sapply(unshared, length) != 0))
+    if (any(sapply(unshared, length) != 0)){
         expanded.dts <- lapply(ix, function(x) {
             tmp = dfs[[x]]
-            if (is.data.table(dfs[[x]]))
+            if (is.data.table(dfs[[x]])){
                 tmp = as.data.frame(tmp)
+            }
             tmp[, unshared[[x]]] = NA
-            return(data.table::as.data.table(as.data.frame(tmp[,
-                cols])))
+            return(data.table::as.data.table(as.data.frame(tmp[, cols])))
         })
+    }
     else expanded.dts <- lapply(dfs, function(x) as.data.table(as.data.frame(x)[, cols]))
 
     rout <- tryCatch(rbindlist(expanded.dts), error = function(e) NULL)
-    if (is.null(rout))
-        rout = data.table::as.data.table(do.call("rbind", lapply(expanded.dts,
-            as.data.frame)))
-    if (!as.data.table)
+    if (is.null(rout)){
+        rout = data.table::as.data.table(do.call("rbind", lapply(expanded.dts, as.data.frame)))
+    }
+    if (!as.data.table){
         rout = as.data.frame(rout)
+    }
     if (!union) {
         shared = setdiff(cols, unique(unlist(unshared)))
         rout = rout[, shared]
@@ -1261,7 +1355,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 #' @author Marcin Imielinski, Jeremiah Wala
 #' @aliases plot,gTrack,ANY-method
 #' @export
-setMethod('plot', c("gTrack","ANY"),
+setMethod('plot', c("gTrack", "ANY"),
           #signature(x = "gTrack", y = "ANY"),
           function(x,  ##pplot  (for easy search)
                    y,
@@ -1277,34 +1371,40 @@ setMethod('plot', c("gTrack","ANY"),
                    verbose=FALSE,
                    legend.params = list(),
                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
-                   )              
-          {
+                   )
+{
 
-  if (!missing(y))
+  if (!missing(y)){
     windows = y
+  }
 
   .Object = x
-  if (!missing(y))
+  if (!missing(y)){
     windows = y
+  }
 
-  if (is(windows, 'character'))
-      windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+  if (is(windows, 'character')){
+    windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+  }
   
   ## make sure we have min legend data
-  if (!"xpos" %in% names(legend.params))
+  if (!"xpos" %in% names(legend.params)){
     legend.params$xpos = 0
-  if (!"ypos" %in% names(legend.params))
+  }
+  if (!"ypos" %in% names(legend.params)){
     legend.params$ypos = 1
-  if (!"plot" %in% names(legend.params))
+  }
+  if (!"plot" %in% names(legend.params)){
     legend.params$plot = TRUE
+  }
 
   win.gap = gap ## PATCH: recasting some variable names
   new.plot = TRUE
   window.segs = list();
   dotdot.args = list(...);
 
-            ## parse the wind<ows into GRanges
-            windows = format_windows(windows, .Object)
+  ## parse the wind<ows into GRanges
+  windows = format_windows(windows, .Object)
 
   windows = windows[width(windows)>0]
               
@@ -1317,23 +1417,29 @@ setMethod('plot', c("gTrack","ANY"),
   ## make sure gTrack has all fields that are expected later
   .Object <- prep_defaults_for_plotting(.Object)
 
-  if (is.null(formatting(.Object)$legend))
+  if (is.null(formatting(.Object)$legend)){
       formatting(.Object)$legend = TRUE
-  else (any(is.na(formatting(.Object)$legend)))
+  }
+  else (any(is.na(formatting(.Object)$legend))){
        formatting(.Object)$legend[is.na(formatting(.Object)$legend)] = TRUE
+  }
 
 
-  if (is.null(formatting(.Object)$legend.title))
+  if (is.null(formatting(.Object)$legend.title)){
       formatting(.Object)$legend.title = NA
+  }
 
   if (is.null(formatting(.Object)$track.name))
-  {
-    if (!is.null(formatting(.Object)$name))
-      formatting(.Object)$track.name = formatting(.Object)$name
-    else if (!is.null(formatting(.Object)$y.field))
-      formatting(.Object)$track.name = formatting(.Object)$y.field
-    else
-      formatting(.Object)$track.name = NA
+  {  
+      if (!is.null(formatting(.Object)$name)){
+          formatting(.Object)$track.name = formatting(.Object)$name
+      }
+      else if (!is.null(formatting(.Object)$y.field)){
+          formatting(.Object)$track.name = formatting(.Object)$y.field
+      }
+      else{
+          formatting(.Object)$track.name = NA
+      }
   }
 
   has.colormap = sapply(colormap(.Object), length)>0
@@ -1347,41 +1453,50 @@ setMethod('plot', c("gTrack","ANY"),
                     ifelse(!is.na(.Object$track.name), .Object$track.name, ''))))
 
     ## add last minute formatting changes to gTrack
-  if (length(dotdot.args)>0)
-    for (f in intersect(names(dotdot.args), names(formatting(.Object))))
-      formatting(.Object)[, f] = dotdot.args[[f]]
+  if (length(dotdot.args)>0){
+      for (f in intersect(names(dotdot.args), names(formatting(.Object)))){
+          formatting(.Object)[, f] = dotdot.args[[f]]
+      }
+  }
 
   ## set the window gap .. so that windows don't collide
-  if (is.null(win.gap))
+  if (is.null(win.gap)){
       win.gap = sum(as.numeric(width(windows)))/30
+  }
   
   ## get the height of the stacks
-  if (is.null(y.heights) | length(y.heights) != length(windows))
-    ##y.heights = rep(1, length(windows)) ## old from when we had windows as GRangesList
-    y.heights <- 1
+  if (is.null(y.heights) | length(y.heights) != length(windows)){
+      ##y.heights = rep(1, length(windows)) ## old from when we had windows as GRangesList
+      y.heights <- 1
+  }
 
   ## set the gaps between the gTracks
-  if (is.null(y.gaps) )
+  if (is.null(y.gaps) ){
     y.gaps = y.heights*0.8
-  else if (length(y.gaps) != length(windows))
+  }
+  else if (length(y.gaps) != length(windows)){
     y.gaps = rep(y.gaps[1], length(windows))
+  }
 
   ## ensure that we don't plot too much
-  if (!is.na(max.ranges))
+  if (!is.na(max.ranges)){
     formatting(.Object)$max.ranges = pmin(max.ranges, formatting(.Object)$max.ranges, na.rm = TRUE)
+  }
 
   oth.ix = 1:(length(windows)-1);
   top.gaps = 0.5*y.gaps
   bottom.gaps = 0.5*y.gaps
-  if (length(windows)==1)
+  if (length(windows)==1){
     oth.ix = c()
+  }
   ylim.stacks = data.frame(start = c(bottom.gaps[1], bottom.gaps[1] + cumsum(y.heights[oth.ix] + top.gaps[oth.ix] + bottom.gaps[oth.ix+1])),
                            end = cumsum(y.heights + top.gaps + bottom.gaps) - top.gaps)
 
   oth.ix = 1:(length(.Object)-1);
 
-  if (length(.Object)==1)
+  if (length(.Object)==1){
     oth.ix = c()
+  }
 
   tmp.top.gaps = 0.5 * formatting(.Object)$ygap
   tmp.bottom.gaps = 0.5 * formatting(.Object)$ygap
@@ -1418,17 +1533,20 @@ setMethod('plot', c("gTrack","ANY"),
     cmap = colormap(.Object)[[j]];
     cfield = names(colormap(.Object))[j]
 
-    if (is.na(cfield))
+    if (is.na(cfield)){
       cfield = formatting(.Object)$gr.colorfield[j]
+    }
 
-    if (length(cmap)==0)
+    if (length(cmap)==0){
       cmap = NA
+    }
 
     ## get the data into GRanges or GRangesList format
 
     pre.filtered = FALSE;
-    if (.Object@formatting$triangle[j])
+    if (.Object@formatting$triangle[j]){
       pre.filtered = TRUE
+    }
 
 
     tt <- extract_data_from_tmp_dat(.Object, j, this.windows)    
@@ -1446,16 +1564,19 @@ setMethod('plot', c("gTrack","ANY"),
     ## flag to tell us whether data is pre-filtered to window (ie in fftrack or rlelist)
     
     ## adjust y0 .bar
-    if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j])))
+    if (is.null((formatting(.Object)$y0.bar[j])) || is.na((formatting(.Object)$y0.bar[j]))){
         formatting(.Object)$y0.bar[j] = NA
+    }
 
     ## smooth the y.field data
-    if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') && !is.na(formatting(.Object)$smooth[j]))
+    if (!is.na(formatting(.Object)$y.field[j]) && is(tmp.dat, 'GRanges') && !is.na(formatting(.Object)$smooth[j])){
         tmp.dat <- smooth_yfield(.Object, j, tmp.dat)
+    }
 
     ## fix y limits and apply log transform if needed
-    if (!is.na(formatting(.Object)$y.field[j]) && (is.na(formatting(.Object)$y0[j]) || is.na(formatting(.Object)$y1[j])))
+    if (!is.na(formatting(.Object)$y.field[j]) && (is.na(formatting(.Object)$y0[j]) || is.na(formatting(.Object)$y1[j]))){
       .Object <- format_yfield_limits(.Object, j, tmp.dat, pre.filtered, this.windows)
+    }
 
     # if (formatting(.Object[j])$format != 'ranges')
     #   stop("violated assumption. need to fix")
@@ -1493,74 +1614,88 @@ setMethod('plot', c("gTrack","ANY"),
     this.y.field = formatting(.Object)$y.field[j]
     this.y.grid = NA;
 
-    if (is.na(this.y.field) | !(this.y.field %in% names(values(tmp.dat))))
-      this.y = this.ylim.subplot[j, ]
+    if (is.na(this.y.field) | !(this.y.field %in% names(values(tmp.dat)))){
+        this.y = this.ylim.subplot[j, ]
+    }
     else
     {
-      if (is.null(formatting(.Object)$log))
-        formatting(.Object)$log = NA
-
-      if (!is.na(formatting(.Object)$log[j]))
-        if (formatting(.Object)$log[j])
-        {
-          if (!is.null(tmp.dat$ywid))
-            tmp.dat$ywid = log10(tmp.dat$ywid)
-          values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
-          formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
-          formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
-
+        if (is.null(formatting(.Object)$log)){
+            formatting(.Object)$log = NA
         }
-      range.y = NULL;
-      if (all(c('y0', 'y1') %in% names(formatting(.Object))))
-      {
-        if (!is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
-          range.y = c(formatting(.Object)[j, 'y0'], formatting(.Object)[j, 'y1'])
-        else if (!is.na(formatting(.Object)[j, 'y0']) & is.na(formatting(.Object)[j, 'y1']))
-          range.y = c(formatting(.Object)[j, 'y0'], max(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T))
-        else if (is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1']))
-          range.y = c(min(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T), formatting(.Object)[j, 'y1'])
-      }
 
-      if (length(tmp.dat)>0)
-          {
-              if (!is.null(tmp.dat$ywid)) ## remove any weird infinite ywids
-              {
-                  if (any(ix <- is.infinite(tmp.dat$ywid)))
-                      tmp.dat$ywid[ix] = NA
-              }
-              else
-                  tmp.dat$ywid = NA
+        if (!is.na(formatting(.Object)$log[j])){
+            if (formatting(.Object)$log[j]){
+                if (!is.null(tmp.dat$ywid)){
+                    tmp.dat$ywid = log10(tmp.dat$ywid)
+                }
+            values(tmp.dat)[, this.y.field] = log10(values(tmp.dat)[, this.y.field])
+            formatting(.Object)[j, 'y0'] = log10(formatting(.Object)[j, 'y0'])
+            formatting(.Object)[j, 'y1'] = log10(formatting(.Object)[j, 'y1'])
 
-              if (is.null(range.y)) ## if y range is empty then pull from data
-                  range.y = range(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T);
-                                        #                              range.y = range(setdiff(values(dat(.Object)[[j]])[, this.y.field], c(Inf, -Inf)), na.rm = T);
-          }
-      ## however if there is a single data value, then we need to scale appropriately
-      if (diff(range.y)==0)
-      {
-        if (any(ix <- !is.na(tmp.dat$ywid))) ## use ywid
-          range.y = range.y + 5*max(tmp.dat$ywid[ix])*c(-1, 1)
-        else # otherwise use some arbitrary proportion around the value
-          range.y = range.y + abs(range.y)*0.2*c(-1, 1)
-      }
+            }
+        }
+        range.y = NULL;
+        if (all(c('y0', 'y1') %in% names(formatting(.Object)))){
+            if (!is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1'])){
+                range.y = c(formatting(.Object)[j, 'y0'], formatting(.Object)[j, 'y1'])
+            }
+            else if (!is.na(formatting(.Object)[j, 'y0']) & is.na(formatting(.Object)[j, 'y1'])){
+                range.y = c(formatting(.Object)[j, 'y0'], max(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T))
+            }
+            else if (is.na(formatting(.Object)[j, 'y0']) & !is.na(formatting(.Object)[j, 'y1'])){
+                range.y = c(min(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T), formatting(.Object)[j, 'y1'])
+            }
+        }
+
+        if (length(tmp.dat)>0){
+            ## remove any weird infinite ywids
+            if (!is.null(tmp.dat$ywid)) {
+                if (any(ix <- is.infinite(tmp.dat$ywid)))
+                    tmp.dat$ywid[ix] = NA
+                }
+                else{
+                    tmp.dat$ywid = NA
+                }
+                ## if y range is empty then pull from data
+                if (is.null(range.y)){
+                    range.y = range(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T);
+                    ###  range.y = range(setdiff(values(dat(.Object)[[j]])[, this.y.field], c(Inf, -Inf)), na.rm = T);
+                }
+            }
+        }
+        ## however if there is a single data value, then we need to scale appropriately
+        if (diff(range.y)==0){
+            ## use ywid
+            if (any(ix <- !is.na(tmp.dat$ywid))){
+                range.y = range.y + 5*max(tmp.dat$ywid[ix])*c(-1, 1)
+            }
+            else {
+            # otherwise use some arbitrary proportion around the value
+            range.y = range.y + abs(range.y)*0.2*c(-1, 1)
+            }
+        }
       
-      this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
+        this.y.ticks = pretty(range.y, formatting(.Object)$yaxis.pretty[j])
 
-      if (is.null(formatting(.Object)$y.cap))
-          formatting(.Object)$y.cap = NA
-      
-      if (!is.na(formatting(.Object)$y.cap[j])) ## cap values from top and bottom
-        this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
-      else
-        this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = TRUE)
-      #                            this.y = affine.map(values(dat(.Object)[[j]])[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
+        if (is.null(formatting(.Object)$y.cap)){
+            formatting(.Object)$y.cap = NA
+        }
+        ## cap values from top and bottom
+        if (!is.na(formatting(.Object)$y.cap[j])){
+            this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
+        }
+        else{
+            this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = TRUE)
+        }
+        #                            this.y = affine.map(values(dat(.Object)[[j]])[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
 
-      ## if need, bump the range to include ybar base
-      # if (formatting(.Object)$y0.bar[j] < min(unlist(this.ylim.subplot[j, ])))
-      #   this.ylim.subplot[j,'start'] <- formatting(.Object)$y0.bar[j]
+        ## if need, bump the range to include ybar base
+        # if (formatting(.Object)$y0.bar[j] < min(unlist(this.ylim.subplot[j, ])))
+        #   this.ylim.subplot[j,'start'] <- formatting(.Object)$y0.bar[j]
 
-      if (is.na(formatting(.Object)$y0.bar[j]))
+      if (is.na(formatting(.Object)$y0.bar[j])){
           formatting(.Object)$y0.bar[j] = 0
+      }
 
       all.args$y0.bar = affine.map(formatting(.Object)$y0.bar[j], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
       if (formatting(.Object)$yaxis[j])
@@ -1568,9 +1703,11 @@ setMethod('plot', c("gTrack","ANY"),
         # make pretty grid in range.y
         this.y.grid = structure(affine.map(this.y.ticks, ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks)), names = this.y.ticks)
 
-        if (!is.na(formatting(.Object)$log[j]))
-          if (formatting(.Object)$log[j])
+        if (!is.na(formatting(.Object)$log[j])){
+          if (formatting(.Object)$log[j]){
             names(this.y.grid) = signif(10^this.y.ticks)
+          }
+        }
       }
 
       ## ## fix ywids if necessary
@@ -1578,46 +1715,56 @@ setMethod('plot', c("gTrack","ANY"),
       ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)
     }
 
-    if (is.null(.Object[j]$bars))
+    if (is.null(.Object[j]$bars)){
         formatting(.Object)$bars[j] = FALSE
-    else if (is.na(.Object[j]$bars))
-        formatting(.Object)$bars[j] = FALSE   
+    }
+    else if (is.na(.Object[j]$bars)){
+        formatting(.Object)$bars[j] = FALSE  
+    } 
     
     
-    if (.Object[j]$bars && is.na(all.args$y0.bar))
+    if (.Object[j]$bars && is.na(all.args$y0.bar)){
         all.args$y0.bar = this.ylim.subplot[j, 1]
+    }
 
-    if (is.null(.Object$chr.sub))
+    if (is.null(.Object$chr.sub)){
         .Object$chr.sub = FALSE
+    }
 
-    if (is.na(.Object$chr.sub[j]))
+    if (is.na(.Object$chr.sub[j])){
         .Object$chr.sub[j] = FALSE
-    
-    if (.Object[j]$chr.sub)
+    }
+
+    if (.Object[j]$chr.sub){
         tmp.windows = gr.sub(windows, 'chr', '')
-    else
+    }
+    else{
         tmp.windows = this.windows
+    }
 
     ## fix legend params
     this.legend.params = legend.params
-    if (!formatting(.Object)$legend[j])
+    if (!formatting(.Object)$legend[j]){
         this.legend.params$plot = FALSE
-    else
-        {            
+    }
+    else{            
             this.legend.params$xpos = NA
-            if (!is.null(formatting(.Object)$legend.xpos))
+            if (!is.null(formatting(.Object)$legend.xpos)){
                 this.legend.params$xpos = is.formatting(.Object)$legend.xpos[j]
-            if (!is.null(formatting(.Object)$legend.ypos))
+            }
+            if (!is.null(formatting(.Object)$legend.ypos)){
                 this.legend.params$ypos = formatting(.Object)$legend.ypos[j]
+            }
             
             jj = match(j, which.legend)
-            if (is.na(this.legend.params$xpos))
+            if (is.na(this.legend.params$xpos)){
                 this.legend.params$xpos = seq(0, 1, length.out = numlegends)[jj]
+            }
 
             this.legend.params$xpos = seq(0, 1, length.out = numlegends)[jj]
             this.legend.params$xjust = c(0, 0.5, 1)[as.integer(cut(this.legend.params$xpos, c(-0.01, 0.2, 0.8, 1)))]
             this.legend.params$title = .Object$legend.title[j]
-        }         
+    }         
 
     main.args <- list(grl=tmp.dat,y = this.y, ylim = ylim,
                       xaxis.pos = this.xaxis.pos,xaxis.pos.label = this.xaxis.pos.label,
@@ -1749,74 +1896,85 @@ setMethod('plot', c("gTrack","ANY"),
           values(ll)[, col] = links.feat[ll$query.id, col]
 
         # set up connectors
-        if (is.null(ll$v))
+        if (is.null(ll$v)){
           ll$v = y.gaps[ll$stack.id]/4
-        else
+        }
+        else{
           ll$v = y.gaps[ll$stack.id]*ll$v/2
+        }
 
-        if (is.null(ll$h))
+        if (is.null(ll$h)){
           ll$h = (window.segs.xlim$end[ll$stack.id] - window.segs.xlim$start[ll$stack.id])/20
-        else
+        }
+        else{
           ll$h = (window.segs.xlim$end[ll$stack.id] - window.segs.xlim$start[ll$stack.id])*ll$h
+        }
 
-        if (is.null(ll$arrow))
+        if (is.null(ll$arrow)){
           ll$arrow = TRUE
+        }
 
-        if (is.null(ll$cex.arrow))
+        if (is.null(ll$cex.arrow)){
           ll$cex.arrow = 1
+        }
 
-        if (is.null(ll$lwd))
+        if (is.null(ll$lwd)){
           ll$lwd = 1
+        }
 
 
-        if (is.null(ll$lty))
+        if (is.null(ll$lty)){
           ll$lty = 3
+        }
 
 
-        if (is.null(ll$col))
+        if (is.null(ll$col)){
           ll$col = 'red'
+        }
 
-        if (is.null(ll$col.arrow))
+        if (is.null(ll$col.arrow)){
           ll$col.arrow = ll$col
+        }
 
         return(ll)
     }
 
-    if (length(l1)>0)
+    if (length(l1)>0){
       l1 = .fix.l(l1)
+    }
 
-    if (length(l2)>0)
+    if (length(l2)>0){
       l2 = .fix.l(l2)
+    }
 
 
     ## now pair up / merge l1 and l2 using query.id as primary key
-    if (length(l1)>0 & length(l2)>0)
-    {
-      pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]
-      l1.paired = GenomicRanges::as.data.frame(l1)[pairs[,1], ]
-      l2.paired = GenomicRanges::as.data.frame(l2)[pairs[,2], ]
+    if (length(l1)>0 & length(l2)>0){
+        pairs = merge(data.frame(l1.id = 1:length(l1), query.id = l1$query.id), data.frame(l2.id = 1:length(l2), query.id = l2$query.id))[, c('l1.id', 'l2.id')]
+        l1.paired = GenomicRanges::as.data.frame(l1)[pairs[,1], ]
+        l2.paired = GenomicRanges::as.data.frame(l2)[pairs[,2], ]
     }
-    else
-    {
-      l2.paired = l1.paired = data.frame()
-      pairs = data.frame()
+    else{
+        l2.paired = l1.paired = data.frame()
+        pairs = data.frame()
     }
 
 
     ## some l1 and l2 will be unpaired
     l.unpaired = GRanges(seqlengths = GenomeInfoDb::seqlengths(links));
     p1 = p2 = c();
-    if (nrow(pairs)>0)
-    {
-      p1 = pairs[,1]
-      p2 = pairs[,2]
+    if (nrow(pairs)>0){
+        p1 = pairs[,1]
+        p2 = pairs[,2]
     }
 
-    if (length(l1)>0)
+    if (length(l1)>0){
       l.unpaired = grbind(l.unpaired, l1[setdiff(1:length(l1), p1)])
+    }
 
-    if (length(l2)>0)
+    if (length(l2)>0){
       l.unpaired = grbind(l.unpaired, l2[setdiff(1:length(l2), p2)])
+    }
 
     if (length(l.unpaired)>0)
     {
@@ -1998,10 +2156,10 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 
   }
 
-  formatting(td)$angle = 10
-  formatting(td)$ywid = 2
+    formatting(td)$angle = 10
+    formatting(td)$ywid = 2
 
-  return(td)
+    return(td)
 }
 
 
@@ -5764,17 +5922,24 @@ track.straw = function(hic, gr, norm = "KR", type = 'BP', res = 1e4, mc.cores = 
   return(gt)
 }
 
+
+
+
 ## convert input data into a list of length 'len' of type FUN
 listify <- function(x, FUN, len = 1) {
-  if (is.null(x))
-    return(rep(list(FUN()), len))
-  if (!is.list(x))
-    return(list(x))
-  return(x)
+    if (is.null(x)){
+        return(rep(list(FUN()), len))
+    }
+    if (!is.list(x)){
+        return(list(x))
+    }
+    return(x)
 }
 
-alpha = function(col, alpha)
-{
+
+
+
+alpha = function(col, alpha){
   col.rgb = col2rgb(col)
   out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
   names(out) = names(col)
