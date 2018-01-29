@@ -1,10 +1,13 @@
 library(gTrack)
 library(gUtils)
-context("gTrack tests")
+
+library(testthat)
+
+context('gTrack tests')
 
 HI=300
 WI=600
-gr <- GRanges(c(1,1), IRanges(c(5,6), width=1), strand=c("+","-"), A=c(5,8), B=c(3,2), seqinfo= gUtils::si)
+##gr <- GRanges(c(1,1), IRanges(c(5,6), width=1), strand=c("+","-"), A=c(5,8), B=c(3,2), seqinfo= gUtils::si)
 
 grl <- GRangesList(list(GRanges(c(1,2), IRanges(c(6,10), width=1), strand=c("+","-"),seqinfo=gUtils::si)))
 set.seed(137)
@@ -49,48 +52,171 @@ graph[8,2]=1
 graph[9,1]=1
 graph[10,1]=1
     
-test_that("edges",  {   
-    plot(gTrack(gr , edges = graph , stack.gap = 5))
+
+
+
+## test_that('gTrack(), edges ',  {   
+##     plot(gTrack(gr , edges = graph , stack.gap = 5))
+## })
+
+
+
+
+test_that('gTrack(), stack.gap', {
+
+    foo = gTrack(gr , stack.gap = 2)
+    expect_equal(foo$stack.gap, 2)   ## test here
+    expect_equal(as.logical(foo$y.field), NA)
+    expect_equal(foo$angle, 15)
+    expect_equal(foo$draw.paths, FALSE)
+    expect_equal(foo$height, 10)
+    expect_equal(foo$ygap, 2)
+
 })
 
-test_that("stack.gap", {
-    plot(gTrack(gr , stack.gap = 2))
+
+
+
+test_that('gTrack(), y.field', {
+
+    foo = gTrack(gr , y.field = 'GC') 
+    expect_equal(foo$y.field, 'GC')  ## test here
+    expect_equal(foo$draw.paths, FALSE)
+    expect_equal(foo$height, 10)
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$stack.gap, 0)
+
 })
 
-test_that("y.field", {
-    plot(gTrack(gr , y.field = 'GC')) 
+
+
+test_that('gTrack(), bars', {
+    
+    foo = gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue')
+    expect_equal(foo$y.field, 'GC')  ## test here
+    expect_equal(foo$draw.paths, FALSE)
+    expect_equal(foo$bars, TRUE)
+    expect_equal(foo$col, 'light blue')
+
 })
 
-test_that("bars", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue'))
+
+
+
+test_that('gTrack(), lines', {
+    
+    foo = gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple')
+    expect_equal(foo$y.field, 'GC')  ## test here
+    expect_equal(foo$draw.paths, FALSE)
+    expect_equal(foo$bars, FALSE)
+    expect_equal(foo$lines, TRUE)
+    expect_equal(foo$col, 'purple')
+
 })
 
-test_that("lines", {
-    plot(gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple'))
+
+
+
+test_that('gTrack(), circles', {
+    
+    foo = gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60')  ## why is 'border' a character string? 
+    expect_equal(foo$y.field, 'GC')  ### test
+    expect_equal(as.logical(foo$draw.paths), FALSE) 
+    expect_equal(foo$height, 10)  
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$stack.gap, 0) 
+    expect_equal(foo$col, 'magenta')   ## test
+    expect_equal(foo$border, '60')  ## test
+    expect_equal(foo$angle, 15)
+    expect_equal(as.logical(foo$gr.labelfield), NA)
+
 })
 
-test_that("cirlces", {
-    plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
+
+
+
+
+test_that('gTrack(), colorfield', {
+    
+    foo = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) )
+    expect_equal(foo$y.field, 'GC')  ### test
+    expect_equal(as.logical(foo$draw.paths), FALSE) 
+    expect_equal(foo$height, 10)  
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$stack.gap, 0) 
+    expect_equal(as.logical(foo$col), NA)   ## test
+    expect_equal(as.logical(foo$gr.colorfield), NA)  
+    expect_equal(foo$angle, 15)
+    expect_equal(as.logical(foo$gr.labelfield), NA)
+    expect_equal(foo$bars, TRUE)  ## test
+    ## how to test 'colormaps'?
+
+
 })
 
-test_that("colorfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
+
+
+
+
+test_that('gTrack(), gr.colorfield', {
+    
+    foo = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC')
+    expect_equal(foo$y.field, 'GC')  ### test
+    expect_equal(as.logical(foo$draw.paths), FALSE) 
+    expect_equal(foo$height, 10)  
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$stack.gap, 0) 
+    expect_equal(as.logical(foo$col), NA)   ## test
+    expect_equal(foo$gr.colorfield, 'GC')  ## test
+    expect_equal(foo$angle, 15)
+    expect_equal(as.logical(foo$gr.labelfield), NA)
+    expect_equal(foo$bars, TRUE)
+
 })
 
-test_that("gr.colorfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC'))
+
+
+
+
+test_that('gTrack(), gr.labelfield', {
+    
+    foo = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name name _ name')
+    expect_equal(foo$y.field, 'GC')
+    expect_equal(as.logical(foo$draw.paths), FALSE) 
+    expect_equal(foo$height, 10)  
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$stack.gap, 0) 
+    expect_equal(as.logical(foo$col), NA)   
+    expect_equal(foo$ gr.colorfield, 'GC')  
+    expect_equal(foo$angle, 15)
+    expect_equal(foo$gr.labelfield, 'name name _ name')
+
 })
 
-test_that("gr.labelfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name'))
-})
 
-test_that("col", {
+
+
+
+test_that('gTrack(), col', {
+    
     graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
-    plot(gTrack(gr , edges = graph , stack.gap = 5))  
+    foo = gTrack(gr, edges = graph , stack.gap = 5)  
+    expect_equal(as.logical(foo$y.field), NA)
+    expect_equal(as.logical(foo$draw.paths), FALSE) 
+    expect_equal(foo$height, 10)  
+    expect_equal(foo$ygap, 2)
+    expect_equal(foo$angle, 15)
+    ## test edges = graph
+    expect_equal(foo$stack.gap, 5)  ## test here
+
 })
 
-if(FALSE){
+
+
+
+
+
+
 
 test_that("lwd", {
     graph$lwd = 1.844941
@@ -107,10 +233,22 @@ test_that("h", {
     plot(gTrack(gr , edges = graph , stack.gap = 5))
 })
 
+
 test_that("mdata",{
     heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
     plot(gTrack(gr, mdata = heatMap, stack.gap = 5))   
 })
+
+
+
+
+
+
+
+
+
+
+
 
 test_that("multipleTracks", {
     ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
