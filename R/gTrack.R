@@ -1365,73 +1365,71 @@ setMethod('plot', c("gTrack", "ANY"),
                    )
 {
 
-  if (!missing(y)){
-    windows = y
-  }
+    if (!missing(y)){
+        windows = y
+    }
 
-  .Object = x
-  if (!missing(y)){
-    windows = y
-  }
+    .Object = x
+    if (!missing(y)){
+        windows = y
+    }
 
-  if (is(windows, 'character')){
-    windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
-  }
+    if (is(windows, 'character')){
+        windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+    }
   
-  ## make sure we have min legend data
-  if (!"xpos" %in% names(legend.params)){
-    legend.params$xpos = 0
-  }
-  if (!"ypos" %in% names(legend.params)){
-    legend.params$ypos = 1
-  }
-  if (!"plot" %in% names(legend.params)){
-    legend.params$plot = TRUE
-  }
+    ## make sure we have min legend data
+    if (!"xpos" %in% names(legend.params)){
+        legend.params$xpos = 0
+    }
+    if (!"ypos" %in% names(legend.params)){
+        legend.params$ypos = 1
+    }
+    if (!"plot" %in% names(legend.params)){
+        legend.params$plot = TRUE
+    }
 
-  win.gap = gap ## PATCH: recasting some variable names
-  new.plot = TRUE
-  window.segs = list();
-  dotdot.args = list(...);
+    win.gap = gap ## PATCH: recasting some variable names
+    new.plot = TRUE
+    window.segs = list();
+    dotdot.args = list(...);
 
-  ## parse the wind<ows into GRanges
-  windows = format_windows(windows, .Object)
+    ## parse the wind<ows into GRanges
+    windows = format_windows(windows, .Object)
 
-  windows = windows[width(windows)>0]
+    windows = windows[width(windows)>0]
               
     ## if totally empty, plot blank and leave
-  if(!length(windows)) {
-    plot.blank(bg.col = bg.col)
-    return()
-  }
+    if(!length(windows)) {
+        plot.blank(bg.col = bg.col)
+        return()
+    }
 
-  ## make sure gTrack has all fields that are expected later
-  .Object <- prep_defaults_for_plotting(.Object)
+    ## make sure gTrack has all fields that are expected later
+    .Object <- prep_defaults_for_plotting(.Object)
 
-  if (is.null(formatting(.Object)$legend)){
-      formatting(.Object)$legend = TRUE
-  }
-  else (any(is.na(formatting(.Object)$legend))){
-       formatting(.Object)$legend[is.na(formatting(.Object)$legend)] = TRUE
-  }
+    if (is.null(formatting(.Object)$legend)) {
+        formatting(.Object)$legend = TRUE
+    }else (any(is.na(formatting(.Object)$legend)))
+        formatting(.Object)$legend[is.na(formatting(.Object)$legend)] = TRUE
+    
 
 
-  if (is.null(formatting(.Object)$legend.title)){
-      formatting(.Object)$legend.title = NA
-  }
+    if (is.null(formatting(.Object)$legend.title)){
+        formatting(.Object)$legend.title = NA
+    }
 
-  if (is.null(formatting(.Object)$track.name))
-  {  
-      if (!is.null(formatting(.Object)$name)){
-          formatting(.Object)$track.name = formatting(.Object)$name
-      }
-      else if (!is.null(formatting(.Object)$y.field)){
-          formatting(.Object)$track.name = formatting(.Object)$y.field
-      }
-      else{
-          formatting(.Object)$track.name = NA
-      }
-  }
+    if (is.null(formatting(.Object)$track.name))
+    {  
+        if (!is.null(formatting(.Object)$name)){
+            formatting(.Object)$track.name = formatting(.Object)$name
+        } else if (!is.null(formatting(.Object)$y.field)){
+            formatting(.Object)$track.name = formatting(.Object)$y.field
+        }
+        else{
+            formatting(.Object)$track.name = NA
+        }
+    }
 
   has.colormap = sapply(colormap(.Object), length)>0
   has.colorfield = !is.na(formatting(.Object)$gr.colorfield)
@@ -1777,8 +1775,9 @@ setMethod('plot', c("gTrack", "ANY"),
 
     ## clear out na.args to make default setting simpler downstream
     na.args = sapply(all.args, function(x) if(is.vector(x)) all(is.na(x)) else FALSE)
-    if (any(na.args))
+    if (any(na.args)){
       all.args = all.args[!na.args] 
+    }
     
     # main.args = c(main.args, all.args[setdiff(names(all.args), names(main.args))]);
     #
@@ -1786,25 +1785,24 @@ setMethod('plot', c("gTrack", "ANY"),
     # other.args = other.args[setdiff(names(other.args), names(main.args))]
     ## make empty plot
 
-    if (new.plot)
-    {
-      blank.main.args <- all.args
-      ###blank.main.args = main.args;
-      ###blank.main.args[[1]] = blank.main.args[[1]][c()]
-      #blank.main.args$y = list(start = min(this.ylim.subplot$start), end = max(this.ylim.subplot$end))
+    if (new.plot){
+        blank.main.args <- all.args
+        ###blank.main.args = main.args;
+        ###blank.main.args[[1]] = blank.main.args[[1]][c()]
+        #blank.main.args$y = list(start = min(this.ylim.subplot$start), end = max(this.ylim.subplot$end))
 
-      # if (any(is.na(.Object@formatting$triangle)) & any(.Object@formatting$triangle))
-      #   blank.main.args$y = list(start = min(this.ylim.subplot$start[is.na(.Object@formatting$triangle)]), end = max(this.ylim.subplot$end[is.na(.Object@formatting$triangle)])) ## JEREMIAH
-      # else
-      blank.main.args$grl <- GRanges()
-      blank.main.args$y = list(start=min(this.ylim.subplot$start), end = max(this.ylim.subplot$end))
-      blank.main.args$triangle=FALSE
-      blank.main.args$sep.draw=FALSE
+        # if (any(is.na(.Object@formatting$triangle)) & any(.Object@formatting$triangle))
+        #   blank.main.args$y = list(start = min(this.ylim.subplot$start[is.na(.Object@formatting$triangle)]), end = max(this.ylim.subplot$end[is.na(.Object@formatting$triangle)])) ## JEREMIAH
+        # else
+        blank.main.args$grl <- GRanges()  
+        blank.main.args$y = list(start=min(this.ylim.subplot$start), end = max(this.ylim.subplot$end))
+        blank.main.args$triangle=FALSE
+        blank.main.args$sep.draw=FALSE
 
-      do.call('draw.grl', blank.main.args)
-      ##do.call('draw.grl', c(blank.main.args, other.args))
-      all.args$new.plot = FALSE
-      all.args$new.axis = FALSE
+        do.call('draw.grl', blank.main.args)
+        ##do.call('draw.grl', c(blank.main.args, other.args))
+        all.args$new.plot = FALSE
+        all.args$new.axis = FALSE
     }
 
     new.plot = FALSE
@@ -1818,8 +1816,8 @@ setMethod('plot', c("gTrack", "ANY"),
 
     if (formatting(.Object[j])$triangle)
     {
-        all.args$sigma= all.args$smooth
-      window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
+        all.args$sigma = all.args$smooth
+        window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
                                                                                    "cmap.min","cmap.max", "m.sep.lwd","m.bg.col","legend","leg.params",
                                                                                    "islog","gr.colormap")])
     } else {
@@ -1835,10 +1833,11 @@ setMethod('plot', c("gTrack", "ANY"),
            this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
     }
 
-  }
 
-  if (is.null(links))
-    links = GenomicRanges::GRangesList()
+
+    if (is.null(links)){
+      links = GenomicRanges::GRangesList()
+    }
 
   if (length(links)>0) # draw rearrangement links
   {
