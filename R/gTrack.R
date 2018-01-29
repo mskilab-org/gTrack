@@ -259,7 +259,6 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 
 
 
-
 #' Construct a new \code{gTrack}
 #'
 #' Arguments described as "formatting" are vectors.  They are replicated (if necessary) to match the length of the object.
@@ -418,11 +417,11 @@ gTrack = function(data = NULL, ##
                   m.bg.col = NA,
                   cmap.min = NA,
                   cmap.max = NA,
-                  labels.suppress = FALSE,
-                  labels.suppress.grl = labels.suppress,
-                  labels.suppress.gr = labels.suppress,
+    labels.suppress = FALSE,
+    labels.suppress.grl = labels.suppress,
+    labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
-                  formatting = NA) {
+    formatting = NA) {
     
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar 
     new('gTrack', data = data, y.field = y.field, mdata = mdata, name = name, format = formatting,
@@ -438,8 +437,8 @@ gTrack = function(data = NULL, ##
       grl.labelfield = grl.labelfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
       xaxis.suffix = xaxis.suffix, xaxis.round = xaxis.round, xaxis.interval = xaxis.interval,
       xaxis.cex.label = xaxis.cex.label, xaxis.newline = xaxis.newline,
-      xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
-      labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
+        xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
+        labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
       xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
       xaxis.cex.tick = xaxis.cex.tick, sep.lty = sep.lty, sep.lwd = sep.lwd, sep.bg.col = sep.bg.col,
       sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, m.bg.col = m.bg.col,
@@ -449,132 +448,124 @@ gTrack = function(data = NULL, ##
 
 setValidity('gTrack', function(object)
 {
-    problems = c();
+  problems = c();
 
-    ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
-    ## deprecated a while ago... 3/20/16
+  ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
+  ## deprecated a while ago... 3/20/16
 
 
-    ##ALLOWED.FORMATS = list(RleList = c('scatter', 'line', 'bar', 'ranges'), SimpleRleList = c('scatter', 'line', 'bar', 'ranges'), GRanges = c('ranges'), GRangesList = c('ranges'), character = c('ranges'), ffTrack = 'ranges');
+  ##ALLOWED.FORMATS = list(RleList = c('scatter', 'line', 'bar', 'ranges'), SimpleRleList = c('scatter', 'line', 'bar', 'ranges'), GRanges = c('ranges'), GRangesList = c('ranges'), character = c('ranges'), ffTrack = 'ranges');
 
-    if (length(object@data)>0){
-        if (!all(sapply(object@data, function(x) class(x) %in% ALLOWED.DATA.CLASSES))){
-            problems = c(problems, (paste('One or more of the provided data objects in data slot are not of the allowed data classes', paste(ALLOWED.DATA.CLASSES, collapse = ", "))))
-        }
-        else{
-            # for (i in 1:nrow(object@formatting))
-            #   if (!(object@formatting$format[i] %in% ALLOWED.FORMATS[[class(object@data[[i]])]]))
-            #     problems = c(problems, sprintf('Format specified for data track %s (%s) is not allowed.  Available formats for this track are: %s.', i, object@formatting$format[i], paste(ALLOWED.FORMATS[[class(object@data[[i]])]], collapse = ", ")))
-            if (length(object@data) != nrow(object@formatting)){
-                problems = c(problems, 'Length of data is not equal to the number of formatting entries')
-            }
-        }
+  if (length(object@data)>0)
+    if (!all(sapply(object@data, function(x) class(x) %in% ALLOWED.DATA.CLASSES)))
+      problems = c(problems, (paste('One or more of the provided data objects in data slot are not of the allowed data classes', paste(ALLOWED.DATA.CLASSES, collapse = ", "))))
+    else
+    {
+      # for (i in 1:nrow(object@formatting))
+      #   if (!(object@formatting$format[i] %in% ALLOWED.FORMATS[[class(object@data[[i]])]]))
+      #     problems = c(problems, sprintf('Format specified for data track %s (%s) is not allowed.  Available formats for this track are: %s.', i, object@formatting$format[i], paste(ALLOWED.FORMATS[[class(object@data[[i]])]], collapse = ", ")))
+      if (length(object@data) != nrow(object@formatting))
+        problems = c(problems, 'Length of data is not equal to the number of formatting entries')
     }
-    else{
-        if (nrow(object@formatting) != 0){
-            problems = c(problems, 'Null trackdata object has incompatible fields');
-        }
+    else
+      if (nrow(object@formatting) != 0)
+        problems = c(problems, 'Null trackdata object has incompatible fields');
 
 
-        if (!all(sapply(object@edges, is.data.frame))){
-            problems = c(problems, 'Some trackdata edges attributes are not data.frames')
-        }
-        else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T))){
-            problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
-        }
-        else if (any(!sapply(1:length(object@data), function(x){
-            if (nrow(object@edges[[x]])>0){
-                all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
-            }
-            else{
-                TRUE
-            })))
-        }
-    }
-      
-    problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
+      if (!all(sapply(object@edges, is.data.frame)))
+        problems = c(problems, 'Some trackdata edges attributes are not data.frames')
+      else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T)))
+        problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
+      else if (any(!sapply(1:length(object@data), function(x)
+        if (nrow(object@edges[[x]])>0)
+          all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
+        else T)))
+        problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
-    if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field)){
+      if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field))
+      {
         nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
-        if (any(nix)){
-            tmp = sapply(which(nix), function(x) object$y.field[x] %in% names(values(dat(object)[[x]])))
-        }
-        else{
-            tmp = TRUE
-        }
+        if (any(nix))
+          tmp = sapply(which(nix), function(x) object$y.field[x] %in% names(values(dat(object)[[x]])))
+        else
+          tmp = TRUE
 
-        if (any(!tmp)){
-            problems = c(problems, paste('These y.fields are not found in their respective GRanges object:',
+        if (any(!tmp))
+        {
+          problems = c(problems, paste('These y.fields are not found in their respective GRanges object:',
                                        paste(object$y.field[nix][!tmp], collapse = ', ')))
         }
-    }
+      }
 
-    if (length(object@data) != length(object@colormap)){
+
+      if (length(object@data) != length(object@colormap))
         problems = c(problems, 'Length of object is not the same length as colormap')
-    }
 
   
-    if (any(ix <- sapply(object@data, class) == 'character')){
-        for (iix in which(ix)){
-            x = object@data[[iix]]
+      if (any(ix <- sapply(object@data, class) == 'character'))
+      {
+        for (iix in which(ix))
+        {
+          x = object@data[[iix]]
 
-            if (grepl('(\\.bw$)|(\\.bigwig$)', x, ignore.case = T)){
-                f = BigWigFile(normalizePath(x))
-                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                if (is.null(slen)){
-                    problems = c(problems, sprintf('External file %s is not a valid and existing .bw / .bigwig file', x))
-                }
-            }
-            else if (grepl('\\.wig', x, ignore.case = T)){
-                f = WIGFile(normalizePath(x))
-                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                if (is.null(slen)){
-                    problems = c(problems, sprintf('External file %s is not a valid and existing .wig file', x))
-                }
+          if (grepl('(\\.bw$)|(\\.bigwig$)', x, ignore.case = T))
+          {
+            f = BigWigFile(normalizePath(x))
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            if (is.null(slen))
+              problems = c(problems, sprintf('External file %s is not a valid and existing .bw / .bigwig file', x))
+          }
+          else if (grepl('\\.wig', x, ignore.case = T))
+          {
+            f = WIGFile(normalizePath(x))
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            if (is.null(slen))
+              problems = c(problems, sprintf('External file %s is not a valid and existing .wig file', x))
 
-            }
-            else if (grepl('\\.bed', x, ignore.case = T)){
-                f = BEDFile(normalizePath(x))
-                #                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                #                        if (is.null(slen))
-                #                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
-            }
-            else if (grepl('\\.gff', x, ignore.case = T)){
-                f = GFFFile(normalizePath(x))
-                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                if (is.null(slen)){
-                    problems = c(problems, sprintf('External file %s is not a valid and existing .gff file', x))
-                }
-            }
-            else if (grepl('\\.2bit', x, ignore.case = T)){
-                f = TwoBitFile(normalizePath(x))
-                slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                if (is.null(slen)){
-                    problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
-                }
-            }
-            else if (grepl('\\.bedgraph', x, ignore.case = T)){
-                f = BEDGraphFile(normalizePath(x))
-                #                       slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                #                       if (is.null(slen))
-                #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
-            }
-            else{
-                problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
-            }
+          }
+          else if (grepl('\\.bed', x, ignore.case = T))
+          {
+            f = BEDFile(normalizePath(x))
+            #                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            #                        if (is.null(slen))
+            #                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
+          }
+          else if (grepl('\\.gff', x, ignore.case = T))
+          {
+            f = GFFFile(normalizePath(x))
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            if (is.null(slen))
+              problems = c(problems, sprintf('External file %s is not a valid and existing .gff file', x))
+          }
+          else if (grepl('\\.2bit', x, ignore.case = T))
+          {
+            f = TwoBitFile(normalizePath(x))
+            slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            if (is.null(slen))
+              problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
+
+          }
+          else if (grepl('\\.bedgraph', x, ignore.case = T))
+          {
+            f = BEDGraphFile(normalizePath(x))
+            #                       slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+            #                       if (is.null(slen))
+            #                         problems = c(problems, sprintf('External file %s is not a valid and existing .bedgraph file', x))
+          }
+          else
+            problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
         }
-    }
+      }
 
-    if (length(problems)==0){
+      if (length(problems)==0)
         TRUE
-    }
-    else{
+      else
         problems
-    }
 }
 );
 
 #suppressWarnings(removeMethod('[', 'gTrack')) ## takes care of stupid R 2.15 bug
+
 
 
 
