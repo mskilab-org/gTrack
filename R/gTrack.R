@@ -4874,22 +4874,26 @@ gr.stripstrand = function(gr)
 
 
 format_windows <- function(windows, .Object) {
-    if (is(windows, 'character'))
+
+    if (is(windows, 'character')){
         windows = BiocGenerics::unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+    }
 
-    if (is(windows, 'Seqinfo'))
+    if (is(windows, 'Seqinfo')){
         windows = si2gr(windows)
+    }
 
-    if (is(windows, 'GRangesList'))
+    if (is(windows, 'GRangesList')){
         windows = BiocGenerics::unlist(windows)
+    }
 
     windows = windows[width(windows)>0]  ## otherwise will get non-matching below
 
-    if (is.null(windows$col))
+    if (is.null(windows$col)){
         windows$col = 'gray98'
+    }
 
-#    if (is.list(windows))
-#        windows = do.call('GRangesList', windows)
+
 
     ## collapse and match metadata back to original
     tmp = reduce(gr.stripstrand(windows))
@@ -4898,178 +4902,164 @@ format_windows <- function(windows, .Object) {
     tmp = tmp[order(ix)] ## try to respect initial order
     windows = tmp
 
-##    if (!inherits(windows, 'GRangesList')) ## GRangesList windows deprecated
-##        windows = GenomicRanges::GRangesList(windows)
 
-    if (sum(as.numeric(width(grl.unlist(windows))))==0)
-        {
+    if (sum(as.numeric(width(grl.unlist(windows))))==0){
 
-            if (length(seqinfo(.Object))) {
-                windows = si2gr(seqinfo(.Object))
-            } else {
-                warning("no windows provided and no seqinfo. Drawing blank plot")
-                return(GRanges())
-            }
+        if (length(seqinfo(.Object))) {
+            windows = si2gr(seqinfo(.Object))
+        } else {
+            warning("Warning: no windows provided and no seqinfo. Drawing blank plot")
+            return(GRanges())
         }
+    }
 
-  return (grl.unlist(windows))
+    return (grl.unlist(windows))
 }
+
+
 
 prep_defaults_for_plotting <- function(.Object) {
-  # if (is.null(.Object@formatting$triangle))
-  #   .Object@formatting$triangle = NA
-  #
-  # if (any(ix <- is.na(.Object@formatting$triangle)))
-  #   .Object@formatting$triangle[ix] = FALSE
-  #
-  if (is.null(formatting(.Object)$source.file.chrsub))
-    formatting(.Object)$source.file.chrsub = TRUE
+ 
+    # if (is.null(.Object@formatting$triangle))
+    #   .Object@formatting$triangle = NA
+    #
+    # if (any(ix <- is.na(.Object@formatting$triangle)))
+    #   .Object@formatting$triangle[ix] = FALSE
+    #
+    if (is.null(formatting(.Object)$source.file.chrsub)){
+        formatting(.Object)$source.file.chrsub = TRUE
+    }
 
-  # layout legends if colorfield or colormap is NA and legends have no xpos set
-  # leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
-  # if (is.null(.Object@formatting$legend.xpos))
-  #   .Object@formatting$legend.xpos = NA
-  #
-  # if (is.null(.Object@formatting$legend.xjust))
-  #   .Object@formatting$legend.xjust = NA
-  #
-  # if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
-  # {
-  #   .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
-  #   .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
-  # }
+    # layout legends if colorfield or colormap is NA and legends have no xpos set
+    # leg.ix = which(.Object@formatting$legend & (!is.na(.Object@formatting$gr.colorfield) | !sapply(.Object@colormap, is.null)))
+    # if (is.null(.Object@formatting$legend.xpos))
+    #   .Object@formatting$legend.xpos = NA
+    #
+    # if (is.null(.Object@formatting$legend.xjust))
+    #   .Object@formatting$legend.xjust = NA
+    #
+    # if (any(is.na(.Object@formatting$legend.xpos[leg.ix])))
+    # {
+    #   .Object@formatting$legend.xpos[leg.ix] = seq(0.1, 1, length.out = length(leg.ix))
+    #   .Object@formatting$legend.xjust[leg.ix] = ifelse(.Object@formatting$legend.xpos[leg.ix]<0.5, 0, 1)
+    # }
 
-  # layout y coordinates
-  sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
-  formatting(.Object)$height  = formatting(.Object)$height/sumh
-  formatting(.Object)$ygap  = formatting(.Object)$ygap/sumh
-  #            formatting(.Object)$ywid  = formatting(.Object)$ywid/sumh
+    # layout y coordinates
+    sumh = sum(formatting(.Object)$height + formatting(.Object)$ygap)
+    formatting(.Object)$height  = formatting(.Object)$height/sumh
+    formatting(.Object)$ygap  = formatting(.Object)$ygap/sumh
+    #            formatting(.Object)$ywid  = formatting(.Object)$ywid/sumh
 
-  if (is.null(formatting(.Object)$max.ranges))
-    formatting(.Object)$max.ranges = NA
+    if (is.null(formatting(.Object)$max.ranges)){
+        formatting(.Object)$max.ranges = NA
+    }
 
-  return(.Object)
+    return(.Object)
 }
 
+
+
+
 extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
+ 
+    tmp.dat = dat(.Object)[[j]]
+  
+    # if (inherits(tmp.dat, 'RleList'))
+    # {
+    #   tmp.score = rle.query(tmp.dat, this.windows)
+    #   tmp.dat = gUtils::gr.dice(this.windows)
+    #   tmp.dat$score = as.numeric(tmp.score)
+    #
+    #   if (is.na(formatting(.Object)$y0[j]))
+    #     formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
+    #
+    #   if (is.na(formatting(.Object)$y1[j]))
+    #     formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
+    #
+    #   formatting(.Object)$y.field[j] = 'score'
+    #   pre.filtered = TRUE
+    # }
+    ## else if
+    if (is.character(tmp.dat)){
+        if (file.exists(tmp.dat)){
+            bed.style = FALSE
+            if (grepl('(\\.bw)|(\\.bigwig)', tmp.dat, ignore.case = TRUE)){
+                f = rtracklayer::BigWigFile(normalizePath(tmp.dat))
+                si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+            }else if (grepl('\\.wig', tmp.dat, ignore.case = TRUE)){
+                f = rtracklayer::WIGFile(normalizePath(tmp.dat))
+                si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+            }else if (grepl('\\.bed', tmp.dat, ignore.case = TRUE)){
+                f = rtracklayer::BEDFile(normalizePath(tmp.dat))
+                #                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+                bed.style = TRUE
+            }else if (grepl('\\.gff', tmp.dat, ignore.case = TRUE)){
+                f = rtracklayer::GFFFile(normalizePath(tmp.dat))
+                si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+            }else if (grepl('\\.2bit', tmp.dat, ignore.case = TRUE))
+            { 
+                f = rtracklayer::TwoBitFile(normalizePath(tmp.dat))
+                si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+            }else if (grepl('\\.bedgraph', tmp.dat, ignore.case = TRUE)){
+                f = rtracklayer::BEDGraphFile(normalizePath(tmp.dat))
+                #                           si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
+                bed.style = TRUE
+            }
 
-  tmp.dat = dat(.Object)[[j]]
+            ## bed.style file objects do not have seqinfo option
+            if (!bed.style) {
+            si = tryCatch(seqinfo(f), error = function(x) '')
+            pre.filtered = T
 
-  # if (inherits(tmp.dat, 'RleList'))
-  # {
-  #   tmp.score = rle.query(tmp.dat, this.windows)
-  #   tmp.dat = gUtils::gr.dice(this.windows)
-  #   tmp.dat$score = as.numeric(tmp.score)
-  #
-  #   if (is.na(formatting(.Object)$y0[j]))
-  #     formatting(.Object)$y0[j] = min(tmp.dat$score, na.rm = T)
-  #
-  #   if (is.na(formatting(.Object)$y1[j]))
-  #     formatting(.Object)$y1[j] = max(tmp.dat$score, na.rm = T)
-  #
-  #   formatting(.Object)$y.field[j] = 'score'
-  #   pre.filtered = TRUE
-  # }
-  ## else if
-  if (is.character(tmp.dat))
-  {
-    if (file.exists(tmp.dat))
-    {
-      bed.style = FALSE
-      if (grepl('(\\.bw)|(\\.bigwig)', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::BigWigFile(normalizePath(tmp.dat))
-        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-      }
-      else if (grepl('\\.wig', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::WIGFile(normalizePath(tmp.dat))
-        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-      }
-      else if (grepl('\\.bed', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::BEDFile(normalizePath(tmp.dat))
-        #                            si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-        bed.style = TRUE
-      }
-      else if (grepl('\\.gff', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::GFFFile(normalizePath(tmp.dat))
-        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-      }
-      else if (grepl('\\.2bit', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::TwoBitFile(normalizePath(tmp.dat))
-        si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-      }
-      else if (grepl('\\.bedgraph', tmp.dat, ignore.case = TRUE))
-      {
-        f = rtracklayer::BEDGraphFile(normalizePath(tmp.dat))
-        #                           si = tryCatch(seqinfo(f), error = function(tmp.dat) NULL)
-        bed.style = TRUE
-      }
-
-      if (!bed.style) ## bed.style file objects do not have seqinfo option
-      {
-        si = tryCatch(seqinfo(f), error = function(x) '')
-        pre.filtered = T
-
-        if (!is.character(si))
-        {
-            if (formatting(.Object)[j, 'source.file.chrsub'])
-                {
+            if (!is.character(si)){
+                if (formatting(.Object)[j, 'source.file.chrsub']){
                     sel = gr.fix(gr.chr(this.windows), si, drop = TRUE)            
                 }
-            else
-                sel = gr.fix(this.windows, si, drop = TRUE)
-
-            if (length(this.windows)>0 & length(sel)==0)
-                warning('zero ranges intersecting UCSC file sequences selection perhaps source.file.chrsub parameter needs to be fixed?')
-            
-
-          tmp.dat = rtracklayer::import(f, selection = sel, asRangedData = FALSE)
-
-          if (is.na(formatting(.Object)$y.field[j]))
-              formatting(.Object)$y.field[j] = 'score'
-
-        }
-      }
-      else
-          {
-        tmp.dat = rtracklayer::import(f, asRangedData = FALSE)
-        
-       
-        if (is.na(formatting(.Object)$y.field[j]))
-          formatting(.Object)$y.field[j] = 'score'
-      }
-    }
-  }
-  else if (is(tmp.dat, 'ffTrack'))
-  {
-    tmp.dat = tmp.dat[this.windows, gr = TRUE]
-    formatting(.Object)$y.field[j] = 'score'
-    pre.filtered = T
-  }
-  else
-  {
-    if (formatting(.Object)[j, 'source.file.chrsub'])
-      tmp.dat = gUtils::gr.sub(tmp.dat, 'chr', '')
-  }
-
-
-  if (is.character(tmp.dat)) ## file was not found
-  {
-    warnings('Track bigwig file not found')
-    tmp.dat = GRanges()
-  }
-
-  if (formatting(.Object)[j, 'source.file.chrsub'])
-  {
-                    tmp.dat = gUtils::gr.sub(tmp.dat, 'chr', '')
-                    this.windows= gUtils::gr.sub(this.windows, 'chr', '')
+                else{
+                    sel = gr.fix(this.windows, si, drop = TRUE)
                 }
 
-  return(list(o=.Object, t=tmp.dat, w = this.windows))
+                if (length(this.windows)>0 & length(sel)==0){
+                    warning('zero ranges intersecting UCSC file sequences selection perhaps source.file.chrsub parameter needs to be fixed?')
+                }
+            
+
+                tmp.dat = rtracklayer::import(f, selection = sel, asRangedData = FALSE)
+
+                if (is.na(formatting(.Object)$y.field[j])){
+                    formatting(.Object)$y.field[j] = 'score'
+                }
+            }
+        }else{
+            tmp.dat = rtracklayer::import(f, asRangedData = FALSE)
+        
+            if (is.na(formatting(.Object)$y.field[j])){
+                formatting(.Object)$y.field[j] = 'score'
+            }
+        }
+    }
+    }else if (is(tmp.dat, 'ffTrack')){
+        tmp.dat = tmp.dat[this.windows, gr = TRUE]
+        formatting(.Object)$y.field[j] = 'score'
+        pre.filtered = TRUE
+    }else{
+        if (formatting(.Object)[j, 'source.file.chrsub']){
+            tmp.dat = gUtils::gr.sub(tmp.dat, 'chr', '')
+        }
+    }
+
+    ## file was not found
+    if (is.character(tmp.dat)){
+        warnings('Track bigwig file not found')
+        tmp.dat = GRanges()
+    }
+
+    if (formatting(.Object)[j, 'source.file.chrsub']){
+        tmp.dat = gUtils::gr.sub(tmp.dat, 'chr', '')
+        this.windows= gUtils::gr.sub(this.windows, 'chr', '')
+    }
+
+    return(list(o=.Object, t=tmp.dat, w = this.windows))
 }
 
 enforce_max_ranges <- function(.Object, pre.filtered, j, tmp.dat, this.windows) {
@@ -5119,24 +5109,22 @@ smooth_yfield <- function(.Object, j, tmp.dat) {
     tmpfp[, end := pmin(lengths(tmp)[as.character(seqnames)], end)]
     tmpfp[, start := pmax(start, 1)]
 
-    for (i in 1:nrow(tmpfp))
-    {
-        tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]] =
-
-                S4Vectors::runmean(tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]], 
-                                   k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'drop', na.rm = TRUE)
+    for (i in 1:nrow(tmpfp)){
+        tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]] = S4Vectors::runmean(tmp[[tmpfp[i, seqnames]]][tmpfp[i, start:end]], 
+            k = floor(formatting(.Object)$smooth[j]/2)*2+1, endrule = 'drop', na.rm = TRUE)
     }
 
-  if (!is.na(formatting(.Object)$round[j]))
-    tmp = round(tmp, formatting(.Object)$round[j])
+    if (!is.na(formatting(.Object)$round[j])){
+        tmp = round(tmp, formatting(.Object)$round[j])
+        tmp = as(tmp, 'GRanges')
+        tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
+        ##tmp = tmp[tmp %over% tmp.dat]
+        tmp.val = tmp$score
+        values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
+        values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
+        tmp.dat = tmp    
+    }
     
-    tmp = as(tmp, 'GRanges')
-    tmp = tmp[gUtils::gr.in(tmp, tmp.dat)]
-    ##tmp = tmp[tmp %over% tmp.dat]
-    tmp.val = tmp$score
-    values(tmp) = values(tmp.dat)[gr.match(tmp, tmp.dat), , drop = F]
-    values(tmp)[, formatting(.Object)$y.field[j]] = tmp.val
-    tmp.dat = tmp    
 }
 
 format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows) {
@@ -5190,6 +5178,9 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
 
   return(.Object)
 }
+
+
+
 
 draw_x_ticks <- function(xaxis.interval = 'auto', windows, mapped, winlim, xlim, ylim,
                          xaxis.pos = 1,
