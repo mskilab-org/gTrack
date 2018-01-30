@@ -212,15 +212,9 @@ test_that('gTrack(), col', {
 })
 
 
-
-
-
-
-
-
 #test_that("lwd", {
 #    graph$lwd = 1.844941
-#    plot(gTrack(gr, edges = graph, stack.gap = 5))
+#    gTrack_plot = gTrack(gr, edges = graph, stack.gap = 5)
 #})
 
 #test_that("lty", {
@@ -233,10 +227,12 @@ test_that('gTrack(), col', {
 #    plot(gTrack(gr , edges = graph , stack.gap = 5))
 #})
 
-#test_that("mdata",{
-#    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
-#    plot(gTrack(gr, mdata = heatMap, stack.gap = 5))   
-#})
+test_that('gTrack(), mdata' ,{
+    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
+    gTrack_heatMap = gTrack(gr, mdata = heatMap, stack.gap = 5)
+    expect_equal(gTrack_heatMap$stack.gap, 5)
+    expect_equal(gTrack_heatMap$triangle, TRUE)
+})
 
 
 
