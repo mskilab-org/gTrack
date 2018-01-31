@@ -336,6 +336,24 @@ test_that("name", {
 
 
 
+## plot
+## function(x,   y, windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+##                    links = NULL, ## GRangesList of pairs of signed locations,
+##                    gap = NULL,  ## spacing betwen windows (in bp)
+##                    y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
+##                    y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
+##                    cex.xlabel = 1,
+##                    cex.ylabel = 1,
+##                    max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
+##                    links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
+##                    verbose=FALSE,
+##                    legend.params = list(),
+##                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
+##                   )
+
+
+
+
 ### karyogram 
 ### karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 
@@ -375,182 +393,11 @@ test_that("track.gencode", {
 
 
 
-## Draws (genomic, Iranges, Rle, or df with start and end field) intervals
-## as rectangles of thickness "lwd", col "col".
-
-## draw.ranges
-## draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, label = NULL,
-##                        draw.backbone = F, # if TRUE lines will be drawn linking all ranges at a single y-level +/- (a single y x group level if group is specified),
-##                        group = NULL, # a vector of group labels same size as x (char or numeric), non-NA groups with more than 1 member will be connected by backbone (if draw.backbone = T)
-##                        col.backbone = col[1],
-##                        cex.label = 1,
-##                        srt.label = 45,
-##                        adj.label = c(0.5, 0),
-##                        angle, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb
-##                        circles = FALSE, # if TRUE will draw circles at range midpoints instead of polygons
-##                        bars = FALSE, # if TRUE will draw bars from y0.bar to the y locations
-##                        points = NA, # if integer then will draw points at the midpoint with pch value "points"
-##                        lines = FALSE, # if TRUE will connect endpoints of ranges with lines
-##                        y0.bar = NULL, # only relevant if bars = T, will default to pars('usr')[3] if not specified
-##                        strand.dir = T,  # if so, will interpret strand field as "direction sign" for interval, + -> right, - -> left, only makes difference if draw.pencils = T
-##                        xlim = NULL, # only relevant if new.plot = T, can be ranges object
-##                        ylim = NULL, # only relevant if new.plot = T
-##                        clip = NULL, # GRanges / IRanges or 1 row df with $start, $end denoting single region to clip to .. will not draw outside of this region
-## 
-##                        lwd.border = 1,
-##                        lwd.backbone = 1,
-##                        verbose=FALSE,
-##                        ...)
-
-
-
-
-## draw.grl
-## draw.grl = function(grl,
-##                     y = NULL,  # can be either vector of length grl, or data.frame row / list with fields $start and $end
-##                     # specifying y coordinates to "pack" the granges into (or just length 2 list)
-##                     # note this is different from ylim, which determines the size of the canvas
-##                     ylim = NULL,  # if null and y provided, will find range of y and plot
-##                     ywid = NULL,
-##                     edges = NULL, ## data.frame specifying edges connecting items of grl, with fields $from $to indexing grl and optional fields $lwd, $col, $lty specifying formatting options for connectors, for gr the from arrow will leave the right side of a + range and left side of a - range, and enter the left side of a + range and right side of a - range.   For grl, from arrows will be drawn from the last range in the "from" list item to the first range in the "to" list item
-##                     draw.paths = F, # if draw.paths = T will treat grl's as paths / contigs,
-##                     # connecting intervals joined by arrowed curved arcs using alternate stacking algo (ignoring y information)
-## 
-##                     draw.var = F, # if true, then varbase will be called on grl or unlist(grl)
-##                     var = NULL, # optional GRangesList of same length as grl specifying variant bases with value cols $type, $varbase (ie output of varbase)
-##                     # corresponding to each grl item
-##                     var.col = NULL, # named vector with variant colors to override - valid names are XA, XT, XG, XC, S, D, I
-##                     var.soft = T, ## whether to draw soft clips for varbase
-##                     windows,  # windows specifies windows, can have optional meta data features $col and $border
-##                     win.gap = NULL,
-##                     stack.gap,
-##                     min.gapwidth = 1, # only applies if windows is not specified
-##                     col = NULL, border = NA, # all of these variables can be scalar or vectors of length(grl),
-##                     # can be over-ridden by values / columns in grl
-##                     col.backbone = alpha('gray', 0.8),
-##                     gr.colorfield = NULL, ## values field in the gr from which colors can be mapped
-##                     gr.colormap = NULL, ## named vector mapping fields in the gr.colorfield to colors, if unspecified brewer.master() will be applied
-##                     gr.labelfield = NULL, ## field of gr labels to draw.
-##                     grl.labelfield = NULL, ## field of grl to draw as label
-##                     leg.params,
-##                     labels = NULL, # vector of length(grl)
-##                     labels.suppress = F,
-##                     labels.suppress.grl = labels.suppress,
-##                     labels.suppress.gr = labels.suppress,
-##                     spc.label = 0.05, # number between 0 and 1 indicating spacing of label
-##                     adj.label = c(0, 1),
-##                     cex.label = 1,
-##                     gr.cex.label = 0.8 * cex.label,
-##                     gr.srt.label = 0,
-##                     gr.adj.label = c(0,0.5),
-##                     new.plot, new.axis, 
-##                     sep.lty = 2,
-##                     sep.lwd = 1,
-##                     sep.bg.col = 'gray95',
-##                     sep.draw = TRUE,
-##                     y.pad,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair (def was 0.05)
-##                     xaxis.prefix = '', xaxis.suffix = 'MB', xaxis.unit = 1, xaxis.round = 3,
-##                     xaxis.interval = 'auto', xaxis.pos = 1,
-##                     xaxis.pos.label, xaxis.cex.label,
-##                     xaxis.newline = FALSE,
-##                     xaxis.chronly = FALSE,
-##                     xaxis.ticklen = 1,
-##                     xaxis.width = TRUE,
-##                     xaxis.label.angle = 0,
-##                     xaxis.cex.tick = 1,
-##                     ylim.grid = ylim, # can be also specified directly for plots with multiple axes and/or non-numeric tracks
-##                     y.grid = NA, # if non NA, then the number specifies the spacing between y grid (drawn from ylim[1] to ylim[2]), can also be named vector mapping grid.tick labels to plot locations
-##                     ylab = NULL,
-##                     y.grid.col = alpha('gray', 0.5),
-##                     y.grid.pretty = 5,
-##                     y.grid.cex = 1,
-##                     y.grid.lty = 2,
-##                     y.grid.lwd = 1,
-##                     path.col = 'black',
-##                     path.col.arrow = path.col,
-##                     path.cex.arrow = 1,
-##                     path.stack.y.gap = 1,
-##                     path.stack.x.gap = 0,
-##                     path.cex.v = 1,
-##                     path.cex.h = 1,
-##                     draw.backbone = NULL,
-##                     xlim = c(0, 20000), # xlim of canvas
-##                     points = NA, ## if non NA then will draw a given point with pch style
-##                     circles = FALSE, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
-##                     bars = FALSE,
-##                     y0.bar = NULL,
-##                     lines = F,
-##                     angle, # angle of barbs to indicate directionality of ranges
-##                     verbose=FALSE,
-##                     triangle=FALSE, # trigger a triangle matrix plot
-##                     ylim.parent=NULL, ## ylim of the full thing. This is importat for angle preseveration
-##                     legend.params = list(plot=TRUE),
-##                     bg.col = NA, ## background of whole plot
-##                     ...)
-## 
-
-
-
-
-
-
-## bernsteinp
-## 
-
-
-
-## connectors
-## connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
-##                      type = "S", f.arrow = T, b.arrow = F, nsteps = 100,
-##                      cex.arrow = 1, col.arrow = 'black', lwd = 1, lty = 1, col = 'black')
-
-
-
-
-## affine.map
-## affine.map = function(x, ylim = c(0,1), xlim = c(min(x), max(x)), cap = F, cap.min = cap, cap.max = cap, clip = T, clip.min = clip, clip.max = clip)
-
-
-## alpha
-## alpha = function(col, alpha)
-
-
-
-## 
-## Blends colors
-##
-
-
-
-## col.scale
-## col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black', na.col = 'white', invert = F # if T flips rgb.min and rgb.max
-## 
-
 
 ## brewer.master
 
 
-## lighten
-
-## plot.blank
-
-
-## draw.triangle
-## function(grl,mdata,y, ylim.parent=NULL, windows = NULL, win.gap = NULL, m.bg.col = NA,
-##         sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs
-##         col.min='white', col.max='red', gr.colormap = NA, cmap.min = NA, cmap.max = NA, m.sep.lwd = NA, legend = TRUE, leg.params = list(),
-##         min.gapwidth = 1,islog = FALSE) 
-## 
-
-
-## clip_polys <- function(dt, y0, y1)
-## 
-
-
-## diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
-
-
-## triangle <- function(x1, x2, y, y0, y1, col=NULL) 
+## track.straw
 
 
 
