@@ -267,7 +267,6 @@ test_that('mdata() function', {
     gTrack_heatMap = gTrack(gr, mdata = heatMap)
 
     gTrack_heatMap_matrices = mdata(gTrack_heatMap)
-    expect_equal(gTrack_heatMap_matrices)
 
     expect_is(gTrack_heatMap_matrices[[1]], "matrix")
 })
