@@ -269,6 +269,17 @@ test_that('mdata() function', {
     gTrack_heatMap_matrices = mdata(gTrack_heatMap)
 
     expect_is(gTrack_heatMap_matrices[[1]], "matrix")
+
+    expect_equal(mdata(gTrack_heatMap, GRanges()), NULL)
+
+    expect_is(mdata(gTrack_heatMap, GRanges(1, IRanges(1,100))), "matrix")
+    
+    # si2gr(gTrack_heatMap)
+    
+})
+
+test_that('reduce() function', {
+    expect_that(length(reduce(GRanges()), 0)
 })
 
 
