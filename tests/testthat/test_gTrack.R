@@ -279,7 +279,9 @@ test_that('mdata() function', {
 })
 
 test_that('reduce() function', {
-    expect_that(length(reduce(GRanges()), 0)
+
+    expect_equal(length(reduce(GRanges())), 0)
+
 })
 
 
