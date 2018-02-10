@@ -83,6 +83,15 @@ test_that("initialize setMethod", {
 })
 
 
+test_that("[ method", {
+
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+    expect_equal(gt[1]$height, 10)
+
+    #expect_equal(gt[2]$height, NA)
+    
+})
 
 test_that('gTrack(), stack.gap', {
 
