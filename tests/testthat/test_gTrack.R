@@ -86,6 +86,12 @@ graph[10,1]=1
 ## })
 
 
+test_that('initialize setMethod', {
+
+    expect_error(gTrack(1), 'check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
+    
+})
+
 
 
 test_that('gTrack(), stack.gap', {
