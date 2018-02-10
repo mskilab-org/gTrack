@@ -93,6 +93,8 @@ test_that("[ method", {
     
 })
 
+
+
 test_that('gTrack(), stack.gap', {
 
     foo = gTrack(gr , stack.gap = 2)
@@ -285,8 +287,10 @@ test_that('mdata() function', {
 
 test_that('reduce() function', {
 
-    expect_equal(length(reduce(GRanges())), 0)
-
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+    
+    expect_identical(reduce(gt), GRanges(1, IRanges(1, 100)))
+    
 })
 
 
