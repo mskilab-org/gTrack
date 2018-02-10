@@ -32,25 +32,6 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 gr = GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
 
 ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
-##create an N*N matrix filled with 0s.
-graph = matrix(0 , nrow = 10 , ncol = 10)
-##set certain indices to 1.
-graph[1,3]=1
-graph[1,10]=1
-graph[2,5]=1
-graph[2,8]=1
-graph[3,5]=1
-graph[4,1]=1
-graph[4,2]=1
-graph[4,6]=1
-graph[4,9]=1
-graph[5,1]=1
-graph[5,2]=1
-graph[5,4]=1
-graph[8,1]=1
-graph[8,2]=1
-graph[9,1]=1
-graph[10,1]=1
     
 
 
@@ -86,9 +67,18 @@ graph[10,1]=1
 ## })
 
 
-test_that('initialize setMethod', {
+test_that("initialize setMethod", {
 
-    expect_error(gTrack(1), 'check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
+    expect_error(gTrack(1), "check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files")
+
+    expect_error(gTrack(GRanges(1, IRanges(1, 100)), mdata = 1), "optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges")
+
+    sapply(list(matrix(c(2,3,4,2), nrow = 2, ncol = 2, byrow = TRUE), matrix(c(2,3,4,2), nrow = 2, ncol = 2, byrow = TRUE)), function(x) is.array(x) | inherits(x, "Matrix"))
+
+
+    gtrack_y_field = gTrack(gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") , c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) , end = c(2,4,6,8,10,12,14,16,18,20), names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10)), y.field = 'GC')
+
+    expect_equal(gtrack_y_field$y.field, 'GC')
     
 })
 
@@ -425,6 +415,7 @@ test_that("track.gencode", {
 
 
 ## track.straw
+
 
 
 
