@@ -1603,33 +1603,6 @@ setMethod('plot', c("gTrack", "ANY"),
     all.args = as.list(formatting(.Object[j]))
     all.args = c(dotdot.args, all.args[!names(all.args) %in% names(dotdot.args)])
 
-    #                     all.args = list(
-    #   col = formatting(.Object)$col[j],
-    #   ywid = formatting(.Object)$ywid[j],
-    #   border = formatting(.Object)$border[j],
-    #   lwd.border = formatting(.Object)$lwd.border[j],
-    #   adj.label = c(formatting(.Object)$hadj.label[j],
-    #     formatting(.Object)$vadj.label[j]),
-    #   gr.adj.label = c(0.5,
-    #     formatting(.Object)$vadj.label[j]),
-    #   angle = formatting(.Object)$angle[j],
-    #   y.pad = formatting(.Object)$ypad[j],
-    #   circles = formatting(.Object)$circles[j],
-    #   lines = formatting(.Object)$lines[j],
-    #   bars = formatting(.Object)$bars[j],
-    #   y.grid.cex = formatting(.Object)$yaxis.cex[j],
-    #   edges = edgs(.Object)[[j]],
-    #   y0.bar = formatting(.Object)$y0.bar[j],
-    #   stack.gap = formatting(.Object)$stack.gap[j])
-    # na.fields = names(formatting(.Object))[sapply(1:ncol(formatting(.Object)), function(field) is.na(formatting(.Object)[j, field]))]
-    # other.fields = setdiff(names(formatting(.Object)), c('name', 'height', 'ygap', 'stack.gap', 'lift', 'split', 'angle', 'format', 'lwd.border', 'source.file', 'source.file.chrsub', 'ypad', 'ywid', 'border', 'col', 'hadj.label', 'vadj.label', 'y.field', 'round', 'cex.ylabel', 'y.quantile', 'max.ranges', 'yaxis', 'yaxis.cex', 'is.null', 'yaxis.pretty', names(all.args))) ## remove na fields and anything else that might mess up draw.grl
-    #
-    # other.formats = structure(names = other.fields,
-    #   lapply(other.fields, function(x) formatting(.Object)[j, x]))
-    # all.args[names(other.formats)] = other.formats;
-    #
-    # all.args = all.args[setdiff(names(all.args), setdiff(na.fields, c('col')))]
-
     this.y.field = formatting(.Object)$y.field[j]
     this.y.grid = NA;
 
