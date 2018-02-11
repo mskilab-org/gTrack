@@ -412,11 +412,33 @@ test_that("name", {
 
 test_that('karyogram() works', {
     
-    gt = gTrack(GRanges(1, IRanges(1,100)))
-
-    yfield_showed_gt = show(gt)[[1]]
-
-    expect_equal(yfield_showed_gt, NA)
+    ## default
+    expect_equal(karyogram()$height, 10)
+    expect_equal(karyogram()$angle, 10)
+    expect_equal(karyogram()$y.quantile, 0.01)
+    expect_equal(karyogram()$cex.label, 1)
+    expect_equal(karyogram()$gr.cex.label.gr, 0.8)
+    ## hg19
+    expect_equal(karyogram(hg19 = FALSE)$height, 10)
+    expect_equal(karyogram(hg19 = FALSE)$angle, 10)
+    expect_equal(karyogram(hg19 = FALSE)$y.quantile, 0.01)
+    expect_equal(karyogram(hg19 = FALSE)$cex.label, 1)
+    expect_equal(karyogram(hg19 = FALSE)$gr.cex.label.gr, 0.8)
+    ## bands
+    ## nobands = karyogram(bands = FALSE)
+    ## Error in validObject(.Object) : 
+    ##     invalid class “GRanges” object: 'seqnames(x)' contains missing values
+    expect_equal(karyogram(arms = FALSE)$height, 10)
+    expect_equal(karyogram(arms = FALSE)$angle, 10)
+    expect_equal(karyogram(arms = FALSE)$y.quantile, 0.01)
+    expect_equal(karyogram(arms = FALSE)$cex.label, 1)
+    expect_equal(karyogram(arms = FALSE)$gr.cex.label.gr, 0.8)   
+    ### tel.width = 2e6
+    expect_equal(karyogram(tel.width = 1e3)$height, 10)
+    expect_equal(karyogram(tel.width = 1e3)$angle, 10)
+    expect_equal(karyogram(tel.width = 1e3)$y.quantile, 0.01)
+    expect_equal(karyogram(tel.width = 1e3)$cex.label, 1)
+    expect_equal(karyogram(tel.width = 1e3)$gr.cex.label.gr, 0.8)   
 
 })
 
