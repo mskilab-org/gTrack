@@ -234,7 +234,7 @@ test_that("c method", {
 
     heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
 
-    c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5))
+    ##c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5))
 })
 
 
@@ -301,15 +301,15 @@ test_that('reduce() function', {
 })
 
 
-#test_that('show setMethod', {
+test_that('show setMethod', {
     
-#    gt = gTrack(GRanges(1, IRanges(1,100)))
+    gt = gTrack(GRanges(1, IRanges(1,100)))
 
-#    yfield_showed_gt = show(gt)[[1]]
+    yfield_showed_gt = show(gt)[[1]]
 
-#    expect_equal(yfield_showed_gt, NA)
+    expect_equal(yfield_showed_gt, NA)
 
-#})
+})
 
 
 test_that("karyogram method", {
@@ -317,6 +317,11 @@ test_that("karyogram method", {
     expect_equal(karyogram(TRUE)$y.field, NA)
 
     expect_equal(karyogram(hg19 = TRUE, bands = TRUE)$y.field, NA)
+
+    karyogram(FALSE)
+
+    #karyogram(arms = TRUE)
+    
 })
 
 
@@ -399,7 +404,6 @@ test_that("name", {
 ##                    legend.params = list(),
 ##                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
 ##                   )
-
 
 
 
