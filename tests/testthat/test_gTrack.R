@@ -32,25 +32,6 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 gr = GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
 
 ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
-##create an N*N matrix filled with 0s.
-graph = matrix(0 , nrow = 10 , ncol = 10)
-##set certain indices to 1.
-graph[1,3]=1
-graph[1,10]=1
-graph[2,5]=1
-graph[2,8]=1
-graph[3,5]=1
-graph[4,1]=1
-graph[4,2]=1
-graph[4,6]=1
-graph[4,9]=1
-graph[5,1]=1
-graph[5,2]=1
-graph[5,4]=1
-graph[8,1]=1
-graph[8,2]=1
-graph[9,1]=1
-graph[10,1]=1
     
 
 
@@ -85,6 +66,32 @@ graph[10,1]=1
 ##     plot(gTrack(gr , edges = graph , stack.gap = 5))
 ## })
 
+
+test_that("initialize setMethod", {
+
+    expect_error(gTrack(1), "check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files")
+
+    expect_error(gTrack(GRanges(1, IRanges(1, 100)), mdata = 1), "optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges")
+
+    sapply(list(matrix(c(2,3,4,2), nrow = 2, ncol = 2, byrow = TRUE), matrix(c(2,3,4,2), nrow = 2, ncol = 2, byrow = TRUE)), function(x) is.array(x) | inherits(x, "Matrix"))
+
+
+    gtrack_y_field = gTrack(gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") , c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) , end = c(2,4,6,8,10,12,14,16,18,20), names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10)), y.field = 'GC')
+
+    expect_equal(gtrack_y_field$y.field, 'GC')
+    
+})
+
+
+test_that("[ method", {
+
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+    expect_equal(gt[1]$height, 10)
+
+    #expect_equal(gt[2]$height, NA)
+    
+})
 
 
 
@@ -221,6 +228,14 @@ test_that('gTrack(), gr.labelfield', {
 
 
 
+test_that("c method", {
+
+    gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") ,c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) ,end = c(2,4,6,8,10,12,14,16,18,20), names = head(letters,10)),GC=seq(1,10,length=10), name=seq(5,10,length=10))
+
+    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
+
+    ##c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5))
+})
 
 
 test_that('gTrack(), col', {
@@ -261,14 +276,53 @@ test_that('gTrack(), mdata' ,{
 })
 
 
+test_that('mdata() function', {
+    
+    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
+    gTrack_heatMap = gTrack(gr, mdata = heatMap)
+
+    gTrack_heatMap_matrices = mdata(gTrack_heatMap)
+
+    expect_is(gTrack_heatMap_matrices[[1]], "matrix")
+
+    expect_equal(mdata(gTrack_heatMap, GRanges()), NULL)
+
+    expect_is(mdata(gTrack_heatMap, GRanges(1, IRanges(1,100))), "matrix")
+    
+    # si2gr(gTrack_heatMap)
+    
+})
+
+test_that('reduce() function', {
+
+    gt = gTrack(GRanges(1, IRanges(1,100)))    
+    expect_identical(reduce(gt), GRanges(1, IRanges(1, 100)))
+    
+})
 
 
+test_that('show setMethod', {
+    
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+    yfield_showed_gt = show(gt)[[1]]
+
+    expect_equal(yfield_showed_gt, NA)
+
+})
 
 
+test_that("karyogram method", {
+    
+    expect_equal(karyogram(TRUE)$y.field, NA)
 
+    expect_equal(karyogram(hg19 = TRUE, bands = TRUE)$y.field, NA)
 
+    karyogram(FALSE)
 
-
+    #karyogram(arms = TRUE)
+    
+})
 
 
 #test_that("multipleTracks", {
@@ -353,7 +407,6 @@ test_that("name", {
 
 
 
-
 ### karyogram 
 ### karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 
@@ -398,6 +451,7 @@ test_that("track.gencode", {
 
 
 ## track.straw
+
 
 
 
