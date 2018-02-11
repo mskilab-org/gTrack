@@ -228,6 +228,14 @@ test_that('gTrack(), gr.labelfield', {
 
 
 
+test_that("c method", {
+
+    gr <- GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3") ,c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19) ,end = c(2,4,6,8,10,12,14,16,18,20), names = head(letters,10)),GC=seq(1,10,length=10), name=seq(5,10,length=10))
+
+    heatMap = matrix(runif(length(gr)^2), nrow = 10, ncol = 10)
+
+    c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5))
+})
 
 
 test_that('gTrack(), col', {
@@ -287,18 +295,29 @@ test_that('mdata() function', {
 
 test_that('reduce() function', {
 
-    gt = gTrack(GRanges(1, IRanges(1,100)))
-    
+    gt = gTrack(GRanges(1, IRanges(1,100)))    
     expect_identical(reduce(gt), GRanges(1, IRanges(1, 100)))
     
 })
 
 
+#test_that('show setMethod', {
+    
+#    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+#    yfield_showed_gt = show(gt)[[1]]
+
+#    expect_equal(yfield_showed_gt, NA)
+
+#})
 
 
+test_that("karyogram method", {
+    
+    expect_equal(karyogram(TRUE)$y.field, NA)
 
-
-
+    expect_equal(karyogram(hg19 = TRUE, bands = TRUE)$y.field, NA)
+})
 
 
 #test_that("multipleTracks", {
