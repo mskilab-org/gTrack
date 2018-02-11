@@ -410,6 +410,15 @@ test_that("name", {
 ### karyogram 
 ### karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 
+test_that('karyogram() works', {
+    
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+    yfield_showed_gt = show(gt)[[1]]
+
+    expect_equal(yfield_showed_gt, NA)
+
+})
 
 
 
