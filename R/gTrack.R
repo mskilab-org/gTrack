@@ -467,7 +467,7 @@ setValidity('gTrack', function(object)
           problems = c(problems, 'Some trackdata edges attributes are not data.frames')
       }else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T))){
         problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
-      }else if (any(!sapply(1:length(object@data), function(x){}
+      }else if (any(!sapply(1:length(object@data), function(x)
         if (nrow(object@edges[[x]])>0) {
             all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
         }
