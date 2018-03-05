@@ -38,25 +38,26 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
     }
     .Object@mdata <- listify(mdata, matrix, length(.Object@data))
 
-
-    for (i in 1:length(.Object)){
-        if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix')){
-            stop('Error: optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
-        }
-    } else if (!identical(.Object@mdata[[i]], matrix())){
-        if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2))){
-                stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
-        }
+  for (i in 1:length(.Object))
+    if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix'))
+      stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
+  else if (!identical(.Object@mdata[[i]], matrix()))
+  {
+    if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2)))
+        stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
+    if (inherits(.Object@mdata[[i]], 'Matrix'))
+        .Object@mdata[[i]] = (Matrix::t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
+    else
         .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-    }
+  }
 
-    if (is.null(edges)){
-        .Object@edges = rep(list(data.frame()), length(.Object@data))
-    } else if (!is.list(edges) | inherits(edges, 'data.frame')){
-        .Object@edges = list(edges)
-    } else{
-        .Object@edges = edges
-    }
+#  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+  if (is.null(edges))
+    .Object@edges = rep(list(data.frame()), length(.Object@data))
+  else if (!is.list(edges) | inherits(edges, 'data.frame'))
+    .Object@edges = list(edges)
+  else
+      .Object@edges = edges
 
 
     .Object@vars <- listify(vars, list, length(.Object@data))
@@ -371,18 +372,16 @@ setValidity('gTrack', function(object){
         }
 
 
-        if (!all(sapply(object@edges, is.data.frame))){
-          problems = c(problems, 'Some trackdata edges attributes are not data.frames')
-        }
-        else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else TRUE))){
-          problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
-        } else if (any(!sapply(1:length(object@data), function(x){
-          if (nrow(object@edges[[x]])>0){
-            all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
-          }
-          else TRUE)))
-          problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
-        }
+      if (!all(sapply(object@edges, is.data.frame)))
+        problems = c(problems, 'Some trackdata edges attributes are not data.frames')
+      else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T)))
+        problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
+      else if (any(!sapply(1:length(object@data), function(x)
+        if (nrow(object@edges[[x]])>0)
+          all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
+        else T)))
+        problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
+
 
         if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field)){
           nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
@@ -1267,11 +1266,12 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
   ## make sure gTrack has all fields that are expected later
   .Object <- prep_defaults_for_plotting(.Object)
   
-  if (is.null(formatting(.Object)$legend)){
+  if (is.null(formatting(.Object)$legend))
       formatting(.Object)$legend = TRUE
-  } else (any(is.na(formatting(.Object)$legend))){
-      formatting(.Object)$legend[is.na(formatting(.Object)$legend)] = TRUE
-  }
+  else (any(is.na(formatting(.Object)$legend)))
+       formatting(.Object)$legend[is.na(formatting(.Object)$legend)] = TRUE
+
+
 
 
   if (is.null(formatting(.Object)$legend.title)){
