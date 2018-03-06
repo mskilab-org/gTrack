@@ -5,6 +5,14 @@ library(testthat)
 
 context('gTrack tests')
 
+
+gr = GRanges(1, IRanges(c(3,7,13), c(5,9,16)), strand=c('+','-','-'), seqinfo=Seqinfo("1", 25), name=c("A","B","C"))
+gr2 = GRanges(1, IRanges(c(1,9), c(6,14)), strand=c('+','-'), seqinfo=Seqinfo("1", 25), field=c(1,2))
+dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
+
+
+
+
 HI=300
 WI=600
 ##gr <- GRanges(c(1,1), IRanges(c(5,6), width=1), strand=c("+","-"), A=c(5,8), B=c(3,2), seqinfo= gUtils::si)
@@ -330,6 +338,7 @@ test_that("karyogram method", {
 #    plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
 #})
 
+
 if (FALSE) {
 test_that("draw.paths", {
     gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
@@ -472,7 +481,9 @@ test_that('karyogram() works', {
 
 
 test_that("track.gencode", {
+
     expect_error(track.gencode(), NA) ## check it runs correctly
+
 })
 
 
@@ -482,6 +493,38 @@ test_that("track.gencode", {
 
 
 ## track.straw
+
+
+### seg.on.seg()
+
+test_that('seg.on.seg() works', {
+
+    expect_true(seg.on.seg(dt, dt)[1])
+    expect_true(seg.on.seg(dt, dt)[2])
+    expect_true(seg.on.seg(dt, dt)[3])
+
+})
+
+
+
+## dedup()
+
+test_that('dedup() works', {
+
+    expect_equal(dedup(c(rep(2, 10.5), rep(3, 20)))[30], "3.20")
+
+})
+
+
+
+## listify()
+
+test_that("testing listify() works", {
+
+    expect_true(is(listify(gr2, length()), 'list'))
+    
+})
+
 
 
 
