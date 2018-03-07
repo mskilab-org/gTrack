@@ -12,7 +12,7 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
   cached.path = paste(cached.dir, "gencode.composite.rds", sep = "/"),
   cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds",
   sep = "/"), gr.srt.label = 0, gr.cex.label = 0.3, cex.label = 0.5,
-  labels.suppress.gr = FALSE, drop.rp11 = TRUE, stack.gap = 1e+06, ...)
+  labels.suppress.gr = T, drop.rp11 = TRUE, stack.gap = 1e+06, ...)
 }
 \arguments{
 \item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
