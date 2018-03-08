@@ -417,9 +417,6 @@ setValidity('gTrack', function(object){
     
                 } else if (grepl('\\.bed', x, ignore.case = TRUE)) {
                     f = BEDFile(normalizePath(x))
-                    ##                        slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                    ##                        if (is.null(slen))
-                    ##                          problems = c(problems, sprintf('External file %s is not a valid and existing .bed file', x))
                 } else if (grepl('\\.gff', x, ignore.case = TRUE)){
                     f = GFFFile(normalizePath(x))
                     slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
@@ -433,7 +430,7 @@ setValidity('gTrack', function(object){
                         problems = c(problems, sprintf('External file %s is not a valid and existing .2bit file', x))
                     }
                 } else if (grepl('\\.bedgraph', x, ignore.case = TRUE)){
-                f = BEDGraphFile(normalizePath(x))
+                    f = BEDGraphFile(normalizePath(x))
                 } else{
                     problems = c(problems, sprintf('External file %s does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.', x))
                }
@@ -512,8 +509,7 @@ setGeneric('mdata', function(x, igr=NULL, jgr=NULL) standardGeneric('mdata'))
 
 #' @rdname mdata-methods
 #' @aliases mdata,gTrack,ANY,ANY,ANY-method
-setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, jgr = igr)
-{
+setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, jgr = igr){
 
     if (is.null(igr) & is.null(jgr)){
         return(x@mdata)
@@ -584,8 +580,7 @@ setMethod('mdata', signature=c("gTrack", "ANY", "ANY"), function(x, igr = NULL, 
 #' @aliases $,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('$', 'gTrack', function(x, name)
-{
+setMethod('$', 'gTrack', function(x, name){
     return(x@formatting[[name]])
 })
 
@@ -609,8 +604,7 @@ setMethod('$', 'gTrack', function(x, name)
 #' @aliases $<-,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('$<-', 'gTrack', function(x, name, value)
-{
+setMethod('$<-', 'gTrack', function(x, name, value){
     x@formatting[, name] = value
     return(x)
 })
@@ -628,8 +622,7 @@ setMethod('$<-', 'gTrack', function(x, name, value)
 #' @aliases length,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('length', 'gTrack', function(x)
-{
+setMethod('length', 'gTrack', function(x){
     return(length(x@data))
 })
 
@@ -652,8 +645,7 @@ setMethod('length', 'gTrack', function(x)
 #' @aliases reduce,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('reduce', 'gTrack', function(x, ... )
-{
+setMethod('reduce', 'gTrack', function(x, ... ){
     if (length(x)==0){
         return(GRanges(seqlengths = GenomeInfoDb::seqlengths(x)))
     }
@@ -692,8 +684,7 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' @importFrom GenomicRanges seqinfo
 #' @export
 #' @author Marcin Imielinski
-setMethod("seqinfo", signature(x = "gTrack"), function(x)
-{
+setMethod("seqinfo", signature(x = "gTrack"), function(x){
     return(x@seqinfo)
 })
 
@@ -715,8 +706,7 @@ setGeneric('seqinfo<-', function(.Object, value) standardGeneric('seqinfo<-'))
 
 #' @rdname seqinfo-set-methods
 #' @aliases seqinfo,gTrack-method
-setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
-{
+setReplaceMethod('seqinfo', 'gTrack', function(.Object, value){
     .Object@seqinfo = value;
     .Object@data = lapply(dat(.Object), gr.fix, value)
     validObject(.Object)
@@ -741,8 +731,7 @@ setReplaceMethod('seqinfo', 'gTrack', function(.Object, value)
 #' @aliases c,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
-{
+setMethod('c', 'gTrack', function(x, ..., recursive = FALSE){
     args = list(x, ...)
 
     if (any(ix <- sapply(args, inherits, 'trackData'))){
@@ -764,12 +753,12 @@ setMethod('c', 'gTrack', function(x, ..., recursive = FALSE)
     args = args[!sapply(args, is.null)]
 
     out <- gTrack(data = do.call('c', lapply(1:length(args), function(y) args[[y]]@data)),
-                colormaps = do.call('c', lapply(args, function(y) y@colormap)),
-                edges = do.call('c', lapply(args, function(y) y@edges)),
-                mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata)),
-                format = do.call('rrbind', lapply(args, formatting)),
-                y.field = do.call('c', lapply(args, function(y) formatting(y)$y.field)),
-                yaxis = do.call('c', lapply(args, function(y) formatting(y)$yaxis)))
+        colormaps = do.call('c', lapply(args, function(y) y@colormap)),
+        edges = do.call('c', lapply(args, function(y) y@edges)),
+        mdata = do.call('c', lapply(1:length(args), function(y) args[[y]]@mdata)),
+        format = do.call('rrbind', lapply(args, formatting)),
+        y.field = do.call('c', lapply(args, function(y) formatting(y)$y.field)),
+        yaxis = do.call('c', lapply(args, function(y) formatting(y)$yaxis)))
 
     if ('is.null' %in% names(formatting(out))){
         is.n = out$is.null
@@ -891,8 +880,7 @@ setGeneric('edgs', function(.Object) standardGeneric('edgs'))
 
 #' @rdname edgs-methods
 #' @aliases edgs,gTrack-method
-setMethod('edgs', 'gTrack', function(.Object)
-{
+setMethod('edgs', 'gTrack', function(.Object){
     return(.Object@edges)
 })
 
@@ -909,8 +897,7 @@ setGeneric('vars', function(.Object) standardGeneric('vars'))
 #'
 #' @keywords internal
 #' @author Marcin Imielinski
-setMethod('vars', 'gTrack', function(.Object)
-{
+setMethod('vars', 'gTrack', function(.Object){
     return(.Object@vars)
 })
 
@@ -937,8 +924,7 @@ setGeneric('edgs<-', function(.Object, value) standardGeneric('edgs<-'))
 
 #' @rdname edgs-set-methods
 #' @aliases edgs<-,gTrack-method
-setMethod('edgs<-', 'gTrack', function(.Object, value)
-{
+setMethod('edgs<-', 'gTrack', function(.Object, value){
     if (!all(sapply(value, is.data.frame))){
         stop('Error: edges attribute must be a list of data.frames')
     }
@@ -977,8 +963,7 @@ setGeneric('clear', function(.Object) standardGeneric('clear'))
 
 #' @rdname clear-methods
 #' @aliases clear,gTrack-method
-setMethod('clear', 'gTrack', function(.Object)
-{
+setMethod('clear', 'gTrack', function(.Object){
     .Object = .Object[1]
     .Object@data[[1]] =  .Object@data[[1]][NULL]
     validObject(.Object)
@@ -1010,8 +995,7 @@ setGeneric('dat', function(.Object) standardGeneric('dat'))
 
 #' @rdname dat-methods
 #' @aliases dat,gTrack-method
-setMethod('dat', 'gTrack', function(.Object)
-{
+setMethod('dat', 'gTrack', function(.Object){
     return(.Object@data)
 })
 
@@ -1040,8 +1024,7 @@ setGeneric('formatting<-', function(.Object, value) standardGeneric('formatting<
 
 #' @rdname formatting-set-methods
 #' @aliases formatting<-,gTrack-method
-setReplaceMethod('formatting', 'gTrack', function(.Object, value)
-{
+setReplaceMethod('formatting', 'gTrack', function(.Object, value){
     REQUIRED.COLUMNS = c('height', 'col', 'ygap', 'y.field');
     if (nrow(value) != length(.Object)){
         stop('Error: Replacement data frame has %s rows and the object has %s', nrow(value), length(value))
@@ -1078,8 +1061,7 @@ setGeneric('colormap', function(.Object) standardGeneric('colormap'))
 
 #' @rdname colormap-methods
 #' @aliases colormap,gTrack-method
-setMethod('colormap', 'gTrack', function(.Object)
-{
+setMethod('colormap', 'gTrack', function(.Object){
     return(.Object@colormap)
 })
 
@@ -1104,8 +1086,7 @@ setGeneric('colormap<-', function(.Object, value) standardGeneric('colormap<-'))
 
 #' @rdname colormap-set-methods
 #' @aliases colormap<-,gTrack-method
-setReplaceMethod('colormap', 'gTrack', function(.Object, value)
-{
+setReplaceMethod('colormap', 'gTrack', function(.Object, value){
     .Object@colormap = value;
     validObject(.Object)
     return(.Object)
@@ -1124,8 +1105,7 @@ setReplaceMethod('colormap', 'gTrack', function(.Object, value)
 #' @aliases show,gTrack-method
 #' @export
 #' @author Marcin Imielinski
-setMethod('show', 'gTrack', function(object)
-{
+setMethod('show', 'gTrack', function(object){
     cat(sprintf('gTrack object with %s tracks with formatting:\n', length(object)))
     print(formatting(object))
 })
@@ -1522,22 +1502,29 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
         this.legend.params$title = .Object$legend.title[j]
     }         
 
-    main.args <- list(grl=tmp.dat,y = this.y, ylim = ylim,
-                      xaxis.pos = this.xaxis.pos,xaxis.pos.label = this.xaxis.pos.label,
-                      win.gap = win.gap[i],windows = tmp.windows,
-                      new.plot = new.plot, new.axis = new.axis,
-                      gr.colorfield = cfield,gr.colormap = cmap,
-                      y.grid = this.y.grid, verbose=verbose,
-                      ylim.parent=ylim.parent,mdata=.Object@mdata[[j]],
-                      leg.params = this.legend.params,
-                      adj.label = c(formatting(.Object)$hadj.label[j], formatting(.Object)$vadj.label[j]),
-                      gr.adj.label = c(0.5, formatting(.Object)$vadj.label[j]),
-                      y.pad = formatting(.Object)$ypad[j],
-                      y.grid.cex = formatting(.Object)$yaxis.cex[j],
-                      edges = edgs(.Object)[[j]])
+    main.args <- list(grl=tmp.dat, 
+                    y = this.y, 
+                    ylim = ylim,
+                    xaxis.pos = this.xaxis.pos,
+                    xaxis.pos.label = this.xaxis.pos.label,
+                    win.gap = win.gap[i],
+                    windows = tmp.windows,
+                    new.plot = new.plot, 
+                    new.axis = new.axis,
+                    gr.colorfield = cfield,
+                    gr.colormap = cmap,
+                    y.grid = this.y.grid, 
+                    verbose = verbose,
+                    ylim.parent = ylim.parent,
+                    mdata = .Object@mdata[[j]],
+                    leg.params = this.legend.params,
+                    adj.label = c(formatting(.Object)$hadj.label[j], formatting(.Object)$vadj.label[j]),
+                    gr.adj.label = c(0.5, formatting(.Object)$vadj.label[j]),
+                    y.pad = formatting(.Object)$ypad[j],
+                    y.grid.cex = formatting(.Object)$yaxis.cex[j],
+                    edges = edgs(.Object)[[j]])
 
     all.args <- c(main.args, all.args[!names(all.args) %in% names(main.args)])
-
 
     if (new.plot){
         blank.main.args <- all.args
@@ -1568,9 +1555,7 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
     ##window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
 
     if (formatting(.Object[j])$triangle){
-        window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
-                                                                                    "cmap.min","cmap.max", "m.sep.lwd","m.bg.col","leg.params",
-                                                                                    "islog","gr.colormap")])
+        window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma", "cmap.min","cmap.max", "m.sep.lwd","m.bg.col","leg.params", "islog","gr.colormap")])
     } else {
         window.segs[[i]] <- do.call('draw.grl', all.args)
     }
@@ -1579,8 +1564,7 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
 
     if (!is.na(this.tname)){
         this.cex.ylabel = ifelse(!is.null(formatting(.Object[j])$cex.ylabel), formatting(.Object[j])$cex.ylabel, cex.ylabel)
-        text(par('usr')[2], mean(unlist(this.ylim.subplot[j, c('start', 'end')])),
-            this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
+        text(par('usr')[2], mean(unlist(this.ylim.subplot[j, c('start', 'end')])), this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
     }
 
     if (is.null(links)){
@@ -1672,7 +1656,6 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
         if (is.null(ll$col.arrow)){
             ll$col.arrow = ll$col
         }
-
         return(ll)
     }
 
@@ -1780,9 +1763,6 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
                 cex = l1.paired$cex.label
             }
 
-            ##                         text(l1.paired$x.pos, l1.paired$y.pos+l1.paired$v/2, l1.paired$label, adj = c(0.5, 0.5), cex = cex)
-            ##                         text(l2.paired$x.pos, l2.paired$y.pos+l1.paired$v/2, l2.paired$label, adj = c(0.5, 0.5), cex = cex)
-
             l1.paired$text.y.pos = l1.paired$y.pos - (ylim.stacks$end[l1.paired$stack.id]-ylim.stacks$start[l1.paired$stack.id])/100
             l2.paired$text.y.pos = l2.paired$y.pos - (ylim.stacks$end[l2.paired$stack.id]-ylim.stacks$start[l2.paired$stack.id])/100
 
@@ -1816,7 +1796,6 @@ setMethod('plot', c("gTrack","ANY"), function(x, ## pplot  (for easy search)
 #' @author Marcin Imielinski
 karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 {
-    
     if (hg19){
         ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg19.rds", package = 'gTrack'))
     }
@@ -1946,7 +1925,8 @@ track.gencode = function(gencode = NULL,
     cex.label = 0.5,
     labels.suppress.gr = TRUE,
     drop.rp11 = TRUE,
-    stack.gap = 1e6, ...){
+    stack.gap = 1e6, ...)
+{
         
     if (nchar(cached.dir)==0){
         cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy        
@@ -2292,7 +2272,6 @@ draw.ranges = function(x,
         }
     } 
 }
-
 
 
 
@@ -2938,27 +2917,30 @@ draw.grl = function(grl,
       window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
       window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
   }
-  else
+  else{
     empty.plot = TRUE
+  }
   
   if (empty.plot)
   {
-    if (is.null(windows))
-      stop('Either nonempty range data or windows must be provided')
+    if (is.null(windows)){
+      stop('Error: Either nonempty range data or windows must be provided')
+    }
 
     mapped = gr.flatmap(GRanges(), windows, win.gap)
     window.segs = mapped$window.segs
     winlim = range(c(window.segs$start, window.segs$end))
     window.segs$start = affine.map(window.segs$start, winlim, ylim = xlim)
     window.segs$end = affine.map(window.segs$end, winlim, ylim = xlim)
-    #        xlim = c(min(window.segs$start), max(window.segs$end));
 
-    if (is.null(ylim))
+    if (is.null(ylim)){
       ylim = c(0, 1)
+    }
 
     if (is.list(y) & is.null(ylim.subplot))
-      if (all(c('start', 'end') %in% names(y)))
+      if (all(c('start', 'end') %in% names(y))){
         ylim.subplot = c(y$start[1], y$end[1])
+      }
     else
       ylim.subplot = c(y[[1]], y[[2]])
 
@@ -3608,6 +3590,11 @@ draw.grl = function(grl,
 
   return(window.segs)
 }
+
+
+
+
+
 
 
 #####################################
