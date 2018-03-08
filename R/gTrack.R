@@ -5323,3 +5323,72 @@ listify = function(x, FUN, len = 1) {
 }
 
 
+
+#' @importFrom data.table as.data.table
+#' @importFrom gUtils dt2gr
+#' @name tack.straw
+#' @title track.straw
+#' @description
+#' queries .hic object via straw API https://github.com/theaidenlab/straw/tree/master/R
+#' to extract all of the data in length n query gr (note will do n choose 2 queries since
+#' straw only supports pairwise queries)
+#'
+#'
+#' @keywords straw
+#' @param hic path to .hic file
+#' @param gr granges to query
+#' @param norm string specifying normalization to apply ("KR" (default), "NONE", VC")
+#' @param res resolution to query (default 10kb)
+#' @param type "BP" vs "FRAG"
+#' @param mc.cores parallelization to apply for query (useful when length(gr)>2)
+#' @return gTrack gt of output with mdata(gt)[[1]] is the matrix of contact info and dat(gt)[[1]] is the granges
+#' @export
+#' @author Marcin Imielinski
+track.straw = function(hic, gr, norm = "KR", type = 'BP', res = 1e4, mc.cores = 1, colormap = c('white', 'red', 'black'), ...){
+    gr = reduce(gr.stripstrand(gr[, c()]))
+    grs = as.data.table(gr)[, paste(seqnames, start, end, sep = ":")]
+    n = length(gr)
+    grs.pairs = chr2.pairs = chr1.pairs = NULL
+    grs.singles = paste(grs, grs)
+    chr1.singles = chr2.singles = as.character(seqnames(gr))
+    if (n>1){
+        pairs = t(combn(n, 2)) ##pairs
+        grs.pairs = paste(grs[pairs[,1]], grs[pairs[,2]])   ## combinations
+        #' Tuesday, Nov 07, 2017 04:43:52 PM - Julie: adding as.character()
+        chr1.pairs = as.character(seqnames(gr)[pairs[,1]])
+        chr2.pairs = as.character(seqnames(gr)[pairs[,2]])
+    }
+
+    str = paste(norm, hic, c(grs.singles, grs.pairs), type, as.integer(res))
+    chr1 = as.character(c(chr1.singles, chr1.pairs))
+    chr2 = as.character(c(chr2.singles, chr2.pairs))
+    out = rbindlist(mcmapply(str = str, chr1 = chr1, chr2 = chr2, FUN = function(str, chr1, chr2){
+        dt = as.data.table(.Call("_gTrack_straw_R", str))
+        dt[, ":="(chr1 = chr1, chr2 = chr2)]
+        return(dt)
+    }, SIMPLIFY = FALSE,  mc.cores = mc.cores))
+    out = out[!is.na(counts), ]
+    out[, x2 := x+res-1]
+    out[, y2 := y+res-1]
+    out[, str1 := paste0(chr1, ':', x, '-', x2)]
+    out[, str2:= paste0(chr2, ':', y, '-', y2)]
+    gr.out = unique(dt2gr(rbind(out[, .(seqnames = chr1, start = x, end = x2)], out[, .(seqnames = chr2, start = y, end = y2)])))
+    gr.out$grs = gr.string(gr.out)
+    out[, i1 := match(str1, gr.out$grs)]
+    out[, j1 := match(str2, gr.out$grs)]
+    out[, i := pmin(i1, j1)]
+    out[, j := pmax(i1, j1)]
+    mdata = Matrix::sparseMatrix(out$i, out$j, x = out$counts, dims = c(length(gr.out), length(gr.out)),symmetric = TRUE)
+    gt = gTrack(gr.out, mdata = mdata, colormap = colormap, ...)
+    return(gt)
+}
+
+
+
+alpha = function(col, alpha){
+    col.rgb = col2rgb(col)
+    out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
+    names(out) = names(col)
+    return(out)
+}
+
