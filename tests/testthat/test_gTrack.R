@@ -37,7 +37,7 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 #})
 
 ##create a GRanges object storing 10 sequences. These sequences will serve as nodes for the graph.
-gr = GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
+## gr = GRanges(seqnames = Rle(c("chr1" , "chr2" , "chr1" , "chr3"), c(1,3,2,4)), ranges = IRanges(c(1,3,5,7,9,11,13,15,17,19), end = c(2,4,6,8,10,12,14,16,18,20),  names = head(letters,10)), GC=seq(1,10,length=10), name=seq(5,10,length=10))
 
 ## Specify links between nodes using a matrix. Numeric 1s refer to a connection while conversely with 0s.
     
@@ -495,6 +495,10 @@ test_that("track.gencode", {
 ## track.straw
 
 
+## clip.seg
+
+
+
 ### seg.on.seg()
 
 test_that('seg.on.seg() works', {
@@ -515,6 +519,8 @@ test_that('dedup() works', {
 
 })
 
+
+## get_seqinfo()
 
 
 ## listify()
