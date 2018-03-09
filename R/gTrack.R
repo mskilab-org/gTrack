@@ -4433,7 +4433,6 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
     bgx = matrix(c(start[ir], end[ir], start[jr], end[jr], ir, jr), nrow=num.boxes, ncol=6)
 
     return(bgx)
-
 }
 
 
@@ -4678,6 +4677,150 @@ extract_data_from_tmp_dat <- function(.Object, j, this.windows) {
     }
 
     return(list(o=.Object, t=tmp.dat))
+}
+
+
+get_seqinfo <- function(.Object, seqinfo) {
+
+    if (is.na(seqinfo) & is.list(.Object@data)) {
+
+        slen = c()
+        if (is.null(formatting(.Object)$yaxis)){
+            formatting(.Object)$yaxis = NA
+        }
+        for (i in 1:length(.Object@data)){
+            x = .Object@data[[i]]
+            if (is(x, 'GRanges') || is(x, 'GRangesList')){
+                slen = GenomeInfoDb::seqlengths(x)      
+                if (any(is.na(slen))){
+                    if (is(x, 'GRanges')){
+                        slen = GenomeInfoDb::seqlengths(gr.fix(x))
+                    } else if (is(x, 'GRangesList')){
+                        slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
+                    }
+                }
+            } else if (is(x, 'ffTrack')){
+                if (is.null(slen)){
+                    slen = GenomeInfoDb::seqlengths(x)
+                }
+                else{
+                    slen[seqlevels(x)] = pmax(slen[seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
+                }
+                formatting(.Object)[i, 'yaxis'] = TRUE
+            } else if (inherits(x, 'RleList')) {
+                .Object@data[[i]] = as(x, 'RleList')
+                formatting(.Object)[i, 'yaxis'] = TRUE
+                slen = structure(sapply(x, length), names = names(x))
+            } else if (is.character(x)) {
+                if (!file.exists(x)){
+                    stop('Error: External file does not exist.  Note the file must be a supported UCSC file format or R .rds file with the associated file extension .bw, .wig, .bed., .gff, .2bit, .bedgraph, .rds.')
+                }
+
+                if (grepl('(\\.bw)|(\\.bigwig)', x, ignore.case = TRUE)){
+                    f = rtracklayer::BigWigFile(normalizePath(x))
+                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                    formatting(.Object)[i, 'yaxis'] = TRUE
+                    if (is.null(slen)){
+                        stop('Error: External file must be a valid and existing .bigwig file')
+                    }
+                } else if (grepl('\\.wig', x, ignore.case = TRUE)) {
+                    f = rtracklayer::WIGFile(normalizePath(x))
+                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                    formatting(.Object)[i, 'yaxis'] = TRUE
+                    if (is.null(slen)){
+                        stop('Error: External file must be a valid and existing .wig file')
+                    }
+                } else if (grepl('\\.bed', x, ignore.case = TRUE)) {
+                    ## only option is to load
+                    f = rtracklayer::BEDFile(normalizePath(x))
+                    tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
+                    if (is.null(tmp.out)){
+                        stop('Error: External file must be a valid and existing .bed file')
+                    } else {
+                        if (.Object@formatting$source.file.chrsub){
+                            .Object@data[[i]] = gUtils::gr.sub(tmp.out, 'chr', '')
+                        } else{
+                            .Object@data[[i]] = tmp.out
+                        }
+                    }
+                    slen = GenomeInfoDb::seqlengths(tmp.out)
+                } else if (grepl('\\.gff', x, ignore.case = TRUE)) {
+                    f = rtracklayer::GFFFile(normalizePath(x))
+                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                    if (is.null(slen)){
+                        stop('Error: External file must be a valid and existing .gff file')
+                    }
+                } else if (grepl('\\.2bit', x, ignore.case = TRUE)) {
+                    f = rtracklayer::TwoBitFile(normalizePath(x))
+                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
+                    if (is.null(slen)){
+                        stop('Error: External file must be a valid and existing .2bit file')
+                    }
+                } else if (grepl('\\.bedgraph', x, ignore.case = TRUE)) {
+                    ## only option is to load
+                    f = rtracklayer::BedGraphFile(normalizePath(x))
+                    tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
+                    if (is.null(tmp.out)){
+                        stop('Error: External file must be a valid and existing .bedgraph file')
+                    } else{
+                        if (.Object@formatting$source.file.chrsub){
+                            .Object@data[[i]] = gUtilts::gr.sub(tmp.out, 'chr', '')
+                        } else{
+                            .Object@data[[i]] = tmp.out
+                        }
+                    }
+                    slen = GenomeInfoDb::seqlengths(tmp.out)
+                } else if (grepl('\\.rds', x, ignore.case = TRUE)) {
+                    ## assume this is GRanges or GRangesList
+                    tmp.out = tryCatch(readRDS(x), error = function(x) NULL)
+
+                    if (is.null(tmp.out)){
+                        stop('Error: External file must be a valid and existing .rds file containing GRanges or GRangesList')
+                    } else if (!inherits(tmp.out, 'GRanges') | !inherits(tmp.out, 'GRangesList')){
+                        stop('External file must be a valid and existing .rds file containing GRanges or GRangesList')
+                    } else {
+                        if (.Object@formatting$source.file.chrsub){
+                            .Object@data[[i]] = gr.sub(tmp.out, 'chr', '')
+                        }
+                        else{
+                            .Object@data[[i]] = tmp.out
+                        }
+                    }
+                    slen = GenomeInfoDb::seqlengths(tmp.out)
+                }
+            } else{
+                if (is.null(slen)){
+                    slen= structure(sapply(x, length), names = names(x))
+                } else{
+                    slen[names(x)] = pmax(slen[x], sapply(x, length), na.rm = TRUE)
+                }
+            }
+        }
+
+        if (any(.Object@formatting$chr.sub)){
+            names(slen) = gsub('chr', '', names(slen))
+        }
+
+        if (any(duplicated(names(slen)))){
+           slen = data.table(len = slen, nm = names(slen))[, list(len = max(len)), by = nm][, structure(len, names = nm)]
+        }
+            
+        .Object@seqinfo = Seqinfo(seqnames = names(slen), seqlengths = slen);
+
+    } else {
+        if (is.null(seqinfo)){
+            .Object@seqinfo = Seqinfo()
+        } else if (is.list(seqinfo) & all(sapply(seqinfo, inherits, 'Seqinfo')) & length(seqinfo) == length(.Object)){
+            .Object@seqinfo = seqinfo
+        } else{
+            if (!inherits(seqinfo, 'Seqinfo')){
+                seqinfo = GenomeInfoDb::seqinfo(seqinfo);
+            }
+            .Object@seqinfo = seqinfo;
+            .Object@data = lapply(.Object@data, gr.fix, seqinfo)
+        }
+    }
+    return(.Object)
 }
 
 
@@ -5014,151 +5157,6 @@ dedup = function(x, suffix = '.'){
 
 
 
-get_seqinfo <- function(.Object, seqinfo) {
-
-    if (is.na(seqinfo) & is.list(.Object@data)) {
-
-        slen = c()
-        if (is.null(formatting(.Object)$yaxis)){
-            formatting(.Object)$yaxis = NA
-        }
-        for (i in 1:length(.Object@data)){
-            x = .Object@data[[i]]
-            if (is(x, 'GRanges') || is(x, 'GRangesList')){
-                slen = GenomeInfoDb::seqlengths(x)      
-                if (any(is.na(slen))){
-                    if (is(x, 'GRanges')){
-                        slen = GenomeInfoDb::seqlengths(gr.fix(x))
-                    } else if (is(x, 'GRangesList')){
-                        slen = GenomeInfoDb::seqlengths(gr.fix(unlist(x)))
-                    }
-                }
-            } else if (is(x, 'ffTrack')){
-                if (is.null(slen)){
-                    slen = GenomeInfoDb::seqlengths(x)
-                }
-                else{
-                    slen[seqlevels(x)] = pmax(slen[seqlevels(x)], GenomeInfoDb::seqlengths(x), na.rm = TRUE)
-                }
-                formatting(.Object)[i, 'yaxis'] = TRUE
-            } else if (inherits(x, 'RleList')) {
-                .Object@data[[i]] = as(x, 'RleList')
-                formatting(.Object)[i, 'yaxis'] = TRUE
-                slen = structure(sapply(x, length), names = names(x))
-            } else if (is.character(x)) {
-                if (!file.exists(x)){
-                    stop('Error: External file does not exist.  Note the file must be a supported UCSC file format or R .rds file with the associated file extension .bw, .wig, .bed., .gff, .2bit, .bedgraph, .rds.')
-                }
-
-                if (grepl('(\\.bw)|(\\.bigwig)', x, ignore.case = TRUE)){
-                    f = rtracklayer::BigWigFile(normalizePath(x))
-                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                    formatting(.Object)[i, 'yaxis'] = TRUE
-                    if (is.null(slen)){
-                        stop('Error: External file must be a valid and existing .bigwig file')
-                    }
-                } else if (grepl('\\.wig', x, ignore.case = TRUE)) {
-                    f = rtracklayer::WIGFile(normalizePath(x))
-                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                    formatting(.Object)[i, 'yaxis'] = TRUE
-                    if (is.null(slen)){
-                        stop('Error: External file must be a valid and existing .wig file')
-                    }
-                } else if (grepl('\\.bed', x, ignore.case = TRUE)) {
-                    ## only option is to load
-                    f = rtracklayer::BEDFile(normalizePath(x))
-                    tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
-                    if (is.null(tmp.out)){
-                        stop('Error: External file must be a valid and existing .bed file')
-                    } else {
-                        if (.Object@formatting$source.file.chrsub){
-                            .Object@data[[i]] = gUtils::gr.sub(tmp.out, 'chr', '')
-                        } else{
-                            .Object@data[[i]] = tmp.out
-                        }
-                    }
-                    slen = GenomeInfoDb::seqlengths(tmp.out)
-                } else if (grepl('\\.gff', x, ignore.case = TRUE)) {
-                    f = rtracklayer::GFFFile(normalizePath(x))
-                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                    if (is.null(slen)){
-                        stop('Error: External file must be a valid and existing .gff file')
-                    }
-                } else if (grepl('\\.2bit', x, ignore.case = TRUE)) {
-                    f = rtracklayer::TwoBitFile(normalizePath(x))
-                    slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
-                    if (is.null(slen)){
-                        stop('Error: External file must be a valid and existing .2bit file')
-                    }
-                } else if (grepl('\\.bedgraph', x, ignore.case = TRUE)) {
-                    ## only option is to load
-                    f = rtracklayer::BedGraphFile(normalizePath(x))
-                    tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
-                    if (is.null(tmp.out)){
-                        stop('Error: External file must be a valid and existing .bedgraph file')
-                    } else{
-                        if (.Object@formatting$source.file.chrsub){
-                            .Object@data[[i]] = gUtilts::gr.sub(tmp.out, 'chr', '')
-                        } else{
-                            .Object@data[[i]] = tmp.out
-                        }
-                    }
-                    slen = GenomeInfoDb::seqlengths(tmp.out)
-                } else if (grepl('\\.rds', x, ignore.case = TRUE)) {
-                    ## assume this is GRanges or GRangesList
-                    tmp.out = tryCatch(readRDS(x), error = function(x) NULL)
-
-                    if (is.null(tmp.out)){
-                        stop('Error: External file must be a valid and existing .rds file containing GRanges or GRangesList')
-                    } else if (!inherits(tmp.out, 'GRanges') | !inherits(tmp.out, 'GRangesList')){
-                        stop('External file must be a valid and existing .rds file containing GRanges or GRangesList')
-                    } else {
-                        if (.Object@formatting$source.file.chrsub){
-                            .Object@data[[i]] = gr.sub(tmp.out, 'chr', '')
-                        }
-                        else{
-                            .Object@data[[i]] = tmp.out
-                        }
-                    }
-                    slen = GenomeInfoDb::seqlengths(tmp.out)
-                }
-            } else{
-                if (is.null(slen)){
-                    slen= structure(sapply(x, length), names = names(x))
-                } else{
-                    slen[names(x)] = pmax(slen[x], sapply(x, length), na.rm = TRUE)
-                }
-            }
-        }
-
-        if (any(.Object@formatting$chr.sub)){
-            names(slen) = gsub('chr', '', names(slen))
-        }
-
-        if (any(duplicated(names(slen)))){
-           slen = data.table(len = slen, nm = names(slen))[, list(len = max(len)), by = nm][, structure(len, names = nm)]
-        }
-            
-        .Object@seqinfo = Seqinfo(seqnames = names(slen), seqlengths = slen);
-
-    } else {
-        if (is.null(seqinfo)){
-            .Object@seqinfo = Seqinfo()
-        } else if (is.list(seqinfo) & all(sapply(seqinfo, inherits, 'Seqinfo')) & length(seqinfo) == length(.Object)){
-            .Object@seqinfo = seqinfo
-        } else{
-            if (!inherits(seqinfo, 'Seqinfo')){
-                seqinfo = GenomeInfoDb::seqinfo(seqinfo);
-            }
-            .Object@seqinfo = seqinfo;
-            .Object@data = lapply(.Object@data, gr.fix, seqinfo)
-        }
-    }
-    return(.Object)
-}
-
-
-
 #' @importFrom data.table as.data.table
 #' @importFrom gUtils dt2gr
 #' @name tack.straw
@@ -5231,9 +5229,3 @@ listify = function(x, FUN, len = 1) {
 }
 
 
-alpha = function(col, alpha){
-    col.rgb = col2rgb(col)
-    out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
-    names(out) = names(col)
-    return(out)
-}
