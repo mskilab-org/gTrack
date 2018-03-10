@@ -13,7 +13,8 @@ with a specified angle.  The middle segment of the parallelogram represents the 
 
 Parameterized by x0, x1 (range values), y0, y1 (thickness), angle, where angle is between -90 and 90
 
-eg angle of 0 = rectangle
+e.g. 
+   angle of 0 = rectangle
    angle of 45 = rightward pointing barb
    angle of -45 = leftward pointing barb
 

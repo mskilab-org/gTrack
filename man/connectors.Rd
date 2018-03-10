@@ -5,13 +5,11 @@
 \title{connectors}
 \usage{
 connectors(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
-  type = "S", f.arrow = T, b.arrow = F, nsteps = 100, cex.arrow = 1,
-  col.arrow = "black", lwd = 1, lty = 1, col = "black")
+  type = "S", f.arrow = TRUE, b.arrow = FALSE, nsteps = 100,
+  cex.arrow = 1, col.arrow = "black", lwd = 1, lty = 1, col = "black")
 }
 \description{
-connectors
-
-draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
+Draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
 
 "S" connectors will use bezier control points that are located in an intermediate y location
 between y0 and y1, and "U" connectors will use bezier control points that are located in an

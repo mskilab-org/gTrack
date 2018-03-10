@@ -1809,7 +1809,7 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
             qarm = lighten(tmp, col.adjust),
             centro = rep('gray', length(tmp)),
             parm = lighten(tmp, -col.adjust),
-            ptel = rep('black', length(tmp)), stringsAsFactors = F)
+            ptel = rep('black', length(tmp)), stringsAsFactors = FALSE)
         
         ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
         if (arms) {
@@ -2292,7 +2292,7 @@ draw.ranges = function(x,
 #' "A" substitutions, soft clipped regions, and insertions with blue, yellow, and green colors, respectively.
 #'
 #' @keywords internal
-#' @author Marcin IMielinski
+#' @author Marcin Imielinski
 #' @importFrom GenomicRanges GRanges values ranges width strand values<- strand<- seqnames coverage ranges<-
 #' @importFrom data.table := setkeyv
 #' @importFrom GenomeInfoDb Seqinfo seqinfo keepSeqlevels seqlevels seqlengths seqlevels<- seqlengths<- genome<- seqnames
@@ -3580,7 +3580,8 @@ draw.grl = function(grl,
 #'
 #' Parameterized by x0, x1 (range values), y0, y1 (thickness), angle, where angle is between -90 and 90
 #'
-#' eg angle of 0 = rectangle
+#' e.g. 
+#'    angle of 0 = rectangle
 #'    angle of 45 = rightward pointing barb
 #'    angle of -45 = leftward pointing barb
 #'
@@ -3651,9 +3652,7 @@ bernsteinp = function(n, m){
 #' @title connectors
 #' @description
 #'
-#' connectors
-#'
-#' draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
+#' Draws bezier connectors between pairs of signed points points a = (x0, y0, s0) and b(x1, y1, s1)
 #'
 #' "S" connectors will use bezier control points that are located in an intermediate y location
 #' between y0 and y1, and "U" connectors will use bezier control points that are located in an
@@ -3677,7 +3676,7 @@ bernsteinp = function(n, m){
 #'
 #' @name Marcin Imielinski
 #' @keywords internal
-connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1, type = "S", f.arrow = T, b.arrow = F, nsteps = 100, cex.arrow = 1, col.arrow = 'black', lwd = 1, lty = 1, col = 'black'){
+connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1, type = "S", f.arrow = TRUE, b.arrow = FALSE, nsteps = 100, cex.arrow = 1, col.arrow = 'black', lwd = 1, lty = 1, col = 'black'){
 
     B = rbind(bernsteinp(6, nsteps), NA); # bernstein basis for bezier with 6 control points
 
@@ -3922,9 +3921,11 @@ col.scale = function(x, val.range = c(0, 1), col.min = 'white', col.max = 'black
 #' @name brewer.master
 #' @title brewer.master
 #' @description
+#'
 #' Make brewer colors using entire palette
 #'
 #' Makes a lot of brewer colors using entire brewer palette
+#'
 #' @param scalar positive integer of number of colors to return
 #' @param palette any brewer.pal palette to begin with (default 'Accent')
 #'
@@ -3993,7 +3994,7 @@ lighten = function(col, f){
 #' Shortcut for making blank plot with no axes
 #' @author Marcin Imielinski
 #' @keywords internal
-plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes = F, bg.col = "white", ...){
+plot.blank = function(xlim = c(0, 1), ylim = c(0,1), xlab = "", ylab = "", axes = FALSE, bg.col = "white", ...){
     par(bg = bg.col)
     plot(0, type = "n", axes = axes, xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, ...)
 }
@@ -4222,7 +4223,9 @@ draw.triangle <- function(grl,
 #' @name clip_polys
 #' @title clip_polys
 #' @description
+#'
 #' Clip polygons
+#'
 #' @author Jeremiah Wala
 #' @keywords internal
 clip_polys <- function(dt, y0, y1) {
@@ -4323,7 +4326,7 @@ diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
 
     ## setup the data table
     dt <- data.table::data.table(x1=i1$x, x2=i2$x, x3=i3$x, x4=i4$x, x5=i5$x, x6=i6$x,
-                   y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
+        y1=i1$y, y2=i2$y, y3=i3$y, y4=i4$y, y5=i5$y, y6=i6$y, col=col)
     dt <- clip_polys(dt, y0, y1)
     iN <- rep(NA, nrow(dt))
 

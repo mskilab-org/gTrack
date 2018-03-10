@@ -133,18 +133,43 @@ test_that('karyogram() works', {
 
 
 ## barbs()
+test_that("testing barbs() works", {
+
+    ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
+      ## plot.new has not been called yet
+    expect_error(barbs(1, 1, 1, 1))
+
+})
+
 
 ## bernsteinp()
+test_that("testing bernsteinp() works", {
+
+    expect_equal(as.numeric(bernsteinp(1, 1)), 1)
+    bernsteinp(5, 5)[3, 3]
+    expect_equal(bernsteinp(5, 5)[3, 3],  0.375)
+    bernsteinp(5, 5)[5, 5]
+    expect_equal(bernsteinp(5, 5)[5, 5], 1)
+
+})
 
 
 ## connectors()
+test_that("testing connectors() works", {
+
+    ## Error in plot.xy(xy.coords(x, y), type = type, ...) 
+    expect_error(connectors(x0=1, y0=1, x1=1, y1=1))
+
+})
+
+
 
 
 ## affine.map()
-
 test_that("testing affine.map() works", {
 
     expect_equal(affine.map(80), 0.5)
+    expect_equal(affine.map(80, cap=TRUE), 0.5)
     expect_equal(affine.map(c(10, 20))[1], 0)
     expect_equal(affine.map(c(10, 20))[2], 1)
 
@@ -153,7 +178,6 @@ test_that("testing affine.map() works", {
 
 
 ## alpha()
-
 test_that("testing alpha() works", {
 
     expect_match(alpha('blue', 1), '#0000FFFF')
@@ -162,28 +186,71 @@ test_that("testing alpha() works", {
 
 
 
-
-
 ## blend()
+test_that("testing blend() works", {
+
+    expect_match(blend('blue'), '#0000FF')
+    ## Error in col2rgb(cols) : invalid color name 'foo'
+    expect_error(blend('foo'))
+    expect_match(blend(c('blue', 'green')), '#008080')
+    
+})
+
+
 
 
 ## col.scale()
+test_that("testing col.scale() works", {
+
+    expect_match(col.scale(1), '#000000')
+    expect_match(col.scale(1, invert=TRUE), '#FFFFFF')
+    
+})
+
 
 
 ## brewer.master()
+test_that("testing brewer.master() works", {
+
+    expect_match(brewer.master(3)[1], '#7FC97F')
+    expect_match(brewer.master(3)[2], '#BEAED4')
+    expect_match(brewer.master(3)[3], '#FDC086')
+    
+})
+
 
 
 ## lighten()
+test_that("testing lighten() works", {
+
+    expect_match(lighten('blue', 1), '#0101FF')
+    
+})
 
 
+## plot.blank()
+test_that("testing plot.blank() works", {
 
-## plot.bank()
+    expect_error(plot.blank(), NA) ## check works
+    blank_plot = plot.blank()
+    expect_equal(blank_plot, NULL)
+    
+})
+
 
 
 ## draw.triangle()
 
 
+
 ## clip_polys()
+## test_that("testing clip_polys() works", {
+
+    ## Error in `[.data.table`(dt, , `:=`(left, y3 > y6)) : 
+    ## expect_error(clip_polys(dt, 13, 10))
+    ## expect_equal(as.logical(clip_polys(dt, 3, 15)$left[1]), NA)
+##    
+## })
 
 
 ## diamond()

@@ -53,6 +53,6 @@ var.col = c(XA = 'blue', S = 'yellow', 'I' = green') would replace the default v
 "A" substitutions, soft clipped regions, and insertions with blue, yellow, and green colors, respectively.
 }
 \author{
-Marcin IMielinski
+Marcin Imielinski
 }
 \keyword{internal}
