@@ -13,103 +13,8 @@ dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
 
 
 
-HI=300
-WI=600
-##gr <- GRanges(c(1,1), IRanges(c(5,6), width=1), strand=c("+","-"), A=c(5,8), B=c(3,2), seqinfo= gUtils::si)
-
-grl <- GRangesList(list(GRanges(c(1,2), IRanges(c(6,10), width=1), strand=c("+","-"),seqinfo=gUtils::si)))
-set.seed(137)
-mdat <- matrix(sample(10, 4, replace=TRUE), ncol=2, nrow=2)
-mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 
 
-##test_that('show setMethod', {
-##    
-##    gt = gTrack(GRanges(1, IRanges(1,100)))
-##
-##    yfield_showed_gt = show(gt)[[1]]
-##
-##    expect_equal(yfield_showed_gt, NA)
-##
-##})
-
-
-## test_that("karyogram method", {
-##    
-##    expect_equal(karyogram(TRUE)$y.field, NA)
-##
-##    expect_equal(karyogram(hg19 = TRUE, bands = TRUE)$y.field, NA)
-##
-##    karyogram(FALSE)
-##
-##    #karyogram(arms = TRUE)
-##    
-##})
-
-
-#test_that("multipleTracks", {
-#    ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
-#    plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
-#})
-
-
-##if (FALSE) {
-##test_that("draw.paths", {
-##    gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
-##    gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
-##    gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
-##
-##    ##Create a column that keeps a counter of the exon number.
-##
-##    gene1$exon = 1:length(gene1)
-##    gene2$exon = 1:length(gene2)
-##    gene3$exon = 1:length(gene3)
-##
-##    ## Combine into GRangesList
-##    grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
-##
-##    gt.genes = gTrack(grl)
-##
-##    ## Plot two graphs, one with and one without the draw.paths parameter.
-##    fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
-##    gt.fusion = gTrack(fusion, draw.paths = FALSE)
-##    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
-##
-##    ## separating the windows for the graph.
-##    win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
-##    plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
-##})
-##}
-
-## need to fix d variable. 
-
-##if (FALSE) {
-##test_that("name", {
-##    ## create sequences from chromosomes 1-3.
-##    fake.genome = c('1'=1e4, '2'=1e3, '3'=5e3)
-##    tiles = gr.tile(fake.genome, 1)
-##
-##    ## Choose 5 random indices. These indices will store the variants.
-##    hotspots = sample(length(tiles), 5)
-##
-##    ## for each sequence, calculate the shortest distance to one of the hotspots.
-##    d = pmin(Inf, values(distanceToNearest(tiles, tiles[hotspots]))$distance, na.rm = TRUE)
-##    ## for sequences near the hotspots, the "prob" will be a higher positive number. It becomes smaller as it moves farther from the hotspot.
-##    prob = .05 + exp(-d^2/10000)
-##
-##    ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
-##    mut = sample(tiles, 2000, prob = prob, replace = TRUE)
-##
-##    ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually.
-##    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
-##    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
-##    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
-##    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
-##
-##    win = si2gr(fake.genome)
-##    plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
-##})
-##}
 
 
 
@@ -133,40 +38,63 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 ### karyogram 
 ### karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 
-##test_that('karyogram() works', {
-##    
-##    ## default
-##    expect_equal(karyogram()$height, 10)
-##    expect_equal(karyogram()$angle, 10)
-##    expect_equal(karyogram()$y.quantile, 0.01)
-##    expect_equal(karyogram()$cex.label, 1)
-##    expect_equal(karyogram()$gr.cex.label.gr, 0.8)
-##    ## hg19
-##    expect_equal(karyogram(hg19 = FALSE)$height, 10)
-##    expect_equal(karyogram(hg19 = FALSE)$angle, 10)
-##    expect_equal(karyogram(hg19 = FALSE)$y.quantile, 0.01)
-##    expect_equal(karyogram(hg19 = FALSE)$cex.label, 1)
-##    expect_equal(karyogram(hg19 = FALSE)$gr.cex.label.gr, 0.8)
-##    ## bands
-##    ## nobands = karyogram(bands = FALSE)
-##    ## Error in validObject(.Object) : 
-##    ##     invalid class “GRanges” object: 'seqnames(x)' contains missing values
-##    expect_equal(karyogram(arms = FALSE)$height, 10)
-##    expect_equal(karyogram(arms = FALSE)$angle, 10)
-##    expect_equal(karyogram(arms = FALSE)$y.quantile, 0.01)
-##    expect_equal(karyogram(arms = FALSE)$cex.label, 1)
-##    expect_equal(karyogram(arms = FALSE)$gr.cex.label.gr, 0.8)   
-##    ### tel.width = 2e6
-##    expect_equal(karyogram(tel.width = 1e3)$height, 10)
-##    expect_equal(karyogram(tel.width = 1e3)$angle, 10)
-##    expect_equal(karyogram(tel.width = 1e3)$y.quantile, 0.01)
-##    expect_equal(karyogram(tel.width = 1e3)$cex.label, 1)
-##    expect_equal(karyogram(tel.width = 1e3)$gr.cex.label.gr, 0.8)   
-##
-##})
+test_that('karyogram() works', {
+    
+    ## default
+    expect_equal(karyogram()$height, 10)
+    expect_equal(karyogram()$angle, 10)
+    expect_equal(karyogram()$y.quantile, 0.01)
+    expect_equal(karyogram()$cex.label, 1)
+    expect_equal(karyogram()$gr.cex.label.gr, 0.8)
+    ## hg19
+    expect_equal(karyogram(hg19 = FALSE)$height, 10)
+    expect_equal(karyogram(hg19 = FALSE)$angle, 10)
+    expect_equal(karyogram(hg19 = FALSE)$y.quantile, 0.01)
+    expect_equal(karyogram(hg19 = FALSE)$cex.label, 1)
+    expect_equal(karyogram(hg19 = FALSE)$gr.cex.label.gr, 0.8)
+    ## bands
+    ## nobands = karyogram(bands = FALSE)
+    ## Error in validObject(.Object) : 
+    ##     invalid class “GRanges” object: 'seqnames(x)' contains missing values
+    expect_equal(karyogram(arms = FALSE)$height, 10)
+    expect_equal(karyogram(arms = FALSE)$angle, 10)
+    expect_equal(karyogram(arms = FALSE)$y.quantile, 0.01)
+    expect_equal(karyogram(arms = FALSE)$cex.label, 1)
+    expect_equal(karyogram(arms = FALSE)$gr.cex.label.gr, 0.8)   
+    ### tel.width = 2e6
+    expect_equal(karyogram(tel.width = 1e3)$height, 10)
+    expect_equal(karyogram(tel.width = 1e3)$angle, 10)
+    expect_equal(karyogram(tel.width = 1e3)$y.quantile, 0.01)
+    expect_equal(karyogram(tel.width = 1e3)$cex.label, 1)
+    expect_equal(karyogram(tel.width = 1e3)$gr.cex.label.gr, 0.8)   
+
+})
 
 
 
+
+
+
+
+
+
+## formatting
+
+## clear
+
+## dat
+
+## colormap
+
+## show
+
+## .identical.seqinfo()
+
+## plot()
+
+## karyogram()
+
+## track.gencode()
 
 ### track.gencode = function(gencode = NULL,
 ###     gene.collapse = TRUE,
@@ -192,44 +120,11 @@ mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
 ###     ...)
 ### 
 
-test_that("testing .all.xpairs() works", {
-
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[1], 3)
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[2], 3)
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[3], 5)
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[4], 10)
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[5], 1)
-    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[6], 2)
-
-})
-
-
-
-
-## test_that("track.gencode", {
-## 
-##     expect_error(track.gencode(), NA) ## check it runs correctly
-## 
+## test_that("testing track.gencode() works", {
+##
 ## })
 
 
-## formatting
-
-## clear
-
-## dat
-
-## colormap
-
-## show
-
-## .identical.seqinfo()
-
-## plot()
-
-## karyogram()
-
-## track.gencode()
 
 ## draw.ranges()
 
@@ -330,6 +225,21 @@ test_that("testing .getpoints() works", {
 
 
 ## .all.xpairs
+
+test_that("testing .all.xpairs() works", {
+
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[1], 3)
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[2], 3)
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[3], 5)
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[4], 10)
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[5], 1)
+    expect_equal(.all.xpairs(c(3, 5), c(3, 10))[6], 2)
+
+})
+
+
+
+
 
 
 ## color.bar
@@ -442,4 +352,98 @@ test_that("testing listify() works", {
 
 
 
+HI=300
+WI=600
+##gr <- GRanges(c(1,1), IRanges(c(5,6), width=1), strand=c("+","-"), A=c(5,8), B=c(3,2), seqinfo= gUtils::si)
 
+grl <- GRangesList(list(GRanges(c(1,2), IRanges(c(6,10), width=1), strand=c("+","-"),seqinfo=gUtils::si)))
+set.seed(137)
+mdat <- matrix(sample(10, 4, replace=TRUE), ncol=2, nrow=2)
+mdat[upper.tri(mdat)] <- mdat[lower.tri(mdat)]
+
+
+
+
+test_that('show setMethod', {
+    
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+
+    yfield_showed_gt = show(gt)[[1]]
+
+    expect_equal(yfield_showed_gt, NA)
+
+})
+
+
+test_that("karyogram method", {
+    
+    expect_equal(karyogram(TRUE)$y.field, NA)
+
+    expect_equal(karyogram(hg19 = TRUE, bands = TRUE)$y.field, NA)
+
+})
+
+
+#test_that("multipleTracks", {
+#    ## It is also possible to add multiple plots to the same window. Use the concatenation operator.
+#    plot(c(gTrack(gr, edges = graph, stack.gap = 5), gTrack(gr, mdata = heatMap, stack.gap = 5)))
+#})
+
+
+##if (FALSE) {
+##test_that("draw.paths", {
+##    gene1 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('1:1-5e3+'), 50), 5))
+##    gene2 = rev(sort(sample(gUtils::gr.tile(gUtils::parse.gr('2:1-5e3-'), 50), 12)))
+##    gene3 = sort(sample(gUtils::gr.tile(gUtils::parse.gr('3:1-5e3+'), 50), 8))
+##
+##    ##Create a column that keeps a counter of the exon number.
+##
+##    gene1$exon = 1:length(gene1)
+##    gene2$exon = 1:length(gene2)
+##    gene3$exon = 1:length(gene3)
+##
+##    ## Combine into GRangesList
+##    grl = GRangesList(gene1 = gene1, gene2 = gene2, gene3 = gene3)
+##
+##    gt.genes = gTrack(grl)
+##
+##    ## Plot two graphs, one with and one without the draw.paths parameter.
+##    fusion = GRangesList(c(grl$gene1[1:3], grl$gene2[5:9], grl$gene3[7:8]))
+##    gt.fusion = gTrack(fusion, draw.paths = FALSE)
+##    gt.fusion.o = gTrack(fusion, draw.paths = TRUE)
+##
+##    ## separating the windows for the graph.
+##    win = gUtils::parse.gr(c('1:1-1e4', '2:1-1e4', '3:1-1e4'))
+##    plot(c(gt.genes, gt.fusion, gt.fusion.o), win +1e3)
+##})
+##}
+
+## need to fix d variable. 
+
+##if (FALSE) {
+##test_that("name", {
+##    ## create sequences from chromosomes 1-3.
+##    fake.genome = c('1'=1e4, '2'=1e3, '3'=5e3)
+##    tiles = gr.tile(fake.genome, 1)
+##
+##    ## Choose 5 random indices. These indices will store the variants.
+##    hotspots = sample(length(tiles), 5)
+##
+##    ## for each sequence, calculate the shortest distance to one of the hotspots.
+##    d = pmin(Inf, values(distanceToNearest(tiles, tiles[hotspots]))$distance, na.rm = TRUE)
+##    ## for sequences near the hotspots, the "prob" will be a higher positive number. It becomes smaller as it moves farther from the hotspot.
+##    prob = .05 + exp(-d^2/10000)
+##
+##    ## sample 2000 of the sequences. the one nearer to the hotspots will "probably" be selected.
+##    mut = sample(tiles, 2000, prob = prob, replace = TRUE)
+##
+##    ## graph with different degrees of stack.gap. The higher numeric supplied to stack.gap helps separate the data, visually.
+##    gt.mut0 = gTrack(mut, circle = TRUE, stack.gap = 0, name = "Track 0")
+##    gt.mut2 = gTrack(mut, circle = TRUE, stack.gap = 2, name = "Track 2")
+##    gt.mut10 = gTrack(mut, circle = TRUE, stack.gap = 10, name = "Track 10")
+##    gt.mut50 = gTrack(mut, circle = TRUE, stack.gap = 50, name = "Track 50")
+##
+##    win = si2gr(fake.genome)
+##    plot(c(gt.mut0, gt.mut2, gt.mut10, gt.mut50), win)
+##})
+##}
