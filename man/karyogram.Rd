@@ -4,7 +4,7 @@
 \alias{karyogram}
 \title{karyogram}
 \usage{
-karyogram(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e+06,
+karyogram(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e+05,
   ...)
 }
 \arguments{

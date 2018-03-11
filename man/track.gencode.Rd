@@ -15,6 +15,8 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
   labels.suppress.gr = TRUE, drop.rp11 = TRUE, stack.gap = 1e+06, ...)
 }
 \arguments{
+\item{gencode}{INFO INFO}
+
 \item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
 
 \item{genes}{(optional) character vector specifying genes to limit gTrack object to}
@@ -31,21 +33,31 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
 
 \item{en.col}{scalar character representing color of CDS end}
 
+\item{col}{INFO INFO INFO}
+
 \item{cached}{logical scalar whether to use "cached" version provided with package}
+
+\item{cached.dir}{INFO INFO INFO}
+
+\item{cached.path}{INFO INFO INFO}
+
+\item{cached.path.collapsed}{INFO INFO INFO}
 
 \item{gr.srt.label}{scalar numeric specifying angle on exon label}
 
 \item{gr.cex.label}{scalar numeric > 0 specifying character expansion on exon label}
 
-\item{labels.suppress.gr}{scalar logical specifying whether to suppress exon label plotting}
+\item{labels.suppress.gr}{boolean Flag specifying whether to suppress exon label plotting}
 
-\item{stack.gap}{stack.gap argument to gTrack}
+\item{drop.rp11}{boolean INFO INFO}
+
+\item{stack.gap}{float stack.gap argument to gTrack}
 
 \item{...}{additional arguments passed down to gTrack}
 
-\item{rg}{(optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import}
+\item{grl.lablefield}{INFO INFO INFO}
 
-\item{cds.utr}{scalar character representing background color for UTR}
+\item{gr.lablefield}{INFO INFO INFO}
 }
 \description{
 Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.

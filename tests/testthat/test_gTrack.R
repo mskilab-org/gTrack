@@ -34,9 +34,34 @@ dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
 ##                   )
 
 
+## gTrack
+test_that('test gTrack()) works', {
+    
+    ### > gTrack(data = 'foobar')
+    ### Error in validObject(.Object) : 
+    ###   invalid class “gTrack” object: External file foobar does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.
+    expect_error(gTrack(data = 'foobar'))
+
+})
+
+
+
+
+## .identical.seqinfo
+
+test_that('test .identical.seqinfo() works', {
+    
+    expect_false(.identical.seqinfo(gr, gr2))  
+    expect_true(.identical.seqinfo(gr[1:2], gr2))
+    expect_true(.identical.seqinfo(example_dnase[1:500], example_genes[1:500]))
+
+})
+
+
 
 ### karyogram 
 ### karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
+### NOTE: not sure how to deal with arms/bands 
 
 test_that('karyogram() works', {
     
@@ -54,14 +79,26 @@ test_that('karyogram() works', {
     expect_equal(karyogram(hg19 = FALSE)$gr.cex.label.gr, 0.8)
     ## bands
     ## nobands = karyogram(bands = FALSE)
-    ## Error in validObject(.Object) : 
-    ##     invalid class “GRanges” object: 'seqnames(x)' contains missing values
+    nobands = karyogram(bands = FALSE, arms=TRUE)
+    expect_equal(nobands$height, 10)
+    expect_equal(nobands$angle, 10)
+    expect_equal(nobands$y.quantile, 0.01)
+    expect_equal(nobands$cex.label, 1)
+    expect_equal(nobands$gr.cex.label.gr, 0.8)       
+    ## arms = FALSE won't affect default
+    nobandsnoarms = karyogram(bands = FALSE, arms=FALSE)
+    expect_equal(nobandsnoarms$height, 10)
+    expect_equal(nobandsnoarms$angle, 10)
+    expect_equal(nobandsnoarms$y.quantile, 0.01)
+    expect_equal(nobandsnoarms$cex.label, 1)
+    expect_equal(nobandsnoarms$gr.cex.label.gr, 0.8)  
+    ## 
     expect_equal(karyogram(arms = FALSE)$height, 10)
     expect_equal(karyogram(arms = FALSE)$angle, 10)
     expect_equal(karyogram(arms = FALSE)$y.quantile, 0.01)
     expect_equal(karyogram(arms = FALSE)$cex.label, 1)
     expect_equal(karyogram(arms = FALSE)$gr.cex.label.gr, 0.8)   
-    ### tel.width = 2e6
+    ### tel.width = 2e5
     expect_equal(karyogram(tel.width = 1e3)$height, 10)
     expect_equal(karyogram(tel.width = 1e3)$angle, 10)
     expect_equal(karyogram(tel.width = 1e3)$y.quantile, 0.01)
@@ -71,24 +108,179 @@ test_that('karyogram() works', {
 })
 
 
+## track.gencode()
 
 
+test_that('test track.gencode() works', {
+    
+    ## default
+    ## Pulling gencode annotations from /Library/Frameworks/R.framework/Versions/3.4/Resources/library/gTrack/extdata/gencode.composite.collapsed.rds
+    ### gTrack object with 1 tracks with formatting:
+    track_gencode = track.gencode()
+    expect_equal(track_gencode$height, 10)
+    expect_equal(track_gencode$ygap, 2)
+    expect_equal(track_gencode$angle, 15)
+    ## gene.collapse = FALSE
+    track_gencode2 = track.gencode(gene.collapse = FALSE)
+    expect_equal(track_gencode2$height, 10)
+    expect_equal(track_gencode2$ygap, 2)
+    expect_equal(track_gencode2$angle, 15)
 
+
+})
+
+## mdata
+test_that("testing barbs() works", {
+
+    ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
+      ## plot.new has not been called yet
+    expect_error(barbs(1, 1, 1, 1))
+
+})
+
+
+## mdata
+
+gTrack(example_genes)
+
+test_that("testing mdata() works", {
+
+    expect_equal(as.logical(mdata(gTrack(example_genes))), NA)
+
+})
+
+## $
+test_that("testing $ works", {
+
+    expect_equal(gTrack(example_genes)$height, 10)
+
+})
+
+
+test_that("testing $<- works", {
+
+    foobar = gTrack(example_genes)
+    expect_equal(as.logical(foobar$y.field), NA)
+    foobar$y.field = 'score'
+    expect_match(foobar$y.field, 'score')
+
+
+})
+
+## reduce
+test_that("testing reduce() works", {
+
+    expect_equal(length(reduce(gTrack(example_genes))), 18202)
+
+})
+
+## seqinfo
+test_that("testing seqinfo() works", {
+
+    expect_true(is(seqinfo(gTrack(example_genes)), 'Seqinfo'))
+
+})
+
+
+## c() gTracks
+
+test_that("testing c() works", {
+
+    stacked = c(gTrack(example_genes), gTrack(example_dnase))
+    expect_equal(stacked$height[1], 10)
+    expect_equal(stacked$height[2], 10)
+
+})
+
+
+test_that("testing formatting() works", {
+
+    stacked = c(gTrack(example_genes), gTrack(example_dnase))
+    expect_true(is(formatting(stacked), 'data.frame'))
+
+})
+
+
+## xaxis
+
+test_that("testing formatting() works", {
+
+    expect_equal(xaxis(gTrack(example_genes))$xaxis.unit, 1)
+    expect_equal(xaxis(gTrack(example_genes))$xaxis.round, 3)
+    expect_true(xaxis(gTrack(example_genes))$xaxis.newline)
+
+})
+
+
+## sep
+
+test_that("testing sep() works", {
+
+    expect_equal(sep(gTrack(example_genes))$sep.lty, 2)
+    expect_equal(sep(gTrack(example_genes))$sep.lwd, 1)
+    expect_true(sep(gTrack(example_genes))$sep.draw)
+
+})
+
+
+## edgs
+
+test_that("testing edgs() works", {
+
+    expect_equal(edgs(gTrack(example_genes))[[1]], data.frame())
+
+})
 
 
 
 
 ## formatting
+test_that("testing formatting() works", {
+
+    expect_equal(formatting(gTrack(example_genes))$height, 10)
+
+})
+
+
 
 ## clear
+test_that("testing clear() works", {
+
+    expect_equal(length(dat(clear(gTrack(example_genes)))[[1]]), 0)
+
+})
+
 
 ## dat
+test_that("testing dat() works", {
+
+    expect_equal(length(dat((gTrack(example_genes)))[[1]]), 18812)
+
+})
+
+
 
 ## colormap
+test_that("testing colormap() works", {
+
+    expect_true(is(colormap(gTrack(example_genes)), 'list'))
+
+})
 
 ## show
+test_that("testing show() works", {
+
+    expect_true(show(gTrack(example_genes))$yaxis)
+
+})
 
 ## .identical.seqinfo()
+test_that("testing .identical.seqinfo() works", {
+
+    expect_false(.identical.seqinfo(gr2, gr))
+    expect_true(.identical.seqinfo(gr2, gr[1:2]))
+
+})
 
 ## plot()
 

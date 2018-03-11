@@ -611,6 +611,7 @@ setMethod('$<-', 'gTrack', function(x, name, value){
 #' Getting length of gTrack object gt
 #' Usage:
 #' length(gt)
+#'
 #' @param x \code{gTrack} object
 #' @docType methods
 #' @rdname length-methods
@@ -630,6 +631,7 @@ setMethod('length', 'gTrack', function(x){
 #' Computing the GRanges footprint of the gTrack object on the genome
 #' usage:
 #' reduce(gt) # outputs a GRanges
+#'
 #' @param x \code{gTrack} object to retrieve reduced \code{GRanges} from
 #' @param ... additional arguments to GRanges reduce function
 #' @return \code{GRanges} with the minimal footprint of the \code{gTrack} data
@@ -673,6 +675,7 @@ setMethod('reduce', 'gTrack', function(x, ... ){
 #' returns Seqinfo of gTrack object gt
 #' Usage:
 #' seqinfo(gt)
+#'
 #' @docType methods
 #' @param x \code{gTrack} object
 #' @return \code{seqinfo}
@@ -1042,6 +1045,7 @@ setReplaceMethod('formatting', 'gTrack', function(.Object, value){
 #' @name colormap
 #' @title colormap
 #' @description
+#'
 #' Access colormap of gTrack object, this is a named list of named character vectors that specifies
 #' the field of the underlying GRanges object that will be used to map a set of values
 #' to a set of colors.
@@ -1783,12 +1787,11 @@ setMethod('plot', c("gTrack", "ANY"), function(x,        ## pplot  (for easy sea
 #' @param ... Additional arguments sent to the \code{gTrack} constructor
 #' @export
 #' @author Marcin Imielinski
-karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
+karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e5, ... )
 {
     if (hg19){
         ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg19.rds", package = 'gTrack'))
-    }
-    else{
+    } else{
         ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg18.rds", package = 'gTrack'))
     }
 
@@ -1815,17 +1818,18 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
         if (arms) {
             tmp.tel = aggregate(formula = end ~ seqnames, data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
             tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
-            telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
-                            seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
-                    GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))))
+            ## names(tmp.tel) changed to seqnames(seqinfo(ucsc.bands))
+            telomeres = c(GRanges(seqnames(seqinfo(ucsc.bands)), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
+                    seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
+                    GRanges(seqnames(seqinfo(ucsc.bands)), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))))
             values(telomeres)$lwd.border = 1;
             values(telomeres)$border = 'black';
             centromeres = reduce(ucsc.bands[values(ucsc.bands)$stain=='acen'])
             values(centromeres)$lwd.border = 1;
             values(centromeres)$border = 'black';
-            #            arms = reduce(setdiff(ucsc.bands, centromeres))
+            ## arms = reduce(setdiff(ucsc.bands, centromeres))
             arms = IRanges::gaps(c(telomeres, centromeres))
-            arms = arms[which(GenomicRanges::strand(arms)=='*')]
+            arms = arms[which(as.logical(GenomicRanges::strand(arms)=='*'))]
             values(arms)$lwd.border = 1;
             values(arms)$border = 'black';
             karyotype = sort(c(arms, centromeres, telomeres))
@@ -1836,21 +1840,22 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
             si = si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
-            karyotype = gr.fix(karyotype, si, drop = T)
+            karyotype = gr.fix(karyotype, si, drop = TRUE)
             names(karyotype) = NULL;
             td = gTrack(list(karyotype), colormaps = list(region= colmap), border = 'black',
                 stack.gap = 0, xaxis.interval = 1e7, ...)
         } else{
             karyotype = sort(reduce(ucsc.bands))
             values(karyotype)$region = as.character(seqnames(karyotype))
-            colmap = structure(col.karyo$qrm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
+            ## tmp is length 33, col.karyo is length 24 (the number of chromosomes)
+            ## colmap = structure(col.karyo$qrm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
             GenomicRanges::strand(karyotype) = '+'
             si = si2gr(karyotype);
             si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
             si = Seqinfo(as.character(seqnames(si)), width(si)+1)
-            karyotype = gr.fix(karyotype, si, drop = T)
+            karyotype = gr.fix(karyotype, si, drop = TRUE)
             names(karyotype) = NULL;
-            td = gTrack(list(karyotype), colormaps = list(region = colmap),
+            td = gTrack(list(karyotype), colormaps = list(region = col.karyo),
                 border = 'black', stack.gap = 0, xaxis.interval = 1e7, ...)
         }
     }
@@ -1873,21 +1878,28 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 #' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cached data objects but can also be built from provided GRangesList
 #'
-#' @param rg (optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import
-#' @param genes (optional) character vector specifying genes to limit gTrack object to
+#' @param gencode INFO INFO
 #' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
+#' @param genes (optional) character vector specifying genes to limit gTrack object to
 #' @param grep character vector for which to grep genes to positively select
 #' @param grepe character vector for which to grep genes which to exclude
 #' @param bg.col scalar character representing background color for genespan
 #' @param cds.col scalar character representing background color for CDS
-#' @param cds.utr scalar character representing background color for UTR
+### #' @param cds.utr scalar character representing background color for UTR
 #' @param st.col scalar character representing color of CDS start
 #' @param en.col scalar character representing color of CDS end
+#' @param grl.lablefield INFO INFO INFO 
+#' @param gr.lablefield INFO INFO INFO 
+#' @param col INFO INFO INFO 
 #' @param cached logical scalar whether to use "cached" version provided with package
+#' @param cached.dir  INFO INFO INFO 
+#' @param cached.path  INFO INFO INFO 
+#' @param cached.path.collapsed  INFO INFO INFO 
 #' @param gr.srt.label scalar numeric specifying angle on exon label
 #' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
-#' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
-#' @param stack.gap stack.gap argument to gTrack
+#' @param labels.suppress.gr boolean Flag specifying whether to suppress exon label plotting
+#' @param drop.rp11 boolean INFO INFO
+#' @param stack.gap float stack.gap argument to gTrack
 #' @param ... additional arguments passed down to gTrack
 #'
 #' @export
