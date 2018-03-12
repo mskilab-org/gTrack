@@ -5733,6 +5733,7 @@ get_seqinfo <- function(.Object, seqinfo) {
 #' @author Marcin Imielinski
 track.straw = function(hic, gr, norm = "KR", type = 'BP', res = 1e4, mc.cores = 1, colormap = c('white', 'red', 'black'), ...)
 {
+
   gr = reduce(gr.stripstrand(gr[, c()]))
   grs = as.data.table(gr)[, paste(seqnames, start, end, sep = ":")]
   n = length(gr)
@@ -5772,7 +5773,7 @@ track.straw = function(hic, gr, norm = "KR", type = 'BP', res = 1e4, mc.cores = 
   out[, j := pmax(i1, j1)]
   mdata = Matrix::sparseMatrix(out$i, out$j, x = out$counts, dims = c(length(gr.out), length(gr.out)),symmetric = TRUE)
   gt = gTrack(gr.out, mdata = mdata, colormap = colormap, ...)
-  return(gt)
+  return(gt) 
 }
 
 ## convert input data into a list of length 'len' of type FUN
