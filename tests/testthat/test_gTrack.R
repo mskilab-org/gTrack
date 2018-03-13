@@ -45,6 +45,16 @@ test_that('test gTrack()) works', {
 })
 
 
+### setMethod('[', 'gTrack', function(x, i){
+
+test_that('test [] works', {
+
+    gt.example_genes = gTrack(example_genes)
+    expect_true(is(gt.example_genes[FALSE], 'gTrack'))
+    expect_true(is(gt.example_genes[TRUE], 'gTrack'))   
+
+})
+
 
 
 ## .identical.seqinfo
@@ -56,6 +66,223 @@ test_that('test .identical.seqinfo() works', {
     expect_true(.identical.seqinfo(example_dnase[1:500], example_genes[1:500]))
 
 })
+
+
+
+
+## track.gencode()
+test_that('test track.gencode() works', {
+    
+    ## default
+    ## Pulling gencode annotations from /Library/Frameworks/R.framework/Versions/3.4/Resources/library/gTrack/extdata/gencode.composite.collapsed.rds
+    ### gTrack object with 1 tracks with formatting:
+    track_gencode = track.gencode()
+    expect_equal(track_gencode$height, 10)
+    expect_equal(track_gencode$ygap, 2)
+    expect_equal(track_gencode$angle, 15)
+    ## gene.collapse = FALSE
+    track_gencode2 = track.gencode(gene.collapse = FALSE)
+    expect_equal(track_gencode2$height, 10)
+    expect_equal(track_gencode2$ygap, 2)
+    expect_equal(track_gencode2$angle, 15)
+
+
+})
+
+## mdata
+test_that("testing barbs() works", {
+
+    ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
+      ## plot.new has not been called yet
+    expect_error(barbs(1, 1, 1, 1))
+
+})
+
+
+## mdata
+
+gTrack(example_genes)
+
+test_that("testing mdata() works", {
+
+    expect_equal(as.logical(mdata(gTrack(example_genes))), NA)
+
+})
+
+## $
+test_that("testing $ works", {
+
+    expect_equal(gTrack(example_genes)$height, 10)
+
+})
+
+## $<-
+test_that("testing $<- works", {
+
+    foobar = gTrack(example_genes)
+    expect_equal(as.logical(foobar$y.field), NA)
+    foobar$y.field = 'score'
+    expect_match(foobar$y.field, 'score')
+
+
+})
+
+## reduce
+test_that("testing reduce() works", {
+
+    expect_equal(length(reduce(gTrack(example_genes))), 18202)
+    expect_equal(length(reduce(gTrack())), 0)
+    expect_equal(length(reduce(gTrack(), grl2)), 0)
+
+})
+
+
+## seqinfo
+test_that("testing seqinfo() works", {
+
+    expect_true(is(seqinfo(gTrack(example_genes)), 'Seqinfo'))
+
+})
+
+
+## c() gTracks
+test_that("testing c() works", {
+
+    stacked = c(gTrack(example_genes), gTrack(example_dnase))
+    expect_equal(stacked$height[1], 10)
+    expect_equal(stacked$height[2], 10)
+    expect_true(is(c(gTrack(), gTrack(), gTrack(), gTrack(), gTrack()), 'gTrack'))
+    ## Error: some objects in gTrack concatenation are not gTrack
+    expect_error(c(gTrack(), 'foo', gTrack(), gTrack(), gTrack()))
+
+})
+
+
+## formatting()
+test_that("testing formatting() works", {
+
+    stacked = c(gTrack(example_genes), gTrack(example_dnase))
+    expect_true(is(formatting(stacked), 'data.frame'))
+
+})
+
+
+## xaxis
+test_that("testing formatting() works", {
+
+    expect_equal(xaxis(gTrack(example_genes))$xaxis.unit, 1)
+    expect_equal(xaxis(gTrack(example_genes))$xaxis.round, 3)
+    expect_true(xaxis(gTrack(example_genes))$xaxis.newline)
+
+})
+
+
+## sep
+test_that("testing sep() works", {
+
+    expect_equal(sep(gTrack(example_genes))$sep.lty, 2)
+    expect_equal(sep(gTrack(example_genes))$sep.lwd, 1)
+    expect_true(sep(gTrack(example_genes))$sep.draw)
+
+})
+
+
+## edgs
+test_that("testing edgs() works", {
+
+    expect_equal(edgs(gTrack(example_genes))[[1]], data.frame())
+
+})
+
+## edgs<-
+
+## test_that("testing edgs<- works", {
+## 
+    ## Error in `edgs<-`(`*tmp*`, value = "error") : 
+    ##   Error: edges attribute must be a list of data.frames
+    ## edgs(gTrack(example_genes)) = 'error'
+    ##
+    ## df = data.frame(to=c(10, 20, 30), from=c(40, 50, 60))
+    ## edgs(gTrack(gr)) =  list(df)
+    ## Error in validObject(.Object) : 
+    ##   invalid class “gTrack” object: Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item
+## 
+## })
+
+
+
+## vars
+
+
+test_that("testing vars() works", {
+
+    expect_equal(vars(gTrack())[[1]], list())
+
+})
+
+
+
+## formatting
+test_that("testing formatting() works", {
+
+    expect_equal(formatting(gTrack(example_genes))$height, 10)
+
+})
+
+
+
+## colormap<-
+test_that("testing colormap<- works", {
+
+    gt = gTrack(example_genes)
+    colormap(gt)[1] = list(tumortype = c(lung = 'red', pancreatic = 'blue', colon = 'purple'))
+    expect_true(is(gt, 'gTrack'))
+
+
+})
+
+
+## clear
+test_that("testing clear() works", {
+
+    expect_equal(length(dat(clear(gTrack(example_genes)))[[1]]), 0)
+
+})
+
+
+## dat
+test_that("testing dat() works", {
+
+    expect_equal(length(dat((gTrack(example_genes)))[[1]]), 18812)
+
+})
+
+
+
+## colormap
+test_that("testing colormap() works", {
+
+    expect_true(is(colormap(gTrack(example_genes)), 'list'))
+
+})
+
+## show
+test_that("testing show() works", {
+
+    expect_true(show(gTrack(example_genes))$yaxis)
+
+})
+
+## .identical.seqinfo()
+test_that("testing .identical.seqinfo() works", {
+
+    expect_false(.identical.seqinfo(gr2, gr))
+    expect_true(.identical.seqinfo(gr2, gr[1:2]))
+
+})
+
+## plot()
+
 
 
 
@@ -110,184 +337,6 @@ test_that('karyogram() works', {
 
 ## track.gencode()
 
-
-test_that('test track.gencode() works', {
-    
-    ## default
-    ## Pulling gencode annotations from /Library/Frameworks/R.framework/Versions/3.4/Resources/library/gTrack/extdata/gencode.composite.collapsed.rds
-    ### gTrack object with 1 tracks with formatting:
-    track_gencode = track.gencode()
-    expect_equal(track_gencode$height, 10)
-    expect_equal(track_gencode$ygap, 2)
-    expect_equal(track_gencode$angle, 15)
-    ## gene.collapse = FALSE
-    track_gencode2 = track.gencode(gene.collapse = FALSE)
-    expect_equal(track_gencode2$height, 10)
-    expect_equal(track_gencode2$ygap, 2)
-    expect_equal(track_gencode2$angle, 15)
-
-
-})
-
-## mdata
-test_that("testing barbs() works", {
-
-    ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
-      ## plot.new has not been called yet
-    expect_error(barbs(1, 1, 1, 1))
-
-})
-
-
-## mdata
-
-gTrack(example_genes)
-
-test_that("testing mdata() works", {
-
-    expect_equal(as.logical(mdata(gTrack(example_genes))), NA)
-
-})
-
-## $
-test_that("testing $ works", {
-
-    expect_equal(gTrack(example_genes)$height, 10)
-
-})
-
-
-test_that("testing $<- works", {
-
-    foobar = gTrack(example_genes)
-    expect_equal(as.logical(foobar$y.field), NA)
-    foobar$y.field = 'score'
-    expect_match(foobar$y.field, 'score')
-
-
-})
-
-## reduce
-test_that("testing reduce() works", {
-
-    expect_equal(length(reduce(gTrack(example_genes))), 18202)
-
-})
-
-## seqinfo
-test_that("testing seqinfo() works", {
-
-    expect_true(is(seqinfo(gTrack(example_genes)), 'Seqinfo'))
-
-})
-
-
-## c() gTracks
-
-test_that("testing c() works", {
-
-    stacked = c(gTrack(example_genes), gTrack(example_dnase))
-    expect_equal(stacked$height[1], 10)
-    expect_equal(stacked$height[2], 10)
-
-})
-
-
-test_that("testing formatting() works", {
-
-    stacked = c(gTrack(example_genes), gTrack(example_dnase))
-    expect_true(is(formatting(stacked), 'data.frame'))
-
-})
-
-
-## xaxis
-
-test_that("testing formatting() works", {
-
-    expect_equal(xaxis(gTrack(example_genes))$xaxis.unit, 1)
-    expect_equal(xaxis(gTrack(example_genes))$xaxis.round, 3)
-    expect_true(xaxis(gTrack(example_genes))$xaxis.newline)
-
-})
-
-
-## sep
-
-test_that("testing sep() works", {
-
-    expect_equal(sep(gTrack(example_genes))$sep.lty, 2)
-    expect_equal(sep(gTrack(example_genes))$sep.lwd, 1)
-    expect_true(sep(gTrack(example_genes))$sep.draw)
-
-})
-
-
-## edgs
-
-test_that("testing edgs() works", {
-
-    expect_equal(edgs(gTrack(example_genes))[[1]], data.frame())
-
-})
-
-
-
-
-## formatting
-test_that("testing formatting() works", {
-
-    expect_equal(formatting(gTrack(example_genes))$height, 10)
-
-})
-
-
-
-## clear
-test_that("testing clear() works", {
-
-    expect_equal(length(dat(clear(gTrack(example_genes)))[[1]]), 0)
-
-})
-
-
-## dat
-test_that("testing dat() works", {
-
-    expect_equal(length(dat((gTrack(example_genes)))[[1]]), 18812)
-
-})
-
-
-
-## colormap
-test_that("testing colormap() works", {
-
-    expect_true(is(colormap(gTrack(example_genes)), 'list'))
-
-})
-
-## show
-test_that("testing show() works", {
-
-    expect_true(show(gTrack(example_genes))$yaxis)
-
-})
-
-## .identical.seqinfo()
-test_that("testing .identical.seqinfo() works", {
-
-    expect_false(.identical.seqinfo(gr2, gr))
-    expect_true(.identical.seqinfo(gr2, gr[1:2]))
-
-})
-
-## plot()
-
-## karyogram()
-
-## track.gencode()
-
 ### track.gencode = function(gencode = NULL,
 ###     gene.collapse = TRUE,
 ###     genes = NULL,
@@ -312,16 +361,30 @@ test_that("testing .identical.seqinfo() works", {
 ###     ...)
 ### 
 
-## test_that("testing track.gencode() works", {
-##
-## })
+test_that("testing track.gencode() works", {
+
+    expect_true(is(track.gencode(), 'gTrack'))
+
+})
 
 
 
 ## draw.ranges()
+test_that("testing draw.ranges works", {
 
+    ## Error in polygon(x = c(1, 0.939990545445113, 5.93999054544511, 6, 5.93999054544511,  : 
+    ##   plot.new has not been called yet
+    expect_error(draw.ranges(gr2, angle=15))
+
+})
 
 ## draw.grl()
+## test_that("testing draw.grl() works", {
+## 
+##     ## draw.grl(grl2)
+## 
+## })
+
 
 
 ## barbs()

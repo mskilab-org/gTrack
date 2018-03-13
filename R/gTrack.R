@@ -2076,7 +2076,7 @@ draw.ranges = function(x,
     cex.label = 1,
     srt.label = 45,
     adj.label = c(0.5, 0),
-    angle, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb
+    angle = 15, # vector of angles (0 = rectangle -45 leftward barb, +45 rightward barb)
     circles = FALSE, # if TRUE will draw circles at range midpoints instead of polygons
     bars = FALSE, # if TRUE will draw bars from y0.bar to the y locations
     points = NA, # if integer then will draw points at the midpoint with pch value "points"
@@ -2315,27 +2315,28 @@ draw.grl = function(grl,
     ylim = NULL,  # if null and y provided, will find range of y and plot
     ywid = NULL,
     edges = NULL, ## data.frame specifying edges connecting items of grl, with fields $from $to indexing grl and optional fields $lwd, $col, $lty specifying formatting options for connectors, for gr the from arrow will leave the right side of a + range and left side of a - range, and enter the left side of a + range and right side of a - range.   For grl, from arrows will be drawn from the last range in the "from" list item to the first range in the "to" list item
-    draw.paths = F, # if draw.paths = T will treat grl's as paths / contigs,
+    draw.paths = FALSE, # if draw.paths = T will treat grl's as paths / contigs,
     # connecting intervals joined by arrowed curved arcs using alternate stacking algo (ignoring y information)
-    draw.var = F, # if true, then varbase will be called on grl or unlist(grl)
+    draw.var = FALSE, # if true, then varbase will be called on grl or unlist(grl)
     var = NULL, # optional GRangesList of same length as grl specifying variant bases with value cols $type, $varbase (ie output of varbase)
     # corresponding to each grl item
     var.col = NULL, # named vector with variant colors to override - valid names are XA, XT, XG, XC, S, D, I
-    var.soft = T, ## whether to draw soft clips for varbase
-    windows,  # windows specifies windows, can have optional meta data features $col and $border
+    var.soft = TRUE, ## whether to draw soft clips for varbase
+    windows = NULL,  # windows specifies windows, can have optional meta data features $col and $border
     win.gap = NULL,
-    stack.gap,
+    stack.gap = 0,
     min.gapwidth = 1, # only applies if windows is not specified
-    col = NULL, border = NA, # all of these variables can be scalar or vectors of length(grl),
+    col = NULL, 
+    border = NA, # all of these variables can be scalar or vectors of length(grl),
     ### can be over-ridden by values / columns in grl
     col.backbone = alpha('gray', 0.8),
-    gr.colorfield, ## values field in the gr from which colors can be mapped
+    gr.colorfield = NA, ## values field in the gr from which colors can be mapped
     gr.colormap = NULL, ## named vector mapping fields in the gr.colorfield to colors, if unspecified brewer.master() will be applied
     gr.labelfield = NULL, ## field of gr labels to draw.
     grl.labelfield = NULL, ## field of grl to draw as label
     leg.params,
     labels = NULL, # vector of length(grl)
-    labels.suppress = F,
+    labels.suppress = FALSE,
     labels.suppress.grl = labels.suppress,
     labels.suppress.gr = labels.suppress,
     spc.label = 0.05, # number between 0 and 1 indicating spacing of label
@@ -2344,13 +2345,13 @@ draw.grl = function(grl,
     gr.cex.label = 0.8 * cex.label,
     gr.srt.label = 0,
     gr.adj.label = c(0,0.5),
-    new.plot, 
-    new.axis, 
+    new.plot = FALSE, 
+    new.axis = FALSE, 
     sep.lty = 2,
     sep.lwd = 1,
     sep.bg.col = 'gray95',
     sep.draw = TRUE,
-    y.pad,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair (def was 0.05)
+    y.pad = 1,  # this is the fractional padding to put on top and bottom of ranges if y is specified as $start and $end pair (def was 0.05)
     xaxis.prefix = '', xaxis.suffix = 'MB', xaxis.unit = 1, xaxis.round = 3,
     xaxis.interval = 'auto', xaxis.pos = 1,
     xaxis.pos.label, xaxis.cex.label,
@@ -2377,11 +2378,11 @@ draw.grl = function(grl,
     draw.backbone = NULL,
     xlim = c(0, 20000), # xlim of canvas
     points = NA, ## if non NA then will draw a given point with pch style
-    circles = F, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
-    bars = F,
+    circles = FALSE, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
+    bars = FALSE,
     y0.bar = NULL,
-    lines = F,
-    angle, # angle of barbs to indicate directionality of ranges
+    lines = FALSE,
+    angle = 15, # angle of barbs to indicate directionality of ranges
     verbose=FALSE,
     triangle=FALSE, # trigger a triangle matrix plot
     ylim.parent=NULL, ## ylim of the full thing. This is importat for angle preseveration
@@ -2722,8 +2723,7 @@ draw.grl = function(grl,
       }
  
       ## find covered windows in provided grl
-      if (is.null(windows)) 
-      {
+      if (is.null(windows)) {
         seqlevels(gr) = seqlevels(gr)[seqlevels(gr) %in% as.character(seqnames(gr))]
         windows = as(coverage(gr), 'GRanges');
         windows = windows[values(windows)$score!=0]
