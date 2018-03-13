@@ -17,23 +17,6 @@ dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
 
 
 
-
-## plot
-## function(x,   y, windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
-##                    links = NULL, ## GRangesList of pairs of signed locations,
-##                    gap = NULL,  ## spacing betwen windows (in bp)
-##                    y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
-##                    y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
-##                    cex.xlabel = 1,
-##                    cex.ylabel = 1,
-##                    max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
-##                    links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
-##                    verbose=FALSE,
-##                    legend.params = list(),
-##                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
-##                   )
-
-
 ## gTrack
 test_that('test gTrack()) works', {
     
@@ -46,7 +29,6 @@ test_that('test gTrack()) works', {
 
 
 ### setMethod('[', 'gTrack', function(x, i){
-
 test_that('test [] works', {
 
     gt.example_genes = gTrack(example_genes)
@@ -58,7 +40,6 @@ test_that('test [] works', {
 
 
 ## .identical.seqinfo
-
 test_that('test .identical.seqinfo() works', {
     
     expect_false(.identical.seqinfo(gr, gr2))  
@@ -90,21 +71,15 @@ test_that('test track.gencode() works', {
 })
 
 ## mdata
-test_that("testing barbs() works", {
-
-    ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
-      ## plot.new has not been called yet
-    expect_error(barbs(1, 1, 1, 1))
-
-})
+##test_that("testing mdata() works", {
+##
+##
+##})
 
 
 ## mdata
-
-gTrack(example_genes)
-
 test_that("testing mdata() works", {
-
+    
     expect_equal(as.logical(mdata(gTrack(example_genes))), NA)
 
 })
@@ -282,8 +257,27 @@ test_that("testing .identical.seqinfo() works", {
 })
 
 ## plot()
+## plot
+## function(x,   y, windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
+##                    links = NULL, ## GRangesList of pairs of signed locations,
+##                    gap = NULL,  ## spacing betwen windows (in bp)
+##                    y.heights = NULL, # should be scalar or length(windows) if windows is a GRangesList
+##                    y.gaps = NULL, # relative heights of gaps below and above stacks (xaxes will be drawn here)
+##                    cex.xlabel = 1,
+##                    cex.ylabel = 1,
+##                    max.ranges = NA, # parameter for max ranges to draw on canvas in each track (overrides formatting)
+##                    links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
+##                    verbose=FALSE,
+##                    legend.params = list(),
+##                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
+##                   )
 
+test_that("testing plot() works", {
 
+    gt.ex_genes = gTrack(example_genes)
+    expect_error(suppressWarnings(plot(gt.ex_genes)), NA)  ## check runs
+
+})
 
 
 ### karyogram 
@@ -370,31 +364,35 @@ test_that("testing track.gencode() works", {
 
 
 ## draw.ranges()
-test_that("testing draw.ranges works", {
+##test_that("testing draw.ranges works", {
 
+    ## 
     ## Error in polygon(x = c(1, 0.939990545445113, 5.93999054544511, 6, 5.93999054544511,  : 
     ##   plot.new has not been called yet
-    expect_error(draw.ranges(gr2, angle=15))
+    ##expect_error(draw.ranges(gr2, angle=15), NA) ## check runs
 
-})
+##})
 
 ## draw.grl()
 ## test_that("testing draw.grl() works", {
 ## 
 ##     ## draw.grl(grl2)
+##     ## > draw.grl(grl2)
+##     ## Error in rect(sep.x0, sep.y0, sep.x1, sep.y1, border = bgborder.l, col = bgcol.l) : 
+##     ##   plot.new has not been called yet
 ## 
 ## })
 
 
 
 ## barbs()
-test_that("testing barbs() works", {
+##test_that("testing barbs() works", {
 
     ## Error in polygon(x = c(1, 1, 1, 1, 1, 1, 1, NA), y = c(1, 1, 1, 1, 1,  : 
       ## plot.new has not been called yet
-    expect_error(barbs(1, 1, 1, 1))
+    ##expect_error(barbs(1, 1, 1, 1))
 
-})
+##})
 
 
 ## bernsteinp()
@@ -413,7 +411,7 @@ test_that("testing bernsteinp() works", {
 test_that("testing connectors() works", {
 
     ## Error in plot.xy(xy.coords(x, y), type = type, ...) 
-    expect_error(connectors(x0=1, y0=1, x1=1, y1=1))
+    expect_error(connectors(x0=1, y0=1, x1=1, y1=1), NA)
 
 })
 
@@ -656,6 +654,7 @@ test_that('dedup() works', {
     expect_equal(dedup(c(rep(2, 10.5), rep(3, 20)))[30], "3.20")
 
 })
+
 
 
 
