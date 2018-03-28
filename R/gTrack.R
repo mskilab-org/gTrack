@@ -1,4 +1,6 @@
 #' @importFrom data.table data.table
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib gTrack
 #'
 #' @section Slots:
 #' \describe{
@@ -5241,10 +5243,10 @@ dedup = function(x, suffix = '.'){
 #' @name tack.straw
 #' @title track.straw
 #' @description
+#' 
 #' queries .hic object via straw API https://github.com/theaidenlab/straw/tree/master/R
 #' to extract all of the data in length n query gr (note will do n choose 2 queries since
 #' straw only supports pairwise queries)
-#' 
 #' 
 #' @keywords straw
 #' @param hic path to .hic file

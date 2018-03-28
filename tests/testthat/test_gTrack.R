@@ -24,6 +24,9 @@ test_that('test gTrack()) works', {
     ### Error in validObject(.Object) : 
     ###   invalid class “gTrack” object: External file foobar does not map to a supported UCSC format or .rds. Supported files must have one of the following extensions: .bw, .bed. .bedgraph, .2bit, .wig, .gff, .rds.
     expect_error(gTrack(data = 'foobar'))
+    ## stop('Error: check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
+    expect_error(gTrack('foo'))
+    matt = matrix(sample(10, 6, replace=TRUE), ncol=3, nrow=2)
 
 })
 
@@ -70,11 +73,6 @@ test_that('test track.gencode() works', {
 
 })
 
-## mdata
-##test_that("testing mdata() works", {
-##
-##
-##})
 
 
 ## mdata
@@ -118,6 +116,17 @@ test_that("testing seqinfo() works", {
     expect_true(is(seqinfo(gTrack(example_genes)), 'Seqinfo'))
 
 })
+
+## seqinfo<-
+test_that("testing seqinfo<- works", {
+
+    foo = gTrack(example_genes)
+    expect_equal(as.logical(as.data.frame(seqinfo(foo))$isCircular)[1], NA)
+    seqinfo(foo) = si
+    expect_equal(as.logical(as.data.frame(seqinfo(foo))$isCircular)[1], FALSE)
+
+})
+
 
 
 ## c() gTracks
