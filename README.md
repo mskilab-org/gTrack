@@ -2,7 +2,6 @@
 [![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
 [![codecov.io](https://img.shields.io/codecov/c/github/mskilab/gTrack.svg)](https://codecov.io/github/mskilab/gTrack?branch=master)
 
-
 gTrack
 ======
 
@@ -12,32 +11,12 @@ R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges,
 
 Installation
 -----------
+```
+## if you don't already have gUtils installed
+devtools::install_packages("mskilab/gUtils")
 
-1. Install devtools from CRAN (if you don't have it already)
-
-  ```
-  install.packages('devtools')
-  ```
-
-2. Load devtools
-
-  ```
-  library(devtools)
-  ````
-
-3. Install gUtils (if you don't have it already)
-
-  ```
-  install_github('mskilab/gUtils')
-  ````
-
-
-4. Install gTrack
-
-  ```
-  install_github('mskilab/gTrack')
-  ````
-
+devtools::install_packages("mskilab/gTrack")
+```
 See documentation
 
 [Read the docs](http://gtrack.readthedocs.org/en/latest/)
