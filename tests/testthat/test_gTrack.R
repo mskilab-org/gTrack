@@ -191,6 +191,8 @@ test_that("testing edgs() works", {
     ## Error in validObject(.Object) : 
     ##   invalid class “gTrack” object: Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item
 ## 
+
+## 
 ## })
 
 
