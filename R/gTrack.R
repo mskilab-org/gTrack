@@ -5792,3 +5792,19 @@ alpha = function(col, alpha)
   names(out) = names(col)
   return(out)
 }
+
+
+## 
+## height and ygap as the defaults, but those can be changed to any formatting field
+## In principle, users could alter any numerical field in a gTrack object
+## 
+
+scale_tracks = function(gt_obj, fields = c("height", "ygap"), scaling) {
+    if (length(scaling) == 1) {
+        scaling = rep(scaling, length(fields))
+    }
+    for (i in 1:length(fields)) {
+        formatting(gt_obj)[, fields[i]] = formatting(gt_obj)[, fields[i]] * scaling[i]
+    }
+    return(gt_obj)
+}
