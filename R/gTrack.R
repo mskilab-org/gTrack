@@ -1291,6 +1291,9 @@ setMethod('plot', c("gTrack","ANY"),
   if (!missing(y))
     windows = y
 
+  if (is(windows, 'numeric') | is(windows, 'integer'))
+      windows = as.character(windows)
+
   if (is(windows, 'character'))
       windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
 
@@ -1626,8 +1629,15 @@ setMethod('plot', c("gTrack","ANY"),
 
 
     ## remove field "y" from tmp.dat if it exists
-    if (!is.null(tmp.dat$y))
-      tmp.dat$y = NULL
+    if (is(tmp.dat, 'GRangesList'))
+      {
+        values(tmp.dat)$y = NULL
+      }
+    else
+      {
+        if (!is.null(tmp.dat$y))
+          tmp.dat$y = NULL
+      }
 
     main.args <- list(grl=tmp.dat,y = this.y, ylim = ylim,
                       xaxis.pos = this.xaxis.pos,xaxis.pos.label = this.xaxis.pos.label,

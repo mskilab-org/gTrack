@@ -4,8 +4,8 @@
 \alias{affine.map}
 \title{affine.map}
 \usage{
-affine.map(x, ylim = c(0, 1), xlim = c(min(x), max(x)), cap = FALSE,
-  cap.min = cap, cap.max = cap, clip = TRUE, clip.min = clip,
+affine.map(x, ylim = c(0, 1), xlim = c(min(x), max(x)), cap = F,
+  cap.min = cap, cap.max = cap, clip = T, clip.min = clip,
   clip.max = clip)
 }
 \description{
