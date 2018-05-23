@@ -17,7 +17,7 @@ How to Graph Structural Variations
 
     options(warn=-1)
     ## this load sequences that have had coverage calculated from cancer cell lines (GRanges object, have to make into a gTrack)
-    cov = readRDS('../../inst/extdata/coverage.rds')
+    cov = readRDS(gzcon(url('https://data.broadinstitute.org/snowman/gTrack/inst/extdata/coverage.rds')))
     
     ## wrap a gTrack around this, draw with blue circles, and label the track "Cov" and sets 0 as lower bound for all views 
     gt.cov = gTrack(cov, y.field = 'mean', circles = TRUE, col = 'blue', name = 'Cov')

@@ -17,7 +17,7 @@ How to Graph CNV Data
     #### load in SCNA data
     #### these are level 3 segments from over 1600 TCGA breast cancer cases
     #### downloaded from the TCGA and converted to a single GRanges object 
-    scna = seg2gr(readRDS(system.file(c('extdata/files'), 'scna.rds', package = 'gTrack')))
+    scna = seg2gr(readRDS(gzcon(url("https://data.broadinstitute.org/snowman/gTrack/inst/extdata/files"))))
     
     #### we define amplification events and deletion events
     #### and then do a simple recurrence analysis on amplifications

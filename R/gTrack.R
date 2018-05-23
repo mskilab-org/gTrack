@@ -2179,6 +2179,27 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 #                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
 #   }
 
+#' @name file.url.exists
+#' @title Check if a file or url exists
+#' @param f File or url
+#' @return TRUE or FALSE
+#' @importFrom RCurl url.exists
+#' @noRd
+file.url.exists <- function(f) {
+  return(file.exists(f) || RCurl::url.exists(f))
+}
+
+#' @name read.rds.url
+#' @title Checks if path is URL or file, then reads RDS
+#' @param f File or url
+#' @return data
+#' @noRd
+read.rds.url <- function(f) {
+  if (grepl("^http",f))
+    return(gzcon(url(f)))
+  return(readRDS(f))
+}
+
 
 #' @name track.gencode
 #' @title Constructor a \code{gTrack} from GENCODE transcripts
@@ -2219,8 +2240,8 @@ track.gencode = function(gencode = NULL,
   col,
   cached = T, ## if true will use cached version
   cached.dir = Sys.getenv('GENCODE_DIR'),
-  cached.path = paste(cached.dir, "gencode.composite.rds", sep = '/'),  ## location of cached copy
-  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep = '/'),  ## location of cached copy
+  cached.path = file.path(cached.dir, "gencode.composite.rds"),  ## location of cached copy
+  cached.path.collapsed = file.path(cached.dir, "gencode.composite.collapsed.rds"),  ## location of cached copy
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
@@ -2232,29 +2253,21 @@ track.gencode = function(gencode = NULL,
 
         if (nchar(cached.dir)==0)
             {
-                cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy
-                cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack')
+                cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"
+                cached.path <- file.path(cached.dir, "gencode.composite.rds")
+                cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")                
+ #               cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy
+ #               cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack')
             }
 
-
-        if (!gene.collapse)
-            {
-                if (file.exists(cached.path))
-                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path))
-                else
-                    cat(sprintf('Caching gencode annotations to %s\n', cached.path))
-            }
-        else
-            {
-                if (file.exists(cached.path.collapsed))
-                    cat(sprintf('Pulling gencode annotations from %s\n', cached.path.collapsed))
-                else
-                    cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
-            }
-
-
-    if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
-    {
+        
+        cat(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
+                          "gencode annotations from %s\n"),
+                    ifelse(gene.collapse, cached.path.collapsed, cached.path)))
+        
+        ## if no composite refgene copy, then make from scratch
+        if (!cached || (!gene.collapse  && !file.url.exists(cached.path)) || (gene.collapse  && !file.url.exists(cached.path.collapsed)))
+          {
 
             cat('recreating composite gencode object\n')
             if (is.null(gencode))
@@ -2294,8 +2307,10 @@ track.gencode = function(gencode = NULL,
             values(gencode.composite)$gene_sym = tmp.g$gene_name[ix]
             values(gencode.composite)$type = tmp.g$gene_type[ix]
             values(gencode.composite)$status = tmp.g$gene_status[ix]
-            cat('saving gene collapsed track\n')
-            saveRDS(gencode.composite, cached.path.collapsed)
+            if (grepl("^http",cached.path.collapsed)) {
+              cat('saving gene collapsed track\n')
+              saveRDS(gencode.composite, cached.path.collapsed)
+            }
 
             tmp.t = tmp[tmp$type != 'gene']
             gencode.composite = split(tmp.t, tmp.t$transcript_id)
@@ -2303,20 +2318,18 @@ track.gencode = function(gencode = NULL,
             values(gencode.composite)$gene_sym = tmp.t$gene_name[ix]
             values(gencode.composite)$id = paste(tmp.t$gene_name[ix], tmp.t$transcript_name[ix], sep = '-')
             values(gencode.composite)$type = tmp.t$transcript_type[ix]
-            values(gencode.composite)$status = tmp.t$transcript_status[ix]
-            cat('saving transcript track\n')
-            saveRDS(gencode.composite, cached.path)
-
+           values(gencode.composite)$status = tmp.t$transcript_status[ix]
+           if (grepl("^http",cached.path)) {
+             cat('saving transcript track\n')
+             saveRDS(gencode.composite, cached.path)
+           }
+           
             genes = NULL
 
             cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
     }
 
-    if (gene.collapse)
-        gencode.composite = readRDS(cached.path.collapsed)
-    else
-        gencode.composite = readRDS(cached.path)
-
+    genecode.composite <- read.rds.url(ifelse(gene.collapse, cached.path.collapsed, cached.path))
 
     if (drop.rp11)
         gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
