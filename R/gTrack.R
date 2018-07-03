@@ -2200,9 +2200,13 @@ track.gencode = function(gencode = NULL,
     else
       cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
   }
+  
+  cat(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
+                    "gencode annotations from %s\n"),
+              ifelse(gene.collapse, cached.path.collapsed, cached.path)))
 
 
-  if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
+  if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
   {
 
     cat('recreating composite gencode object\n')
