@@ -32,69 +32,62 @@ setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqin
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
 
 setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, colormaps, seqinfo, y.field, yaxis, format, ...) ## only place NON formatting fields here. The rest passed with ...
-    {
-        .Object@data <- listify(data, GRanges)
-  # if (is.null(data))
-  #   .Object@data = list(GRanges())
-  # else if (!is.list(data))
-  #   .Object@data = list(data)
-  # else
-  #   .Object@data = data;
 
-  if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'character', 'RleList', 'ffTrack'))))
+{
+  .Object@data <- listify(data, GRanges)
+
+  if (any(ix <- !(sapply(.Object@data, class) %in% c('GRanges', 'GRangesList', 'CompressedGRangesList', 'character', 'RleList', 'ffTrack'))))
     stop('check input: gTrack objects can only be defined around GRanges, GRangesLists, RleLists, ffTrack, file paths to .rds files of the latter object types, or file paths to  UCSC format files')
 
+  ## replicate data and/or y.field to match up data and y.field lengths
+  if (length(y.field) != length(.Object@data))
+    {
+      repdt = data.table(data.id = 1:length(.Object@data), y.field = y.field)
+      .Object@data = .Object@data[repdt$data.id]
+      y.field = repdt$y.field     
+    }
+
   .Object@mdata <- listify(mdata, matrix, length(.Object@data))
-  # if (is.null(mdata))
-  #   .Object@mdata = rep(list(matrix()), length(.Object@data))
-  # else if (is.matrix(mdata) | inherits(mdata, 'Matrix'))
-  #   .Object@mdata = list(mdata)
-  # else if (is.list(mdata))
-  #   .Object@mdata = mdata
-  # else
-  #   stop('optional arg mdata must be a square matrix of same dimensions as data GRanges')
 
   for (i in 1:length(.Object))
     if (!is.matrix(.Object@mdata[[i]]) & !inherits(.Object@mdata[[i]], 'Matrix'))
       stop('optional arg mdata be either empty matrix or a square matrix of same dimensions as data GRanges')
-  else if (!identical(.Object@mdata[[i]], matrix()))
-  {
-    if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2)))
-        stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
-    if (inherits(.Object@mdata[[i]], 'Matrix'))
-        .Object@mdata[[i]] = (Matrix::t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-    else
-        .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
-  }
 
-#  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+    else if (!identical(.Object@mdata[[i]], matrix()))
+    {
+      if (!identical(dim(.Object@mdata[[i]]), rep(length(.Object@data[[i]]), 2)))
+        stop('mdata for each entry must be a square matrix of same dimensions as data GRanges')
+      if (inherits(.Object@mdata[[i]], 'Matrix'))
+        .Object@mdata[[i]] = (Matrix::t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
+      else
+        .Object@mdata[[i]] = (t(.Object@mdata[[i]]) + .Object@mdata[[i]])/2
+    }
+
+                                        #  .Object@edges <- listify(edges, data.frame, length(.Object@data)) ## listify not working here i.e. for concatenating objects with @edges field
+
   if (is.null(edges))
     .Object@edges = rep(list(data.frame()), length(.Object@data))
   else if (!is.list(edges) | inherits(edges, 'data.frame'))
     .Object@edges = list(edges)
   else
-      .Object@edges = edges
 
+    .Object@edges = edges
 
-        .Object@vars <- listify(vars, list, length(.Object@data))
-  # if (is.null(vars))
-  #   .Object@vars = rep(list(list()), length(.Object@data))
-  # else if (!is.list(edgevars) | inherits(vars, 'data.frame'))
-  #   .Object@vars = list(vars)
-  # else
-  #   .Object@vars = vars
-
-        null.ix = sapply(.Object@data, is.null)
-
-        if (any(null.ix))
-            .Object@data[null.ix] = list(GRanges())
+  
+  .Object@vars <- listify(vars, list, length(.Object@data))
+  
+  null.ix = sapply(.Object@data, is.null)
+  
+  if (any(null.ix))
+    .Object@data[null.ix] = list(GRanges())
 
 
   edges.df = sapply(.Object@edges, is.data.frame)
   edges.mat = sapply(.Object@edges, function(x) is.array(x) | inherits(x, 'Matrix'))
 
   if (any(edges.df))
-      .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
+
+    .Object@edges[edges.df] = lapply(.Object@edges[edges.df], function(x)
     {
       if (nrow(x)>0)
       {
@@ -102,32 +95,26 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
           stop('edges data frame missing $to and $from columns')
 
         if (data.table::is.data.table(x))
-            x = as.data.frame(x)
+          x = as.data.frame(x)
         x
       }
       else
         data.frame()
-  })
 
+    })
   if (any(edges.mat))
     .Object@edges[edges.mat] = lapply(which(edges.mat), function(x)
     {
       y = .Object@edges[[x]]
       if (nrow(y) != length(.Object@data[[x]]) & ncol(y) != length(.Object@data[[x]]))
-          warning('dimensions of matrix do not match length of track data item.  Adjacency matrix of edges should be square and have as many rows as there are input ranges in the corresponding gTrack item')
+
+        warning('dimensions of matrix do not match length of track data item.  Adjacency matrix of edges should be square and have as many rows as there are input ranges in the corresponding gTrack item')
       tmp.edges = Matrix::which(y>0, arr.ind = TRUE)
       return(data.frame(from = tmp.edges[,1], to = tmp.edges[,2], lwd = y[tmp.edges]))
-  })
-
+    })
 
 
   .Object@colormap <- listify(colormaps, list)
-  # if (is.null(colormaps))
-  #   .Object@colormap = list(list())
-  # else if (!is.list(colormaps))
-  #   .Object@colormap = list(colormaps)
-  # else
-  #   .Object@colormap = colormaps;
 
   if (length(.Object@colormap)==1)
     .Object@colormap = rep(.Object@colormap, length(.Object@data))
@@ -143,70 +130,13 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   else
     stop("Expecting formatting (as supplied directly to constructor) to be data.frame of nrow = length(gTrack)")
 
-  # if (length(setdiff(c(length(height), length(col), length(lift), length(format)), c(1, length(.Object@data))))>0)
-  #   stop('Length of formatting attributes (height, lift, format, col) have to be either 1 or the gTrack object length');
 
   ## figure out seqinfo from provided tracks, make sure that all the seqinfos are compatible
   ## if only Rle's provided
 
   ## JEREMIAH 3/20/16 t.name does not need default
-  # if (is.na(name))
-  #   t.name = names(.Object@data)
-  # else
-  #   t.name = name
-  # if (is.null(t.name))
-  #   if (!all(is.na(y.field)))
-  #     t.name = y.field
-  #
-  # if (is.null(t.name))
-  #   t.name = rep(NA, length(.Object@data))
-
-
-  # .Object@formatting = data.frame(name = t.name, height = height, ygap = ygap, stack.gap = stack.gap,
-  #                                 lift = lift, split = split, angle = angle, format = format, col = col,
-  #                                 lwd.border = lwd.border, ypad = ypad,  ywid = ywid, border = border,
-  #                                 hadj.label = hadj.label, gr.colorfield = gr.colorfield, smooth = smooth,
-  #                                 round = round, vadj.label = vadj.label, y.field = y.field,
-  #                                 circles = circles, bars = bars, y0.bar = y0.bar, lines = lines,
-  #                                 source.file.chrsub = source.file.chrsub, yaxis.cex = yaxis.cex,
-  #                                 max.ranges = max.ranges, yaxis = yaxis,
-  #                                 yaxis.pretty = yaxis.pretty, y.quantile = y.quantile, triangle = triangle,
-  #                                 is.null = is.null, stringsAsFactors = FALSE)
-
-  # .Object@formatting$y0 = NA
-  # .Object@formatting$y1 = NA
-
-  # other.args = list(...)
-  #
-  # avail.args <- c("")
-  # if (any(!names(other.args) %in% avail.args))
-  #
-  #   if (length(other.args)>0)
-  #     for (i in 1:length(other.args))
-  #       .Object@formatting[, names(other.args)[i]] = other.args[[i]]
-  #
-  # if (!is.null(.Object@formatting$label))
-  #   .Object@formatting$label = NULL
-
-  ## JEREMIAH DO THIS LATER, no need to track now. 3/20/2016. Confusing to bc of formatting issue
-  ## turn off the colors if a colormap is supplied
-  # cix = sapply(.Object@colormap, length)>0 | !is.na(.Object@formatting$gr.colorfield)
-  # if (any(cix))
-  #   .Object@formatting$col[cix] = NA
-  # ## set the default color
-  # if (any(nix <- !cix & is.na(.Object@formatting$col)))
-  #   .Object@formatting$col[nix] = alpha('black', 0.5)
-  # ## set the default border
-  # if (any(nix <- is.na(.Object@formatting$border)))
-  #   .Object@formatting$border[nix] = .Object@formatting$col[nix]
-
-        ## set the seqinfo if not provided
 
   .Object <- get_seqinfo(.Object, seqinfo)
-
-  ## replicate if length y.field > 1 and length dat is 1
-  #if (length(y.field)>1 & length(.Object)==1)
-  #  .Object@data = rep(.Object@data, length(y.field))
 
   ## if single data input but multiple yfields, replicate
 
@@ -231,15 +161,14 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
   }
 
   if (any(!is.na(y.field))) {
-      ix <- as.logical(pmax(nchar(formatting(.Object)$name) == 0 ,  is.na(formatting(.Object)$name)))
-      formatting(.Object)$name[ix] <- y.field[ix]
+
+    ix <- as.logical(pmax(nchar(formatting(.Object)$name) == 0 ,  is.na(formatting(.Object)$name),na.rm = TRUE))
+    formatting(.Object)$name[ix] <- y.field[ix]
   }
 
 
   return(.Object)
 })
-
-
 
 
 #' Construct a new \code{gTrack}
@@ -433,11 +362,8 @@ setValidity('gTrack', function(object)
 {
   problems = c();
 
-  ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
-  ## deprecated a while ago... 3/20/16
 
-
-  ##ALLOWED.FORMATS = list(RleList = c('scatter', 'line', 'bar', 'ranges'), SimpleRleList = c('scatter', 'line', 'bar', 'ranges'), GRanges = c('ranges'), GRangesList = c('ranges'), character = c('ranges'), ffTrack = 'ranges');
+  ALLOWED.DATA.CLASSES = c('GRangesList', 'GRanges', 'CompressedGRangesList', 'RleList', 'SimpleRleList', 'character', 'ffTrack');
 
   if (length(object@data)>0)
     {
@@ -1178,9 +1104,9 @@ setMethod('show', 'gTrack', function(object)
     return(identical(df.a, df.b))
 }
 
-# @importFrom graphics plot
-if (!isGeneric("plot"))
-    setGeneric("plot", function(x, ...) standardGeneric("plot"))
+## if (!isGeneric("plot"))
+##     setGeneric("plot", function(x, ...) standardGeneric("plot"))
+
 
 
 #' Improved \code{rbind} for intersecting/union columns of \code{data.frames} or \code{data.tables}
@@ -1265,9 +1191,10 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 #' @author Marcin Imielinski, Jeremiah Wala
 #' @aliases plot,gTrack,ANY-method
 #' @export
-setMethod('plot', c("gTrack","ANY"),
-          #signature(x = "gTrack", y = "ANY"),
-          function(x,  ##pplot  (for easy search)
+
+## setMethod('plot', c("gTrack","ANY"),
+##           #signature(x = "gTrack", y = "ANY"),
+'plot.gTrack' =  function(x,  ##pplot  (for easy search)
                    y,
                    windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                    links = NULL, ## GRangesList of pairs of signed locations,
@@ -1533,12 +1460,12 @@ setMethod('plot', c("gTrack","ANY"),
           {
               if (!is.null(tmp.dat$ywid)) ## remove any weird infinite ywids
               {
-                  if (any(ix <- is.infinite(tmp.dat$ywid)))
-                      tmp.dat$ywid[ix] = NA
+
+                  if (any(ix <- is.infinite(values(tmp.dat)$ywid)))
+                      values(tmp.dat)$ywid[ix] = NA
               }
               else
-                  tmp.dat$ywid = NA
-
+                  values(tmp.dat)$ywid = NA
               if (is.null(range.y)) ## if y range is empty then pull from data
                   range.y = range(setdiff(values(tmp.dat)[, this.y.field], c(Inf, -Inf)), na.rm = T);
                                         #                              range.y = range(setdiff(values(dat(.Object)[[j]])[, this.y.field], c(Inf, -Inf)), na.rm = T);
@@ -1546,8 +1473,9 @@ setMethod('plot', c("gTrack","ANY"),
       ## however if there is a single data value, then we need to scale appropriately
       if (diff(range.y)==0)
       {
-        if (any(ix <- !is.na(tmp.dat$ywid))) ## use ywid
-          range.y = range.y + 5*max(tmp.dat$ywid[ix])*c(-1, 1)
+
+        if (any(ix <- !is.na(values(tmp.dat)$ywid))) ## use ywid
+          range.y = range.y + 5*max(values(tmp.dat)$ywid[ix])*c(-1, 1)
         else # otherwise use some arbitrary proportion around the value
           range.y = range.y + abs(range.y)*0.2*c(-1, 1)
       }
@@ -1580,10 +1508,6 @@ setMethod('plot', c("gTrack","ANY"),
           if (formatting(.Object)$log[j])
             names(this.y.grid) = signif(10^this.y.ticks)
       }
-
-      ## ## fix ywids if necessary
-      ## if (!is.null(values(tmp.dat)$ywid))
-      ##   tmp.dat$ywid = tmp.dat$ywid * (this.ylim.subplot[j, 2]-this.ylim.subplot[j, 1])/diff(range.y)
     }
 
     if (is.null(.Object[j]$bars))
@@ -1917,7 +1841,9 @@ setMethod('plot', c("gTrack","ANY"),
     }
 
   }
-})
+
+}
+#})
 
 ###############
 # Tracked data helper functions
@@ -2179,6 +2105,7 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 #                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
 #   }
 
+
 #' @name file.url.exists
 #' @title Check if a file or url exists
 #' @param f File or url
@@ -2200,7 +2127,6 @@ read.rds.url <- function(f) {
   return(readRDS(f))
 }
 
-
 #' @name track.gencode
 #' @title Constructor a \code{gTrack} from GENCODE transcripts
 #'
@@ -2208,6 +2134,7 @@ read.rds.url <- function(f) {
 #' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cached data objects but can also be built from provided GRangesList
 #'
+#' @param gencode (optional) path to GENCODE gtf from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )
 #' @param rg (optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import
 #' @param genes (optional) character vector specifying genes to limit gTrack object to
 #' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
@@ -2240,8 +2167,8 @@ track.gencode = function(gencode = NULL,
   col,
   cached = T, ## if true will use cached version
   cached.dir = Sys.getenv('GENCODE_DIR'),
-  cached.path = file.path(cached.dir, "gencode.composite.rds"),  ## location of cached copy
-  cached.path.collapsed = file.path(cached.dir, "gencode.composite.collapsed.rds"),  ## location of cached copy
+  cached.path = paste(cached.dir, "gencode.composite.rds", sep = '/'),  ## location of cached copy
+  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep = '/'),  ## location of cached copy
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,
@@ -2249,87 +2176,95 @@ track.gencode = function(gencode = NULL,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
   ...)
-    {
+{
 
-        if (nchar(cached.dir)==0)
-            {
-                cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"
-                cached.path <- file.path(cached.dir, "gencode.composite.rds")
-                cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")                
- #               cached.path = system.file("extdata", "gencode.composite.rds", package = 'gTrack')  ## location of cached copy
- #               cached.path.collapsed = system.file("extdata", "gencode.composite.collapsed.rds", package = 'gTrack')
-            }
+  if (nchar(cached.dir)==0)
+  {
+    cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"
+    cached.path <- file.path(cached.dir, "gencode.composite.rds")
+    cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")    
+  }
 
-        
-        cat(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
-                          "gencode annotations from %s\n"),
-                    ifelse(gene.collapse, cached.path.collapsed, cached.path)))
-        
-        ## if no composite refgene copy, then make from scratch
-        if (!cached || (!gene.collapse  && !file.url.exists(cached.path)) || (gene.collapse  && !file.url.exists(cached.path.collapsed)))
-          {
 
-            cat('recreating composite gencode object\n')
-            if (is.null(gencode))
-                gencode = read_gencode()
+  if (!gene.collapse)
+  {
+    if (file.exists(cached.path))
+      cat(sprintf('Pulling gencode annotations from %s\n', cached.path))
+    else
+      cat(sprintf('Caching gencode annotations to %s\n', cached.path))
+  }
+  else
+  {
+    if (file.exists(cached.path.collapsed))
+      cat(sprintf('Pulling gencode annotations from %s\n', cached.path.collapsed))
+    else
+      cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
+  }
 
-            cat('loaded gencode rds\n')
 
-            tx = gencode[gencode$type =='transcript']
-            genes = gencode[gencode$type =='gene']
-            exons = gencode[gencode$type == 'exon']
-            utr = gencode[gencode$type == 'UTR']
-            ## ut = unlist(utr$tag)
-            ## utix = rep(1:length(utr), sapply(utr$tag, length))
-            ## utr5 = utr[unique(utix[grep('5_UTR',ut)])]
-            ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]
-            ## utr5$type = 'UTR5'
-            ## utr3$type = 'UTR3'
-            startcodon = gencode[gencode$type == 'start_codon']
-            stopcodon = gencode[gencode$type == 'stop_codon']
-            OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
-            tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
+  if (!cached | (!gene.collapse  & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
+  {
 
-            cat('extracted intervals\n')
+    cat('recreating composite gencode object\n')
+    if (is.null(gencode))
+      gencode = read_gencode()
 
-            ## compute tx ord of intervals
-            ord.ix = order(tmp$transcript_id, match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))
-            tmp.rle = rle(tmp$transcript_id[ord.ix])
-            tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
-            tmp = tmp[order(match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))]
+    cat('loaded gencode rds\n')
 
-            cat('reordered intervals\n')
+    tx = gencode[gencode$type =='transcript']
+    genes = gencode[gencode$type =='gene']
+    exons = gencode[gencode$type == 'exon']
+    utr = gencode[gencode$type == 'UTR']
+    ## ut = unlist(utr$tag)
+    ## utix = rep(1:length(utr), sapply(utr$tag, length))
+    ## utr5 = utr[unique(utix[grep('5_UTR',ut)])]
+    ## utr3 = utr[unique(utix[grep('3_UTR',ut)])]
+    ## utr5$type = 'UTR5'
+    ## utr3$type = 'UTR3'
+    startcodon = gencode[gencode$type == 'start_codon']
+    stopcodon = gencode[gencode$type == 'stop_codon']
+    OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
+    tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
 
-            tmp.g = tmp[tmp$type != 'transcript']
-            gencode.composite = split(tmp.g, tmp.g$gene_name)
-            ix = sapply(split(1:length(tmp.g), tmp.g$gene_name), function(x) x[1])
-            values(gencode.composite)$id = tmp.g$gene_name[ix]
-            values(gencode.composite)$gene_sym = tmp.g$gene_name[ix]
-            values(gencode.composite)$type = tmp.g$gene_type[ix]
-            values(gencode.composite)$status = tmp.g$gene_status[ix]
-            if (grepl("^http",cached.path.collapsed)) {
-              cat('saving gene collapsed track\n')
-              saveRDS(gencode.composite, cached.path.collapsed)
-            }
+    cat('extracted intervals\n')
 
-            tmp.t = tmp[tmp$type != 'gene']
-            gencode.composite = split(tmp.t, tmp.t$transcript_id)
-            ix = sapply(split(1:length(tmp.t), tmp.t$transcript_id), function(x) x[1])
-            values(gencode.composite)$gene_sym = tmp.t$gene_name[ix]
-            values(gencode.composite)$id = paste(tmp.t$gene_name[ix], tmp.t$transcript_name[ix], sep = '-')
-            values(gencode.composite)$type = tmp.t$transcript_type[ix]
-           values(gencode.composite)$status = tmp.t$transcript_status[ix]
-           if (grepl("^http",cached.path)) {
-             cat('saving transcript track\n')
-             saveRDS(gencode.composite, cached.path)
-           }
-           
-            genes = NULL
+    ## compute tx ord of intervals
+    ord.ix = order(tmp$transcript_id, match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))
+    tmp.rle = rle(tmp$transcript_id[ord.ix])
+    tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
+    tmp = tmp[order(match(tmp$type, c('gene', 'transcript', 'exon', 'UTR', 'start_codon','stop_codon')))]
 
-            cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
+    cat('reordered intervals\n')
+
+    tmp.g = tmp[tmp$type != 'transcript']
+    gencode.composite = split(tmp.g, tmp.g$gene_name)
+    values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
+    values(gencode.composite)$gene_sym = values(gencode.composite)$id 
+    cat('saving gene collapsed track\n')
+    if (grepl("^http",cached.path.collapsed)) {
+      cat('saving gene collapsed track\n')
+      saveRDS(gencode.composite, cached.path.collapsed)
     }
 
-    genecode.composite <- read.rds.url(ifelse(gene.collapse, cached.path.collapsed, cached.path))
+    
+    tmp.t = tmp[tmp$type != 'gene']
+    gencode.composite = split(tmp.t, tmp.t$transcript_id)
+    gn = grl.eval(gencode.composite, gene_name[1])
+    tn = grl.eval(gencode.composite, transcript_name[1])
+    values(gencode.composite)$id = paste(gn, tn, sep = '-')
+    values(gencode.composite)$gene_sym = gn            
+    cat('saving transcript track\n')
+    if (grepl("^http",cached.path)) {
+      cat('saving gene collapsed track\n')
+      saveRDS(gencode.composite, cached.path)
+    }
+      
+    genes = NULL
+      
+    cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
+  }
+
+  genecode.composite = read.rds.url(ifelse(gene.collapse, cached.path.collapsed, cached.path))  
 
     if (drop.rp11)
         gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
@@ -2602,6 +2537,13 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
   if (!is.na(points) & all(is.na(x$points)))
     x$points = points
 
+
+  if (is.null(x$lines))
+    x$lines = FALSE
+
+  if (!is.na(lines) & all(is.na(x$lines)))
+    x$lines = lines
+
   if (!is.null(clip))
   {
     clip = standardize_segs(clip);
@@ -2613,7 +2555,6 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 
   if (is.na(srt.label))
     srt.label = 45
-
 
   if (strand.dir & !is.null(strand))
     x$direction = x$strand
@@ -2652,63 +2593,85 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
     if (is.null(x$direction))
       x$direction = "*"
 
-    if (is.na(circles))
-      circles = F
+    ## if (is.na(circles))
+    ##   circles = F
 
-    if (is.na(lines))
-      lines = F
+    ## if (is.na(lines))
+    ##   lines = F
 
+    if (is.null(x$circles))
+      x$circles = FALSE
+    
+    if (is.null(x$points))
+      x$points = FALSE
 
-    bars = ifelse(is.na(bars), FALSE, bars)
-    circles = ifelse(is.na(bars), FALSE, circles)
-    lines = ifelse(is.na(bars), FALSE, lines)
+    if (is.null(x$lines))
+      x$lines = FALSE
 
+    if (is.null(x$bars))
+      x$bars = FALSE
 
-    if (!circles & !lines & !bars)
+    x$bars = ifelse(is.na(x$bars), FALSE, x$bars)
+    x$circles = ifelse(is.na(x$circles), FALSE, x$circles)
+    x$lines = ifelse(is.na(x$lines), FALSE, x$lines)
+    x$points = ifelse(is.na(x$points), FALSE, x$points)
+    x$rect = !x$points & !x$bars & !x$circles & !x$lines ## default barbs are only drawn if points / circles / lines/ bars not specified
+
+    if (any(x$rect))
     {
-      main.args = list(x0 = x$pos1 - PAD, y0 = x$y-x$lwd/2, x1 = x$pos2 + PAD, y1 = x$y + x$lwd/2, col = x$col, border = x$border , angle = angle*c('*'=0, '+'=1, '-'=-1)[x$direction], lwd = x$lwd.border)
+      x.tmp = x[which(x$rect), ]
+      main.args = list(x0 = x.tmp$pos1 - PAD, y0 = x.tmp$y-x.tmp$lwd/2, x1 = x.tmp$pos2 + PAD, y1 = x.tmp$y + x.tmp$lwd/2, col = x.tmp$col, border = x.tmp$border , angle = angle*c('*'=0, '+'=1, '-'=-1)[x.tmp$direction], lwd = x.tmp$lwd.border)
+
       other.args = list(...);
       other.args = other.args[setdiff(names(other.args), names(main.args))]
       do.call(barbs, c(main.args, other.args))
     }
-    else
+
+    if (any(x$points))
     {
-      if (!is.na(points))
-      {
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, border = x$border, col = x$col, cex = x$lwd.border)
-      }
-
-      if (circles)
-      {
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
-      }
-
-      if (bars)
-          {
-        if (is.null(y0.bar))
-            y0.bar = par('usr')[3]
-
-        rect(x$pos1, ifelse(y0.bar<x$y, rep(y0.bar, nrow(x)), x$y), x$pos2, ifelse(y0.bar<x$y, x$y, rep(y0.bar, nrow(x))),
-             col = x$col, border = x$col, lwd = x$lwd.border/2)
-        #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
-      }
-
-      if (lines)
-        lines(as.vector(t(cbind(x$pos1, x$pos2))), as.vector(t(cbind(x$y, x$y))), col = as.vector(t(cbind(x$col, x$col))),
-              lwd = as.vector(t(cbind(x$lwd.border, x$lwd.border))))
-
-      if (any(!is.na(x$points)))
-      {
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = x$points, col = x$col, cex = x$lwd.border)
-      }
-
-      if (circles)
-      {
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 19, col = x$col, cex = x$lwd.border)
-        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
-      }
+      x.tmp = x[which(x$points), ]
+      points((x.tmp$pos1 + x.tmp$pos2)/2, x.tmp$y, pch = points, border = x.tmp$border, col = x.tmp$col, cex = x.tmp$lwd.border)
+                                        #        points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, border = x$border, col = x$col, cex = x$lwd.border)
     }
+
+    if (any(x$circles))
+    {
+      x.tmp = x[which(x$circles), ]
+      points((x.tmp$pos1 + x.tmp$pos2)/2, x.tmp$y, pch = 19, col = x.tmp$col, cex = x.tmp$lwd.border)
+      points((x.tmp$pos1 + x.tmp$pos2)/2, x.tmp$y, pch = 1, col = x.tmp$border, cex = x.tmp$lwd.border)
+      ## points((x$pos1 + x$pos2)/2, x$y, pch = points, col = x$col, cex = x$lwd.border)
+      ## points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = points, col = x$col, cex = x$lwd.border)
+      ## points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
+    }
+
+    if (any(x$bars))
+    {
+      if (is.null(y0.bar))
+        y0.bar = par('usr')[3]
+
+      x.tmp = x[which(x$bars), ]
+      rect(x.tmp$pos1, ifelse(y0.bar<x.tmp$y, rep(y0.bar, nrow(x)), x.tmp$y), x.tmp$pos2, ifelse(y0.bar<x.tmp$y, x.tmp$y, rep(y0.bar, nrow(x))),
+           col = x.tmp$col, border = x.tmp$col, lwd = x.tmp$lwd.border/2)
+                                        #              rect(x$pos1, rep(y0.bar, nrow(x)), x$pos2, x$y, col = x$col, border = NA, lwd = NA)
+    }
+
+    if (any(x$lines))
+    {
+      x.tmp = x[which(x$lines), ]
+      lines(as.vector(t(cbind(x.tmp$pos1, x.tmp$pos2))), as.vector(t(cbind(x.tmp$y, x.tmp$y))), col = as.vector(t(cbind(x.tmp$col, x.tmp$col))),
+            lwd = as.vector(t(cbind(x.tmp$lwd.border, x.tmp$lwd.border))))
+    }
+
+      ## if (any(!is.na(x$points)))
+      ## {
+      ##   points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = x$points, col = x$col, cex = x$lwd.border)
+      ## }
+
+      ## if (circles)
+      ## {
+      ##   points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 19, col = x$col, cex = x$lwd.border)
+      ##   points((x$pos1 + x$pos2)/2, x$y-x$lwd/2, pch = 1, col = x$border, cex = x$lwd.border)
+      ## }
 
     if (!is.null(x$label))
     {
@@ -2735,8 +2698,9 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
                 text(rowMeans(x[has.label, c('pos1', 'pos2')]), x$y[has.label]-x$lwd[has.label]/2-OFFSET, as.character(x$label[has.label]),
                      adj = adj.label, cex = 0.5*cex.label, srt = srt.label)
             }
+
+      }
     }
-  }
 }
 }
 
@@ -3362,7 +3326,11 @@ draw.grl = function(grl,
           tmp.ylim = tmp.ylim + c(1, -1)*y.pad*diff(tmp.ylim);
 
           ## make final y coordinates by squeezing y.bin into tmp.ylim
-          grl.segs$y = affine.map(grl.segs$y.bin, tmp.ylim)
+
+          if (all(is.na(grl.segs$y)))
+          {
+            grl.segs$y = affine.map(grl.segs$y.bin, tmp.ylim)
+          }
         }
         if (verbose) {
           print('After agg')
@@ -4096,7 +4064,8 @@ barbs = function(x0, y0, x1, y1, angle = 0, ...)
 
   ## convert lwd.border 0 to NA. JEREMIAH
   other.args <- list(...)
-  if (!any(other.args$lwd > 0)) {
+
+  if (!any(other.args$lwd > 0, na.rm = TRUE)) {
     other.args$border = NA
     other.args[['lwd']] <- NULL
   }
@@ -5281,10 +5250,31 @@ format_yfield_limits <- function(.Object, j, tmp.dat, pre.filtered, this.windows
   y1.global = max(values(tmp.dat)[, formatting(.Object)$y.field[j]], na.rm = TRUE)
 
   if (!pre.filtered)
-    tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
-    ##tmp.dat.r <- tmp.dat[tmp.dat %over% this.windows]
+  {
+    if (inherits(tmp.dat, 'GRanges'))
+    {
+      tmp.dat.r <- tmp.dat[gUtils::gr.in(tmp.dat, this.windows)]
+    }
+    else if (inherits(tmp.dat, 'GRangesList'))
+    {
+      nm = names(tmp.dat)
+      val = values(tmp.dat)
+      tmp = grl.unlist(tmp.dat)
+      nmcol = setdiff(names(values(tmp)), names(val))
+      tmp2 = tmp[gUtils::gr.in(tmp, this.windows)]
+      tmp.dat.r = split(tmp2[, nmcol], tmp2$grl.ix)
+      values(tmp.dat.r) = val[as.numeric(names(tmp.dat.r)), ]
+      names(tmp.dat.r) = nm[as.numeric(names(tmp.dat.r))]
+    }
+    else
+    {
+      stop('Unrecognized format inside gTrack')
+    }
+  } 
   else
+  {
     tmp.dat.r = tmp.dat
+  }
 
   val = values(tmp.dat.r)[, formatting(.Object)$y.field[j]]
   #                          r = range(val[!is.infinite(val)], na.rm = TRUE)
@@ -5578,9 +5568,11 @@ get_seqinfo <- function(.Object, seqinfo) {
 
   if (is.na(seqinfo) & is.list(.Object@data)) {
 
-      slen = c()
-      if (is.null(formatting(.Object)$yaxis))
-          formatting(.Object)$yaxis = NA
+
+    slen = c()
+    if (is.null(formatting(.Object)$yaxis))
+      formatting(.Object)$yaxis = NA
+
     for (i in 1:length(.Object@data))
     {
         x = .Object@data[[i]]

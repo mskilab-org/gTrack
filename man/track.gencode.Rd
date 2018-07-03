@@ -15,6 +15,8 @@ track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
   labels.suppress.gr = T, drop.rp11 = TRUE, stack.gap = 1e+06, ...)
 }
 \arguments{
+\item{gencode}{(optional) path to GENCODE gtf from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )}
+
 \item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
 
 \item{genes}{(optional) character vector specifying genes to limit gTrack object to}
