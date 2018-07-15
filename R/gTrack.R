@@ -2180,7 +2180,7 @@ track.gencode = function(gencode = NULL,
 
   if (nchar(cached.dir)==0)
   {
-    cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"
+    cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"    
     cached.path <- file.path(cached.dir, "gencode.composite.rds")
     cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")    
   }
@@ -2209,9 +2209,20 @@ track.gencode = function(gencode = NULL,
   if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
   {
 
-    cat('recreating composite gencode object\n')
+    if (!file.exists(cached.dir))
+    {
+      message('Cached dir ', cached.dir, ' does not exist: creating ...')
+      system(paste('mkdir -p', cached.dir))
+    }
+
     if (is.null(gencode))
-      gencode = read_gencode()
+      gencode = skidb::read_gencode()
+
+    if (is.character(gencode))
+    {
+      message('pulling GENCODE gtf from ', gencode)
+      gencode = rtracklayer::import(gencode)
+      }
 
     cat('loaded gencode rds\n')
 
@@ -2243,9 +2254,10 @@ track.gencode = function(gencode = NULL,
     tmp.g = tmp[tmp$type != 'transcript']
     gencode.composite = split(tmp.g, tmp.g$gene_name)
     values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
-    values(gencode.composite)$gene_sym = values(gencode.composite)$id 
+    values(gencode.composite)$gene_sym = values(gencode.composite)$id
+
     cat('saving gene collapsed track\n')
-    if (grepl("^http",cached.path.collapsed)) {
+    if (!grepl("^http",cached.path.collapsed)) {
       cat('saving gene collapsed track\n')
       saveRDS(gencode.composite, cached.path.collapsed)
     }
@@ -2258,7 +2270,7 @@ track.gencode = function(gencode = NULL,
     values(gencode.composite)$id = paste(gn, tn, sep = '-')
     values(gencode.composite)$gene_sym = gn            
     cat('saving transcript track\n')
-    if (grepl("^http",cached.path)) {
+    if (!grepl("^http",cached.path)) {
       cat('saving gene collapsed track\n')
       saveRDS(gencode.composite, cached.path)
     }
@@ -2268,7 +2280,7 @@ track.gencode = function(gencode = NULL,
     cat(sprintf('cached composite tracks at %s and %s\n', cached.path, cached.path.collapsed))
   }
 
-  genecode.composite = read.rds.url(ifelse(gene.collapse, cached.path.collapsed, cached.path))  
+  gencode.composite = read.rds.url(ifelse(gene.collapse, cached.path.collapsed, cached.path))  
 
     if (drop.rp11)
         gencode.composite = gencode.composite[!grepl('^RP11', values(gencode.composite)$gene_sym)]
