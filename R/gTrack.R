@@ -2123,7 +2123,7 @@ file.url.exists <- function(f) {
 #' @noRd
 read.rds.url <- function(f) {
   if (grepl("^http",f))
-    return(gzcon(url(f)))
+    return(readRDS(gzcon(url(f))))
   return(readRDS(f))
 }
 
