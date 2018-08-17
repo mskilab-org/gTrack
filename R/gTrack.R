@@ -1951,161 +1951,6 @@ karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ..
 }
 
 
-# @name karyogram
-# @title karyogram
-# @description
-#
-# Returns gTrack object representing refGene transcripts and their components (utr, cds etc) with assigned colors.
-# Usually built from cahced data objects but can also be built from provided GRangesList
-#
-# @param rg (optional) GRangesList representing transcript models obtained from refgene, with
-# GrangesList meta data fields chr, s1, s2, e1, e2, str, gene_sym, Uniprot,
-# @param genes (optional) character vector specifying genes to limit gTrack object to
-# @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
-# @param bg.col scalar character representing background color for genespan
-# @param cds.col scalar character representing background color for CDS
-# @param cds.utr scalar character representing background color for UTR
-# @param st.col scalar character representing color of CDS start
-# @param en.col scalar character representing color of CDS end
-# @param genespan logical scalar whether to include genespan range around entire gne
-# @param utr logical scalar whether to include range specifying UTR
-# @param cds logical scalar whether to include range specifying CDS
-# @param cached logical scalar whether to use "cached" version provided with package
-# @param gr.srt.label scalar numeric specifying angle on exon label
-# @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
-# @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
-# @param stack.gap stack.gap argument to gTrack
-# @param ... additional arguments passed down to gTrack
-#
-# @export
-# @importFrom IRanges IRanges
-# @importFrom GenomicRanges GRanges
-# @author Marcin Imielinski
-# track.refgene = function(rg = NULL,
-#   gene.collapse = T,
-#   genes = NULL,
-#   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
-#   st.col = 'green',
-#   en.col = 'red',
-#   genespan = T, ## flags determining whether to include ranges for these features
-#   utr = T, ## show utr?
-#   cds = T, ## show cds start / end?
-#
-#   grl.labelfield, ## Don't touch these
-#   gr.labelfield,
-#   col,
-#   cached = T, ## if true will use cached version
-#   cached.path = system.file("extdata", "refgene.composite.rds", package = 'gTrack'),  ## location of cached copy
-#   cached.path.collapsed = system.file("extdata", "refgene.composite.collapsed.rds", package = 'gTrack'),  ## location of cached collapsed copy
-#   gr.srt.label = 0,
-#   gr.cex.label = 0.8,
-#   labels.suppress.gr = T,
-#   stack.gap = 1e6,
-#   ...)
-#   {
-#
-#     if (!cached | (!gene.collapse & !file.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
-#       {
-#         if (is.null(rg))
-#           rg = read_refGene(grl = T)
-#
-#         values(rg)$label = values(rg)$gene_sym
-#         ix.pos = values(rg)$str == '+'
-# #         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'border', 'col', 'type')
-#         OUT.COLS = c('rg.id', 'type', 'exon_id', 'exon_frame', 'type', 'is.exon')
-#
-#         rg.exons = gUtils::grl.unlist(rg)
-#         rg.exons$rg.id = rg.exons$grl.ix
-#         rg.exons$border = rg.exons$col = cds.col
-#         rg.exons$is.exon = T;
-#         rg.exons$type = 'exon'
-#
-#         if (genespan)
-#           rg.genespan = GRanges(values(rg)$chr, IRanges(values(rg)$s1, values(rg)$e1), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = bg.col, type = 'genespan')
-#         else
-#           rg.genespan = NULL
-#
-#         if (utr)
-#           {
-#             type1 = ifelse(ix.pos, 'utr.5', 'utr.3')
-#             type2 = ifelse(ix.pos, 'utr.3', 'utr.5')
-#             tmp.utr = c(
-#               GRanges(values(rg)$chr, IRanges(values(rg)$s1, pmax(values(rg)$s1, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type1),
-#               GRanges(values(rg)$chr, IRanges(values(rg)$e1, pmax(values(rg)$e1, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = utr.col, border = utr.col, type = type2))
-#
-#             ##utr.ix = which(rg.exons %over% tmp.utr)
-#             utr.ix = which(gUtils::gr.in(rg.exons, tmp.utr))
-#             utr.exons = rg.exons[utr.ix]
-#             utr.exons$gr.ix = utr.ix
-#             ix.check = merge(data.frame(i = 1:length(utr.exons), key = utr.exons$grl.ix), data.frame(j = 1:length(tmp.utr), key = tmp.utr$rg.id))
-#             rg.utr.exons = pintersect(utr.exons[ix.check$i, ], tmp.utr[ix.check$j, ], resolve.empty = 'start')
-#             non.empty = width(rg.utr.exons)!=0
-#             rg.utr.exons = rg.utr.exons[non.empty]
-#             values(rg.utr.exons) = values(utr.exons)[ix.check$i[non.empty], ]
-#             rg.utr.exons$type = tmp.utr$type[ix.check$j[non.empty]]
-#             rg.utr.exons$rg.id = rg.utr.exons$grl.ix
-#             IRanges::ranges(rg.exons[rg.utr.exons$gr.ix]) = IRanges::ranges(psetdiff(rg.exons[rg.utr.exons$gr.ix], rg.utr.exons)) ## trim rg.exons by rg.utr.exons
-#             ## remove width 0 rg.exons
-#             rg.exons = rg.exons[width(rg.exons)>0]
-#           }
-#         else
-#           rg.utr.exons = NULL
-#
-#         if (cds)
-#           {
-#             sten.col1 = ifelse(ix.pos, st.col, en.col)
-#             sten.col2 = ifelse(ix.pos, en.col, st.col)
-#             type1 = ifelse(ix.pos, 'cds.start', 'cds.end')
-#             type2 = ifelse(ix.pos, 'cds.end', 'cds.start')
-#             rg.sten = c(
-#               GRanges(values(rg)$chr, IRanges(values(rg)$s2, pmax(values(rg)$s2, values(rg)$s2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col1, border = sten.col1, type = type1),
-#               GRanges(values(rg)$chr, IRanges(values(rg)$e2, pmax(values(rg)$e2, values(rg)$e2)), strand = values(rg)$str, seqlengths = hg_seqlengths(), rg.id = 1:length(rg), col = sten.col2, border = sten.col2, type = type2))
-#           }
-#         else
-#           rg.sten = NULL
-#
-#         tmp = rbind(rg.genespan, rg.exons, rg.utr.exons, rg.sten)[, OUT.COLS]
-#         tmp$label = NULL;
-#
-#         ## compute tx ord of intervals
-#         ord.ix = order(tmp$rg.id, match(tmp$type, c('genespan', 'utr.5', 'cds.start', 'exon', 'cds.end', 'utr.3')))
-#         tmp.rle = rle(tmp$rg.id[ord.ix])
-#         tmp$tx.ord[ord.ix] = unlist(lapply(tmp.rle$lengths, function(x) 1:x))
-#
-#         if (gene.collapse)
-#           {
-#             tmp = tmp[order(match(tmp$type, c('genespan', 'exon', 'utr.5', 'utr.3', 'cds.start', 'cds.end')))]
-#             rg.composite = split(tmp, values(rg)[tmp$rg.id, ]$gene_sym)
-#             values(rg.composite) = values(rg)[match(names(rg.composite), values(rg)$gene_sym), c('gene_sym', 'Uniprot')]
-#             saveRDS(rg.composite, cached.path.collapsed)
-#           }
-#         else
-#           {
-#             rg.composite = split(tmp, tmp$rg.id)
-#             values(rg.composite) = values(rg)[as.numeric(names(rg.composite)), ]
-#             saveRDS(rg.composite, cached.path)
-#           }
-#       }
-#     else if (gene.collapse)
-#         {
-#             rg.composite = readRDS(cached.path.collapsed)
-#         }
-#     else
-#         {
-#             rg.composite = readRDS(cached.path)
-#         }
-#
-#
-#     if (!is.null(genes))
-#       rg.composite = rg.composite[values(rg.composite)$gene_sym %in% genes]
-#
-#     cmap = list(type = c(genespan = bg.col, exon = cds.col, cds.start = st.col, cds.end = en.col, utr.5 = utr.col, utr.3 = utr.col))
-#
-#     return(gTrack(rg.composite, col = NA, grl.labelfield = 'gene_sym', gr.labelfield = 'exon_id',
-#                      gr.srt.label = gr.srt.label, gr.cex.label = gr.cex.label, labels.suppress.gr = labels.suppress.gr, stack.gap = stack.gap, colormaps = cmap, ...))
-#   }
-
-
 #' @name file.url.exists
 #' @title Check if a file or url exists
 #' @param f File or url
@@ -2182,32 +2027,18 @@ track.gencode = function(gencode = NULL,
   {
     cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"    
     cached.path <- file.path(cached.dir, "gencode.composite.rds")
-    cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")    
+    cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")
+    warning('Downloading GENCODE track from ', ifelse(gene.collapse, cached.path.collapsed, cached.path), ' - for quicker loading, download this file locally and point GENCODE_DIR environment variable to the enclosing directory.  To generate and use a new cached gTrack object from a GENCODE .gtf or .gff3 set GENCODE_DIR env variable to an existing local directory and run track.gencode(url_or_path_to_gencode_gtf) once, and then use track.gencode() subsequently to access that cached gTrack object.')
   }
 
-
-  if (!gene.collapse)
-  {
-    if (file.exists(cached.path))
-      cat(sprintf('Pulling gencode annotations from %s\n', cached.path))
-    else
-      cat(sprintf('Caching gencode annotations to %s\n', cached.path))
-  }
-  else
-  {
-    if (file.exists(cached.path.collapsed))
-      cat(sprintf('Pulling gencode annotations from %s\n', cached.path.collapsed))
-    else
-      cat(sprintf('Caching gencode annotations to %s\n', cached.path.collapsed))
-  }
-  
-  cat(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
+  warning(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
                     "gencode annotations from %s\n"),
               ifelse(gene.collapse, cached.path.collapsed, cached.path)))
 
-
-  if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
+  if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.url.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
   {
+
+    browser()
 
     if (!file.exists(cached.dir))
     {
@@ -3343,6 +3174,9 @@ draw.grl = function(grl,
 
           ## make final y coordinates by squeezing y.bin into tmp.ylim
 
+          if (is.null(grl.segs$y))
+            grl.segs$y = NA
+
           if (all(is.na(grl.segs$y)))
           {
             grl.segs$y = affine.map(grl.segs$y.bin, tmp.ylim)
@@ -3956,7 +3790,7 @@ draw.grl = function(grl,
             make.flat = edges$type == 'U' & edges$dir.to != edges$dir.from
 
             if (!is.null(edges$not.flat)) ## allow edges specified as $not.flat to have height, unless dangling
-              if (any(ix <- edges$not.flat & !edges$dangle))
+              if (length(which(ix <- edges$not.flat & !edges$dangle))>0)
                 make.flat[ix] = F
 
             if (any( ix <- make.flat ))
@@ -3999,7 +3833,7 @@ draw.grl = function(grl,
     if (nrow(grl.segs)>0 & !is.null(grl.props$grl.labels) & !labels.suppress.grl)
     {
       if (!draw.paths)
-      {
+     {
         pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min);
         pos2  = vaggregate(formula = pos2 ~ group, data = grl.segs, FUN = max);
         ywid  = vaggregate(formula = ywid ~ group, data = grl.segs, FUN = max);
