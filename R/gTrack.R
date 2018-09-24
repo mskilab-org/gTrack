@@ -2037,9 +2037,6 @@ track.gencode = function(gencode = NULL,
 
   if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.url.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
   {
-
-    browser()
-
     if (!file.exists(cached.dir))
     {
       message('Cached dir ', cached.dir, ' does not exist: creating ...')
