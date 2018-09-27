@@ -1984,6 +1984,7 @@ read.rds.url <- function(f) {
 #' @param genes (optional) character vector specifying genes to limit gTrack object to
 #' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
 #' @param grep character vector for which to grep genes to positively select
+#' @param build character can be 'hg19', 'hg38', if GENCODE_DIR and gencode not specified will download this build from mskilab.com
 #' @param grepe character vector for which to grep genes which to exclude
 #' @param bg.col scalar character representing background color for genespan
 #' @param cds.col scalar character representing background color for CDS
@@ -2004,6 +2005,7 @@ track.gencode = function(gencode = NULL,
   genes = NULL,
   grep = NULL,
   grepe = NULL, ## which to exclude
+  build = 'hg19',
   bg.col = alpha('blue', 0.1), cds.col = alpha('blue', 0.6), utr.col = alpha('purple', 0.4),
   st.col = 'green',
   en.col = 'red',
@@ -2025,14 +2027,19 @@ track.gencode = function(gencode = NULL,
 
   if (nchar(cached.dir)==0)
   {
-    cached.dir <- "https://data.broadinstitute.org/snowman/gTrack/inst/extdata"    
-    cached.path <- file.path(cached.dir, "gencode.composite.rds")
-    cached.path.collapsed <- file.path(cached.dir, "gencode.composite.collapsed.rds")
-    warning('Downloading GENCODE track from ', ifelse(gene.collapse, cached.path.collapsed, cached.path), ' - for quicker loading, download this file locally and point GENCODE_DIR environment variable to the enclosing directory.  To generate and use a new cached gTrack object from a GENCODE .gtf or .gff3 set GENCODE_DIR env variable to an existing local directory and run track.gencode(url_or_path_to_gencode_gtf) once, and then use track.gencode() subsequently to access that cached gTrack object.')
+    url <- sprintf("http://mskilab.com/gTrack/%s/", build)
+    cached.path <- file.path(url, "gencode.composite.rds")
+    cached.path.collapsed <- file.path(url, "gencode.composite.collapsed.rds")
+
+    todl = ifelse(gene.collapse, cached.path.collapsed, cached.path)
+    if (!file.url.exists(todl))
+      stop(paste0("Can't successfully download file from ", todl, ". Please check if this URL exists or if there is an issue with your internet connection"))
+
+    warning('Downloading GENCODE track for genome build ', build, ' from ', ifelse(gene.collapse, cached.path.collapsed, url), ' - for quicker loading, download this file locally and point GENCODE_DIR environment variable to the enclosing directory.  To generate and use a new cached gTrack object from a GENCODE .gtf or .gff3 set GENCODE_DIR env variable to an existing local directory and run track.gencode(url_or_path_to_gencode_gtf) once, and then use track.gencode() subsequently to access that cached gTrack object.')
   }
 
   warning(sprintf(paste(ifelse(file.url.exists(cached.path), "Pulling", "Caching"),
-                    "gencode annotations from %s\n"),
+                    "gencode annotations from %s"),
               ifelse(gene.collapse, cached.path.collapsed, cached.path)))
 
   if (!cached | (!gene.collapse  & !file.url.exists(cached.path)) | (gene.collapse  & !file.url.exists(cached.path.collapsed)))  ## if no composite refgene copy, then make from scratch
@@ -2050,7 +2057,7 @@ track.gencode = function(gencode = NULL,
     {
       message('pulling GENCODE gtf from ', gencode)
       gencode = rtracklayer::import(gencode)
-      }
+    }
 
     cat('loaded gencode rds\n')
 
