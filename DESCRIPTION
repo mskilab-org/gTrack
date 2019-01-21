@@ -9,7 +9,14 @@ Authors@R: c(person(given = "Jeremiah", family = "Wala", role = c("aut"), email 
     "mimielinski@nygenome.org"))
 Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
-biocViews:
+Remotes: 
+  github::mskilab/gUtils,
+  bioc::3.8/GenomicRanges,
+  bioc::3.8/IRanges,
+  bioc::3.8/S4Vectors,
+  bioc::3.8/GenomeInfoDb,
+  bioc::3.8/BiocGenerics,
+  bioc::3.8/rtracklayer     
 Depends:
     R (>= 3.1.0),
     GenomicRanges (>= 1.8),
@@ -31,7 +38,7 @@ LinkingTo: Rcpp
 License: GPL-2
 LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.1
 Suggests:
     testthat,
     spatstat

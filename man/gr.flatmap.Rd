@@ -4,8 +4,8 @@
 \alias{gr.flatmap}
 \title{gr.flatmap}
 \usage{
-gr.flatmap(gr, windows, gap = 0, strand.agnostic = TRUE, squeeze = FALSE,
-  xlim = c(0, 1))
+gr.flatmap(gr, windows, gap = 0, strand.agnostic = TRUE,
+  squeeze = FALSE, xlim = c(0, 1))
 }
 \arguments{
 \item{gr}{\code{GRanges} pile to flatten}

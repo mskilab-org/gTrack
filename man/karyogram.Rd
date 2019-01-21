@@ -4,8 +4,8 @@
 \alias{karyogram}
 \title{karyogram}
 \usage{
-karyogram(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e+06,
-  ...)
+karyogram(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE,
+  tel.width = 2e+06, ...)
 }
 \arguments{
 \item{hg19}{logical scalar flag, if T returns gTrack for hg19}

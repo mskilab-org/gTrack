@@ -1238,7 +1238,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
   dotdot.args = list(...);
 
             ## parse the wind<ows into GRanges
-            windows = format_windows(windows, .Object)
+  windows = format_windows(windows, .Object)
 
   windows = windows[width(windows)>0]
 
@@ -1863,14 +1863,21 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 #' @param ... Additional arguments sent to the \code{gTrack} constructor
 #' @export
 #' @author Marcin Imielinski
-karyogram = function(hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
+karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.width = 2e6, ... )
 {
   #    ucsc.bands = get_ucsc_bands(hg19 = hg19)
 
-  if (hg19)
-    ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg19.rds", package = 'gTrack'))
+  if (is.null(file))
+    {
+      if (hg19)
+        ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg19.rds", package = 'gTrack'))
+      else
+        ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg18.rds", package = 'gTrack'))
+    }
   else
-    ucsc.bands = readRDS(system.file("extdata", "ucsc.bands.hg18.rds", package = 'gTrack'))
+  {
+    ucsc.bands = dt2gr(fread(file, header = FALSE)[, .(seqnames = V1, start = V2, end = V3, band = V4, stain = V5)])
+  }
 
   if (bands)
   {
@@ -2091,13 +2098,11 @@ track.gencode = function(gencode = NULL,
     values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
     values(gencode.composite)$gene_sym = values(gencode.composite)$id
 
-    cat('saving gene collapsed track\n')
     if (!grepl("^http",cached.path.collapsed)) {
       cat('saving gene collapsed track\n')
       saveRDS(gencode.composite, cached.path.collapsed)
     }
-
-    
+   
     tmp.t = tmp[tmp$type != 'gene']
     gencode.composite = split(tmp.t, tmp.t$transcript_id)
     gn = grl.eval(gencode.composite, gene_name[1])
@@ -2670,7 +2675,6 @@ draw.grl = function(grl,
                     ...)
 {
     now = Sys.time();
-
     ## PATCH: we are forgetting about any ylim.subplot settings done above .. WHY?
     ylim.subplot = NULL
     empty.plot = FALSE
@@ -2838,7 +2842,6 @@ draw.grl = function(grl,
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
-
 
       gr = tryCatch(grl.unlist(grl), error = function(e)
       {
@@ -3111,17 +3114,18 @@ draw.grl = function(grl,
           grl.segs$y.relbin = NA
 
           ## we want to layout paths so that we prevent collissions between different paths
+
           grl.segs$y.relbin[unlist(ix.l)] = unlist(lapply(ix.l, function(ix)
           {
             # find runs where start[i+1]>end[i] and strand[i] == strand[i+1] = '+'
-            # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'
+                                        # and end[i+1]<start[i] and strand[i] == strand[i+1] = '-'
             if (length(ix)>1)
             {
               iix = 1:(length(ix)-1)
               concordant = ((grl.segs$pos1[ix[iix+1]] >= grl.segs$pos2[ix[iix]]
                              & grl.segs$strand[ix[iix+1]] != '-' & grl.segs$strand[ix[iix]] != '-') |
-                              (grl.segs$pos1[ix[iix+1]] <= grl.segs$pos2[ix[iix]]
-                                  & grl.segs$strand[ix[iix+1]] == '-' & grl.segs$strand[ix[iix]] == '-'))
+                              (grl.segs$pos2[ix[iix+1]] <= grl.segs$pos1[ix[iix]]
+                                & grl.segs$strand[ix[iix+1]] == '-' & grl.segs$strand[ix[iix]] == '-'))
               return(c(0, cumsum(!concordant)))
             }
             else
@@ -3186,6 +3190,7 @@ draw.grl = function(grl,
             grl.segs$y = affine.map(grl.segs$y.bin, tmp.ylim)
           }
         }
+
         if (verbose) {
           print('After agg')
           print(Sys.time() - now)
@@ -3502,7 +3507,6 @@ draw.grl = function(grl,
     if (!is.na(lines))
       if (lines)
         grl.segs = grl.segs[order(grl.segs$pos1), ]
-
 
     draw.ranges(grl.segs, y = grl.segs$y, group = grl.segs$group, col = grl.segs$col, border = grl.segs$border, ylim = ylim, xlim = xlim, lwd = grl.segs$ywid, draw.backbone = draw.backbone, angle = angle, col.backbone = col.backbone, points = points, circles = circles, bars = bars, y0.bar = y0.bar, lines = lines, cex.label = gr.cex.label, srt.label = gr.srt.label, adj.label = gr.adj.label, ...)
 
@@ -4830,6 +4834,10 @@ gr.stripstrand = function(gr)
 format_windows <- function(windows, .Object) {
     if (is(windows, 'character'))
         windows = BiocGenerics::unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+
+    if (length(windows)==0)
+      stop('Empty windows provided or error parsing windows - may want to check intervals against DEFAULT_GENOME environment variable or output of hg_seqlengths()')
+
 
     if (is(windows, 'Seqinfo'))
         windows = si2gr(windows)
