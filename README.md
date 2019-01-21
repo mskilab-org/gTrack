@@ -11,8 +11,9 @@ R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges,
 
 Installation
 -----------
+1. Install R-3.5
 
-1. Install devtools
+2. Install devtools
 
 ```{r}
 install.packages('devtools')
@@ -21,8 +22,9 @@ install.packages('testthat')
 2. Install gTrack and dependent packages
 
 ```{r}
-## set this for R-3.5.2 
-Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = TRUE)
+## allows dependencies that throw warnings to install
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = TRUE) 
+
 
 devtools::install_github('mskilab/gTrack)
 ```
