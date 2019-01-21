@@ -17,7 +17,6 @@ Installation
 ```{r}
 install.packages('devtools')
 install.packages('testthat')
-
 ```
 2. Install gTrack and dependent packages
 
