@@ -11,13 +11,13 @@ before_install:
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
+  - export R_REMOTES_NO_ERRORS_FROM_WARNINGS=TRUE
 install:
   - ./travis-tool.sh install_bioc_deps
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_github r-lib/testthat
   - ./travis-tool.sh install_github mskilab/gUtils
   - ./travis-tool.sh install_github r-lib/covr
-  - export R_REMOTES_NO_ERRORS_FROM_WARNINGS=TRUE
 
 script: ./travis-tool.sh run_tests
 
