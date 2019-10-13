@@ -326,7 +326,7 @@ gTrack = function(data = NULL, ##
                   y0 = NA,
                   y1 = NA,
                   m.sep.lwd = 1,
-                  m.bg.col = NA,
+#                  m.bg.col = NA,  ## DEPRECATED
                   cmap.min = NA,
                   cmap.max = NA,
     labels.suppress = FALSE,
@@ -353,7 +353,7 @@ gTrack = function(data = NULL, ##
         labels.suppress = labels.suppress, labels.suppress.gr = labels.suppress.gr, labels.suppress.grl = labels.suppress.grl,
       xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
       xaxis.cex.tick = xaxis.cex.tick, sep.lty = sep.lty, sep.lwd = sep.lwd, sep.bg.col = sep.bg.col,
-      sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, m.bg.col = m.bg.col,
+      sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, #m.bg.col = m.bg.col,
       cmap.min = cmap.min, cmap.max = cmap.max, bg.col = bg.col)
 }
 
@@ -1209,8 +1209,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
                    legend.params = list(),
                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                    )
-{
-
+{  
   if (!missing(y))
     windows = y
   
@@ -1223,6 +1222,10 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 
   if (is(windows, 'character'))
       windows = unlist(parse.grl(windows, seqlengths(seqinfo(.Object))))
+
+ if (is(windows, 'GRangesList'))
+      windows = unlist(windows)
+
 
   ## make sure we have min legend data
   if (!"xpos" %in% names(legend.params))
@@ -1489,6 +1492,22 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = formatting(.Object)$y.cap[j])
       else
         this.y = affine.map(values(tmp.dat)[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks), cap = TRUE)
+
+    ## scale ywid to axes
+    if (!is.na(formatting(.Object)$ywid[j]))
+    {
+      if (is.na(formatting(.Object)$y.field[j])) ## if no y.field then ignore ywid
+      {
+        all.args$ywid = formatting(.Object)$ywid[j] = NA
+
+      }
+      else ## scale it
+      {
+        all.args$ywid = formatting(.Object)$ywid[j] = formatting(.Object)$ywid[j] * abs(diff(unlist(this.ylim.subplot[j, ]))) / diff(range(this.y.ticks))
+      }
+    }
+
+
       #                            this.y = affine.map(values(dat(.Object)[[j]])[, this.y.field], ylim = unlist(this.ylim.subplot[j, ]), xlim = range(this.y.ticks))
 
       ## if need, bump the range to include ybar base
@@ -1514,7 +1533,6 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
         formatting(.Object)$bars[j] = FALSE
     else if (is.na(.Object[j]$bars))
         formatting(.Object)$bars[j] = FALSE
-
 
     if (.Object[j]$bars && is.na(all.args$y0.bar))
         all.args$y0.bar = this.ylim.subplot[j, 1]
@@ -1620,13 +1638,13 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
     ##arrg <- c(arrg, form[!names(form) %in% names(arrg)]) ## add in remaining args
 
     window.segs = list();
-    ##window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
+    ## window.segs[[i]] = do.call('draw.grl', c(main.args, other.args))
 
     if (formatting(.Object[j])$triangle)
     {
-        all.args$sigma= all.args$smooth
-      window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma",
-                                                                                   "cmap.min","cmap.max", "m.sep.lwd","m.bg.col","legend","leg.params",
+      all.args$sigma= all.args$smooth
+      window.segs[[i]] <- do.call('draw.triangle', all.args[names(all.args) %in% c("grl","y","mdata","ylim.parent","windows","win.gap","sigma", "max.ranges",
+                                                                                   "cmap.min","cmap.max", "m.sep.lwd","legend","leg.params",
                                                                                    "islog","gr.colormap")])
     } else {
       window.segs[[i]] <- do.call('draw.grl', all.args)
@@ -1648,6 +1666,9 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 
   if (length(links)>0) # draw rearrangement links
   {
+    if (!inherits(links, 'GRangesList'))
+      stop('links must be a GRangesList')
+
     # first map rearrangements to various windows>
     win.u = this.windows
     win.u$grl.ix = 1  ##holdover from grangeslist windows
@@ -1665,8 +1686,8 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 
     ## flip strands to conform to connectors convention (- connection to left side and + is connection to right side)
     ## with ra specification convention (- refers to segment to left of breakpoint and + refers to segment to right)
-    GenomicRanges::strand(links.p[[1]]) = c("-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[1]]))]
-    GenomicRanges::strand(links.p[[2]]) = c("-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[2]]))]
+    GenomicRanges::strand(links.p[[1]]) = c("*"= "-", "-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[1]]))]
+    GenomicRanges::strand(links.p[[2]]) = c("*" = "+", "-" = "+", "+" = "-")[as.character(GenomicRanges::strand(links.p[[2]]))]
 
     ## find overlaps with windows and calculate their window specific coordinates
     l1 = gr.findoverlaps(links.p[[1]], win.u)
@@ -3422,23 +3443,18 @@ draw.grl = function(grl,
     if (!is.null(line.loc))
       fact = pmax(10, pmin(1000, fact))
 
-    #        if (!is.null(line.loc))
-    #            grl.segs$ywid = pmin(tmp.ydiff / fact, min(diff(line.loc))/2) * grl.segs$ywid
-    #            grl.segs$ywid = pmin(tmp.ydiff / fact, min(diff(line.loc))/2) * grl.segs$ywid
-    #        else
-
-    ywid = tmp.ydiff / fact
-
-    if (!is.null(line.loc))
-      ywid = pmin(ywid, min(c(1, diff(sort(unique(grl.segs$y))))*2)) ## want to be able to see a minimal difference between data points
-
-    if (!is.null(line.loc)) ## don't want segments to be fatter than a grid unit
-      ywid = pmin(min(diff(line.loc))/2, ywid)
-
+    ## if ywid not provided then create from tmp.ydiff and then scale to new axis
+    if (is.null(ywid) || is.na(ywid))
+      {
+        ywid = tmp.ydiff / fact
+        if (!is.null(line.loc))
+          ywid = pmin(ywid, min(c(1, diff(sort(unique(grl.segs$y))))*2)) ## want to be able to see a minimal difference between data points
+        
+        if (!is.null(line.loc)) ## don't want segments to be fatter than a grid unit
+          ywid = pmin(min(diff(line.loc))/2, ywid)        
+      }
+        
     grl.segs$ywid  = ywid * grl.segs$ywid
-
-    #            grl.segs$ywid[na.ix] = min((max(grl.segs$y[na.ix])-min(grl.segs$y[na.ix]))/length(unique(grl.segs$y))/1.25, diff(ylim.subplot)/5)
-    #          }
 
 
     #########################################
@@ -3514,7 +3530,11 @@ draw.grl = function(grl,
     ##
     if (draw.paths)
     {
-      grl.segs = grl.segs[order(grl.segs$grl.ix, grl.segs$grl.iix), ]
+      grl.segs = grl.segs[
+        order(grl.segs$grl.ix, # walk id
+              grl.segs$grl.iix, # walk segment
+              ifelse(grl.segs$strand=='+', 1, -1)*grl.segs$start) ## break ties in strand aware manner if walk segment spread across multiple (window) segments
+      , ]
       ix.l = split(1:nrow(grl.segs), grl.segs$group)
       grl.segs$ctype = NA;  ## connector type
 
@@ -3560,6 +3580,7 @@ draw.grl = function(grl,
           else if (grl.segs$strand[ix[length(ix)]] == '+' & grl.segs$strand[ix[1]] == '+')
             out = rbind(out, data.frame(ix0 = ix[length(ix)], ix1 = ix[1], type = 'S', cyclic = T, sign = '-', stringsAsFactors = F))
         }
+
         return(out)
       }))
 
@@ -3571,6 +3592,7 @@ draw.grl = function(grl,
 
         path.v = rep(path.cex.v, nrow(connector.args))
         path.v[is.na(connector.args$ix0) | is.na(connector.args$ix1)] = path.cex.v*2*grl.segs$ywid[connector.args$ix0[is.na(connector.args$ix0) | is.na(connector.args$ix1)]]
+#        path.v[is.na(connector.args$ix0) | is.na(connector.args$ix1)] = path.cex.v*2*grl.segs$ywid[connector.args$ix0[is.na(connector.args$ix0) | is.na(connector.args$ix1)]]
 
         #                path.v[!is.na(connector.args$ix0)] = path.cex.v*2*grl.segs$ywid[connector.args$ix0[!is.na(connector.args$ix0)]]
         #               path.v[!is.na(connector.args$ix1)] = pmax(path.v[!is.na(connector.args$ix1)],
@@ -4329,7 +4351,7 @@ draw.triangle <- function(grl,mdata,y,
                           ylim.parent=NULL,
                           windows = NULL,
                           win.gap = NULL,
-                          m.bg.col = NA,
+#$                          m.bg.col = NA, ## DEPRECATED, it is now cmin
                           sigma = NA, ## if not NA then will blur with a Gaussian filter using a sigma value of this many base pairs
                           col.min='white',
                           col.max='red',
@@ -4338,6 +4360,7 @@ draw.triangle <- function(grl,mdata,y,
                           cmap.max = NA,
                           m.sep.lwd = NA,
                           legend = TRUE,
+                          max.ranges = Inf, 
                           leg.params = list(),
                           min.gapwidth = 1,
                           islog = FALSE) {
@@ -4348,7 +4371,6 @@ draw.triangle <- function(grl,mdata,y,
   # }
 
   ylim.subplot = NULL
-
   xlim = c(0, 20000)
   if (is.list(y)) {
     if (all(c('start', 'end') %in% names(y)))
@@ -4362,8 +4384,8 @@ draw.triangle <- function(grl,mdata,y,
   } else {
     gr <- grl
   }
-
-  ##assume grl is always non zero
+ 
+ ##assume grl is always non zero
   if (is.null(mdata)) {
     mdata = matrix(nrow=length(gr), ncol=length(gr), 0)
   } else if (nrow(mdata) != length(gr)) {
@@ -4386,7 +4408,17 @@ draw.triangle <- function(grl,mdata,y,
   grl.segs = mapped$grl.segs;
   window.segs = mapped$window.segs;
   winlim = range(c(window.segs$start, window.segs$end + 1)) ## 3/20/16 added +1
-  mdata = as.matrix(mdata)[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)]
+  #mdata = as.matrix(mdata)[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id)]
+  mdata = mdata[as.numeric(grl.segs$query.id), as.numeric(grl.segs$query.id), drop = FALSE]
+
+  #' mimielinski Monday, Jan 28, 2019 12:27:43 AM
+  if (nrow(grl.segs) > max.ranges)
+  {
+    ix = sample(nrow(grl.segs), max.ranges)
+    grl.segs = grl.segs[ix,]
+    if (!is.null(mdata))
+      mdata = mdata[ix, ix, drop = FALSE]
+  }
 
   if (!is.na(sigma)) ## MARCIN: if blur use spatstat library to blur matrix for n base pairs but making sure we don't bleed across windows
   {
@@ -4401,6 +4433,7 @@ draw.triangle <- function(grl,mdata,y,
       mdata[tmp.i, tmp.j] = as.matrix(spatstat::blur(spatstat::im(mdata[tmp.i, tmp.j], xcol = grl.segs$start[tmp.j], yrow = grl.segs$end[tmp.i]), sigma = sigma))
     }
   }
+
   if (nrow(mdata) != nrow(grl.segs))
     warning('problem after flatmap. Should have trimmed matrix to len(gr)')
 
@@ -4433,12 +4466,34 @@ draw.triangle <- function(grl,mdata,y,
   ## draw blank background
   rect(xlim[1]-diff(xlim)*0.1, ylim.subplot[1], xlim[2], ylim.subplot[2], border = NA, col = par('bg'))
 
-  ## draw the background BOXES
+  ## set the color scale 
+  if (is.na(cmap.min))
+    cmap.min = quantile(mdata, 0.01)
+
+  if(is.na(cmap.max))
+    cmap.max = quantile(mdata, 0.99)
+
+   #cs <- col.scale(seq(cmap.min, cmap.max), val.range=c(cmap.min, cmap.max), col.min=col.min, col.max=col.max)
+  if (all(is.na(gr.colormap)))
+    gr.colormap = c("light green", "yellow", "orange", "red")
+  else if (is.list(gr.colormap))
+    gr.colormap = unlist(gr.colormap)
+
+  cs <- colorRampPalette(gr.colormap)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))
+
+  ## MARCIN: changed m.bg.col to be equal to cmap.min, ie we just draw it as part of the background
+  ## and save drawing a subset (or majority) of pixels (e.g. those valued 0) if they are just
+  ## "background"
+  ## TODO: what if the "background" pixels are not 0 or cmap.min? would be nice to save on drawing
+  ## then too ... 
+  m.bg.col = cs[1]
+ 
+  ## draw the background BOXES using the min color
   if (nrow(window.segs) > 1) {
     bgx = .all.xpairs(window.segs$start, window.segs$end)
     out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1)
 
-    ## affine map to local coorinates
+    ## affine map to local coordinates
     out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
     if (m.sep.lwd > 0)
       polygon(out$x, out$y, col=m.bg.col, lwd=m.sep.lwd)
@@ -4464,42 +4519,37 @@ draw.triangle <- function(grl,mdata,y,
   ################
 
   ## set the color scale
-  bgx = .all.xpairs(grl.segs$pos1, grl.segs$pos2)
-  col = mdata[matrix(nrow=nrow(bgx), ncol=2, c(bgx[,5], bgx[,6]))]
-  out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)
+  #bgx = .all.xpairs(grl.segs$pos1, grl.segs$pos2)
+  ij = as.data.table(Matrix::which(mdata>cmap.min, arr.ind = TRUE))
+  setnames(ij, c('i', 'j'))
+  setkeyv(ij, c('i', 'j'))
+  bgx = data.frame(grl.segs$pos1[ij$i], grl.segs$pos2[ij$i],
+                 grl.segs$pos1[ij$j], grl.segs$pos2[ij$j],
+                 ij$i, ij$j)
 
-  ## set the color scale
-  if (is.na(cmap.min))
-    #      cmap.min = min(mdata)
-    cmap.min = quantile(mdata, 0.01)
+  if (nrow(bgx)>0)
+  {
+    col = mdata[cbind(bgx[,5], bgx[,6])]
+    out <- diamond(bgx[,1], bgx[,2], bgx[,3], bgx[,4], y0, y1, col)
 
-  if(is.na(cmap.max))
-    cmap.max = quantile(mdata, 0.99)
+    ## affine map to local coorinates
+    out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
+    ix.min <- out$col < cmap.min
+    ix.max <- out$col > cmap.max
+    out$col[ix.min | ix.max] <- NA
+    cr <- rep('black', length(out$col))
+    cr[!is.na(out$col)] <- cs[floor(affine.map(out$col[!is.na(out$col)], xlim = c(cmap.min, cmap.max), ylim=c(1,100)))]
+    cr[ix.min] <- cs[1] ## deal with cmap.min and cmap.max MARCIN: 
+    cr[ix.max] <- cs[length(cs)] ## deal with cmap.min and cmap.max
 
+#    cr[ix.min] <- 'white' ## deal with cmap.min and cmap.max MARCIN: 
+ #   cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
+    polygon(out$x, out$y, col=cr, border=NA)
+ }
 
-   #cs <- col.scale(seq(cmap.min, cmap.max), val.range=c(cmap.min, cmap.max), col.min=col.min, col.max=col.max)
-  if (all(is.na(gr.colormap)))
-    gr.colormap = c("light green", "yellow", "orange", "red")
-  else if (is.list(gr.colormap))
-    gr.colormap = unlist(gr.colormap)
-
-  cs <- colorRampPalette(gr.colormap)(length(seq(cmap.min, cmap.max, by=(cmap.max-cmap.min)/100)))
-
-  ## affine map to local coorinates
-  out$y[!is.na(out$y)] <- affine.map(out$y[!is.na(out$y)], xlim=dlim, ylim=ylim.subplot)
-  ix.min <- out$col < cmap.min
-  ix.max <- out$col > cmap.max
-  out$col[ix.min | ix.max] <- NA
-  cr <- rep('black', length(out$col))
-  cr[!is.na(out$col)] <- cs[floor(affine.map(out$col[!is.na(out$col)], xlim = c(cmap.min, cmap.max), ylim=c(1,100)))]
-  cr[ix.min] <- 'white' ## deal with cmap.min and cmap.max
-  cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
 
   ## plot the triangles part
-  polygon(out$x, out$y, col=cr, border=NA)
-
-  ## plot the triangles part
-  col = diag(mdata)
+  col = Matrix::diag(mdata)
   out.t = triangle(grl.segs$pos1, grl.segs$pos2, y0, y0, y1, col=col)
   out.t$y[!is.na(out.t$y)] <-
     affine.map(out.t$y[!is.na(out.t$y)], xlim=dlim, ylim=ylim.subplot)
@@ -4508,8 +4558,10 @@ draw.triangle <- function(grl,mdata,y,
   out.t$col[ix.min | ix.max] <- NA
   cr <- rep('black', length(out.t$col))
   cr[!is.na(out.t$col)] <- cs[floor(affine.map(out.t$col[!is.na(out.t$col)], xlim = c(cmap.min, cmap.max), ylim=c(1,100)))]
-  cr[ix.min] <- 'white' ## deal with cmap.min and cmap.max
-  cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
+  cr[ix.min] <- cs[1] ## deal with cmap.min and cmap.max MARCIN: 
+  cr[ix.max] <- cs[length(cs)] ## deal with cmap.min and cmap.max
+#  cr[ix.min] <- 'white' ## deal with cmap.min and cmap.max
+#  cr[ix.max] <- 'black' ## deal with cmap.min and cmap.max
   #cr <- cs[ceiling(out.t$col) - cmap.min + 1]
   polygon(out.t$x, out.t$y, col=cr, border=NA)
 
@@ -4545,7 +4597,6 @@ draw.triangle <- function(grl,mdata,y,
 #' @author Jeremiah Wala
 #' @keywords internal
 clip_polys <- function(dt, y0, y1) {
-
   ## fix global def NOTE
   y2 <- y3 <- y4 <- y5 <- y6 <- NULL
   left <- x3.tmp <- x3 <- y3.tmp <- lean.sign <- NULL
@@ -4626,8 +4677,7 @@ clip_polys <- function(dt, y0, y1) {
 #' @author Jeremiah Wala
 #' @keywords internal
 diamond <- function (x11, x12, x21, x22, y0, y1, col=NULL) {
-
-
+  
   i1 = i2 = .geti(x12, x21)
   i3 = .geti(x11, x21)
   i4 = i5 = .geti(x11, x22)
@@ -4721,14 +4771,19 @@ triangle <- function(x1, x2, y, y0, y1, col=NULL) {
     return(matrix())
   }
 
-  num.boxes = sum(seq(1, length(start)-1))
+  ## num.boxes = sum(seq(1, length(start)-1))
 
-  sr = seq(1, length(start)-1)
-  rsr = rev(sr)
-  ir = rep(sr, rsr)
-  jr = unlist(lapply(seq(2,length(start)), function(x) seq(x,length(start))))
+  ## sr = seq(1, length(start)-1)
+  ## rsr = rev(sr)
+  ## ir = rep(sr, rsr)
+  ## jr = unlist(lapply(seq(2,length(start)), function(x) seq(x,length(start))))
 
-  bgx = matrix(c(start[ir], end[ir], start[jr], end[jr], ir, jr), nrow=num.boxes, ncol=6)
+  ## bgx = matrix(c(start[ir], end[ir], start[jr], end[jr], ir, jr), nrow=num.boxes, ncol=6)
+
+  ## MARCIN speed up, but likely unnecessary
+  ij = as.data.table(expand.grid(i = 1:length(start), j = 1:length(end)))[i<j, ]
+  setkeyv(ij, c('i', 'j'))
+  bgx = matrix(c(start[ij$i], end[ij$i], start[ij$j], end[ij$j], ij$i, ij$j), nrow = nrow(ij), ncol = 6)
 
   return(bgx)
 
@@ -5590,7 +5645,7 @@ get_seqinfo <- function(.Object, seqinfo) {
 
 #' @importFrom data.table as.data.table
 #' @importFrom gUtils dt2gr
-#' @name tack.straw
+#' @name track.straw
 #' @title track.straw
 #' @description
 #' queries .hic object via straw API https://github.com/theaidenlab/straw/tree/master/R
