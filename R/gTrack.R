@@ -5741,19 +5741,19 @@ get_seqinfo <- function(.Object, seqinfo) {
 ##   return(gt) 
 ## }
 
-## ## convert input data into a list of length 'len' of type FUN
-## listify <- function(x, FUN, len = 1) {
-##   if (is.null(x))
-##     return(rep(list(FUN()), len))
-##   if (!is.list(x))
-##     return(list(x))
-##   return(x)
-## }
+## convert input data into a list of length 'len' of type FUN
+listify <- function(x, FUN, len = 1) {
+  if (is.null(x))
+    return(rep(list(FUN()), len))
+  if (!is.list(x))
+    return(list(x))
+  return(x)
+}
 
-## alpha = function(col, alpha)
-## {
-##   col.rgb = col2rgb(col)
-##   out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
-##   names(out) = names(col)
-##   return(out)
-## }
+alpha = function(col, alpha)
+{
+  col.rgb = col2rgb(col)
+  out = rgb(red = col.rgb['red', ]/255, green = col.rgb['green', ]/255, blue = col.rgb['blue', ]/255, alpha = alpha)
+  names(out) = names(col)
+  return(out)
+}
