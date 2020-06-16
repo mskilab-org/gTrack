@@ -1,6 +1,4 @@
 #' @importFrom data.table data.table
-#' @importFrom Rcpp sourceCpp
-#' @useDynLib gTrack
 #'
 #' @section Slots:
 #' \describe{
