@@ -4,16 +4,34 @@
 \alias{track.gencode}
 \title{Constructor a \code{gTrack} from GENCODE transcripts}
 \usage{
-track.gencode(gencode = NULL, gene.collapse = TRUE, genes = NULL,
-  grep = NULL, grepe = NULL, build = "hg19", bg.col = alpha("blue",
-  0.1), cds.col = alpha("blue", 0.6), utr.col = alpha("purple", 0.4),
-  st.col = "green", en.col = "red", grl.labelfield, gr.labelfield, col,
-  cached = T, cached.dir = Sys.getenv("GENCODE_DIR"),
+track.gencode(
+  gencode = NULL,
+  gene.collapse = TRUE,
+  genes = NULL,
+  grep = NULL,
+  grepe = NULL,
+  build = "hg19",
+  bg.col = alpha("blue", 0.1),
+  cds.col = alpha("blue", 0.6),
+  utr.col = alpha("purple", 0.4),
+  st.col = "green",
+  en.col = "red",
+  grl.labelfield,
+  gr.labelfield,
+  col,
+  cached = T,
+  cached.dir = Sys.getenv("GENCODE_DIR"),
   cached.path = paste(cached.dir, "gencode.composite.rds", sep = "/"),
-  cached.path.collapsed = paste(cached.dir,
-  "gencode.composite.collapsed.rds", sep = "/"), gr.srt.label = 0,
-  gr.cex.label = 0.3, cex.label = 0.5, labels.suppress.gr = T,
-  drop.rp11 = TRUE, stack.gap = 1e+06, ...)
+  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep =
+    "/"),
+  gr.srt.label = 0,
+  gr.cex.label = 0.3,
+  cex.label = 0.5,
+  labels.suppress.gr = T,
+  drop.rp11 = TRUE,
+  stack.gap = 1e+06,
+  ...
+)
 }
 \arguments{
 \item{gencode}{(optional) path to GENCODE gtf from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )}
