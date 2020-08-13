@@ -1210,6 +1210,8 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
                    links.feat = NULL, # links features override for links (must be nrow 1 or length(links) data frame
                    verbose=FALSE,
                    legend.params = list(),
+                   ylab.angle = -90,
+                   ylab.adj = c(0.5, 1),
                    ... ## additional args to draw.grl OR last minute formatting changes to gTrack object
                    )
 {  
@@ -1663,7 +1665,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
     {
       this.cex.ylabel = ifelse(!is.null(formatting(.Object[j])$cex.ylabel), formatting(.Object[j])$cex.ylabel, cex.ylabel)
       text(par('usr')[2], mean(unlist(this.ylim.subplot[j, c('start', 'end')])),
-           this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
+           this.tname, srt = ylab.angle, adj = ylab.adj, cex = this.cex.ylabel)
     }
 
   }
