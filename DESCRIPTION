@@ -15,7 +15,8 @@ Remotes:
   bioc::3.10/IRanges,
   bioc::3.10/S4Vectors,
   bioc::3.10/GenomeInfoDb,
-  bioc::3.10/rtracklayer     
+  bioc::3.10/rtracklayer,
+  bioc::3.10/IRanges
 Depends:
     R (>= 3.6.0),
     GenomicRanges (>= 1.8),
