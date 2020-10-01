@@ -11,14 +11,13 @@ Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
 Remotes: 
   github::mskilab/gUtils,
-  bioc::3.8/GenomicRanges,
-  bioc::3.8/IRanges,
-  bioc::3.8/S4Vectors,
-  bioc::3.8/GenomeInfoDb,
-  bioc::3.8/BiocGenerics,
-  bioc::3.8/rtracklayer     
+  bioc::3.10/GenomicRanges,
+  bioc::3.10/IRanges,
+  bioc::3.10/S4Vectors,
+  bioc::3.10/GenomeInfoDb,
+  bioc::3.10/rtracklayer     
 Depends:
-    R (>= 3.5.0),
+    R (>= 3.6.0),
     GenomicRanges (>= 1.8),
     data.table, 
     gUtils
