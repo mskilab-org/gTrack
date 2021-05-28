@@ -1,3 +1,6 @@
+#' @exportMethod with
+#' @exportMethod within
+
 #' @importFrom data.table data.table
 #'
 #' @section Slots:
@@ -1158,9 +1161,17 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
     return(rout)
 }
 
+## #' @name plot
+## #' @title plot method
+## #'
+## #' @export
+## plot = function(x, y, ...) {
+##     UseMethod("plot")
+## }
 
-#' @name plot
+#' @name plot.gTrack
 #' @title plot
+#' 
 #' @description
 #' Plot gTrack object in multi-track genome browser view.  gTracks will appear as stacked interval
 #' plots, line / bar / scatter plots, node-edge graphs, or triangle plots depending on the formatting
@@ -1190,14 +1201,11 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 #' @param ..., additional last-minute formatting changes to the gtrack can be entered here (eg col = 'blue')
 #'
 #' @docType methods
-#' @rdname plot-methods
 #' @author Marcin Imielinski, Jeremiah Wala
-#' @aliases plot,gTrack,ANY-method
-#' @export
-
-## setMethod('plot', c("gTrack","ANY"),
-##           #signature(x = "gTrack", y = "ANY"),
-'plot.gTrack' =  function(x,  ##pplot  (for easy search)
+#'
+#' @export plot.gTrack
+#' @export 
+"plot.gTrack" =  function(x,  ##pplot  (for easy search)
                    y,
                    windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
                    links = NULL, ## GRangesList of pairs of signed locations,
@@ -1661,9 +1669,16 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 
     if (!is.na(this.tname))
     {
+      ylab.las = if (length(dotdot.args[["ylab.las"]]) == 0) 0 else dotdot.args[["ylab.las"]]
+      ylab.adj = if (length(dotdot.args[["ylab.adj"]]) == 0) c(0.5, 1) else dotdot.args[["ylab.adj"]]
+      if (ylab.las %in% c(0,3)) {
+          ylab.angle = -90
+      } else if (ylab.las %in% c(1,2)) {
+          ylab.angle = 0
+      }
       this.cex.ylabel = ifelse(!is.null(formatting(.Object[j])$cex.ylabel), formatting(.Object[j])$cex.ylabel, cex.ylabel)
       text(par('usr')[2], mean(unlist(this.ylim.subplot[j, c('start', 'end')])),
-           this.tname, srt = -90, adj = c(0.5, 1), cex = this.cex.ylabel)
+           this.tname, srt = ylab.angle, adj = ylab.adj, cex = this.cex.ylabel)
     }
 
   }
@@ -1871,6 +1886,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
   }
 
 }
+ 
 #})
 
 ###############
@@ -5757,3 +5773,24 @@ alpha = function(col, alpha)
   names(out) = names(col)
   return(out)
 }
+
+
+##########
+##########
+##########
+
+setGeneric('with')
+setMethod("with", signature(data = "gTrack"), NULL)
+setMethod("with", signature(data = "gTrack"), function(data, expr) {
+    df = as.data.frame(formatting(data))
+    eval(substitute(expr, parent.frame()), df, parent.frame())
+p})
+
+setGeneric('within')
+setMethod("within", signature(data = "gTrack"), NULL)
+setMethod("within", signature(data = "gTrack"), function(data, expr) {
+    e = list2env(as.list(formatting(data)))
+    eval(substitute(expr, parent.frame()), e, parent.frame())
+    formatting(data) = as.data.frame(as.list(e))[, c(colnames(formatting(data))),drop = FALSE]
+    return(data)
+})

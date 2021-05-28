@@ -4,7 +4,7 @@
 \alias{plot.blank}
 \title{plot.blank}
 \usage{
-plot.blank(
+\method{plot}{blank}(
   xlim = c(0, 1),
   ylim = c(0, 1),
   xlab = "",
