@@ -1204,7 +1204,7 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
 #' @author Marcin Imielinski, Jeremiah Wala
 #'
 #' @export plot.gTrack
-#' @export
+#' @export 
 "plot.gTrack" =  function(x,  ##pplot  (for easy search)
                    y,
                    windows = si2gr(seqinfo(x)), ## windows to plot can be Granges or GRangesList
