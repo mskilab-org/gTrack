@@ -2030,7 +2030,7 @@ read.rds.url <- function(f) {
 #' Returns gTrack object representing GENCODE transcripts and their components (utr, cds etc) with assigned colors.
 #' Usually built from cached data objects but can also be built from provided GRangesList
 #'
-#' @param gencode (optional) path to GENCODE gtf from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )
+#' @param gencode (optional) path to GENCODE gtf or a GRanges object from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )
 #' @param rg (optional) GRangesList representing transcript models imported from GENCODE gff3 file using rtracklayer import
 #' @param genes (optional) character vector specifying genes to limit gTrack object to
 #' @param gene.collapse scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)
@@ -2046,6 +2046,7 @@ read.rds.url <- function(f) {
 #' @param gr.srt.label scalar numeric specifying angle on exon label
 #' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
 #' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
+#' @param gencode.cols character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "label" then this column is included. "label" is regarded as a special case in which the value for each gene is assumes to be unique and the "label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'label' could be used in order for the "label" values to be show up when plotting the gencode gTrack.
 #' @param stack.gap stack.gap argument to gTrack
 #' @param ... additional arguments passed down to gTrack
 #'
@@ -2073,6 +2074,7 @@ track.gencode = function(gencode = NULL,
   labels.suppress.gr = T,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
+  gencode.cols = 'label',
   ...)
 {
 
@@ -2124,8 +2126,9 @@ track.gencode = function(gencode = NULL,
     ## utr3$type = 'UTR3'
     startcodon = gencode[gencode$type == 'start_codon']
     stopcodon = gencode[gencode$type == 'stop_codon']
-    OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type')
-    tmp = c(genes, tx, exons, utr, startcodon, stopcodon)[, OUT.COLS]
+    tmp = c(genes, tx, exons, utr, startcodon, stopcodon)
+    OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type', intersect(names(mcols(tmp)), gencode.cols))
+    tmp = tmp[, OUT.COLS]
 
     cat('extracted intervals\n')
 
@@ -2141,6 +2144,9 @@ track.gencode = function(gencode = NULL,
     gencode.composite = split(tmp.g, tmp.g$gene_name)
     values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
     values(gencode.composite)$gene_sym = values(gencode.composite)$id
+    if ('label' %in% names(mcols(tmp.g))){
+        values(gencode.composite)$label = grl.eval(gencode.composite, label[1])
+    }
 
     if (!grepl("^http",cached.path.collapsed)) {
       cat('saving gene collapsed track\n')
