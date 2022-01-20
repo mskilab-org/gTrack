@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mskilab/gTrack.svg?branch=master)](https://travis-ci.org/mskilab/gTrack)
+[![Build Status](https://travis-ci.com/mskilab/gTrack.svg?branch=master)](https://travis-ci.com/mskilab/gTrack)
 [![Documentation Status](https://readthedocs.org/projects/gtrack/badge/?version=latest)](http://gtrack.readthedocs.org/en/latest/?badge=latest)
 [![codecov.io](https://img.shields.io/codecov/c/github/mskilab/gTrack.svg)](https://codecov.io/github/mskilab/gTrack?branch=master)
 
