@@ -188,6 +188,8 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param height vector or scalar numeric specifying height of track(s) (in relative units)
 #' @param gr.labelfield vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)
 #' @param grl.labelfield vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)
+#' @param grl.colorfield vector or scalar character specifying which GRanges meta data field to use for GRangesList labels color (default "label.color") (formatting)
+#' @param grl.cexfield vector or scalar character specifying which GRanges meta data field to use for GRangesList labels cex (default "cex.label") (formatting)
 #' @param legend.maxitems Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]
 #' @param label.suppress vector or scalar logical flag specifying whether to suppress all GRanges / GRangesList label drawing  (formatting)
 #' @param label.suppress.gr vector or scalar logical flag specifying whether to suppress GRanges label drawing  (formatting)
@@ -310,6 +312,8 @@ gTrack = function(data = NULL, ##
                   edgevars = NA,
                   gr.labelfield = NA,
                   grl.labelfield = NA,
+                  grl.colorfield = NA,
+                  grl.cexfield = NA,
                   xaxis.prefix = "",
                   xaxis.unit = 1,
                   xaxis.suffix = "",
@@ -351,7 +355,7 @@ gTrack = function(data = NULL, ##
       bars = bars, triangle = triangle, ylab = ylab, max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
       y0.bar = y0.bar, yaxis = yaxis, yaxis.pretty = yaxis.pretty, yaxis.cex = yaxis.cex,
       chr.sub = chr.sub, edgevars = edgevars, gr.labelfield = gr.labelfield,
-      grl.labelfield = grl.labelfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
+      grl.labelfield = grl.labelfield, grl.colorfield = gr.colorfield, grl.cexfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
       xaxis.suffix = xaxis.suffix, xaxis.round = xaxis.round, xaxis.interval = xaxis.interval,
       xaxis.cex.label = xaxis.cex.label, xaxis.newline = xaxis.newline,
         xaxis.chronly = xaxis.chronly, xaxis.width = xaxis.width,
@@ -2046,8 +2050,9 @@ read.rds.url <- function(f) {
 #' @param gr.srt.label scalar numeric specifying angle on exon label
 #' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
 #' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
-#' @param gencode.cols character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "label" then this column is included. "label" is regarded as a special case in which the value for each gene is assumes to be unique and the "label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'label' could be used in order for the "label" values to be show up when plotting the gencode gTrack.
 #' @param stack.gap stack.gap argument to gTrack
+#' @param gencode.cols character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "label" then this column is included. "label" is regarded as a special case in which the value for each gene is assumes to be unique and the "label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'label' could be used in order for the "label" values to be show up when plotting the gencode gTrack.
+#' @param use.gene.ids (logical) use the gene_id column to name items in the GRangesList. By default set to FALSE to maintain backwards compatibility, which means "gene_name" is used to name items in the output. The problem with this is that gene_name is not unique. For example, 5S_rRNA is a gene_name that is associated with multiple different gene_id's, each representing a different copy of 5S_rRNA on various chromossomes. 
 #' @param ... additional arguments passed down to gTrack
 #'
 #' @export
@@ -2075,6 +2080,7 @@ track.gencode = function(gencode = NULL,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
   gencode.cols = 'label',
+  use.gene.ids = FALSE,
   ...)
 {
 
@@ -2127,7 +2133,7 @@ track.gencode = function(gencode = NULL,
     startcodon = gencode[gencode$type == 'start_codon']
     stopcodon = gencode[gencode$type == 'stop_codon']
     tmp = c(genes, tx, exons, utr, startcodon, stopcodon)
-    OUT.COLS = c('gene_name', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type', intersect(names(mcols(tmp)), gencode.cols))
+    OUT.COLS = c('gene_name', 'gene_id', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type', intersect(names(mcols(tmp)), gencode.cols))
     tmp = tmp[, OUT.COLS]
 
     cat('extracted intervals\n')
@@ -2141,11 +2147,18 @@ track.gencode = function(gencode = NULL,
     cat('reordered intervals\n')
 
     tmp.g = tmp[tmp$type != 'transcript']
-    gencode.composite = split(tmp.g, tmp.g$gene_name)
+    if (isTRUE(use.gene.ids)){
+        gencode.composite = split(tmp.g, tmp.g$gene_id)
+    } else {
+        gencode.composite = split(tmp.g, tmp.g$gene_name)
+    }
     values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
-    values(gencode.composite)$gene_sym = values(gencode.composite)$id
+    values(gencode.composite)$gene_sym = grl.eval(gencode.composite, gene_name[1])
     if ('label' %in% names(mcols(tmp.g))){
         values(gencode.composite)$label = grl.eval(gencode.composite, label[1])
+    }
+    if ('label.color' %in% names(mcols(tmp.g))){
+        values(gencode.composite)$label.color = grl.eval(gencode.composite, label.color[1])
     }
 
     if (!grepl("^http",cached.path.collapsed)) {
@@ -2668,6 +2681,8 @@ draw.grl = function(grl,
                     gr.colormap = NULL, ## named vector mapping fields in the gr.colorfield to colors, if unspecified brewer.master() will be applied
                     gr.labelfield = NULL, ## field of gr labels to draw.
                     grl.labelfield = NULL, ## field of grl to draw as label
+                    grl.colorfield = NULL, ## field of grl to set colors for labels
+                    grl.cexfield = NULL, ## field of grl to set cex for labels
                     leg.params,
                     labels = NULL, # vector of length(grl)
                     labels.suppress = F,
@@ -2812,6 +2827,18 @@ draw.grl = function(grl,
       else
         labels = values(grl)$labels
 
+    grl.colors = NA
+    if (is.null(grl.colorfield) || is.na(grl.colorfield))
+      if (!is.null(values(grl)$label.color))
+        grl.colors = values(grl)$label.color
+
+    grl.cex = cex.label
+    if (is.null(grl.cexfield) || is.na(grl.cexfield))
+      if (!is.null(values(grl)$cex.label))
+        grl.cex = values(grl)$cex.label
+   # replace missing or non-numeric values with cex.label
+   grl.cex[which(is.null(grl.cex) | is.na(grl.cex) | !is.numeric(grl.cex))] = cex.label 
+
       # make sure names are unique
       names(grl) = 1:length(grl);
 
@@ -2897,6 +2924,16 @@ draw.grl = function(grl,
       else if (!is.null(labels))
         if (!is.na(labels[1])) ## will only be null if labels is NULL and names(grl) was NULL
           grl.props$grl.labels = labels ## use $grl.labels to allow labeling of individual grs
+
+      grl.props$grl.cols = grl.colors
+      if (!is.null(grl.props$grl.labels) && !is.null(grl.colorfield) && grl.colorfield %in% names(grl.props)){
+          grl.props$grl.cols = grl.props[, grl.colorfield] ## use $grl.cols to allow custom coloring of individual labels
+      }
+
+      grl.props$grl.cex = grl.cex
+      if (!is.null(grl.props$grl.labels) && !is.null(grl.cexfield) && grl.cexfield %in% names(grl.props)){
+          grl.props$grl.cex = grl.props[, grl.cexfield] ## use $grl.cex to allow custom sizing of individual labels
+      }
 
       gr = tryCatch(grl.unlist(grl), error = function(e)
       {
@@ -3925,17 +3962,19 @@ draw.grl = function(grl,
         y  = vaggregate(formula = y ~ group, data = grl.segs, FUN = mean);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y, ywid);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
+        grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
+        grl.segs.u$grl.cex = grl.props$grl.cex[match(grl.segs.u$group, grl.props$group)]
         rownames(grl.segs.u) = grl.segs.u$group;
 
         if (adj.label[2] == 0)
           text(grl.segs.u$pos1, grl.segs.u$y+grl.segs.u$ywid + 0.005*diff(ylim),
-               grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
+               grl.segs.u$grl.labels, adj = adj.label, cex = grl.segs.u$grl.cex, col = grl.segs.u$grl.cols)
         if  (adj.label[2] == 0.5)
           text(grl.segs.u$pos1-0.005*diff(xlim), grl.segs.u$y,
-               grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
+               grl.segs.u$grl.labels, adj = adj.label, cex = grl.segs.u$grl.cex, col = grl.segs.u$grl.cols)
         else
           text(grl.segs.u$pos1, grl.segs.u$y-grl.segs.u$ywid - 0.005*diff(ylim),
-               grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
+               grl.segs.u$grl.labels, adj = adj.label, cex = grl.segs.u$grl.cex, col = grl.segs.u$grl.cols)
       }
       else
       {
@@ -3945,9 +3984,10 @@ draw.grl = function(grl,
         y1  = vaggregate(formula = y ~ group, data = grl.segs, FUN = max);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y0, y1);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
+        grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
 
         text(adj.label[1]*grl.segs.u$pos1 + (1-adj.label[1])*grl.segs.u$pos2, adj.label[2]*grl.segs.u$y0 + (1-adj.label[2])*grl.segs.u$y1,
-             grl.segs.u$grl.labels, adj = adj.label, cex = cex.label)
+             grl.segs.u$grl.labels, adj = adj.label, cex = grl.segs.u$grl.cex, col = grl.segs.u$grl.cols)
 
       }
 
