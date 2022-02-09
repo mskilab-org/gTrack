@@ -2133,7 +2133,7 @@ track.gencode = function(gencode = NULL,
     startcodon = gencode[gencode$type == 'start_codon']
     stopcodon = gencode[gencode$type == 'stop_codon']
     tmp = c(genes, tx, exons, utr, startcodon, stopcodon)
-    OUT.COLS = c('gene_name', 'gene_id', 'transcript_name', 'transcript_id', 'type', 'exon_number', 'type', intersect(names(mcols(tmp)), gencode.cols))
+    OUT.COLS = c('gene_name', 'gene_id', 'transcript_name', 'transcript_id', 'type', 'exon_number', intersect(names(mcols(tmp)), gencode.cols))
     tmp = tmp[, OUT.COLS]
 
     cat('extracted intervals\n')
