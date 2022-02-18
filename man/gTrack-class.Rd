@@ -53,6 +53,8 @@ gTrack(
   edgevars = NA,
   gr.labelfield = NA,
   grl.labelfield = NA,
+  grl.colorfield = NA,
+  grl.cexfield = NA,
   xaxis.prefix = "",
   xaxis.unit = 1,
   xaxis.suffix = "",
@@ -157,6 +159,10 @@ a set of spline curves.  (formatting)}
 \item{gr.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRanges label (default "label") (formatting)}
 
 \item{grl.labelfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList label (default "label") (formatting)}
+
+\item{grl.colorfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList labels color (default "label.color") (formatting)}
+
+\item{grl.cexfield}{vector or scalar character specifying which GRanges meta data field to use for GRangesList labels cex (default "cex.label") (formatting)}
 
 \item{xaxis.unit}{vector or scalar numeric specifying the unit that will be used in describing x axis coordinates (TODO: move to display)  (formatting)}
 

@@ -30,11 +30,13 @@ track.gencode(
   labels.suppress.gr = T,
   drop.rp11 = TRUE,
   stack.gap = 1e+06,
+  gencode.cols = "gene_label",
+  use.gene.ids = FALSE,
   ...
 )
 }
 \arguments{
-\item{gencode}{(optional) path to GENCODE gtf from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )}
+\item{gencode}{(optional) path to GENCODE gtf or a GRanges object from which to generate and cache new gTrack GENCODE object (into path specified by GENCODE_DIR or provided as cached.dir argument to this function object). Only necessary to run if gTrack GENCODDE .rds has not already been cacned, (note: cached = FALSE in order for new GENCODE gTrack to be generated )}
 
 \item{gene.collapse}{scalar logical specifying whether to collapse genes by transcript (or used stored version of transcripts)}
 
@@ -63,6 +65,10 @@ track.gencode(
 \item{labels.suppress.gr}{scalar logical specifying whether to suppress exon label plotting}
 
 \item{stack.gap}{stack.gap argument to gTrack}
+
+\item{gencode.cols}{character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "gene_label" then this column is included. "gene_label" is regarded as a special case in which the value for each gene is assumes to be unique and the "gene_label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'gene_label' could be used in order for the "gene_label" values to be show up when plotting the gencode gTrack.}
+
+\item{use.gene.ids}{(logical) use the gene_id column to name items in the GRangesList. By default set to FALSE to maintain backwards compatibility, which means "gene_name" is used to name items in the output. The problem with this is that gene_name is not unique. For example, 5S_rRNA is a gene_name that is associated with multiple different gene_id's, each representing a different copy of 5S_rRNA on various chromossomes.}
 
 \item{...}{additional arguments passed down to gTrack}
 

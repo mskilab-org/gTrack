@@ -27,6 +27,8 @@ draw.grl(
   gr.colormap = NULL,
   gr.labelfield = NULL,
   grl.labelfield = NULL,
+  grl.colorfield = NULL,
+  grl.cexfield = NULL,
   leg.params,
   labels = NULL,
   labels.suppress = F,

@@ -2051,7 +2051,7 @@ read.rds.url <- function(f) {
 #' @param gr.cex.label scalar numeric > 0 specifying character expansion on exon label
 #' @param labels.suppress.gr scalar logical specifying whether to suppress exon label plotting
 #' @param stack.gap stack.gap argument to gTrack
-#' @param gencode.cols character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "label" then this column is included. "label" is regarded as a special case in which the value for each gene is assumes to be unique and the "label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'label' could be used in order for the "label" values to be show up when plotting the gencode gTrack.
+#' @param gencode.cols character vector specifying additional columns to include in the gencode data used to generate the gTrack. By default if gencode includes a metadata column "gene_label" then this column is included. "gene_label" is regarded as a special case in which the value for each gene is assumes to be unique and the "gene_label" value is also used to annotate the GRangesList associated with the output gTrack. This allows the users to supply alternative values for annotations of the genes. In this case gngt$grl.labelfield = 'gene_label' could be used in order for the "gene_label" values to be show up when plotting the gencode gTrack.
 #' @param use.gene.ids (logical) use the gene_id column to name items in the GRangesList. By default set to FALSE to maintain backwards compatibility, which means "gene_name" is used to name items in the output. The problem with this is that gene_name is not unique. For example, 5S_rRNA is a gene_name that is associated with multiple different gene_id's, each representing a different copy of 5S_rRNA on various chromossomes. 
 #' @param ... additional arguments passed down to gTrack
 #'
@@ -2079,7 +2079,7 @@ track.gencode = function(gencode = NULL,
   labels.suppress.gr = T,
   drop.rp11 = TRUE,
   stack.gap = 1e6,
-  gencode.cols = 'label',
+  gencode.cols = 'gene_label',
   use.gene.ids = FALSE,
   ...)
 {
@@ -2154,11 +2154,11 @@ track.gencode = function(gencode = NULL,
     }
     values(gencode.composite)$id = grl.eval(gencode.composite, gene_name[1])
     values(gencode.composite)$gene_sym = grl.eval(gencode.composite, gene_name[1])
-    if ('label' %in% names(mcols(tmp.g))){
-        values(gencode.composite)$label = grl.eval(gencode.composite, label[1])
+    if ('gene_label' %in% names(mcols(tmp.g))){
+        values(gencode.composite)$gene_label = grl.eval(gencode.composite, gene_label[1])
     }
-    if ('label.color' %in% names(mcols(tmp.g))){
-        values(gencode.composite)$label.color = grl.eval(gencode.composite, label.color[1])
+    if ('gene_label_color' %in% names(mcols(tmp.g))){
+        values(gencode.composite)$label.color = grl.eval(gencode.composite, gene_label_color[1])
     }
 
     if (!grepl("^http",cached.path.collapsed)) {
