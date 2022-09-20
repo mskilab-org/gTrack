@@ -1,0 +1,39 @@
+language: r
+sudo: false
+cache: packages
+r: 3.6.1
+warnings_are_errors: false
+r_check_args: "--no-build-vignettes --no-manual --as-cran --no-examples"
+r_packages:
+  - covr
+  - devtools
+  - testthat
+  - data.table
+  - roxygen2
+  - abind
+bioc_packages:
+  - GenomicAlignments
+  - GenomicRanges
+  - VariantAnnotation
+  - Rsamtools
+  - VariantAnnotation
+r_github_packages:
+  - mskilab/gUtils
+  - mskilab/gTrack
+before_install:
+  - curl -OL https://raw.githubusercontent.com/craigcitro/r-travis/master/scripts/travis-tool.sh
+  - chmod 755 ./travis-tool.sh
+  - export R_REMOTES_NO_ERRORS_FROM_WARNINGS=TRUE
+  - wget https://github.com/samtools/samtools/releases/download/1.6/samtools-1.6.tar.bz2
+  - tar -vxjf samtools-1.6.tar.bz2
+  - cd samtools-1.6
+  - make
+  - cd ..
+  - export PATH=samtools-1.6/:$PATH
+script:
+  - "Rscript -e 'devtools::install();devtools::test()'"
+  - "./travis-tool.sh run_tests"
+#after_failure: 
+#  - "./travis-tool.sh dump_logs"
+after_success:
+  - travis_wait Rscript -e 'covr::codecov()'
