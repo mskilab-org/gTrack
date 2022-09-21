@@ -6,10 +6,22 @@
 \alias{plot,gTrack,ANY-method}
 \title{plot}
 \usage{
-\S4method{plot}{gTrack,ANY}(x, y, windows = si2gr(seqinfo(x)), links = NULL,
-  gap = NULL, y.heights = NULL, y.gaps = NULL, cex.xlabel = 1,
-  cex.ylabel = 1, max.ranges = NA, links.feat = NULL, verbose = FALSE,
-  legend.params = list(), ...)
+\S4method{plot}{gTrack,ANY}(
+  x,
+  y,
+  windows = si2gr(seqinfo(x)),
+  links = NULL,
+  gap = NULL,
+  y.heights = NULL,
+  y.gaps = NULL,
+  cex.xlabel = 1,
+  cex.ylabel = 1,
+  max.ranges = NA,
+  links.feat = NULL,
+  verbose = FALSE,
+  legend.params = list(),
+  ...
+)
 }
 \arguments{
 \item{windows}{GRanges specifying windows to view (can also be GRangesList), default is whole genome}

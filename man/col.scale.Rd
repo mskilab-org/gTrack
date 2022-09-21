@@ -4,8 +4,14 @@
 \alias{col.scale}
 \title{col.scale}
 \usage{
-col.scale(x, val.range = c(0, 1), col.min = "white", col.max = "black",
-  na.col = "white", invert = F)
+col.scale(
+  x,
+  val.range = c(0, 1),
+  col.min = "white",
+  col.max = "black",
+  na.col = "white",
+  invert = F
+)
 }
 \description{
 Assign rgb colors to numeric data

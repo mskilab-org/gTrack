@@ -5,8 +5,16 @@
 \alias{track.straw}
 \title{track.straw}
 \usage{
-track.straw(hic, gr, norm = "KR", type = "BP", res = 10000,
-  mc.cores = 1, colormap = c("white", "red", "black"), ...)
+track.straw(
+  hic,
+  gr,
+  norm = "KR",
+  type = "BP",
+  res = 10000,
+  mc.cores = 1,
+  colormap = c("white", "red", "black"),
+  ...
+)
 }
 \arguments{
 \item{hic}{path to .hic file}

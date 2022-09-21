@@ -31,7 +31,7 @@ LinkingTo: Rcpp
 License: GPL-2
 LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 7.2.1.9000
 Suggests:
     testthat,
     spatstat

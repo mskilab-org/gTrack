@@ -5,8 +5,18 @@
 \title{Function to plot color bar
 http://stackoverflow.com/questions/9314658/colorbar-from-custom-colorramppalette}
 \usage{
-color.bar(lut, nticks = 11, ticks = seq(min, max, len = nticks),
-  title = "", xpos, ypos, width, height, text = c("min", "max"), cex = 1)
+color.bar(
+  lut,
+  nticks = 11,
+  ticks = seq(min, max, len = nticks),
+  title = "",
+  xpos,
+  ypos,
+  width,
+  height,
+  text = c("min", "max"),
+  cex = 1
+)
 }
 \description{
 Function to plot color bar

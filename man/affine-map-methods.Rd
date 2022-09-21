@@ -4,9 +4,17 @@
 \alias{affine.map}
 \title{affine.map}
 \usage{
-affine.map(x, ylim = c(0, 1), xlim = c(min(x), max(x)), cap = F,
-  cap.min = cap, cap.max = cap, clip = T, clip.min = clip,
-  clip.max = clip)
+affine.map(
+  x,
+  ylim = c(0, 1),
+  xlim = c(min(x), max(x)),
+  cap = F,
+  cap.min = cap,
+  cap.max = cap,
+  clip = T,
+  clip.min = clip,
+  clip.max = clip
+)
 }
 \description{
 affinely maps 1D points in vector x from interval xlim to interval ylim,

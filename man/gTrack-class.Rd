@@ -6,26 +6,79 @@
 \alias{gTrack}
 \title{Construct a new \code{gTrack}}
 \usage{
-gTrack(data = NULL, y.field = NA, mdata = NULL, edges = NULL,
-  vars = NULL, colormaps = NULL, height = 10, ygap = 2, ylab = "",
-  stack.gap = 0, cex.label = 1, gr.cex.label = cex.label * 0.8,
-  gr.srt.label = 0, col = NA, border = NA, angle = 15, name = "",
-  gr.colorfield = NA, y.quantile = 0.01, y.cap = T, lwd.border = 1,
-  hadj.label = 1, vadj.label = 0.5, smooth = NA, round = NA,
-  ywid = NA, ypad = 0, seqinfo = NA, circles = FALSE, lines = FALSE,
-  bars = FALSE, draw.paths = FALSE, draw.var = FALSE,
-  triangle = !is.null(mdata), max.ranges = 50000, source.file.chrsub = T,
-  y0.bar = NA, yaxis = !is.na(y.field), yaxis.pretty = 5, yaxis.cex = 1,
-  chr.sub = TRUE, edgevars = NA, gr.labelfield = NA,
-  grl.labelfield = NA, xaxis.prefix = "", xaxis.unit = 1,
-  xaxis.suffix = "", xaxis.round = 3, xaxis.cex.label = 1,
-  xaxis.newline = TRUE, xaxis.chronly = FALSE, xaxis.width = TRUE,
-  xaxis.interval = "auto", xaxis.label.angle = 0, xaxis.ticklen = 1,
-  xaxis.cex.tick = 1, sep.lty = 2, sep.lwd = 1, sep.bg.col = "gray95",
-  sep.draw = TRUE, y0 = NA, y1 = NA, m.sep.lwd = 1, m.bg.col = NA,
-  cmap.min = NA, cmap.max = NA, labels.suppress = FALSE,
+gTrack(
+  data = NULL,
+  y.field = NA,
+  mdata = NULL,
+  edges = NULL,
+  vars = NULL,
+  colormaps = NULL,
+  height = 10,
+  ygap = 2,
+  ylab = "",
+  stack.gap = 0,
+  cex.label = 1,
+  gr.cex.label = cex.label * 0.8,
+  gr.srt.label = 0,
+  col = NA,
+  border = NA,
+  angle = 15,
+  name = "",
+  gr.colorfield = NA,
+  y.quantile = 0.01,
+  y.cap = T,
+  lwd.border = 1,
+  hadj.label = 1,
+  vadj.label = 0.5,
+  smooth = NA,
+  round = NA,
+  ywid = NA,
+  ypad = 0,
+  seqinfo = NA,
+  circles = FALSE,
+  lines = FALSE,
+  bars = FALSE,
+  draw.paths = FALSE,
+  draw.var = FALSE,
+  triangle = !is.null(mdata),
+  max.ranges = 50000,
+  source.file.chrsub = T,
+  y0.bar = NA,
+  yaxis = !is.na(y.field),
+  yaxis.pretty = 5,
+  yaxis.cex = 1,
+  chr.sub = TRUE,
+  edgevars = NA,
+  gr.labelfield = NA,
+  grl.labelfield = NA,
+  xaxis.prefix = "",
+  xaxis.unit = 1,
+  xaxis.suffix = "",
+  xaxis.round = 3,
+  xaxis.cex.label = 1,
+  xaxis.newline = TRUE,
+  xaxis.chronly = FALSE,
+  xaxis.width = TRUE,
+  xaxis.interval = "auto",
+  xaxis.label.angle = 0,
+  xaxis.ticklen = 1,
+  xaxis.cex.tick = 1,
+  sep.lty = 2,
+  sep.lwd = 1,
+  sep.bg.col = "gray95",
+  sep.draw = TRUE,
+  y0 = NA,
+  y1 = NA,
+  m.sep.lwd = 1,
+  m.bg.col = NA,
+  cmap.min = NA,
+  cmap.max = NA,
+  labels.suppress = FALSE,
   labels.suppress.grl = labels.suppress,
-  labels.suppress.gr = labels.suppress, bg.col = "white", formatting = NA)
+  labels.suppress.gr = labels.suppress,
+  bg.col = "white",
+  formatting = NA
+)
 }
 \arguments{
 \item{data}{Instance of one of the following objects: (1) GRanges (2) GRangesList (3) ffTrack or
@@ -51,11 +104,11 @@ Also can be a list of the above if specifying multiple tracks (and must be compa
 
 \item{stack.gap}{vector or scalar.numeric specifying x gap between stacking non-numeric GRanges or GrangesLists items in track(s)}
 
-\item{cex.label}{size of top level label (e.g. GRAngesList item)}
+\item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
 
 \item{gr.cex.label}{vector or scalar numeric specifying GRanges label character expansion (default is cex.label)  (formatting)}
 
-\item{gr.srt.label}{rotation of GRanges label}
+\item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
 
 \item{col}{vector or scalar character specifying static color for track(s), if NA then color is specified by colormaps() property or gr.colorfield or col meta data field of GRanges / GRangesList data object}
 
@@ -132,7 +185,7 @@ a set of spline curves.  (formatting)}
 
 \item{labels.suppress}{whether to suppress labels (both GRangesList and GRanges)}
 
-\item{labels.suppress.gr}{whether to suppress GRanges labels}
+\item{labels.suppress.gr}{whether to suppress GRangesList labels}
 
 \item{legend.maxitems}{Scalar positive integer specifying what is the maximum number of items to include in legend [Inf]}
 
@@ -147,8 +200,6 @@ a set of spline curves.  (formatting)}
 \item{split}{vector or scalar logical flag specifying whether to split when lifting (only relevant if used wihtin chainedTracks object)}
 
 \item{xaxis.nticks}{vector or scalar positive integer specifying how many xaxis ticks to optimally draw (formatting)}
-
-\item{cex.label}{vector or scalar numeric specifying the expansion factor of the range labels (formatting)}
 
 \item{y.grid.col}{vector or scalar character specifying color of "gridlines" used to specify numeric track data (formatting)}
 
@@ -178,10 +229,6 @@ in which draw.paths = T)  (formatting)}
 
 \item{draw.backbone}{vector or scalar logical specifying whether to draw "backbone" connecting different items in a GRangesList item (formatting)}
 
-\item{gr.srt.label}{vector or scalar numeric between 0 and 180 specifying rotation of GRanges labels  (formatting)}
-
-\item{labels.suppress.gr}{whether to suppress GRangesList labels}
-
 \item{...}{additional formatting arguments to gTrack}
 }
 \description{
@@ -207,7 +254,5 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
 }
 
 \author{
-Marcin Imielinski
-
 Marcin Imielinski
 }
