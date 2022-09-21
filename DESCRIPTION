@@ -9,6 +9,8 @@ Authors@R: c(person(given = "Jeremiah", family = "Wala", role = c("aut"), email 
     "mimielinski@nygenome.org"))
 Description: Object for plotting GRanges, RleList, UCSC file formats, and
     ffTrack objects in multi-track panels.
+Remotes:
+  github::mskilab/gUtils
 Depends:
     R (>= 3.1.0),
     GenomicRanges (>= 1.8),
