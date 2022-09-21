@@ -1,5 +1,4 @@
 library(gUtils)
-library(gChain)
 library(gTrack)
 context("gTrack tests")
 
