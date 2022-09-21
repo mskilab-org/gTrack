@@ -1,5 +1,6 @@
-library(gTrack)
 library(gUtils)
+library(gChain)
+library(gTrack)
 context("gTrack tests")
 
 HI=300
@@ -49,45 +50,56 @@ graph[8,2]=1
 graph[9,1]=1
 graph[10,1]=1
     
-test_that("edges",  {   
-    plot(gTrack(gr , edges = graph , stack.gap = 5))
+test_that("edges",  {
+    gt = gTrack(gr , edges = graph , stack.gap = 5)
+    expect_true(inherits(gt, "gTrack"))
+    expect_true(inherits(gt@edges[[1]], "data.frame"))
 })
 
 test_that("stack.gap", {
-    plot(gTrack(gr , stack.gap = 2))
+    gt = gTrack(gr , stack.gap = 2)
+    expect_true(inherits(gt, "gTrack"))
+    expect_equal(formatting(gt)$stack.gap, 2)
 })
 
 test_that("y.field", {
-    plot(gTrack(gr , y.field = 'GC')) 
+    gt = gTrack(gr , y.field = 'GC')
+    expect_equal(formatting(gt)$y.field, "GC")
 })
 
 test_that("bars", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue'))
+    gt = gTrack(gr , y.field = 'GC' , bars = TRUE , col = 'light blue')
+    expect_true(formatting(gt)$bars)
 })
 
 test_that("lines", {
-    plot(gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple'))
+    gt = gTrack(gr , y.field = 'GC' , lines = TRUE , col = 'purple')
+    expect_true(formatting(gt)$lines)
 })
 
 test_that("cirlces", {
-    plot(gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60'))
+    gt = gTrack(gr , y.field = 'GC' , circles = TRUE , col = 'magenta' , border = '60')
+    expect_true(formatting(gt)$circles)
 })
 
-test_that("colorfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")) ))
-})
+## test_that("colorfield", {
+##     gt = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , colormaps = list(GC = c("1"="red" , "2" = "blue" , "3"="magenta", "4"="light blue" ,"5"="black" , "6"="green", "7"="brown" , "8"="pink", "9"="yellow", "10" = "orange")))
+## })
 
 test_that("gr.colorfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC'))
+    gt = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC')
+    expect_equal(formatting(gt)$gr.colorfield, "GC")
 })
 
 test_that("gr.labelfield", {
-    plot(gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name'))
+    gt = gTrack(gr , y.field = 'GC' , bars = TRUE , col = NA , gr.colorfield = 'GC' , gr.labelfield = 'name')
+    expect_equal(formatting(gt)$gr.labelfield, "name")
 })
 
 test_that("col", {
     graph = data.frame(from = 1:9, to = c(6,9,7,2,4,10,8,5,3) , col = c('red', 'blue', 'green'))
-    plot(gTrack(gr , edges = graph , stack.gap = 5))  
+    gt = gTrack(gr , edges = graph , stack.gap = 5)
+    expect_true(all(gt@edges[[1]][, "col"] %in% c("red", "blue", "green")))
 })
 
 if(FALSE){
