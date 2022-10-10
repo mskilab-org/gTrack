@@ -1695,6 +1695,12 @@ rrbind = function (..., union = TRUE, as.data.table = FALSE)
     if (!inherits(links, 'GRangesList'))
       stop('links must be a GRangesList')
 
+    ## make sure chr.sub works with objects
+    chr.sub = any(formatting(.Object)[,'chr.sub'], na.rm = TRUE)
+    if (!is.null(chr.sub) && !is.na(chr.sub) && chr.sub) {
+        links = gUtils::gr.sub(links, "chr", "")
+    }
+
     # first map rearrangements to various windows>
     win.u = this.windows
     win.u$grl.ix = 1  ##holdover from grangeslist windows
