@@ -21,17 +21,49 @@ GRanges can be used as the starting point for creating scatter plots, bar plots,
 
 In this example, we will create `gTrack`s to plot read depth in 1 Kbp genomic intervals.
 
-## GRangesList
+### Scatter plot
 
-In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. In addition, to create a scatter plot, we need to set the argument `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot.
+In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. In addition, to create a scatter plot, we need to set the parameter `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot, the parameter `y0` controls the starting position on the y axis, and the parameter `y1` controls the ending position on the y axis.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
-coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2)
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
 
 ## specify genomic region that will be plotted
 fp = parse.gr("1:6043576-7172800")
 plot(coverage.gt, fp + 1e5)
 ```
+
+### Bar plot
+
+Next, we will plot the same data as a bar plot. To do this, we will set the parameter `bars` to `TRUE`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.bars.gt = gTrack(coverage.gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
+
+plot(coverage.bars.gt, fp + 1e5)
+```
+
+### Line plot
+
+Finally, we will plot these data as a line plot, by setting `lines` to `TRUE`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.lines.gt = gTrack(coverage.gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
+
+plot(coverage.lines.gt, fp + 1e5)
+```
+
+### Multiple plots
+
+A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+concatenated.gt = c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
+
+plot(concatenated.gt, fp + 1e5)
+```
+
+## GRangesList
 
 ## Matrix
