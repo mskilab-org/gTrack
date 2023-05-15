@@ -1,0 +1,21 @@
+---
+title: "Quick start"
+output: html_document
+---
+
+This is a short demo that explains how to create and plot gTracks.
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+library(gTrack)
+library(gUtils)
+```
+
+# Creating gTracks
+
+gTracks can be created from GRanges, GRangesList, and Matrix objects. In addition, we have written a few R packages in which objects include a gTrack constructor (usually invoked by calling the `$gt` or `$gtrack` methods.
+
+## GRanges
+
+## GRangesList
+
+## Matrix
