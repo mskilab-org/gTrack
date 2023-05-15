@@ -12,21 +12,21 @@ Description: Object for plotting GRanges, RleList, UCSC file formats, and
 Remotes: 
   github::mskilab/gUtils
 biocViews:
-  bioc::3.15/S4Vectors,
-  bioc::3.15/GenomicRanges,
-  bioc::3.15/rtracklayer,
-  bioc::3.15/VariantAnnotation,
-  bioc::3.15/Biostrings,
-  bioc::3.15/GenomeInfoDb
+  bioc::3.10/S4Vectors,
+  bioc::3.10/GenomicRanges,
+  bioc::3.10/rtracklayer,
+  bioc::3.10/VariantAnnotation,
+  bioc::3.10/Biostrings,
+  bioc::3.10/GenomeInfoDb
 Depends:
     R (>= 3.6.0),
-    GenomicRanges (>= 1.8),
-    data.table, 
+    GenomicRanges (>= 1.30),
+    data.table (>= 1.10), 
     gUtils
 Imports:
-    IRanges (>= 2.0),
+    IRanges (>= 2.12),
     S4Vectors (>= 0.4),
-    GenomeInfoDb (>= 1.2),
+    GenomeInfoDb (>= 1.13),
     Matrix,
     RColorBrewer,
     data.table,
@@ -41,5 +41,7 @@ LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
 RoxygenNote: 7.1.2
 Suggests:
-    testthat,
+    testthat (>= 2.0),
+    covr,
+    pkgdown,
     spatstat
