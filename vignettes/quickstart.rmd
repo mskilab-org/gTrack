@@ -6,16 +6,32 @@ output: html_document
 This is a short demo that explains how to create and plot gTracks.
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
+devtools::load_all("~/git/gTrack")
 library(gTrack)
 library(gUtils)
 ```
 
 # Creating gTracks
 
-gTracks can be created from GRanges, GRangesList, and Matrix objects. In addition, we have written a few R packages in which objects include a gTrack constructor (usually invoked by calling the `$gt` or `$gtrack` methods.
+gTracks can be created from `GRanges`, `GRangesList`, and `Matrix` objects. In addition, we have written a few R packages ([gGnome](https://github.com/mskilab/gGnome) and [GxG](https://github.com/mskilab/GxG)) in which objects include a gTrack constructor (usually invoked by calling the `$gt` or `$gtrack` methods).
 
 ## GRanges
 
+GRanges can be used as the starting point for creating scatter plots, bar plots, and line plots. The `x`-coordinate of each data point in these plots is specified by the genomic position, while the `y`-coordinate is stored in a user-defined metadata column of the `GRanges` object.
+
+In this example, we will create `gTrack`s to plot read depth in 1 Kbp genomic intervals.
+
 ## GRangesList
+
+In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. In addition, to create a scatter plot, we need to set the argument `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2)
+
+## specify genomic region that will be plotted
+fp = parse.gr("1:6043576-7172800")
+plot(coverage.gt, fp + 1e5)
+```
 
 ## Matrix

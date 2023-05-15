@@ -92,14 +92,25 @@
 <div class="section level2">
 <h2 id="creating-gtracks">Creating gTracks<a class="anchor" aria-label="anchor" href="#creating-gtracks"></a>
 </h2>
-<p>gTracks can be created from GRanges, GRangesList, and Matrix objects. In addition, we have written a few R packages in which objects include a gTrack constructor (usually invoked by calling the <code>$gt</code> or <code>$gtrack</code> methods.</p>
+<p>gTracks can be created from <code>GRanges</code>, <code>GRangesList</code>, and <code>Matrix</code> objects. In addition, we have written a few R packages (<a href="https://github.com/mskilab/gGnome" class="external-link">gGnome</a> and <a href="https://github.com/mskilab/GxG" class="external-link">GxG</a>) in which objects include a gTrack constructor (usually invoked by calling the <code>$gt</code> or <code>$gtrack</code> methods).</p>
 <div class="section level3">
 <h3 id="granges">GRanges<a class="anchor" aria-label="anchor" href="#granges"></a>
 </h3>
+<p>GRanges can be used as the starting point for creating scatter plots, bar plots, and line plots. The <code>x</code>-coordinate of each data point in these plots is specified by the genomic position, while the <code>y</code>-coordinate is stored in a user-defined metadata column of the <code>GRanges</code> object.</p>
+<p>In this example, we will create <code>gTrack</code>s to plot read depth in 1 Kbp genomic intervals.</p>
 </div>
 <div class="section level3">
 <h3 id="grangeslist">GRangesList<a class="anchor" aria-label="anchor" href="#grangeslist"></a>
 </h3>
+<p>In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called <code>cn</code>. We need to specify this column name in the argument <code>y.field</code> when creating our gTrack. In addition, to create a scatter plot, we need to set the argument <code>circles</code> to <code>TRUE</code>. The parameter <code>lwd.border</code> controls the size of the points in the scatter plot.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## specify genomic region that will be plotted</span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="matrix">Matrix<a class="anchor" aria-label="anchor" href="#matrix"></a>

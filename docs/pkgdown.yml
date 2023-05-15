@@ -3,4 +3,8 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles: {}
 last_built: 2023-05-15T18:17Z
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
 
