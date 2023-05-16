@@ -7,7 +7,7 @@ output: html_document
 devtools::load_all("~/git/gTrack")
 library(gTrack)
 library(gUtils)
-knitr::opts_chunk$set(fig.height=20)
+knitr::opts_chunk$set(fig.height=10)
 ```
 
 `gTrack` is a package that enables easy plotting of data across genomic intervals. This is a short tutorial that explains how gTracks can be created and plotted. For this example, we will use a *pyrgo* locus from the ovarian carcinoma cell line OVCAR-3.
