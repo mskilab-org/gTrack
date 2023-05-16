@@ -7,6 +7,7 @@ output: html_document
 devtools::load_all("~/git/gTrack")
 library(gTrack)
 library(gUtils)
+knitr::opts_chunk$set(fig.height=20)
 ```
 
 `gTrack` is a package that enables easy plotting of data across genomic intervals. This is a short tutorial that explains how gTracks can be created and plotted. For this example, we will use a *pyrgo* locus from the ovarian carcinoma cell line OVCAR-3.
@@ -30,7 +31,7 @@ coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0
 
 To generate a plot, the `plot` method is used, which takes two positional arguments, a `gTrack` and a genomic window over which to generate the plot. The genomic window can be specified as either a `GRanges`, `GRangesList`, or a character vector that can be parsed as `GRanges`. (If `window` is `NULL`, then all genomic regions defined in the supplied gTrack will be plotted).
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10} 
+```{r include = TRUE, message = FALSE, warning = FALSE}
 ## specify genomic region that will be plotted
 fp = parse.gr("1:6043576-7172800")
 plot(coverage.gt, fp + 1e5)
@@ -40,7 +41,7 @@ plot(coverage.gt, fp + 1e5)
 
 Next, we will plot the same data as a bar plot. To do this, we will set the parameter `bars` to `TRUE`.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.bars.gt = gTrack(coverage.gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.bars.gt, fp + 1e5)
@@ -50,7 +51,7 @@ plot(coverage.bars.gt, fp + 1e5)
 
 Finally, we will plot these data as a line plot, by setting `lines` to `TRUE`.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.lines.gt = gTrack(coverage.gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.lines.gt, fp + 1e5)
@@ -60,7 +61,7 @@ plot(coverage.lines.gt, fp + 1e5)
 
 A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example. The direction of concatenation is from the bottom up (so the first `gTrack` corresponds with the bottom-most subplot and the final `gTrack` corresponds with the top-most subplot).
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 concatenated.gt = c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
 
 plot(concatenated.gt, fp + 1e5)
@@ -76,7 +77,7 @@ The alignments associated with each read pair are represented by a single entry 
 
 You can see that there are many junction-supporting reads associated with read depth change points in the coverage `gTrack` which makes sense because aberrant adjacencies can produce copy number variants.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 reads = readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
 reads.gt = gTrack(reads)
 
@@ -93,7 +94,7 @@ In this example, we will create a heatmap of the number of shared read `qname`s 
 
 As you can see, the off-diagonal elements correspond with copy number changep points in the coverage!
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 mdata.mat = readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
 mdata.gr = readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
 
@@ -106,7 +107,7 @@ plot(c(coverage.gt, heatmap.gt), fp + 1e5)
 
 Instead of a heatmap, it is also possible to plot the edges between genomic intervals by supplying an adjacency list. In this next example, we will plot edges associated with the off-diagonal squares in the previous heatmap.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE
 edges.dat = readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
 edges.gr = readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
 
@@ -121,7 +122,7 @@ plot(c(coverage.gt, edges.gt), fp + 1e5)
 
 A `gTrack` can be created from a `gGraph` using either the `$gt` active field or `$gtrack` method, as shown below. In this example, we will create a plot of a tumor `gGraph` and the associated coverage profile.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt), fp + 1e5)
 ```
@@ -132,7 +133,7 @@ plot(c(coverage.gt, gg$gt), fp + 1e5)
 
 The following example plots a set of `gWalk`s associated with the `gGraph` plotted above.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 wks = readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 ```
@@ -143,7 +144,7 @@ plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 
 Again, similar to `gWalk` and `gGraph`, a `gTrack` can be created for a `gMatrix` with the active field `$gt` or method `$gtrack`. Here we will use the `$gtrack` method to set a parameter for coloring the heatmap (`cmap.max`).
 
-```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 gm = readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, gm$gtrack(cmap.max = 1000)), fp + 1e5)
 ```
