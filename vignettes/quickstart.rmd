@@ -68,7 +68,20 @@ plot(concatenated.gt, fp + 1e5)
 
 # GRangesList
 
-A `gTrack` can also be created from a `GRangesList`. This is desirable when plotting ranges that are grouped together in some way, such as alignments deriving from a single read pair in the case of short read whole genome sequencing.
+A `gTrack` can also be created from a `GRangesList`. This is desirable when plotting ranges that are grouped together in some way, such as alignments deriving from a single read pair.
+
+In this example, we will create a gTrack from junction-supporting read pairs. Briefly, these are read pairs that form split, gapped, or discordant alignments, hinting at the existence of a genomic rearrangement. 
+
+The alignments associated with each read pair are represented by a single entry in this example's `GRangesList`. In the corresponding gTrack, alignments from the same `GRangesList` entry are linked together by a light gray horizontal line, making it easy for them to be visually associated.
+
+You can see that there are many junction-supporting reads associated with read depth change points in the coverage `gTrack` which makes sense because aberrant adjacencies can produce copy number variants.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+reads = readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
+reads.gt = gTrack(reads)
+
+plot(c(coverage.gt, reads.gt), fp + 1e5)
+```
 
 # Matrix
 
