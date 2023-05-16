@@ -1,9 +1,7 @@
 ---
-title: "Quick start"
+title: "Creating and plotting gTracks"
 output: html_document
 ---
-
-This is a short demo that explains how to create and plot gTracks.
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
 devtools::load_all("~/git/gTrack")
@@ -11,59 +9,100 @@ library(gTrack)
 library(gUtils)
 ```
 
-# Creating gTracks
+`gTrack` is a package that enables easy plotting of data across genomic intervals. This is a short tutorial that explains how gTracks can be created and plotted. For this example, we will use a *pyrgo* locus from the ovarian carcinoma cell line OVCAR-3.
 
-gTracks can be created from `GRanges`, `GRangesList`, and `Matrix` objects. In addition, we have written a few R packages ([gGnome](https://github.com/mskilab/gGnome) and [GxG](https://github.com/mskilab/GxG)) in which objects include a gTrack constructor (usually invoked by calling the `$gt` or `$gtrack` methods).
+In general, gTracks can be created from `GRanges`, `GRangesList`, and `Matrix` objects. In addition, we have written a some R packages ([gGnome](https://github.com/mskilab/gGnome) and [GxG](https://github.com/mskilab/GxG)) in which `R6` objects (namely `gGraph`, `gWalk`, and `gMatrix`) include a gTrack constructor (usually invoked by calling the `$gt` active field or `$gtrack` method).
 
-## GRanges
+# GRanges
 
 GRanges can be used as the starting point for creating scatter plots, bar plots, and line plots. The `x`-coordinate of each data point in these plots is specified by the genomic position, while the `y`-coordinate is stored in a user-defined metadata column of the `GRanges` object.
 
 In this example, we will create `gTrack`s to plot read depth in 1 Kbp genomic intervals.
 
-### Scatter plot
+## Scatter plot
 
 In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. In addition, to create a scatter plot, we need to set the parameter `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot, the parameter `y0` controls the starting position on the y axis, and the parameter `y1` controls the ending position on the y axis.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
 coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+```
 
+To generate a plot, the `plot` method is used, which takes two positional arguments, a `gTrack` and a genomic window over which to generate the plot. The genomic window can be specified as either a `GRanges`, `GRangesList`, or a character vector that can be parsed as `GRanges`. (If `window` is `NULL`, then all genomic regions defined in the supplied gTrack will be plotted).
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10} 
 ## specify genomic region that will be plotted
 fp = parse.gr("1:6043576-7172800")
 plot(coverage.gt, fp + 1e5)
 ```
 
-### Bar plot
+## Bar plot
 
 Next, we will plot the same data as a bar plot. To do this, we will set the parameter `bars` to `TRUE`.
 
-```{r include = TRUE, message = FALSE, warning = FALSE}
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
 coverage.bars.gt = gTrack(coverage.gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.bars.gt, fp + 1e5)
 ```
 
-### Line plot
+## Line plot
 
 Finally, we will plot these data as a line plot, by setting `lines` to `TRUE`.
 
-```{r include = TRUE, message = FALSE, warning = FALSE}
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
 coverage.lines.gt = gTrack(coverage.gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.lines.gt, fp + 1e5)
 ```
 
-### Multiple plots
+## Multiple plots
 
 A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example.
 
-```{r include = TRUE, message = FALSE, warning = FALSE}
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
 concatenated.gt = c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
 
 plot(concatenated.gt, fp + 1e5)
 ```
 
-## GRangesList
+# GRangesList
 
-## Matrix
+A `gTrack` can also be created from a `GRangesList`. This is desirable when plotting ranges that are grouped together in some way, such as alignments deriving from a single read pair in the case of short read whole genome sequencing.
+
+# Matrix
+
+A `gTrack` can be created from a `GRanges` and corresponding `Matrix` in order to plot associations between two genomic ranges. One example of this would be a heatmap, where the color of each cell is proportional to some value defined by its corresponding genomic regions, such as number of shared read pairs.
+
+# gGraph
+
+`gGraph`s are genome graphs in which nodes represent (signed) genomic intervals, and edges represent adjacencies between those intervals (see our `gGnome` package [here](https://github.com/mskilab/gGnome)!).
+
+A `gTrack` can be created from a `gGraph` using either the `$gt` active field or `$gtrack` method, as shown below. In this example, we will create a plot of a tumor `gGraph` and the associated coverage profile.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+plot(c(coverage.gt, gg$gt), fp + 1e5)
+```
+
+# gWalk
+
+`gWalk`s represent paths through a `gGraph`. Generally, they represent somatic haplotypes that could exist in a genome corresponding with a give `gGraph` (more details in the `gGnome` package!). Like `gGraph`s, `gWalk`s have active field `$gt` and method `$gtrack`, both of which will produce a `gTrack`.
+
+The following example plots a set of `gWalk`s associated with the `gGraph` plotted above.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+wks = readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
+plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
+```
+
+# gMatrix
+
+`gMatrix` is an object implemented in the package `GxG` that facilitates analysis and visualization of paired genomic intervals. There are many use cases for `gMatrix`, but the one used in this example is Hi-C data, which consists of read counts shared by pairs of genomic bins. We will plot the Hi-C profile associated with this locus.
+
+Again, similar to `gWalk` and `gGraph`, a `gTrack` can be created for a `gMatrix` with the active field `$gt` or method `$gtrack`. Here we will use the `$gtrack` method to set a parameter for coloring the heatmap (`cmap.max`).
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+gm = readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
+plot(c(coverage.gt, gg$gt, gm$gtrack(cmap.max = 1000)), fp + 1e5)
+```
