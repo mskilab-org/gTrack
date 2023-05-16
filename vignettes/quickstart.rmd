@@ -58,7 +58,7 @@ plot(coverage.lines.gt, fp + 1e5)
 
 ## Multiple plots
 
-A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example.
+A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example. The direction of concatenation is from the bottom up (so the first `gTrack` corresponds with the bottom-most subplot and the final `gTrack` corresponds with the top-most subplot).
 
 ```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
 concatenated.gt = c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
@@ -83,9 +83,37 @@ reads.gt = gTrack(reads)
 plot(c(coverage.gt, reads.gt), fp + 1e5)
 ```
 
-# Matrix
+# Matrices
 
-A `gTrack` can be created from a `GRanges` and corresponding `Matrix` in order to plot associations between two genomic ranges. One example of this would be a heatmap, where the color of each cell is proportional to some value defined by its corresponding genomic regions, such as number of shared read pairs.
+## Heatmaps (mdata)
+
+A `gTrack` can be created from a `GRanges` and a corresponding adjacency matrix in order to plot associations between two genomic ranges. One example of this would be a heatmap, where the color of each cell is proportional to some value defined by its corresponding genomic regions.
+
+In this example, we will create a heatmap of the number of shared read `qname`s between pairs of genomic intervals. We will read a `GRanges` and associated `matrix` and create a `gTrack` from these inputs, which we will plot alongside the coverage.
+
+As you can see, the off-diagonal elements correspond with copy number changep points in the coverage!
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+mdata.mat = readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
+mdata.gr = readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
+
+heatmap.gt = gTrack(mdata.gr, mdata = mdata.mat, cmap.max = 10)
+
+plot(c(coverage.gt, heatmap.gt), fp + 1e5)
+```
+
+## Connections (edges)
+
+Instead of a heatmap, it is also possible to plot the edges between genomic intervals by supplying an adjacency list. In this next example, we will plot edges associated with the off-diagonal squares in the previous heatmap.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, out.height = 10}
+edges.dat = readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
+edges.gr = readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
+
+edges.gt = gTrack(edges.gr, edges = edges.dat)
+
+plot(c(coverage.gt, edges.gt), fp + 1e5)
+```
 
 # gGraph
 
