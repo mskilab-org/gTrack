@@ -144,7 +144,7 @@ plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 
 Again, similar to `gWalk` and `gGraph`, a `gTrack` can be created for a `gMatrix` with the active field `$gt` or method `$gtrack`. Here we will use the `$gtrack` method to set a parameter for coloring the heatmap (`cmap.max`).
 
-```{r include = TRUE, message = FALSE, warning = FALSE}
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
 gm = readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, gm$gtrack(cmap.max = 1000)), fp + 1e5)
 ```
