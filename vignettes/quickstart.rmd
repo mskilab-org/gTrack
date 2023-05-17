@@ -20,16 +20,58 @@ GRanges can be used as the starting point for creating scatter plots, bar plots,
 
 In this example, we will create `gTrack`s to plot read depth in 1 Kbp genomic intervals.
 
+## Rectangles
+
+The most basic plot in gTrack will represent each supplied genomic interval as a rectangle. If strand is provided, the verticle edges of the rectangle will be bent in a direction indicating strand (towards the right for `+` stranded intervals, and towards the left for `-` stranded intervals. This `GRanges` contains genomic bins that are all 1 Kbp in width without a strand. However, for the purposes of demonstration, we will also plot some stranded intervals to demonstrate the effect.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## create a plus stranded interval
+plus.coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+strand(plus.coverage.gr) = "+"
+minus.coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+strand(minus.coverage.gr) = "-"
+
+## create gTracks
+coverage.gt = gTrack(coverage.gr)
+plus.coverage.gt = gTrack(plus.coverage.gr)
+minus.coverage.gt = gTrack(minus.coverage.gr)
+```
+
+To generate a plot, the `plot` method is used, which takes two positional arguments, a `gTrack` and a genomic window over which to generate the plot. The genomic window can be specified as either a `GRanges`, `GRangesList`, or a character vector that can be parsed as `GRanges`. (If `window` is `NULL`, then all genomic regions defined in the supplied gTrack will be plotted).
+
+Here is the original (unstranded) intervals:
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 6}
+## specify genomic region that will be plotted
+fp = parse.gr("1:6850000-7050000")
+plot(coverage.gt, fp)
+```
+
+Here is the `+` stranded intervals:
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 6}
+## specify genomic region that will be plotted
+plot(plus.coverage.gt, fp)
+```
+
+Here is the `-` stranded intervals:
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 6}
+## specify genomic region that will be plotted
+plot(minus.coverage.gt, fp)
+```
+
+
 ## Scatter plot
 
-In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. In addition, to create a scatter plot, we need to set the parameter `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot, the parameter `y0` controls the starting position on the y axis, and the parameter `y1` controls the ending position on the y axis.
+In this example, we will create a scatter plot. In this `GRanges`, the (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. To create a scatter plot, we need to set the parameter `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot, the parameter `y0` controls the starting position on the y axis, and the parameter `y1` controls the ending position on the y axis.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
 coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
 ```
-
-To generate a plot, the `plot` method is used, which takes two positional arguments, a `gTrack` and a genomic window over which to generate the plot. The genomic window can be specified as either a `GRanges`, `GRangesList`, or a character vector that can be parsed as `GRanges`. (If `window` is `NULL`, then all genomic regions defined in the supplied gTrack will be plotted).
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 ## specify genomic region that will be plotted

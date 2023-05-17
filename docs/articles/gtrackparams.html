@@ -131,9 +131,9 @@
 <p><img src="gtrackparams_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 </div>
 <div class="section level3">
-<h3 id="y-axis-label-yaxis">Y-axis label (yaxis)<a class="anchor" aria-label="anchor" href="#y-axis-label-yaxis"></a>
+<h3 id="displaying-or-hiding-the-y-axis-yaxis">Displaying or hiding the Y-axis (yaxis)<a class="anchor" aria-label="anchor" href="#displaying-or-hiding-the-y-axis-yaxis"></a>
 </h3>
-<p>The label of the Y-axis on the left side of a <code>gTrack</code> can be toggled on or off using the logical parameter <code>yaxis</code>, which has default value <code>TRUE</code> if <code>y.field</code> is specified and <code>FALSE</code> if not.</p>
+<p>The Y-axis of a <code>gTrack</code> can be toggled on or off entirely using the logical parameter <code>yaxis</code>, which has default value <code>TRUE</code> if <code>y.field</code> is specified and <code>FALSE</code> if not.</p>
 <p>Here is an example where <code>yaxis</code> is deliberately set as <code>FALSE</code> despite suppling a value to <code>y.field</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
@@ -213,10 +213,10 @@
 <span><span class="va">tiles</span> <span class="op">=</span> <span class="fu">gUtils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gUtils/man/gr.tile.html" class="external-link">gr.tile</a></span><span class="op">(</span><span class="va">win</span>, width <span class="op">=</span> <span class="fl">1e4</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## gTrack without vertical staggering</span></span>
-<span><span class="va">tiles.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span><span class="op">)</span></span>
+<span><span class="va">tiles.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span>, name <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## stack intervals within 1 Kbp of each other</span></span>
-<span><span class="va">tiles.stack.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span>, stack.gap <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">tiles.stack.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span>, stack.gap <span class="op">=</span> <span class="fl">1000</span>, name <span class="op">=</span> <span class="st">"stacked"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">tiles.gt</span>, <span class="va">tiles.stack.gt</span><span class="op">)</span>, <span class="va">win</span><span class="op">)</span></span></code></pre></div>
 <p><img src="gtrackparams_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
@@ -229,10 +229,10 @@
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## plot everything</span></span>
-<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, name <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## only plot 50 points</span></span>
-<span><span class="va">coverage.downsample.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, max.ranges <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="va">coverage.downsample.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, max.ranges <span class="op">=</span> <span class="fl">50</span>, name <span class="op">=</span> <span class="st">"downsampled"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.downsample.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
@@ -242,6 +242,41 @@
 <div class="section level2">
 <h2 id="data-labels">Data labels<a class="anchor" aria-label="anchor" href="#data-labels"></a>
 </h2>
+<p>By default, named <code>GRanges</code> and <code>GRangesList</code> are labeled in <code>gTrack</code>. This behavior is illustrated in the following example.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## define plotting window</span></span>
+<span><span class="va">win</span> <span class="op">=</span> <span class="fu">GRanges</span><span class="op">(</span>seqnames <span class="op">=</span> <span class="st">"1"</span>, ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span>, width <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## create named GRanges</span></span>
+<span><span class="va">gr</span> <span class="op">=</span> <span class="fu">GRanges</span><span class="op">(</span>seqnames <span class="op">=</span> <span class="st">"1"</span>, ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">50001</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">1e3</span><span class="op">)</span>, strand <span class="op">=</span> <span class="st">"+"</span>, other_labels <span class="op">=</span> <span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## create gTrack</span></span>
+<span><span class="va">gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">gr</span>, name <span class="op">=</span> <span class="st">"original"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">gt</span><span class="op">)</span>, <span class="va">win</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<div class="section level3">
+<h3 id="suppressing-labels">Suppressing labels<a class="anchor" aria-label="anchor" href="#suppressing-labels"></a>
+</h3>
+<p>These labels can be hidden by setting <code>labels.suppress</code> to <code>TRUE</code>. If you want to specifically supress labels of a <code>GRanges</code> or <code>GRangesList</code>, you can also use <code>labels.suppress.gr</code> or <code>labels.suppress.grl</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## create gTrack with no labels</span></span>
+<span><span class="va">nolabels.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">gr</span>, labels.suppress <span class="op">=</span> <span class="cn">TRUE</span>, name <span class="op">=</span> <span class="st">"no labels"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">gt</span>, <span class="va">nolabels.gt</span><span class="op">)</span>, <span class="va">win</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="specifying-labels">Specifying labels<a class="anchor" aria-label="anchor" href="#specifying-labels"></a>
+</h3>
+<p>Labels can also be specified in a metadata column of a <code>GRanges</code> or <code>GRangesList</code>. To use these labels, the name of the relevant column should be passed as an argument for <code>gr.labelfield</code> or <code>grl.labelfield</code>, as seen in the example below.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">otherlabels.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">gr</span>, gr.labelfield <span class="op">=</span> <span class="st">"other_labels"</span>, name <span class="op">=</span> <span class="st">"other labels"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">gt</span>, <span class="va">otherlabels.gt</span><span class="op">)</span>, <span class="va">win</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="point-and-line-style">Point and line style<a class="anchor" aria-label="anchor" href="#point-and-line-style"></a>

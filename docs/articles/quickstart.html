@@ -99,48 +99,82 @@
 <p>GRanges can be used as the starting point for creating scatter plots, bar plots, and line plots. The <code>x</code>-coordinate of each data point in these plots is specified by the genomic position, while the <code>y</code>-coordinate is stored in a user-defined metadata column of the <code>GRanges</code> object.</p>
 <p>In this example, we will create <code>gTrack</code>s to plot read depth in 1 Kbp genomic intervals.</p>
 <div class="section level3">
-<h3 id="scatter-plot">Scatter plot<a class="anchor" aria-label="anchor" href="#scatter-plot"></a>
+<h3 id="rectangles">Rectangles<a class="anchor" aria-label="anchor" href="#rectangles"></a>
 </h3>
-<p>In this first example, we will create a scatter plot. The (normalized) read depth is contained in a metadata column called <code>cn</code>. We need to specify this column name in the argument <code>y.field</code> when creating our gTrack. In addition, to create a scatter plot, we need to set the parameter <code>circles</code> to <code>TRUE</code>. The parameter <code>lwd.border</code> controls the size of the points in the scatter plot, the parameter <code>y0</code> controls the starting position on the y axis, and the parameter <code>y1</code> controls the ending position on the y axis.</p>
+<p>The most basic plot in gTrack will represent each supplied genomic interval as a rectangle. If strand is provided, the verticle edges of the rectangle will be bent in a direction indicating strand (towards the right for <code>+</code> stranded intervals, and towards the left for <code>-</code> stranded intervals. This <code>GRanges</code> contains genomic bins that are all 1 Kbp in width without a strand. However, for the purposes of demonstration, we will also plot some stranded intervals to demonstrate the effect.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="co">## create a plus stranded interval</span></span>
+<span><span class="va">plus.coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">strand</span><span class="op">(</span><span class="va">plus.coverage.gr</span><span class="op">)</span> <span class="op">=</span> <span class="st">"+"</span></span>
+<span><span class="va">minus.coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">strand</span><span class="op">(</span><span class="va">minus.coverage.gr</span><span class="op">)</span> <span class="op">=</span> <span class="st">"-"</span></span>
+<span></span>
+<span><span class="co">## create gTracks</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span><span class="op">)</span></span>
+<span><span class="va">plus.coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">plus.coverage.gr</span><span class="op">)</span></span>
+<span><span class="va">minus.coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">minus.coverage.gr</span><span class="op">)</span></span></code></pre></div>
 <p>To generate a plot, the <code>plot</code> method is used, which takes two positional arguments, a <code>gTrack</code> and a genomic window over which to generate the plot. The genomic window can be specified as either a <code>GRanges</code>, <code>GRangesList</code>, or a character vector that can be parsed as <code>GRanges</code>. (If <code>window</code> is <code>NULL</code>, then all genomic regions defined in the supplied gTrack will be plotted).</p>
+<p>Here is the original (unstranded) intervals:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## specify genomic region that will be plotted</span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6850000-7050000"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">fp</span><span class="op">)</span></span></code></pre></div>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p>Here is the <code>+</code> stranded intervals:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## specify genomic region that will be plotted</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">plus.coverage.gt</span>, <span class="va">fp</span><span class="op">)</span></span></code></pre></div>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p>Here is the <code>-</code> stranded intervals:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## specify genomic region that will be plotted</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">minus.coverage.gt</span>, <span class="va">fp</span><span class="op">)</span></span></code></pre></div>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="scatter-plot">Scatter plot<a class="anchor" aria-label="anchor" href="#scatter-plot"></a>
+</h3>
+<p>In this example, we will create a scatter plot. In this <code>GRanges</code>, the (normalized) read depth is contained in a metadata column called <code>cn</code>. We need to specify this column name in the argument <code>y.field</code> when creating our gTrack. To create a scatter plot, we need to set the parameter <code>circles</code> to <code>TRUE</code>. The parameter <code>lwd.border</code> controls the size of the points in the scatter plot, the parameter <code>y0</code> controls the starting position on the y axis, and the parameter <code>y1</code> controls the ending position on the y axis.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## specify genomic region that will be plotted</span></span>
 <span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="bar-plot">Bar plot<a class="anchor" aria-label="anchor" href="#bar-plot"></a>
 </h3>
 <p>Next, we will plot the same data as a bar plot. To do this, we will set the parameter <code>bars</code> to <code>TRUE</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.bars.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, bars <span class="op">=</span> <span class="cn">TRUE</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coverage.bars.gt</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="line-plot">Line plot<a class="anchor" aria-label="anchor" href="#line-plot"></a>
 </h3>
 <p>Finally, we will plot these data as a line plot, by setting <code>lines</code> to <code>TRUE</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.lines.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, lines <span class="op">=</span> <span class="cn">TRUE</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">coverage.lines.gt</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="multiple-plots">Multiple plots<a class="anchor" aria-label="anchor" href="#multiple-plots"></a>
 </h3>
 <p>A useful feature of <code>gTrack</code> objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example. The direction of concatenation is from the bottom up (so the first <code>gTrack</code> corresponds with the bottom-most subplot and the final <code>gTrack</code> corresponds with the top-most subplot).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">concatenated.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.bars.gt</span>, <span class="va">coverage.lines.gt</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">concatenated.gt</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -150,12 +184,12 @@
 <p>In this example, we will create a gTrack from junction-supporting read pairs. Briefly, these are read pairs that form split, gapped, or discordant alignments, hinting at the existence of a genomic rearrangement.</p>
 <p>The alignments associated with each read pair are represented by a single entry in this example’s <code>GRangesList</code>. In the corresponding gTrack, alignments from the same <code>GRangesList</code> entry are linked together by a light gray horizontal line, making it easy for them to be visually associated.</p>
 <p>You can see that there are many junction-supporting reads associated with read depth change points in the coverage <code>gTrack</code> which makes sense because aberrant adjacencies can produce copy number variants.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">reads</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.reads.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">reads.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">reads</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">reads.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="matrices">Matrices<a class="anchor" aria-label="anchor" href="#matrices"></a>
@@ -166,14 +200,14 @@
 <p>A <code>gTrack</code> can be created from a <code>GRanges</code> and a corresponding adjacency matrix in order to plot associations between two genomic ranges. One example of this would be a heatmap, where the color of each cell is proportional to some value defined by its corresponding genomic regions.</p>
 <p>In this example, we will create a heatmap of the number of shared read <code>qname</code>s between pairs of genomic intervals. We will read a <code>GRanges</code> and associated <code>matrix</code> and create a <code>gTrack</code> from these inputs, which we will plot alongside the coverage.</p>
 <p>As you can see, the off-diagonal elements correspond with copy number changep points in the coverage!</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mdata.mat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.mdata.mat.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mdata.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.mdata.gr.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">heatmap.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">mdata.gr</span>, mdata <span class="op">=</span> <span class="va">mdata.mat</span>, cmap.max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">heatmap.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="connections-edges">Connections (edges)<a class="anchor" aria-label="anchor" href="#connections-edges"></a>
@@ -189,30 +223,30 @@
 </h2>
 <p><code>gGraph</code>s are genome graphs in which nodes represent (signed) genomic intervals, and edges represent adjacencies between those intervals (see our <code>gGnome</code> package <a href="https://github.com/mskilab/gGnome" class="external-link">here</a>!).</p>
 <p>A <code>gTrack</code> can be created from a <code>gGraph</code> using either the <code>$gt</code> active field or <code>$gtrack</code> method, as shown below. In this example, we will create a plot of a tumor <code>gGraph</code> and the associated coverage profile.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gg</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">gg</span><span class="op">$</span><span class="va">gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="gwalk">gWalk<a class="anchor" aria-label="anchor" href="#gwalk"></a>
 </h2>
 <p><code>gWalk</code>s represent paths through a <code>gGraph</code>. Generally, they represent somatic haplotypes that could exist in a genome corresponding with a give <code>gGraph</code> (more details in the <code>gGnome</code> package!). Like <code>gGraph</code>s, <code>gWalk</code>s have active field <code>$gt</code> and method <code>$gtrack</code>, both of which will produce a <code>gTrack</code>.</p>
 <p>The following example plots a set of <code>gWalk</code>s associated with the <code>gGraph</code> plotted above.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wks</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.walks.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">gg</span><span class="op">$</span><span class="va">gt</span>, <span class="va">wks</span><span class="op">$</span><span class="va">gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-14-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="gmatrix">gMatrix<a class="anchor" aria-label="anchor" href="#gmatrix"></a>
 </h2>
 <p><code>gMatrix</code> is an object implemented in the package <code>GxG</code> that facilitates analysis and visualization of paired genomic intervals. There are many use cases for <code>gMatrix</code>, but the one used in this example is Hi-C data, which consists of read counts shared by pairs of genomic bins. We will plot the Hi-C profile associated with this locus.</p>
 <p>Again, similar to <code>gWalk</code> and <code>gGraph</code>, a <code>gTrack</code> can be created for a <code>gMatrix</code> with the active field <code>$gt</code> or method <code>$gtrack</code>. Here we will use the <code>$gtrack</code> method to set a parameter for coloring the heatmap (<code>cmap.max</code>).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gm</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.hic.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">gg</span><span class="op">$</span><span class="va">gt</span>, <span class="va">gm</span><span class="op">$</span><span class="fu">gtrack</span><span class="op">(</span>cmap.max <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="quickstart_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<p><img src="quickstart_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 </div>
   </div>
 

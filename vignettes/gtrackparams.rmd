@@ -50,9 +50,9 @@ fp = parse.gr("1:6043576-7172800")
 plot(c(coverage.gt, coverage.name.gt), fp + 1e5)
 ```
 
-## Y-axis label (yaxis)
+## Displaying or hiding the Y-axis (yaxis)
 
-The label of the Y-axis on the left side of a `gTrack` can be toggled on or off using the logical parameter `yaxis`, which has default value `TRUE` if `y.field` is specified and `FALSE` if not.
+The Y-axis of a `gTrack` can be toggled on or off entirely using the logical parameter `yaxis`, which has default value `TRUE` if `y.field` is specified and `FALSE` if not.
 
 Here is an example where `yaxis` is deliberately set as `FALSE` despite suppling a value to `y.field`.
 
@@ -132,10 +132,10 @@ win = GRanges(seqnames = "1", ranges = IRanges(start = 1, width = 1e5))
 tiles = gUtils::gr.tile(win, width = 1e4)
 
 ## gTrack without vertical staggering
-tiles.gt = gTrack(tiles)
+tiles.gt = gTrack(tiles, name = "original")
 
 ## stack intervals within 1 Kbp of each other
-tiles.stack.gt = gTrack(tiles, stack.gap = 1000)
+tiles.stack.gt = gTrack(tiles, stack.gap = 1000, name = "stacked")
 
 plot(c(tiles.gt, tiles.stack.gt), win)
 ```
@@ -148,10 +148,10 @@ A `gTrack` with a huge number of genomic intervals can take a long time to plot,
 coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
 
 ## plot everything
-coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2)
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, name = "original")
 
 ## only plot 50 points
-coverage.downsample.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, max.ranges = 50)
+coverage.downsample.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, max.ranges = 50, name = "downsampled")
 
 fp = parse.gr("1:6043576-7172800")
 plot(c(coverage.gt, coverage.downsample.gt), fp + 1e5)
@@ -159,9 +159,60 @@ plot(c(coverage.gt, coverage.downsample.gt), fp + 1e5)
 
 # Data labels
 
+By default, named `GRanges` and `GRangesList` are labeled in `gTrack`. This behavior is illustrated in the following example.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+## define plotting window
+win = GRanges(seqnames = "1", ranges = IRanges(start = 1, width = 1e5))
+
+## create named GRanges
+gr = GRanges(seqnames = "1", ranges = IRanges(start = c(1, 50001), width = 1e3), strand = "+", other_labels = c("C", "D"))
+names(gr) = c("A", "B")
+
+## create gTrack
+gt = gTrack(gr, name = "original")
+
+plot(c(gt), win)
+```
+
+## Suppressing labels
+
+These labels can be hidden by setting `labels.suppress` to `TRUE`. If you want to specifically supress labels of a `GRanges` or `GRangesList`, you can also use `labels.suppress.gr` or `labels.suppress.grl`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+## create gTrack with no labels
+nolabels.gt = gTrack(gr, labels.suppress = TRUE, name = "no labels")
+
+plot(c(gt, nolabels.gt), win)
+```
+
+## Specifying labels
+
+Labels can also be specified in a metadata column of a `GRanges` or `GRangesList`. To use these labels, the name of the relevant column should be passed as an argument for `gr.labelfield` or `grl.labelfield`, as seen in the example below.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+otherlabels.gt = gTrack(gr, gr.labelfield = "other_labels", name = "other labels")
+
+plot(c(gt, otherlabels.gt), win)
+```
+
 # Point and line style
 
 ## Scatterplot point size (lwd.border)
+
+The size of points in a scatterplot can be controlled by `lwd.border` with larger values producing larger points. Here is an illustrative example.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## two gTracks with slightly different point sizes
+coverage.small.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, name = "small")
+coverage.big.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.5, y0 = 0, y1 = 12, name = "big")
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.small.gt, coverage.big.gt), fp + 1e5)
+```
+
 
 ## Width of plotted ranges (ywid)
 
