@@ -12,11 +12,30 @@ knitr::opts_chunk$set(fig.height=10)
 
 This is a (non-comprehensive) overview of `gTrack` parameters that are commonly modified from their default values.
 
-# Axes
+# Axes and data
+
+## Y-coordinates (y.field)
+
+The x-coordinate of `gTrack` data is always a genomic interval. The y-coordinate can be either unspecified, or supplied in a metadata column of the `GRanges` or `GRangesList`. The name of this metadata column can be specified by supplying a character string to argument for `y.field`.
+
+In the following example, we will plot two different metadata fields, one named `foreground` and one named `cn`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## read depth gTrack without name argument
+coverage.cn.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+
+## read depth gTrack with name argument
+coverage.foreground.gt = gTrack(coverage.gr, y.field = "foreground", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.cn.gt, coverage.foreground.gt), fp + 1e5)
+```
 
 ## Track names (name)
 
-The `name` specifies the track label that is shown to the right of a subplot. Arguments must be character vectors. The default is an empty string, which creates an unlabeled plot. Below is an example of a scatter plot with and without a `name` argument.
+The `name` specifies the track label that is shown to the right of a subplot. Arguments must be character vectors. The default behavior is to set `name` to an empty string if `y.field` is not specified, and otherwise to set `name` to the value passed to `y.field`. Below is an example of a scatter plot with and without a `name` argument.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
@@ -29,6 +48,25 @@ coverage.name.gt = gTrack(coverage.gr, name = "coverage", y.field = "cn", circle
 
 fp = parse.gr("1:6043576-7172800")
 plot(c(coverage.gt, coverage.name.gt), fp + 1e5)
+```
+
+## Y-axis label (yaxis)
+
+The label of the Y-axis on the left side of a `gTrack` can be toggled on or off using the logical parameter `yaxis`, which has default value `TRUE` if `y.field` is specified and `FALSE` if not.
+
+Here is an example where `yaxis` is deliberately set as `FALSE` despite suppling a value to `y.field`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## read depth gTrack
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+
+## read depth gTrack without Y-axis label
+coverage.noy.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, yaxis = FALSE)
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.gt, coverage.noy.gt), fp + 1e5)
 ```
 
 ## Quantile-based Y-axis cutoffs (y.quantile)
@@ -67,13 +105,57 @@ plot(c(coverage.wide.gt, coverage.narrow.gt), fp + 1e5)
 
 ## Unbounded Y-axes (y.cap)
 
-## Y-axis labels (yaxis)
+Sometimes we may not want to specify limits on the y-coordinates at all, but rather ensure all points are plotted, regardless of how big or small they may be. This can be done by setting `y.cap = FALSE` as shown in the following example.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## plot points 1st and 99th percentiles (default)
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2)
+
+## no limits on y
+coverage.all.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y.cap = FALSE)
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.gt, coverage.all.gt), fp + 1e5)
+```
 
 # Point density and spacing
 
 ## Stacking adjacent ranges (stack.gap)
 
+Sometimes closely spaced genomic intervals can be difficult to discern. If no y-coordinate is specified, sometimes it is helpful to stagger these intervals vertically to make them more visually distinct. This can be done by setting the parameter `stack.gap` to some numeric value. This will vertically stack adjacent intervals separated by a genomic distance (in base pairs) below that value.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+## create tiled genomic intervals
+win = GRanges(seqnames = "1", ranges = IRanges(start = 1, width = 1e5))
+tiles = gUtils::gr.tile(win, width = 1e4)
+
+## gTrack without vertical staggering
+tiles.gt = gTrack(tiles)
+
+## stack intervals within 1 Kbp of each other
+tiles.stack.gt = gTrack(tiles, stack.gap = 1000)
+
+plot(c(tiles.gt, tiles.stack.gt), win)
+```
+
 ## Number of plotted ranges (max.ranges)
+
+A `gTrack` with a huge number of genomic intervals can take a long time to plot, and if there are many overlapping points it doesn't make sense to include all of them. To downsample points, you can set `max.ranges` to some number, which will only plot that number of randomly selected points.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+
+## plot everything
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2)
+
+## only plot 50 points
+coverage.downsample.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, max.ranges = 50)
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.gt, coverage.downsample.gt), fp + 1e5)
+```
 
 # Data labels
 

@@ -93,13 +93,31 @@
     
 <p>This is a (non-comprehensive) overview of <code>gTrack</code> parameters that are commonly modified from their default values.</p>
 <div class="section level2">
-<h2 id="axes">Axes<a class="anchor" aria-label="anchor" href="#axes"></a>
+<h2 id="axes-and-data">Axes and data<a class="anchor" aria-label="anchor" href="#axes-and-data"></a>
 </h2>
+<div class="section level3">
+<h3 id="y-coordinates-y-field">Y-coordinates (y.field)<a class="anchor" aria-label="anchor" href="#y-coordinates-y-field"></a>
+</h3>
+<p>The x-coordinate of <code>gTrack</code> data is always a genomic interval. The y-coordinate can be either unspecified, or supplied in a metadata column of the <code>GRanges</code> or <code>GRangesList</code>. The name of this metadata column can be specified by supplying a character string to argument for <code>y.field</code>.</p>
+<p>In the following example, we will plot two different metadata fields, one named <code>foreground</code> and one named <code>cn</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## read depth gTrack without name argument</span></span>
+<span><span class="va">coverage.cn.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## read depth gTrack with name argument</span></span>
+<span><span class="va">coverage.foreground.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"foreground"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.cn.gt</span>, <span class="va">coverage.foreground.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+</div>
 <div class="section level3">
 <h3 id="track-names-name">Track names (name)<a class="anchor" aria-label="anchor" href="#track-names-name"></a>
 </h3>
-<p>The <code>name</code> specifies the track label that is shown to the right of a subplot. Arguments must be character vectors. The default is an empty string, which creates an unlabeled plot. Below is an example of a scatter plot with and without a <code>name</code> argument.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>The <code>name</code> specifies the track label that is shown to the right of a subplot. Arguments must be character vectors. The default behavior is to set <code>name</code> to an empty string if <code>y.field</code> is not specified, and otherwise to set <code>name</code> to the value passed to <code>y.field</code>. Below is an example of a scatter plot with and without a <code>name</code> argument.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## read depth gTrack without name argument</span></span>
@@ -110,13 +128,31 @@
 <span></span>
 <span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.name.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="gtrackparams_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="y-axis-label-yaxis">Y-axis label (yaxis)<a class="anchor" aria-label="anchor" href="#y-axis-label-yaxis"></a>
+</h3>
+<p>The label of the Y-axis on the left side of a <code>gTrack</code> can be toggled on or off using the logical parameter <code>yaxis</code>, which has default value <code>TRUE</code> if <code>y.field</code> is specified and <code>FALSE</code> if not.</p>
+<p>Here is an example where <code>yaxis</code> is deliberately set as <code>FALSE</code> despite suppling a value to <code>y.field</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## read depth gTrack</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## read depth gTrack without Y-axis label</span></span>
+<span><span class="va">coverage.noy.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">12</span>, yaxis <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.noy.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="quantile-based-y-axis-cutoffs-y-quantile">Quantile-based Y-axis cutoffs (y.quantile)<a class="anchor" aria-label="anchor" href="#quantile-based-y-axis-cutoffs-y-quantile"></a>
 </h3>
 <p>By default, the minimum and maximum y-axis values are determined by the values of the 1st and 99th percentiles of the data to be plotted. This percentile can be changed by adjusting <code>y.quantile</code> in order to plot a wider or narrower range of points. The example below compares two different values of <code>y.quantile</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## plot points between 1st and 99th percentile</span></span>
@@ -127,13 +163,13 @@
 <span></span>
 <span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.1.gt</span>, <span class="va">coverage.20.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="gtrackparams_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="specifying-y-axis-cutoffs-y0-and-y1">Specifying Y-axis cutoffs (y0 and y1)<a class="anchor" aria-label="anchor" href="#specifying-y-axis-cutoffs-y0-and-y1"></a>
 </h3>
 <p>The minimum and maximum y-axis values can also be specified directly with <code>y0</code> and <code>y1</code> respectively, which must be numeric values. Below is an example of the same data with two different settings for <code>y0</code> and <code>y1</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">## plot points between 0 and 12</span></span>
@@ -144,15 +180,24 @@
 <span></span>
 <span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.wide.gt</span>, <span class="va">coverage.narrow.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="gtrackparams_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="unbounded-y-axes-y-cap">Unbounded Y-axes (y.cap)<a class="anchor" aria-label="anchor" href="#unbounded-y-axes-y-cap"></a>
 </h3>
-</div>
-<div class="section level3">
-<h3 id="y-axis-labels-yaxis">Y-axis labels (yaxis)<a class="anchor" aria-label="anchor" href="#y-axis-labels-yaxis"></a>
-</h3>
+<p>Sometimes we may not want to specify limits on the y-coordinates at all, but rather ensure all points are plotted, regardless of how big or small they may be. This can be done by setting <code>y.cap = FALSE</code> as shown in the following example.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## plot points 1st and 99th percentiles (default)</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## no limits on y</span></span>
+<span><span class="va">coverage.all.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, y.cap <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.all.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -161,10 +206,37 @@
 <div class="section level3">
 <h3 id="stacking-adjacent-ranges-stack-gap">Stacking adjacent ranges (stack.gap)<a class="anchor" aria-label="anchor" href="#stacking-adjacent-ranges-stack-gap"></a>
 </h3>
+<p>Sometimes closely spaced genomic intervals can be difficult to discern. If no y-coordinate is specified, sometimes it is helpful to stagger these intervals vertically to make them more visually distinct. This can be done by setting the parameter <code>stack.gap</code> to some numeric value. This will vertically stack adjacent intervals separated by a genomic distance (in base pairs) below that value.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## create tiled genomic intervals</span></span>
+<span><span class="va">win</span> <span class="op">=</span> <span class="fu">GRanges</span><span class="op">(</span>seqnames <span class="op">=</span> <span class="st">"1"</span>, ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span>, width <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">tiles</span> <span class="op">=</span> <span class="fu">gUtils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gUtils/man/gr.tile.html" class="external-link">gr.tile</a></span><span class="op">(</span><span class="va">win</span>, width <span class="op">=</span> <span class="fl">1e4</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## gTrack without vertical staggering</span></span>
+<span><span class="va">tiles.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## stack intervals within 1 Kbp of each other</span></span>
+<span><span class="va">tiles.stack.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">tiles</span>, stack.gap <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">tiles.gt</span>, <span class="va">tiles.stack.gt</span><span class="op">)</span>, <span class="va">win</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="number-of-plotted-ranges-max-ranges">Number of plotted ranges (max.ranges)<a class="anchor" aria-label="anchor" href="#number-of-plotted-ranges-max-ranges"></a>
 </h3>
+<p>A <code>gTrack</code> with a huge number of genomic intervals can take a long time to plot, and if there are many overlapping points it doesn’t make sense to include all of them. To downsample points, you can set <code>max.ranges</code> to some number, which will only plot that number of randomly selected points.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## plot everything</span></span>
+<span><span class="va">coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## only plot 50 points</span></span>
+<span><span class="va">coverage.downsample.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.gr</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, max.ranges <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fp</span> <span class="op">=</span> <span class="fu">parse.gr</span><span class="op">(</span><span class="st">"1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">coverage.downsample.gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
