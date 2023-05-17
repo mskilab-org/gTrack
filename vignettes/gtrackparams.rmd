@@ -188,10 +188,10 @@ plot(c(gt, nolabels.gt), win)
 
 ## Specifying labels
 
-Labels can also be specified in a metadata column of a `GRanges` or `GRangesList`. To use these labels, the name of the relevant column should be passed as an argument for `gr.labelfield` or `grl.labelfield`, as seen in the example below.
+Labels can also be specified in a metadata column of a `GRanges` or `GRangesList`. To use these labels, the name of the relevant column should be passed as an argument for `gr.labelfield` or `grl.labelfield`, as seen in the example below. These will appear in the middle of the GRanges instead of on the left.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-otherlabels.gt = gTrack(gr, gr.labelfield = "other_labels", name = "other labels")
+otherlabels.gt = gTrack(gr, gr.labelfield = "other_labels", name = "other labels", labels.suppress = TRUE)
 
 plot(c(gt, otherlabels.gt), win)
 ```
@@ -213,19 +213,112 @@ fp = parse.gr("1:6043576-7172800")
 plot(c(coverage.small.gt, coverage.big.gt), fp + 1e5)
 ```
 
-
 ## Width of plotted ranges (ywid)
+
+The thickness of plotted segments can be adjusted using the `ywid` parameter.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+win = GRanges(seqnames = "1", ranges = IRanges(start = 1, width = 1e5))
+
+## create named GRanges
+gr = GRanges(seqnames = "1", ranges = IRanges(start = c(1, 50001), width = 1e4), strand = "+", cn = c(1,2), labs = c("A", "B"))
+
+## create gTrack
+narrow.gt = gTrack(gr, name = "narrow", ywid = 0.3)
+wide.gt = gTrack(gr, name = "wide", ywid = 0.5)
+
+plot(c(narrow.gt, wide.gt), win)
+```
+
+Alternatively, by adjusting the `ywid` metadata column of supplied `GRanges`, the width of each range can be adjusted individually.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+win = GRanges(seqnames = "1", ranges = IRanges(start = 1, width = 1e5))
+
+## create named GRanges
+gr = GRanges(seqnames = "1", ranges = IRanges(start = c(1, 50001), width = 1e4), strand = "+", cn = c(1,2), labs = c("A", "B"), ywid = c(0.3, 0.5))
+
+## create gTrack
+gt = gTrack(gr, name = "narrow", gr.labelfield = "labs")
+
+plot(c(gt), win)
+```
 
 # Colors
 
 ## Specifying data color directly (col)
 
-## Coloring by secondary label (gr.colorfield)
+If `col` is a metadata column of the `GRanges` or `GRangesList` used to construct a gTrack and contains colors (either in hexadecimal form or as character vectors) then these values determine the color of the plotted point. Here is an example, where points within 10 Kbp of a junction breakend are colored in red.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+
+values(coverage.gr)[, "near_breakend"] = ifelse(coverage.gr %^% (stack(gg$junctions[type == "ALT"]$grl) + 1e4), "yes", "no")
+values(coverage.gr)[, "col"] = ifelse(values(coverage.gr)[, "near_breakend"] == "yes", "red", "black")
+
+coverage.col.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.col.gt, gg$gt), fp + 1e5)
+```
+
+## Coloring by secondary label (gr.colorfield and grl.colorfield)
+
+We can also map discrete values in a metadata column in to colors automatically. Here is one example, using values in `near_breakend`. Here, `gr.colorfield` is set to `"near_breakend"` indicating that the `gTrack` should color points according to their value in this column. For `GRangesList` the analogous parameter `grl.colorfield` should be modified.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.col.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, gr.colorfield = "near_breakend")
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.col.gt, gg$gt), fp + 1e5)
+```
 
 ## Custom map from label to color (colormaps)
 
+When using `gr.colorfield` we can also supply a custom map of labels to colors by passing a named vector to `colormap`. Here is one illustrative example.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.col.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, gr.colorfield = "near_breakend", colormap = c("yes" = "red", "no" = "blue"))
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.col.gt, gg$gt), fp + 1e5)
+```
+
 ## Background color (bg.col)
+
+We can change the background color of our gTrack using the `bg.col` param. Here is an example where the background is set to blue.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.col.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, col = "black", bg.col = alpha("blue", 0.1))
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.col.gt, gg$gt), fp + 1e5)
+```
 
 ## Color thresholds (cmap.max and cmap.min)
 
+When plotting `matrix` and `gMatrix` heatmaps it is sometimes useful to set thresholds for mapping numerical values to the color gradient. `cmap.min` is the minimum number, under which the gradient is not applied, and `cmap.max` is the maximum number to which the gradient is applied. Below, I plot two examples, with different ranges for these parameters.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 25}
+gm = readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
+fp = parse.gr("1:6043576-7172800")
+plot(c(gm$gtrack(cmap.min = 0, cmap.max = 1000, name = "wide"), gm$gtrack(cmap.min = 200, cmap.max = 300, name = "narrow")), fp + 1e5)
+```
+
 # Legends
+
+ In some of the examples above, you can see that when we use `gr.colorfield` or `grl.colorfield` a legend is created to show the mapping of labels to colors. Sometimes, we don't want to include a legend in our `gTrack`. Omitting the legend is accomplished by setting the parameter `legend` to `FALSE`.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+
+values(coverage.gr)[, "near_breakend"] = ifelse(coverage.gr %^% (stack(gg$junctions[type == "ALT"]$grl) + 1e4), "yes", "no")
+
+coverage.col.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12, gr.colorfield = "near_breakend")
+coverage.col.gt$legend = FALSE
+
+fp = parse.gr("1:6043576-7172800")
+plot(c(coverage.col.gt, gg$gt), fp + 1e5)
+```
