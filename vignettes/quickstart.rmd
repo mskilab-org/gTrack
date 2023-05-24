@@ -113,6 +113,8 @@ plot(concatenated.gt, fp + 1e5)
 
 A `gTrack` can also be created from a `GRangesList`. This is desirable when plotting ranges that are grouped together in some way, such as alignments deriving from a single read pair.
 
+## Unordered GRangesList (default)
+
 In this example, we will create a gTrack from junction-supporting read pairs. Briefly, these are read pairs that form split, gapped, or discordant alignments, hinting at the existence of a genomic rearrangement. 
 
 The alignments associated with each read pair are represented by a single entry in this example's `GRangesList`. In the corresponding gTrack, alignments from the same `GRangesList` entry are linked together by a light gray horizontal line, making it easy for them to be visually associated.
@@ -124,6 +126,21 @@ reads = readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gT
 reads.gt = gTrack(reads)
 
 plot(c(coverage.gt, reads.gt), fp + 1e5)
+```
+
+## Ordered GRangesList (draw.paths)
+
+Sometimes it is desirable to preserve the ordering of segments within each GRanges in a GRangesList. For instance, if each GRanges represents a rearranged somatic haplotype, it is helpful to visualize the exact order of a rearranged segment. This can be done by setting the parameter `draw.paths` to `TRUE`. Notice the difference between the plots when this parameter is set!
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+## create GRangesList for plotting
+wks.grl = readRDS("~/git/gTrack/inst/extdata/ovcar.subgraph.walks.rds")$grl
+
+fp = parse.gr("1:6043576-7172800")
+paths.gt = gTrack(wks.grl, draw.paths = TRUE, stack.gap = 1e7, name = "paths")
+nopaths.gt = gTrack(wks.grl, draw.paths = FALSE, stack.gap = 1e7, name = "no paths")
+
+plot(c(nopaths.gt, paths.gt), fp + 5e4)
 ```
 
 # Matrices
@@ -149,7 +166,7 @@ plot(c(coverage.gt, heatmap.gt), fp + 1e5)
 
 Instead of a heatmap, it is also possible to plot the edges between genomic intervals by supplying an adjacency list. In this next example, we will plot edges associated with the off-diagonal squares in the previous heatmap.
 
-```{r include = TRUE, message = FALSE, warning = FALSE
+```{r include = TRUE, message = FALSE, warning = FALSE}
 edges.dat = readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
 edges.gr = readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
 
