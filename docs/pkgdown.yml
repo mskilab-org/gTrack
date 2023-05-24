@@ -3,5 +3,6 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   quickstart: quickstart.html
+  gtrackparams: gtrackparams.html
 last_built: 2023-05-16T18:31Z
 
