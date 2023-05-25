@@ -23,8 +23,8 @@ library(gGnome)
 Finally, you'll need to import `gTrack` AND `gUtils`:
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-## this should be the path to your gTrack repo clone
-devtools::load_all("~/projects/gTrack") 
+project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+devtools::load_all(project_path) 
 library(gTrack)
 library(gUtils)
 knitr::opts_chunk$set(fig.height=10)
@@ -149,8 +149,7 @@ Sometimes it is desirable to preserve the ordering of segments within each GRang
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 ## create GRangesList for plotting
-wks.grl = readRDS("~/projects/gTrack/inst/extdata/ovcar.subgraph.walks.rds")$grl
-
+wks.grl <- readRDS(file.path(project_path, "inst/extdata/ovcar.subgraph.walks.rds"))$grl
 fp = parse.gr("1:6043576-7172800")
 paths.gt = gTrack(wks.grl, draw.paths = TRUE, stack.gap = 1e7, name = "paths")
 nopaths.gt = gTrack(wks.grl, draw.paths = FALSE, stack.gap = 1e7, name = "no paths")
