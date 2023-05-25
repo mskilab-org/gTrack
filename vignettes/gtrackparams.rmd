@@ -12,6 +12,20 @@ knitr::opts_chunk$set(fig.height=10)
 
 This is a (non-comprehensive) overview of `gTrack` parameters that are commonly modified from their default values.
 
+# Plotting multiple ranges
+
+Somtimes it is helpful to plot two non-contiguous genomic ranges side-by-side. This might happen if you're plotting a structural variant with breakends that are very distant from each other, or even on separate chromosomes. This can be done by supplying multiple ranges as the plotting window as either a `GRanges` or `GRangesList`. The following is an example of a plot with discontiguous ranges.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+
+gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+win = stack(gg$junctions[type == "ALT"]$grl[1])[, c()]
+plot(c(coverage.gt, gg$gt), win + 5e4)
+```
+
+
 # Axes and data
 
 ## Y-coordinates (y.field)
@@ -343,6 +357,7 @@ coverage.new = readRDS(system.file("extdata", "ovcar.subgraph.coverage.chr.rds",
 gg.new = readRDS(system.file("extdata", "ovcar.subgraph.chr.rds", package = "gTrack"))
 
 chr.fp = gUtils::parse.gr("chr1:6043576-7172800")
+
 gg.gt = gg.new$gtrack(chr.sub = FALSE, y.field = "cn")
 gg.gt$y.field = "cn"
 
