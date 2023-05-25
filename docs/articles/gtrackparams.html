@@ -407,6 +407,34 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.col.gt</span>, <span class="va">gg</span><span class="op">$</span><span class="va">gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="gtrackparams_files/figure-html/unnamed-chunk-21-1.png" width="700"></p>
 </div>
+<div class="section level2">
+<h2 id="links">Links<a class="anchor" aria-label="anchor" href="#links"></a>
+</h2>
+<p>It is possible to plot aberrant adjacencies as a separate track. These must be supplied to the as a <code>GRangesList</code> to the <code>links</code> parameter of <code>plot</code>. The length of each constituent <code>GRanges</code> in this <code>GRangesList</code> should be 2.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gg</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## create GRangesList corresponding with ALT edges</span></span>
+<span><span class="va">grl</span> <span class="op">=</span> <span class="va">gg</span><span class="op">$</span><span class="va">junctions</span><span class="op">[</span><span class="va">type</span> <span class="op">==</span> <span class="st">"ALT"</span><span class="op">]</span><span class="op">$</span><span class="va">grl</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">coverage.gt</span>, <span class="va">gg</span><span class="op">$</span><span class="va">gt</span><span class="op">)</span>, <span class="va">fp</span> <span class="op">+</span> <span class="fl">1e5</span>, links <span class="op">=</span> <span class="va">grl</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="sequence-names-with-chr-prefixes">Sequence names with chr prefixes<a class="anchor" aria-label="anchor" href="#sequence-names-with-chr-prefixes"></a>
+</h2>
+<p>Some genome assemblies (e.g. GrCh38) have sequence names with a <code>chr</code> prefix. By default, <code>gTrack</code> strips these prefixes, but sometimes it is preferable to keep them. This can be done by setting <code>chr.sub</code> to <code>FALSE</code> in both <code>plot</code> and <code>gTrack</code> instantiation. An example is below.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">coverage.new</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.coverage.chr.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">gg.new</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"ovcar.subgraph.chr.rds"</span>, package <span class="op">=</span> <span class="st">"gTrack"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">chr.fp</span> <span class="op">=</span> <span class="fu">gUtils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/gUtils/man/parse.gr.html" class="external-link">parse.gr</a></span><span class="op">(</span><span class="st">"chr1:6043576-7172800"</span><span class="op">)</span></span>
+<span><span class="va">gg.gt</span> <span class="op">=</span> <span class="va">gg.new</span><span class="op">$</span><span class="fu">gtrack</span><span class="op">(</span>chr.sub <span class="op">=</span> <span class="cn">FALSE</span>, y.field <span class="op">=</span> <span class="st">"cn"</span><span class="op">)</span></span>
+<span><span class="va">gg.gt</span><span class="op">$</span><span class="va">y.field</span> <span class="op">=</span> <span class="st">"cn"</span></span>
+<span></span>
+<span><span class="va">chr.coverage.gt</span> <span class="op">=</span> <span class="fu"><a href="../reference/gTrack-class.html">gTrack</a></span><span class="op">(</span><span class="va">coverage.new</span>, y.field <span class="op">=</span> <span class="st">"cn"</span>, circles <span class="op">=</span> <span class="cn">TRUE</span>, lwd.border <span class="op">=</span> <span class="fl">0.2</span>, chr.sub <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">grl</span> <span class="op">=</span> <span class="va">gg.new</span><span class="op">$</span><span class="va">junctions</span><span class="op">[</span><span class="va">type</span> <span class="op">==</span> <span class="st">"ALT"</span><span class="op">]</span><span class="op">$</span><span class="va">grl</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/c-methods.html">c</a></span><span class="op">(</span><span class="va">chr.coverage.gt</span>, <span class="va">gg.gt</span><span class="op">)</span>, <span class="va">chr.fp</span> <span class="op">+</span> <span class="fl">1e5</span>, links <span class="op">=</span> <span class="va">grl</span>, chr.sub <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="gtrackparams_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -322,3 +322,31 @@ coverage.col.gt$legend = FALSE
 fp = parse.gr("1:6043576-7172800")
 plot(c(coverage.col.gt, gg$gt), fp + 1e5)
 ```
+
+# Links
+
+It is possible to plot aberrant adjacencies as a separate track. These must be supplied to the as a `GRangesList` to the `links` parameter of `plot`. The length of each constituent `GRanges` in this `GRangesList` should be 2.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+## create GRangesList corresponding with ALT edges
+grl = gg$junctions[type == "ALT"]$grl
+plot(c(coverage.gt, gg$gt), fp + 1e5, links = grl)
+```
+
+# Sequence names with chr prefixes
+
+Some genome assemblies (e.g. GrCh38) have sequence names with a `chr` prefix. By default, `gTrack` strips these prefixes, but sometimes it is preferable to keep them. This can be done by setting `chr.sub` to `FALSE` in both `plot` and `gTrack` instantiation. An example is below.
+
+```{r include = TRUE, message = FALSE, warning = FALSE}
+coverage.new = readRDS(system.file("extdata", "ovcar.subgraph.coverage.chr.rds", package = "gTrack"))
+gg.new = readRDS(system.file("extdata", "ovcar.subgraph.chr.rds", package = "gTrack"))
+
+chr.fp = gUtils::parse.gr("chr1:6043576-7172800")
+gg.gt = gg.new$gtrack(chr.sub = FALSE, y.field = "cn")
+gg.gt$y.field = "cn"
+
+chr.coverage.gt = gTrack(coverage.new, y.field = "cn", circles = TRUE, lwd.border = 0.2, chr.sub = FALSE)
+grl = gg.new$junctions[type == "ALT"]$grl
+plot(c(chr.coverage.gt, gg.gt), chr.fp + 1e5, links = grl, chr.sub = FALSE)
+```
