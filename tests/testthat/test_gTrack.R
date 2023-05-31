@@ -1,3 +1,8 @@
+library(gTrack)
+library(gUtils)
+
+library(testthat)
+
 context("gTrack")
 
 create_plot_file <- function(function_call) {
