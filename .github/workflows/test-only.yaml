@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, feature/testing-suite]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies from GitHub
         run: |
           Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
-          Rscript -e "remotes::install_github('mskilab/gGnome')"
+          Rscript -e "remotes::install_github('mskilab/gGnome', dependencies=FALSE)"
 
       - name: Run tests
         run: |
