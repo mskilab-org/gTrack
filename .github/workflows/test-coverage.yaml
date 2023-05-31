@@ -2,7 +2,7 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, feature/testing-suite]
   pull_request:
     branches: [main, master]
   workflow_dispatch:
@@ -29,6 +29,11 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: covr
+
+      - name: Install dependencies from GitHub
+        run: |
+          Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
+          Rscript -e "remotes::install_github('mskilab/gGnome', dependencies = FALSE)"
 
       - name: Test coverage
         run: covr::codecov()
