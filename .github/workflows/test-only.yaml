@@ -26,6 +26,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
 
+      - name: Install dependencies from GitHub
+        run: |
+          Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
+          Rscript -e "remotes::install_github('mskilab/gGnome')"
+
       - name: Run tests
         run: |
           R CMD build .
