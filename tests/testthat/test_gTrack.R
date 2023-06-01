@@ -172,6 +172,7 @@ test_that("gTrack heatmap (mdata) function works as expected", {
   heatmap_gt <- gTrack(mdata_gr, mdata = mdata_mat, cmap.max = 10)
   heatmap_gt_saved <- readRDS(system.file("extdata", "test_data", "heatmap_gt.rds", package = "gTrack"))
   expect_equal(heatmap_gt, heatmap_gt_saved)
+  expect_error(mdata(mdata_mat, mdata_gr), NA)
   
   concatenated_gt <- c(test_data$coverage_gt_rd, heatmap_gt)
   
@@ -268,4 +269,33 @@ test_that("gencode constructor works as expected", {
   gencode_gt <- track.gencode()
   expect_error(plot(gencode_gt, test_data$fp + 1e5), NA)
   expect_gt(create_plot_file({plot(gencode_gt, test_data$fp + 1e5)}), 0)  
+})
+
+test_that('reduce method works as expected', {
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+    expect_identical(reduce(gt), GRanges(1, IRanges(1, 100)))
+})
+
+test_that('show setMethod', {
+    gt = gTrack(GRanges(1, IRanges(1,100)))
+    yfield_shown_gt = show(gt)[[1]]
+    expect_equal(yfield_shown_gt, NA)
+})
+
+test_that('brewer.master method works as expected', {
+  brewer_colors <- brewer.master(3)
+  expected_value <- c("#7FC97F", "#BEAED4", "#FDC086")
+  expect_equal(brewer_colors, expected_value)
+})
+
+test_that('seg.on.seg method works as expected', {
+  dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
+
+  expect_true(seg.on.seg(dt, dt)[1])
+  expect_true(seg.on.seg(dt, dt)[2])
+  expect_true(seg.on.seg(dt, dt)[3])
+})
+
+test_that('dedup method works as expected', {
+    expect_equal(dedup(c(rep(2, 10.5), rep(3, 20)))[30], "3.20")
 })
