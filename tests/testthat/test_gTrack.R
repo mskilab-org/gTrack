@@ -172,8 +172,8 @@ test_that("gTrack heatmap (mdata) function works as expected", {
   heatmap_gt <- gTrack(mdata_gr, mdata = mdata_mat, cmap.max = 10)
   heatmap_gt_saved <- readRDS(system.file("extdata", "test_data", "heatmap_gt.rds", package = "gTrack"))
   expect_equal(heatmap_gt, heatmap_gt_saved)
-  expect_error(mdata(mdata_mat, mdata_gr), NA)
-  
+  expect_error(mdata(heatmap_gt, GRanges()), NA)
+
   concatenated_gt <- c(test_data$coverage_gt_rd, heatmap_gt)
   
   # Test heatmap (mdata) plot
