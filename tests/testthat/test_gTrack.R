@@ -205,44 +205,44 @@ test_that("gTrack connections (edges) function works as expected", {
   
 })
 
-#test_that("gGraph function works as expected", {
-#  test_data <- create_test_data()
-#  fp <- parse.gr("1:6043576-7172800")
-#  
-#  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt)
-#  
-#  # Test gGraph plot
-#  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-#  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
-#  
-#})
-#
-#test_that("gWalk function works as expected", {
-#  test_data <- create_test_data()
-#  fp <- parse.gr("1:6043576-7172800")
-#  
-#  wks <- readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
-#  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, wks$gt)
-#  
-#  # Test gWalk plot
-#  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-#  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
-#  
-#})
-#
-#test_that("gMatrix function works as expected", {
-#  test_data <- create_test_data()
-#  fp <- parse.gr("1:6043576-7172800")
-#  
-#  # Test gTrack object
-#  gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
-#  gm_gt_saved <- readRDS(system.file("extdata", "test_data", "gm_gt.rds", package = "gTrack"))
-#  expect_equal(gm$gtrack(cmap.max = 1000), gm_gt_saved)
-#  
-#  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, gm$gtrack(cmap.max = 1000))
-#  
-#  # Test gMatrix plot
-#  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-#  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
-#  
-#})
+test_that("gGraph function works as expected", {
+  test_data <- create_test_data()
+  fp <- parse.gr("1:6043576-7172800")
+  
+  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt)
+  
+  # Test gGraph plot
+  expect_error(plot(concatenated_gt, fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  
+})
+
+test_that("gWalk function works as expected", {
+  test_data <- create_test_data()
+  fp <- parse.gr("1:6043576-7172800")
+  
+  wks <- readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
+  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, wks$gt)
+  
+  # Test gWalk plot
+  expect_error(plot(concatenated_gt, fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  
+})
+
+test_that("gMatrix function works as expected", {
+  test_data <- create_test_data()
+  fp <- parse.gr("1:6043576-7172800")
+  
+  # Test gTrack object
+  gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
+  gm_gt_saved <- readRDS(system.file("extdata", "test_data", "gm_gt.rds", package = "gTrack"))
+  expect_equal(gm$gtrack(cmap.max = 1000), gm_gt_saved)
+  
+  concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, gm$gtrack(cmap.max = 1000))
+  
+  # Test gMatrix plot
+  expect_error(plot(concatenated_gt, fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  
+})

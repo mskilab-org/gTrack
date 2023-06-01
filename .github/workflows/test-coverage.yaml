@@ -31,10 +31,20 @@ jobs:
         with:
           extra-packages: covr
 
-            #- name: Install dependencies from GitHub
-            #  run: |
-            #    Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
-            #    Rscript -e "remotes::install_github('mskilab/gGnome', dependencies = FALSE)"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglpk-dev
+
+      - name: Install specific versions of dependencies
+        run: |
+          Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
+          Rscript -e "remotes::install_version('igraph', version = '1.3.0', upgrade = 'never')"
+
+      - name: Install dependencies from GitHub
+        run: |
+          Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
+          Rscript -e "remotes::install_github('mskilab/gGnome', upgrade = 'never')"
 
       - name: Test coverage
         run: covr::codecov(token = Sys.getenv("CODECOV_TOKEN"))
