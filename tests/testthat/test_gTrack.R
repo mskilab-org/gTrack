@@ -34,6 +34,7 @@ create_test_data <- function() {
 
   gg <- readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
   
+  fp <- parse.gr("1:6043576-7172800")
   
   list(
     coverage_gr = coverage_gr,
@@ -43,7 +44,8 @@ create_test_data <- function() {
     plus_coverage_gt = plus_coverage_gt,
     minus_coverage_gt = minus_coverage_gt,
     coverage_gt_rd = coverage_gt_rd,
-    gg = gg
+    gg = gg,
+    fp = fp
   )
 }
 
@@ -77,35 +79,32 @@ test_that("GRanges and gTrack constructors work as expected", {
 
 test_that("gTrack plot function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6850000-7050000")
   
   # Test unstranded intervals
-  expect_error(plot(test_data$coverage_gt, fp), NA)
-  expect_gt(create_plot_file({plot(test_data$coverage_gt, fp)}), 0)
+  expect_error(plot(test_data$coverage_gt, test_data$fp), NA)
+  expect_gt(create_plot_file({plot(test_data$coverage_gt, test_data$fp)}), 0)
   
   # Test stranded intervals with "+"
-  expect_error(plot(test_data$plus_coverage_gt, fp), NA)
-  expect_gt(create_plot_file({plot(test_data$plus_coverage_gt, fp)}), 0)
+  expect_error(plot(test_data$plus_coverage_gt, test_data$fp), NA)
+  expect_gt(create_plot_file({plot(test_data$plus_coverage_gt, test_data$fp)}), 0)
   
   
   # Test stranded intervals with "-"
-  expect_error(plot(test_data$minus_coverage_gt, fp), NA)
-  expect_gt(create_plot_file({plot(test_data$minus_coverage_gt, fp)}), 0)
+  expect_error(plot(test_data$minus_coverage_gt, test_data$fp), NA)
+  expect_gt(create_plot_file({plot(test_data$minus_coverage_gt, test_data$fp)}), 0)
   
 })
 
 test_that("gTrack scatter plot function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   # Test scatter plot
-  expect_error(plot(test_data$coverage_gt_rd, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(test_data$coverage_gt_rd, fp + 1e5)}), 0)  
+  expect_error(plot(test_data$coverage_gt_rd, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(test_data$coverage_gt_rd, test_data$fp + 1e5)}), 0)  
 })
 
 test_that("gTrack bar plot function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   # Test gTrack object
   coverage_bars_gt <- gTrack(test_data$coverage_gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
@@ -113,14 +112,13 @@ test_that("gTrack bar plot function works as expected", {
   expect_equal(coverage_bars_gt, coverage_bars_gt_saved)
   
   # Test bar plot
-  expect_error(plot(coverage_bars_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(coverage_bars_gt, fp + 1e5)}), 0)  
+  expect_error(plot(coverage_bars_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(coverage_bars_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gTrack line plot function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   # Test gTrack object
   coverage_lines_gt <- gTrack(test_data$coverage_gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
@@ -128,14 +126,13 @@ test_that("gTrack line plot function works as expected", {
   expect_equal(coverage_lines_gt, coverage_lines_gt_saved)
   
   # Test line plot
-  expect_error(plot(coverage_lines_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(coverage_lines_gt, fp + 1e5)}), 0)  
+  expect_error(plot(coverage_lines_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(coverage_lines_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gTrack multiple plots function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   coverage_bars_gt <- gTrack(test_data$coverage_gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
   coverage_lines_gt <- gTrack(test_data$coverage_gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
@@ -143,14 +140,13 @@ test_that("gTrack multiple plots function works as expected", {
   concatenated_gt <- c(test_data$coverage_gt_rd, coverage_bars_gt, coverage_lines_gt)
   
   # Test multiple plots
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gTrack unordered GRangesList (default) function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   # Test gTrack object
   reads <- readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
@@ -161,14 +157,13 @@ test_that("gTrack unordered GRangesList (default) function works as expected", {
   concatenated_gt <- c(test_data$coverage_gt_rd, reads_gt)
   
   # Test unordered GRangesList (default) plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gTrack heatmap (mdata) function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   mdata_mat <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
   mdata_gr <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
@@ -181,14 +176,13 @@ test_that("gTrack heatmap (mdata) function works as expected", {
   concatenated_gt <- c(test_data$coverage_gt_rd, heatmap_gt)
   
   # Test heatmap (mdata) plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gTrack connections (edges) function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   edges_dat <- readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
   edges_gr <- readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
@@ -200,39 +194,36 @@ test_that("gTrack connections (edges) function works as expected", {
   concatenated_gt <- c(test_data$coverage_gt_rd, edges_gt)
   
   # Test connections (edges) plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gGraph function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt)
   
   # Test gGraph plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gWalk function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   wks <- readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
   concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, wks$gt)
   
   # Test gWalk plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
 })
 
 test_that("gMatrix function works as expected", {
   test_data <- create_test_data()
-  fp <- parse.gr("1:6043576-7172800")
   
   # Test gTrack object
   gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
@@ -242,7 +233,31 @@ test_that("gMatrix function works as expected", {
   concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, gm$gtrack(cmap.max = 1000))
   
   # Test gMatrix plot
-  expect_error(plot(concatenated_gt, fp + 1e5), NA)
-  expect_gt(create_plot_file({plot(concatenated_gt, fp + 1e5)}), 0)  
+  expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
+  expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)  
   
+})
+
+test_that("plot function handles links parameter correctly", {
+  test_data <- create_test_data()
+
+  # Create GRangesList corresponding to ALT edges
+  grl = test_data$gg$junctions[type == "ALT"]$grl
+
+  # Test the links parameter
+  expect_error(plot(test_data$gg$gt, test_data$fp + 1e5, links = grl), NA)
+  expect_gt(create_plot_file({plot(test_data$gg$gt, test_data$fp + 1e5, links = grl)}), 0)  
+})
+
+test_that("karyogram method works as expected", {
+  fp <- parse.gr("1:1-200000000")
+  karyogram_gt_hg18 = karyogram(hg19 = FALSE, bands = TRUE)
+  karyogram_gt_hg19 = karyogram(hg19 = TRUE, bands = TRUE)
+  
+  # Test karyogram plot
+  expect_error(plot(karyogram_gt_hg18, fp), NA)
+  expect_gt(create_plot_file({plot(karyogram_gt_hg18, fp)}), 0)  
+  
+  expect_error(plot(karyogram_gt_hg19, fp), NA)
+  expect_gt(create_plot_file({plot(karyogram_gt_hg19, fp)}), 0)  
 })
