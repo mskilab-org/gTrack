@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, feature/testing-suite]
+    branches: [main, master]
   pull_request:
     branches: [main, master]
   workflow_dispatch:

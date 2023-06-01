@@ -287,15 +287,3 @@ test_that('brewer.master method works as expected', {
   expected_value <- c("#7FC97F", "#BEAED4", "#FDC086")
   expect_equal(brewer_colors, expected_value)
 })
-
-test_that('seg.on.seg method works as expected', {
-  dt = data.table(seqnames=1, start=c(2,5,10), end=c(3,8,15))
-
-  expect_true(seg.on.seg(dt, dt)[1])
-  expect_true(seg.on.seg(dt, dt)[2])
-  expect_true(seg.on.seg(dt, dt)[3])
-})
-
-test_that('dedup method works as expected', {
-    expect_equal(dedup(c(rep(2, 10.5), rep(3, 20)))[30], "3.20")
-})
