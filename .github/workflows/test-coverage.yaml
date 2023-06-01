@@ -17,6 +17,7 @@ jobs:
         R: [ '4.0.2' ]
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV }}
 
     steps:
       - uses: actions/checkout@v2
@@ -36,5 +37,5 @@ jobs:
             #    Rscript -e "remotes::install_github('mskilab/gGnome', dependencies = FALSE)"
 
       - name: Test coverage
-        run: covr::codecov()
+        run: covr::codecov(token = Sys.getenv("CODECOV_TOKEN"))
         shell: Rscript {0}
