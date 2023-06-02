@@ -162,6 +162,17 @@ test_that("gTrack unordered GRangesList (default) function works as expected", {
   
 })
 
+test_that('mdata() function', {
+    gr = GRanges(1, IRanges(c(3,7,13), c(5,9,16)), strand=c('+','-','-'), seqinfo=Seqinfo("1", 25), name=c("A","B","C"))
+    heatMap = matrix(runif(length(gr)^2), nrow = 3, ncol = 3)
+    gTrack_heatMap = gTrack(gr, mdata = heatMap)
+    gTrack_heatMap_matrices = mdata(gTrack_heatMap)
+
+    expect_is(gTrack_heatMap_matrices[[1]], "matrix")
+    expect_equal(mdata(gTrack_heatMap, GRanges()), NULL)
+    expect_is(mdata(gTrack_heatMap, GRanges(1, IRanges(1,100))), "matrix")
+})
+
 test_that("gTrack heatmap (mdata) function works as expected", {
   test_data <- create_test_data()
   
@@ -172,7 +183,12 @@ test_that("gTrack heatmap (mdata) function works as expected", {
   heatmap_gt <- gTrack(mdata_gr, mdata = mdata_mat, cmap.max = 10)
   heatmap_gt_saved <- readRDS(system.file("extdata", "test_data", "heatmap_gt.rds", package = "gTrack"))
   expect_equal(heatmap_gt, heatmap_gt_saved)
-  expect_error(mdata(heatmap_gt, GRanges()), NA)
+
+  # Test mdata
+  mdata_saved <- matrix(data = 19443, nrow = 1, ncol = 1,
+                        dimnames = list(c("1:6043576-6053575"), c("1:6043576-6053575")))
+  expect_equal(mdata(heatmap_gt, GRanges()), NULL)
+  expect_equal(mdata(heatmap_gt, GRanges(1, IRanges(6043576,6045576))), mdata_saved)
 
   concatenated_gt <- c(test_data$coverage_gt_rd, heatmap_gt)
   
