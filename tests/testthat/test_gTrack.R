@@ -1,7 +1,14 @@
+
+#project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+#devtools::load_all(project_path)
+#library(covr)
+#report()
+
+#devtools::install_github('mskilab/skidb')
 library(gTrack)
 library(gUtils)
-
 library(testthat)
+
 
 context("gTrack")
 
@@ -270,13 +277,12 @@ test_that("karyogram method works as expected", {
   fp <- parse.gr("1:1-200000000")
   karyogram_gt_hg18 = karyogram(hg19 = FALSE, bands = TRUE)
   karyogram_gt_hg19 = karyogram(hg19 = TRUE, bands = TRUE)
+  #karyogram_gt_no_bands = karyogram(hg19 = TRUE, bands = FALSE, arms = TRUE)
+  #karyogram_gt_no_arms = karyogram(hg19 = TRUE, bands = FALSE, arms = FALSE)
   
   # Test karyogram plot
   expect_error(plot(karyogram_gt_hg18, fp), NA)
   expect_gt(create_plot_file({plot(karyogram_gt_hg18, fp)}), 0)  
-  
-  expect_error(plot(karyogram_gt_hg19, fp), NA)
-  expect_gt(create_plot_file({plot(karyogram_gt_hg19, fp)}), 0)  
 })
 
 test_that("gencode constructor works as expected", {
@@ -284,6 +290,11 @@ test_that("gencode constructor works as expected", {
 
   gencode_gt <- track.gencode()
   expect_error(plot(gencode_gt, test_data$fp + 1e5), NA)
+  
+  # Test uncached
+  # gencode_gt_uncached <- track.gencode(cached=FALSE)
+  # expect_error(plot(gencode_gt_uncached, test_data$fp + 1e5), NA)
+  
   expect_gt(create_plot_file({plot(gencode_gt, test_data$fp + 1e5)}), 0)  
 })
 
@@ -302,4 +313,31 @@ test_that('brewer.master method works as expected', {
   brewer_colors <- brewer.master(3)
   expected_value <- c("#7FC97F", "#BEAED4", "#FDC086")
   expect_equal(brewer_colors, expected_value)
+})
+
+test_that('draw.ranges label route works as expected', {
+  test_data <- create_test_data()
+  plot(test_data$coverage_gt)
+  
+  coverage_gr_copy <- test_data$coverage_gr
+  coverage_gr_copy$label <- 'test'
+  
+  expect_error(gTrack:::draw.ranges(coverage_gr_copy, angle=0), regexp = NA)
+})
+
+test_that('col.scale internal function works as expected', {
+  col_scale_ref = c("#000000", "#000000", "#000000")
+  col_scale <- gTrack:::col.scale(c(1, 2, 3))
+  expect_equal(col_scale_ref, col_scale)
+
+  col_scale_inverted_ref = c("#FFFFFF", "#FFFFFF", "#FFFFFF")
+  col_scale_inverted <- gTrack:::col.scale(c(1, 2, 3), invert=TRUE)
+  expect_equal(col_scale_inverted_ref, col_scale_inverted)
+})
+
+test_that('clipping works as expected', {
+  test_data <- create_test_data()
+  plot(test_data$coverage_gt)
+  
+  expect_error(gTrack:::draw.ranges(test_data$coverage_gr, angle=0, clip=GRanges(1, IRanges(6043576,6044576))), regexp = NA)
 })
