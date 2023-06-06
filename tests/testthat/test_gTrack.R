@@ -282,7 +282,7 @@ test_that("karyogram method works as expected", {
   fp <- parse.gr("1:1-200000000")
   karyogram_gt_hg18 = karyogram(hg19 = FALSE, bands = TRUE)
   karyogram_gt_hg19 = karyogram(hg19 = TRUE, bands = TRUE)
-  #karyogram_gt_no_bands = karyogram(hg19 = TRUE, bands = FALSE, arms = TRUE)
+  karyogram_gt_no_bands = karyogram(hg19 = TRUE, bands = FALSE, arms = TRUE)
   karyogram_gt_no_arms = karyogram(hg19 = TRUE, bands = FALSE, arms = FALSE)
   
   # Test karyogram plot
