@@ -1,13 +1,14 @@
 
-#project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-#devtools::load_all(project_path)
 #library(covr)
 #report()
+project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+devtools::load_all(project_path)
 
 #devtools::install_github('mskilab/skidb')
 library(gTrack)
 library(gUtils)
 library(testthat)
+library(bamUtils)
 
 
 context("gTrack")
@@ -40,8 +41,9 @@ create_test_data <- function() {
   coverage_gt_rd <- gTrack(coverage_gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
 
   gg <- readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+  reads <- readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
   
-  fp <- parse.gr("1:6043576-7172800")
+  fp <- parse.gr("1:6850000-7050000", seqlengths=coverage_gr$seqinfo)
   
   list(
     coverage_gr = coverage_gr,
@@ -52,7 +54,8 @@ create_test_data <- function() {
     minus_coverage_gt = minus_coverage_gt,
     coverage_gt_rd = coverage_gt_rd,
     gg = gg,
-    fp = fp
+    fp = fp,
+    reads = reads
   )
 }
 
@@ -156,8 +159,7 @@ test_that("gTrack unordered GRangesList (default) function works as expected", {
   test_data <- create_test_data()
   
   # Test gTrack object
-  reads <- readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
-  reads_gt <- gTrack(reads)
+  reads_gt <- gTrack(test_data$reads)
   reads_gt_saved <- readRDS(system.file("extdata", "test_data", "reads_gt.rds", package = "gTrack"))
   expect_equal(reads_gt, reads_gt_saved)
   
@@ -274,11 +276,14 @@ test_that("plot function handles links parameter correctly", {
 })
 
 test_that("karyogram method works as expected", {
+  project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+  devtools::load_all(project_path)
+  
   fp <- parse.gr("1:1-200000000")
   karyogram_gt_hg18 = karyogram(hg19 = FALSE, bands = TRUE)
   karyogram_gt_hg19 = karyogram(hg19 = TRUE, bands = TRUE)
   #karyogram_gt_no_bands = karyogram(hg19 = TRUE, bands = FALSE, arms = TRUE)
-  #karyogram_gt_no_arms = karyogram(hg19 = TRUE, bands = FALSE, arms = FALSE)
+  karyogram_gt_no_arms = karyogram(hg19 = TRUE, bands = FALSE, arms = FALSE)
   
   # Test karyogram plot
   expect_error(plot(karyogram_gt_hg18, fp), NA)
@@ -288,14 +293,16 @@ test_that("karyogram method works as expected", {
 test_that("gencode constructor works as expected", {
   test_data <- create_test_data()
 
+  fp <- parse.gr('1:6000000-6000100', seqlengths=test_data$coverage_gr$seqinfo$seqlengths)
   gencode_gt <- track.gencode()
-  expect_error(plot(gencode_gt, test_data$fp + 1e5), NA)
+  expect_error(plot(gencode_gt, fp + 1e4), NA)
   
   # Test uncached
-  # gencode_gt_uncached <- track.gencode(cached=FALSE)
-  # expect_error(plot(gencode_gt_uncached, test_data$fp + 1e5), NA)
+  Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
+  gencode_gt_uncached <- track.gencode(cached=FALSE)
+  expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
   
-  expect_gt(create_plot_file({plot(gencode_gt, test_data$fp + 1e5)}), 0)  
+  expect_gt(create_plot_file({plot(gencode_gt, fp + 1e4)}), 0)  
 })
 
 test_that('reduce method works as expected', {
@@ -316,6 +323,7 @@ test_that('brewer.master method works as expected', {
 })
 
 test_that('draw.ranges label route works as expected', {
+  Sys.setenv(DEFAULT_GENOME = "")
   test_data <- create_test_data()
   plot(test_data$coverage_gt)
   
@@ -324,6 +332,15 @@ test_that('draw.ranges label route works as expected', {
   
   expect_error(gTrack:::draw.ranges(coverage_gr_copy, angle=0), regexp = NA)
 })
+
+# test_that('draw.grl draw.var route works as expected', {
+#   project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+  # devtools::load_all(project_path)
+#   test_data <- create_test_data()
+#   plot(test_data$coverage_gt, draw.var=TRUE)
+#   
+#   expect_error(gTrack:::draw.grl(test_data$reads, var=test_data$reads, draw.var=TRUE, windows=GRanges(1, 10), new.plot=FALSE, new.axis=FALSE), regexp = NA)
+# })
 
 test_that('col.scale internal function works as expected', {
   col_scale_ref = c("#000000", "#000000", "#000000")

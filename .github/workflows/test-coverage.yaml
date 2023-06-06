@@ -45,6 +45,12 @@ jobs:
         run: |
           Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
           Rscript -e "remotes::install_github('mskilab/gGnome', upgrade = 'never')"
+          Rscript -e "remotes::install_github('mskilab/skidb', upgrade = 'never')"
+
+      - name: Setup data for tests
+        run: |
+          mkdir -p ~/DB/GENCODE
+          cp inst/extdata/test_data/gencode.v19.annotation.gtf.gr.rds ~/DB/GENCODE/gencode.v19.annotation.gtf.gr.rds
 
       - name: Test coverage
         run: covr::codecov(token = Sys.getenv("CODECOV_TOKEN"))
