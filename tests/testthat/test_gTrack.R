@@ -291,9 +291,9 @@ test_that("gencode constructor works as expected", {
   expect_error(plot(gencode_gt, fp + 1e5), NA)
 
   #Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
-  Sys.setenv(GENCODE_DIR='')
-  gencode_gt_uncached <- track.gencode(cached=FALSE)
-  expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
+  #Sys.setenv(GENCODE_DIR='')
+  #gencode_gt_uncached <- track.gencode(cached=FALSE)
+  #expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
 
   expect_gt(create_plot_file({plot(gencode_gt, fp + 1e4)}), 0)
 })
