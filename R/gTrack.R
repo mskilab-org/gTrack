@@ -1959,8 +1959,8 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
 
     if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
     {
-      tmp.tel = aggregate(formula = end ~ seqnames, data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
-      tmp.tel = structure(tmp.tel[,2], as.character(names = tmp.tel[,1]))+1
+      tmp.tel = aggregate(formula = end ~ as.character(seqnames), data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
+      tmp.tel = structure(tmp.tel[,2], names = as.character(tmp.tel[,1]))+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
                             seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
                     GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))))
