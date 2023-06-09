@@ -1960,7 +1960,7 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
     if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
     {
       tmp.tel = aggregate(formula = end ~ seqnames, data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
-      tmp.tel = structure(tmp.tel[,2], names = tmp.tel[,1])+1
+      tmp.tel = structure(tmp.tel[,2], as.character(names = tmp.tel[,1]))+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
                             seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
                     GRanges(names(tmp.tel), IRanges::IRanges(tmp.tel-tel.width+1, tmp.tel), seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))))
@@ -1971,7 +1971,7 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
       values(centromeres)$border = 'black';
       #            arms = reduce(setdiff(ucsc.bands, centromeres))
       arms = IRanges::gaps(c(telomeres, centromeres))
-      arms = arms[which(GenomicRanges::strand(arms)=='*')]
+      arms = arms[GenomicRanges::strand(arms)=='*']
       values(arms)$lwd.border = 1;
       values(arms)$border = 'black';
       karyotype = sort(c(arms, centromeres, telomeres))
@@ -1992,7 +1992,7 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
     {
       karyotype = sort(reduce(ucsc.bands))
       values(karyotype)$region = as.character(seqnames(karyotype))
-      colmap = structure(col.karyo$qrm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
+      colmap = structure(col.karyo$qarm[1:length(karyotype)], names = as.character(seqnames(karyotype)))
       GenomicRanges::strand(karyotype) = '+'
       si = si2gr(karyotype);
       si = suppressWarnings(si[order(as.numeric(as.character(seqnames(si))))])
