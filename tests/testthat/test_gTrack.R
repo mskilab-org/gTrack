@@ -4,9 +4,10 @@
 # devtools::load_all(project_path)
 
 #devtools::install_github('mskilab/skidb')
-#library(gTrack)
+library(gTrack)
 library(gUtils)
 library(bamUtils)
+library(gGnome)
 
 library(testthat)
 
