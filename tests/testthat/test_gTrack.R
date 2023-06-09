@@ -268,8 +268,6 @@ test_that("gMatrix function works as expected", {
 })
 
 test_that("plot function handles links parameter correctly", {
-  project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-  devtools::load_all(project_path)
   test_data <- create_test_data()
 
   # Create GRangesList corresponding to ALT edges
@@ -295,14 +293,14 @@ test_that("karyogram method works as expected", {
 })
 
 test_that("gencode constructor works as expected", {
-  devtools::load_all(project_path)
   test_data <- create_test_data()
 
   fp <- parse.gr('1:6000000-6000100', seqlengths=test_data$coverage_gr$seqinfo$seqlengths)
   gencode_gt <- track.gencode(grep='NPH', grepe='S2')
   expect_error(plot(gencode_gt, fp + 1e5), NA)
   
-  Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
+  #Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
+  Sys.setenv(GENCODE_DIR='')
   gencode_gt_uncached <- track.gencode(cached=FALSE)
   expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
   
@@ -338,9 +336,6 @@ test_that('draw.ranges label route works as expected', {
 })
 
 test_that('draw.grl draw.var route works as expected', {
-  project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-  devtools::load_all(project_path)
-  
   test_data <- create_test_data()
   plot(test_data$coverage_gt, draw.var=TRUE)
   var <- varbase(test_data$reads, soft = TRUE, verbose = TRUE)
@@ -368,7 +363,6 @@ test_that('clipping works as expected', {
 })
 
 test_that('get_seqinfo method works as expected', {
-  devtools::load_all(project_path)
   test_data <- create_test_data()
 
   bedgraph_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'))
