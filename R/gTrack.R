@@ -3234,6 +3234,7 @@ draw.grl = function(grl,
               return(0)
           }))
 
+          print(stack.gap)
           contig.lim = data.frame(
             group = names(vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)),
             pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,

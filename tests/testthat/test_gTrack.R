@@ -1,6 +1,6 @@
 #library(covr)
 #report()
-#project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
 #devtools::load_all(project_path)
 
 #devtools::install_github('mskilab/skidb')
@@ -44,6 +44,14 @@ create_test_data <- function() {
   
   fp <- parse.gr("1:6850000-7050000", seqlengths=coverage_gr$seqinfo)
   
+  file_paths <- list (
+    bedgraph <- system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'),
+    bed <- system.file('extdata', 'test_data', 'bigtest_sub.bed', package='gTrack'),
+    bigwig <- system.file('extdata', 'test_data', 'bigtest_sub.bw', package='gTrack'),
+    #gff_gt <- system.file('extdata', 'test_data', #'gencode.v38.genes.test.gff', package='gTrack'),
+    rds <- system.file('extdata', 'ovcar.subgraph.coverage.rds', package='gTrack'),
+  )
+
   list(
     coverage_gr = coverage_gr,
     plus_coverage_gr = plus_coverage_gr,
@@ -53,14 +61,14 @@ create_test_data <- function() {
     minus_coverage_gt = minus_coverage_gt,
     coverage_gt_rd = coverage_gt_rd,
     gg = gg,
+    reads = reads,
     fp = fp,
-    reads = reads
+    file_paths = file_paths
   )
 }
+test_data <- create_test_data()
 
 test_that("GRanges and gTrack constructors work as expected", {
-  test_data <- create_test_data()
-  
   # Check that the GRanges and gTrack objects have the correct class
   expect_is(test_data$coverage_gr, "GRanges")
   expect_is(test_data$coverage_gt, "gTrack")
@@ -85,14 +93,18 @@ test_that("GRanges and gTrack constructors work as expected", {
   expect_true(all(as.character(strand(test_data$minus_coverage_gr)) == "-"))
   expect_true(all(as.character(strand(test_data$coverage_gr)) == "*"))
   
+  # Check xaxis method
+  expect_error(xaxis(test_data$coverage_gt), NA)
+  
+  # Check sep method
+  expect_error(sep(test_data$coverage_gt), NA)
+  
   # Check that gtrack clear works
   coverage_gt_clear_test <- test_data$coverage_gt
   clear(coverage_gt_clear_test)
 })
 
 test_that("gTrack plot function works as expected", {
-  test_data <- create_test_data()
-  
   # Test unstranded intervals
   expect_error(plot(test_data$coverage_gt, test_data$fp), NA)
   expect_gt(create_plot_file({plot(test_data$coverage_gt, test_data$fp)}), 0)
@@ -101,24 +113,24 @@ test_that("gTrack plot function works as expected", {
   expect_error(plot(test_data$plus_coverage_gt, test_data$fp), NA)
   expect_gt(create_plot_file({plot(test_data$plus_coverage_gt, test_data$fp)}), 0)
   
-  
   # Test stranded intervals with "-"
   expect_error(plot(test_data$minus_coverage_gt, test_data$fp), NA)
   expect_gt(create_plot_file({plot(test_data$minus_coverage_gt, test_data$fp)}), 0)
   
+  # Test plot max ranges
+  expect_error(plot(test_data$minus_coverage_gt, test_data$fp, max.ranges=2), NA)
+  
+  devtools::load_all(project_path)
+  
 })
 
 test_that("gTrack scatter plot function works as expected", {
-  test_data <- create_test_data()
-  
   # Test scatter plot
   expect_error(plot(test_data$coverage_gt_rd, test_data$fp + 1e5), NA)
   expect_gt(create_plot_file({plot(test_data$coverage_gt_rd, test_data$fp + 1e5)}), 0)  
 })
 
 test_that("gTrack bar plot function works as expected", {
-  test_data <- create_test_data()
-  
   # Test gTrack object
   coverage_bars_gt <- gTrack(test_data$coverage_gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
   coverage_bars_gt_saved <- readRDS(system.file("extdata", "test_data", "coverage_bars_gt.rds", package = "gTrack"))
@@ -131,8 +143,6 @@ test_that("gTrack bar plot function works as expected", {
 })
 
 test_that("gTrack line plot function works as expected", {
-  test_data <- create_test_data()
-  
   # Test gTrack object
   coverage_lines_gt <- gTrack(test_data$coverage_gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
   coverage_lines_gt_saved <- readRDS(system.file("extdata", "test_data", "coverage_lines_gt.rds", package = "gTrack"))
@@ -145,8 +155,6 @@ test_that("gTrack line plot function works as expected", {
 })
 
 test_that("gTrack multiple plots function works as expected", {
-  test_data <- create_test_data()
-  
   coverage_bars_gt <- gTrack(test_data$coverage_gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
   coverage_lines_gt <- gTrack(test_data$coverage_gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
 
@@ -159,8 +167,6 @@ test_that("gTrack multiple plots function works as expected", {
 })
 
 test_that("gTrack unordered GRangesList (default) function works as expected", {
-  test_data <- create_test_data()
-  
   # Test gTrack object
   reads_gt <- gTrack(test_data$reads)
   reads_gt_saved <- readRDS(system.file("extdata", "test_data", "reads_gt.rds", package = "gTrack"))
@@ -186,8 +192,6 @@ test_that('mdata() function', {
 })
 
 test_that("gTrack heatmap (mdata) function works as expected", {
-  test_data <- create_test_data()
-  
   mdata_mat <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
   mdata_gr <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
   
@@ -211,8 +215,6 @@ test_that("gTrack heatmap (mdata) function works as expected", {
 })
 
 test_that("gTrack connections (edges) function works as expected", {
-  test_data <- create_test_data()
-  
   edges_dat <- readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
   edges_gr <- readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
 
@@ -229,8 +231,6 @@ test_that("gTrack connections (edges) function works as expected", {
 })
 
 test_that("gGraph function works as expected", {
-  test_data <- create_test_data()
-  
   concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt)
   
   # Test gGraph plot
@@ -240,8 +240,6 @@ test_that("gGraph function works as expected", {
 })
 
 test_that("gWalk function works as expected", {
-  test_data <- create_test_data()
-  
   wks <- readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
   concatenated_gt <- c(test_data$coverage_gt_rd, test_data$gg$gt, wks$gt)
   
@@ -252,8 +250,6 @@ test_that("gWalk function works as expected", {
 })
 
 test_that("gMatrix function works as expected", {
-  test_data <- create_test_data()
-  
   # Test gTrack object
   gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
   gm_gt_saved <- readRDS(system.file("extdata", "test_data", "gm_gt.rds", package = "gTrack"))
@@ -268,8 +264,6 @@ test_that("gMatrix function works as expected", {
 })
 
 test_that("plot function handles links parameter correctly", {
-  test_data <- create_test_data()
-
   # Create GRangesList corresponding to ALT edges
   grl = test_data$gg$junctions[type == "ALT"]$grl
   
@@ -293,8 +287,6 @@ test_that("karyogram method works as expected", {
 })
 
 test_that("gencode constructor works as expected", {
-  test_data <- create_test_data()
-
   fp <- parse.gr('1:6000000-6000100', seqlengths=test_data$coverage_gr$seqinfo$seqlengths)
   gencode_gt <- track.gencode(grep='NPH', grepe='S2')
   expect_error(plot(gencode_gt, fp + 1e5), NA)
@@ -326,23 +318,25 @@ test_that('brewer.master method works as expected', {
 
 test_that('draw.ranges label route works as expected', {
   Sys.setenv(DEFAULT_GENOME = "")
-  test_data <- create_test_data()
   plot(test_data$coverage_gt)
   
   coverage_gr_copy <- test_data$coverage_gr
   coverage_gr_copy$label <- 'test'
   
-  expect_error(gTrack:::draw.ranges(coverage_gr_copy, angle=0), regexp = NA)
+  expect_error(gTrack:::draw.ranges(coverage_gr_copy, angle=0), NA)
 })
 
 test_that('draw.grl draw.var route works as expected', {
-  test_data <- create_test_data()
   plot(test_data$coverage_gt, draw.var=TRUE)
-  var <- varbase(test_data$reads, soft = TRUE, verbose = TRUE)
+  
+  bam_path <- system.file('extdata', 'test_data', 'smallHCC1143BL.bam', package='gTrack')
+  bai_path <- system.file('extdata', 'test_data', 'smallHCC1143BL.bam.bai', package='gTrack')
+  
+  reads <- read.bam(bam_path, bai=bai_path, gr=GRanges(1, IRanges(1, 10000)))
+  var <- varbase(reads, soft = TRUE, verbose = TRUE)
 
-  expect_error(gTrack:::draw.grl(test_data$reads, var=var, 
-                                 draw.var=TRUE, draw.paths=TRUE, windows=GRanges(1, 10), 
-                                 new.plot=FALSE, new.axis=FALSE), regexp = NA)
+  var_gt <- gTrack(reads, var=var, draw.var=TRUE, draw.paths=TRUE)
+  plot(var_gt, '1:9900-10100')
 })
 
 test_that('col.scale internal function works as expected', {
@@ -356,18 +350,29 @@ test_that('col.scale internal function works as expected', {
 })
 
 test_that('clipping works as expected', {
-  test_data <- create_test_data()
   plot(test_data$coverage_gt)
   
-  expect_error(gTrack:::draw.ranges(test_data$coverage_gr, angle=0, clip=GRanges(1, IRanges(6043576,6044576))), regexp = NA)
+  expect_error(gTrack:::draw.ranges(test_data$coverage_gr, angle=0, clip=GRanges(1, IRanges(6043576,6044576))), NA)
 })
 
 test_that('get_seqinfo method works as expected', {
-  test_data <- create_test_data()
+  expect_error(gTrack(test_data$file_paths$bedgraph), NA)
+  expect_error(gTrack(test_data$file_paths$bed), NA)
+  expect_error(gTrack(test_data$file_paths$bigwig), NA)
+  #expect_error(gTrack(test_data$file_paths$gff), NA)
+  expect_error(gTrack(test_data$file_paths$rds), NA)
+})
 
-  bedgraph_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'))
-  bed_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bed', package='gTrack'))
-  bigwig_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bw', package='gTrack'))
-  #gff_gt <- gTrack(data=system.file('extdata', 'test_data', 'gencode.v38.genes.test.gff', package='gTrack'))
-  rds_gt <- gTrack(data=system.file('extdata', 'ovcar.subgraph.coverage.rds', package='gTrack'))
+test_that('extract_data_from_tmp_dat method works as expected', {
+  # bedgraph_gt <- gTrack(test_data$file_paths$bedgraph)
+  # bed_gt <- gTrack(test_data$file_paths$bed)
+  # gff_gt <- gTrack(test_data$file_paths$gff)
+  # rds_gt <- gTrack(test_data$file_paths$rds)
+  bigwig_gt <- gTrack(test_data$file_paths$bigwig)
+  
+  expect_error(plot(bigwig_gt, test_data$fp), NA)
+  # expect_error(plot(bedgraph_gt, test_data$fp), NA)
+  # expect_error(plot(bed_gt, test_data$fp), NA)
+  # expect_error(plot(gff_gt, test_data$fp), NA)
+  # expect_error(plot(rds_gt, test_data$fp), NA)
 })
