@@ -5589,7 +5589,7 @@ get_seqinfo <- function(.Object, seqinfo) {
 
     slen = c()
     if (is.null(formatting(.Object)$yaxis))
-      formatting(.Object)$yaxis = NA
+      .Object$yaxis = NA
 
     for (i in 1:length(.Object@data))
     {
@@ -5644,10 +5644,11 @@ get_seqinfo <- function(.Object, seqinfo) {
           if (is.null(slen))
             stop('External file must be a valid and existing .wig file')
         }
-        else if (grepl('\\.bed', x, ignore.case = TRUE)) ## only option is to load
+        else if (grepl('\\.bed$', x, ignore.case = TRUE)) ## only option is to load
         {
-          f = rtracklayer::BEDFile(normalizePath(x))
-          tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
+          f = fread(normalizePath(x))
+          colnames(f) = c("chrom", "start", "end")
+          tmp.out = dt2gr(f)
           if (is.null(tmp.out))
             stop('External file must be a valid and existing .bed file')
           else
@@ -5668,7 +5669,7 @@ get_seqinfo <- function(.Object, seqinfo) {
           f = rtracklayer::GFFFile(normalizePath(x))
           slen = tryCatch(GenomeInfoDb::seqlengths(f), error = function(x) NULL)
           if (is.null(slen))
-            stop('External file must be a valid and existing .gff file')
+            stop('External file must be a valid and existing .gff file with a seqlength')
         }
         else if (grepl('\\.2bit', x, ignore.case = TRUE)) {
           f = rtracklayer::TwoBitFile(normalizePath(x))
@@ -5678,14 +5679,14 @@ get_seqinfo <- function(.Object, seqinfo) {
         }
         else if (grepl('\\.bedgraph', x, ignore.case = TRUE)) ## only option is to load
         {
-          f = rtracklayer::BedGraphFile(normalizePath(x))
-          tmp.out = tryCatch(rtracklayer::import(f, asRangedData = FALSE), error = function(x) NULL)
+          f = rtracklayer::BEDGraphFile(normalizePath(x))
+          tmp.out = tryCatch(rtracklayer::import(f), error = function(x) NULL)
           if (is.null(tmp.out))
             stop('External file must be a valid and existing .bedgraph file')
           else
           {
             if (.Object@formatting$source.file.chrsub)
-              .Object@data[[i]] = gUtilts::gr.sub(tmp.out, 'chr', '')
+              .Object@data[[i]] = gUtils::gr.sub(tmp.out, 'chr', '')
             else
               .Object@data[[i]] = tmp.out
           }
@@ -5698,7 +5699,7 @@ get_seqinfo <- function(.Object, seqinfo) {
 
           if (is.null(tmp.out))
             stop('External file must be a valid and existing .rds file containing GRanges or GRangesList')
-          else if (!inherits(tmp.out, 'GRanges') | !inherits(tmp.out, 'GRangesList'))
+          else if (!inherits(tmp.out, 'GRanges') & !inherits(tmp.out, 'GRangesList'))
             stop('External file must be a valid and existing .rds file containing GRanges or GRangesList')
           else
           {
