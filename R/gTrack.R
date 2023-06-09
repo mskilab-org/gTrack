@@ -2993,7 +2993,7 @@ draw.grl = function(grl,
     if (!is.null(var))
         if (inherits(var, 'GRangesList'))
         {
-        VAR.COL = get.varcol()
+        VAR.COL = c('XA' = 'green', 'XG' = 'brown', 'XC' = 'blue', 'XT' = 'red', 'D' = 'white',  'I'= 'purple', 'N' = alpha('gray', 0.2), 'XX' = 'black', 'S' = alpha('pink', 0.9))
 
         if (!is.null(var.col))
             VAR.COL[names(var.col)] = var.col;
