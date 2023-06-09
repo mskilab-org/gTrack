@@ -1,7 +1,6 @@
-
 #library(covr)
 #report()
-#roject_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+#project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
 #devtools::load_all(project_path)
 
 #devtools::install_github('mskilab/skidb')
@@ -85,6 +84,10 @@ test_that("GRanges and gTrack constructors work as expected", {
   expect_true(all(as.character(strand(test_data$plus_coverage_gr)) == "+"))
   expect_true(all(as.character(strand(test_data$minus_coverage_gr)) == "-"))
   expect_true(all(as.character(strand(test_data$coverage_gr)) == "*"))
+  
+  # Check that gtrack clear works
+  coverage_gt_clear_test <- test_data$coverage_gt
+  clear(coverage_gt_clear_test)
 })
 
 test_that("gTrack plot function works as expected", {
@@ -265,13 +268,17 @@ test_that("gMatrix function works as expected", {
 })
 
 test_that("plot function handles links parameter correctly", {
+  project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+  devtools::load_all(project_path)
   test_data <- create_test_data()
 
   # Create GRangesList corresponding to ALT edges
   grl = test_data$gg$junctions[type == "ALT"]$grl
+  
+  fp = parse.gr("1:6043576-7172800")
 
   # Test the links parameter
-  expect_error(plot(test_data$gg$gt, test_data$fp + 1e5, links = grl), NA)
+  expect_error(plot(test_data$gg$gt, fp + 1e5, links = grl), NA)
   expect_gt(create_plot_file({plot(test_data$gg$gt, test_data$fp + 1e5, links = grl)}), 0)  
 })
 
@@ -288,13 +295,13 @@ test_that("karyogram method works as expected", {
 })
 
 test_that("gencode constructor works as expected", {
+  devtools::load_all(project_path)
   test_data <- create_test_data()
 
   fp <- parse.gr('1:6000000-6000100', seqlengths=test_data$coverage_gr$seqinfo$seqlengths)
-  gencode_gt <- track.gencode()
-  expect_error(plot(gencode_gt, fp + 1e4), NA)
+  gencode_gt <- track.gencode(grep='NPH', grepe='S2')
+  expect_error(plot(gencode_gt, fp + 1e5), NA)
   
-  # Test uncached
   Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
   gencode_gt_uncached <- track.gencode(cached=FALSE)
   expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
@@ -330,14 +337,18 @@ test_that('draw.ranges label route works as expected', {
   expect_error(gTrack:::draw.ranges(coverage_gr_copy, angle=0), regexp = NA)
 })
 
-# test_that('draw.grl draw.var route works as expected', {
-#   project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-  # devtools::load_all(project_path)
-#   test_data <- create_test_data()
-#   plot(test_data$coverage_gt, draw.var=TRUE)
-#   
-#   expect_error(gTrack:::draw.grl(test_data$reads, var=test_data$reads, draw.var=TRUE, windows=GRanges(1, 10), new.plot=FALSE, new.axis=FALSE), regexp = NA)
-# })
+test_that('draw.grl draw.var route works as expected', {
+  project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
+  devtools::load_all(project_path)
+  
+  test_data <- create_test_data()
+  plot(test_data$coverage_gt, draw.var=TRUE)
+  var <- varbase(test_data$reads, soft = TRUE, verbose = TRUE)
+
+  expect_error(gTrack:::draw.grl(test_data$reads, var=var, 
+                                 draw.var=TRUE, draw.paths=TRUE, windows=GRanges(1, 10), 
+                                 new.plot=FALSE, new.axis=FALSE), regexp = NA)
+})
 
 test_that('col.scale internal function works as expected', {
   col_scale_ref = c("#000000", "#000000", "#000000")
@@ -354,4 +365,15 @@ test_that('clipping works as expected', {
   plot(test_data$coverage_gt)
   
   expect_error(gTrack:::draw.ranges(test_data$coverage_gr, angle=0, clip=GRanges(1, IRanges(6043576,6044576))), regexp = NA)
+})
+
+test_that('get_seqinfo method works as expected', {
+  devtools::load_all(project_path)
+  test_data <- create_test_data()
+
+  bedgraph_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'))
+  bed_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bed', package='gTrack'))
+  bigwig_gt <- gTrack(data=system.file('extdata', 'test_data', 'bigtest_sub.bw', package='gTrack'))
+  #gff_gt <- gTrack(data=system.file('extdata', 'test_data', 'gencode.v38.genes.test.gff', package='gTrack'))
+  rds_gt <- gTrack(data=system.file('extdata', 'ovcar.subgraph.coverage.rds', package='gTrack'))
 })
