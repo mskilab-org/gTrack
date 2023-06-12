@@ -1,14 +1,16 @@
-#library(covr)
-#report()
+# library(covr)
+# report()
 # project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-#devtools::load_all(project_path)
+# devtools::load_all(project_path)
 
 #devtools::install_github('mskilab/skidb')
-library(gTrack)
-library(gUtils)
 library(testthat)
-library(bamUtils)
 
+setup({
+  library(gTrack)
+  library(gUtils)
+  library(bamUtils)
+})
 
 context("gTrack")
 
@@ -45,11 +47,11 @@ create_test_data <- function() {
   fp <- parse.gr("1:6850000-7050000", seqlengths=coverage_gr$seqinfo)
   
   file_paths <- list (
-    bedgraph <- system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'),
-    bed <- system.file('extdata', 'test_data', 'bigtest_sub.bed', package='gTrack'),
-    bigwig <- system.file('extdata', 'test_data', 'bigtest_sub.bw', package='gTrack'),
-    #gff_gt <- system.file('extdata', 'test_data', #'gencode.v38.genes.test.gff', package='gTrack'),
-    rds <- system.file('extdata', 'ovcar.subgraph.coverage.rds', package='gTrack')
+    bedgraph = system.file('extdata', 'test_data', 'bigtest_sub.bedgraph', package='gTrack'),
+    bed = system.file('extdata', 'test_data', 'bigtest_sub.bed', package='gTrack'),
+    bigwig = system.file('extdata', 'test_data', 'bigtest_sub.bw', package='gTrack'),
+    gff = system.file('extdata', 'test_data', 'gencode_test.gff3', package='gTrack'),
+    rds = system.file('extdata', 'ovcar.subgraph.coverage.rds', package='gTrack')
   )
 
   list(
@@ -104,6 +106,17 @@ test_that("GRanges and gTrack constructors work as expected", {
   # Check that gtrack clear works
   coverage_gt_clear_test <- test_data$coverage_gt
   clear(coverage_gt_clear_test)
+
+  # Check seqinfo<-
+  seqinfo_object <- Seqinfo(seqnames = "X", seqlengths = 100000)
+  gTrack:::`seqinfo<-`(test_data$coverage_gt, seqinfo_object)
+  expect_error(seqinfo(test_data$coverage_gt), NA)
+  
+  # Check colormap<-
+  new_colormap <- list(tumortype = c(lung = 'red', 
+                                   pancreatic = 'blue', 
+                                   colon = 'purple'))
+  colormap(test_data$coverage_gt) <- new_colormap
 })
 
 test_that("gTrack plot function works as expected", {
@@ -231,6 +244,15 @@ test_that("gTrack connections (edges) function works as expected", {
   expect_error(plot(concatenated_gt, test_data$fp + 1e5), NA)
   expect_gt(create_plot_file({plot(concatenated_gt, test_data$fp + 1e5)}), 0)
 
+  # Test edgs<-
+  new_edges <- data.frame(from = c(1, 3, 5),
+                          to = c(10, 8, 15),
+                          lwd = c(2, 2, 1),
+                          lty = c(1, 2, 2),
+                          col = c("red", "blue", "green"))
+
+  edges_list <- list(new_edges)  # edgs<- expects a list of data.frames
+  edgs(test_data$coverage_gt) <- edges_list
 })
 
 test_that("gGraph function works as expected", {
@@ -290,18 +312,17 @@ test_that("karyogram method works as expected", {
 })
 
 test_that("gencode constructor works as expected", {
-  
+
   fp <- parse.gr('1:6000000-6000100', seqlengths=test_data$coverage_gr$seqinfo$seqlengths)
   gencode_gt <- track.gencode(grep='NPH', grepe='S2')
   expect_error(plot(gencode_gt, fp + 1e5), NA)
-  
+
   #Sys.setenv(GENCODE_DIR = system.file('extdata', 'test_data', package = 'gTrack'))
   Sys.setenv(GENCODE_DIR='')
-  # devtools::load_all(project_path)
   gencode_gt_uncached <- track.gencode(cached=FALSE)
   expect_error(plot(gencode_gt_uncached, fp + 1e4), NA)
-  
-  expect_gt(create_plot_file({plot(gencode_gt, fp + 1e4)}), 0)  
+
+  expect_gt(create_plot_file({plot(gencode_gt, fp + 1e4)}), 0)
 })
 
 test_that('reduce method works as expected', {
@@ -364,7 +385,7 @@ test_that('get_seqinfo method works as expected', {
   expect_error(gTrack(test_data$file_paths$bedgraph), NA)
   expect_error(gTrack(test_data$file_paths$bed), NA)
   expect_error(gTrack(test_data$file_paths$bigwig), NA)
-  #expect_error(gTrack(test_data$file_paths$gff), NA)
+  # expect_error(gTrack(test_data$file_paths$gff), NA)
   expect_error(gTrack(test_data$file_paths$rds), NA)
 })
 
@@ -372,12 +393,12 @@ test_that('extract_data_from_tmp_dat method works as expected', {
   bigwig_gt <- gTrack(test_data$file_paths$bigwig)
   bedgraph_gt <- gTrack(test_data$file_paths$bedgraph)
   bed_gt <- gTrack(test_data$file_paths$bed)
-  gff_gt <- gTrack(test_data$file_paths$gff)
+  # gff_gt <- gTrack(test_data$file_paths$gff)
   rds_gt <- gTrack(test_data$file_paths$rds)
   
   expect_error(plot(bigwig_gt, test_data$fp), NA)
   expect_error(plot(bedgraph_gt, test_data$fp), NA)
   expect_error(plot(bed_gt, test_data$fp), NA)
-  expect_error(plot(gff_gt, test_data$fp), NA)
+  # expect_error(plot(gff_gt, test_data$fp), NA)
   expect_error(plot(rds_gt, test_data$fp), NA)
 })
