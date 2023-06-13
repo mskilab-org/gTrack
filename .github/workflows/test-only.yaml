@@ -26,10 +26,26 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglpk-dev
+
+      - name: Install specific versions of dependencies
+        run: |
+          Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
+          Rscript -e "remotes::install_version('igraph', version = '1.3.0', upgrade = 'never')"
+
       - name: Install dependencies from GitHub
         run: |
           Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes')"
-          Rscript -e "remotes::install_github('mskilab/gGnome')"
+          Rscript -e "remotes::install_github('mskilab/gGnome', upgrade = 'never')"
+          Rscript -e "remotes::install_github('mskilab/skidb', upgrade = 'never')"
+
+      - name: Setup data for tests
+        run: |
+          mkdir -p ~/DB/GENCODE
+          cp inst/extdata/test_data/gencode.v19.annotation.gtf.gr.rds ~/DB/GENCODE/gencode.v19.annotation.gtf.gr.rds
 
       - name: Run tests
         run: |
