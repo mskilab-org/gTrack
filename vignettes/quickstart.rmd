@@ -9,25 +9,25 @@ In general, gTracks can be created from `GRanges`, `GRangesList`, and `Matrix` o
 
 ## Setting Up Your Environment
 
-Before proceeding with the tutorial you should first set up your environment. `gTrack` requires version 4.0.2 of R. Versions after this will not work. You can download the 4.0.2 `pkg` file (for MacOS) [here](https://cran.r-project.org/bin/macosx/base/), or the executable (for Windows) [here](https://cran.r-project.org/bin/windows/base/old/4.0.2/).
+Before proceeding with the tutorial you should first set up your environment. `gTrack` requires version 4.0.2 of R. Versions after this will not work. You can download the 4.0.2 `pkg` file (for MacOS) [here](https://cran.r-project.org/bin/macosx/base/), or the executable (for Windows) [here](https://cran.r-project.org/bin/windows/base/old/4.0.2/). You may also wish to install something like [RSwitch](https://rud.is/rswitch/) to easily switch between different R versions you have installed.
 
 You will also need to install the [`gGnome`](https://github.com/mskilab/gGnome) package:
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 ## allows dependencies that throw warnings to install
 Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = TRUE)
-devtools::install_github('mskilab/gGnome')
+devtools::install_github("mskilab/gGnome")
 library(gGnome)
 ```
 
 Finally, you'll need to import `gTrack` AND `gUtils`:
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-project_path = "~/projects/gTrack" ## this should be the path to your gTrack clone
-devtools::load_all(project_path) 
+project_path <- "~/projects/gTrack" ## this should be the path to your gTrack clone
+devtools::load_all(project_path)
 library(gTrack)
 library(gUtils)
-knitr::opts_chunk$set(fig.height=10)
+knitr::opts_chunk$set(fig.height = 10)
 ```
 
 # GRanges
@@ -41,18 +41,18 @@ In this example, we will create `gTrack`s to plot read depth in 1 Kbp genomic in
 The most basic plot in gTrack will represent each supplied genomic interval as a rectangle. If strand is provided, the vertical edges of the rectangle will be bent in a direction indicating strand (towards the right for `+` stranded intervals, and towards the left for `-` stranded intervals. This `GRanges` contains genomic bins that are all 1 Kbp in width without a strand. However, for the purposes of demonstration, we will also plot some stranded intervals to demonstrate the effect.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+coverage.gr <- readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
 
 ## create a plus stranded interval
-plus.coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
-strand(plus.coverage.gr) = "+"
-minus.coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
-strand(minus.coverage.gr) = "-"
+plus.coverage.gr <- readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+strand(plus.coverage.gr) <- "+"
+minus.coverage.gr <- readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+strand(minus.coverage.gr) <- "-"
 
 ## create gTracks
-coverage.gt = gTrack(coverage.gr)
-plus.coverage.gt = gTrack(plus.coverage.gr)
-minus.coverage.gt = gTrack(minus.coverage.gr)
+coverage.gt <- gTrack(coverage.gr)
+plus.coverage.gt <- gTrack(plus.coverage.gr)
+minus.coverage.gt <- gTrack(minus.coverage.gr)
 ```
 
 To generate a plot, the `plot` method is used, which takes two positional arguments, a `gTrack` and a genomic window over which to generate the plot. The genomic window can be specified as either a `GRanges`, `GRangesList`, or a character vector that can be parsed as `GRanges`. (If `window` is `NULL`, then all genomic regions defined in the supplied gTrack will be plotted).
@@ -61,7 +61,7 @@ Here is the original (unstranded) intervals:
 
 ```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 6}
 ## specify genomic region that will be plotted
-fp = parse.gr("1:6850000-7050000")
+fp <- parse.gr("1:6850000-7050000")
 plot(coverage.gt, fp)
 ```
 
@@ -84,13 +84,13 @@ plot(minus.coverage.gt, fp)
 In this example, we will create a scatter plot. In this `GRanges`, the (normalized) read depth is contained in a metadata column called `cn`. We need to specify this column name in the argument `y.field` when creating our gTrack. To create a scatter plot, we need to set the parameter `circles` to `TRUE`. The parameter `lwd.border` controls the size of the points in the scatter plot, the parameter `y0` controls the starting position on the y axis, and the parameter `y1` controls the ending position on the y axis.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-coverage.gr = readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
-coverage.gt = gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
+coverage.gr <- readRDS(system.file("extdata", "ovcar.subgraph.coverage.rds", package = "gTrack"))
+coverage.gt <- gTrack(coverage.gr, y.field = "cn", circles = TRUE, lwd.border = 0.2, y0 = 0, y1 = 12)
 ```
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 ## specify genomic region that will be plotted
-fp = parse.gr("1:6043576-7172800")
+fp <- parse.gr("1:6043576-7172800")
 plot(coverage.gt, fp + 1e5)
 ```
 
@@ -99,7 +99,7 @@ plot(coverage.gt, fp + 1e5)
 Next, we will plot the same data as a bar plot. To do this, we will set the parameter `bars` to `TRUE`.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-coverage.bars.gt = gTrack(coverage.gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
+coverage.bars.gt <- gTrack(coverage.gr, y.field = "cn", bars = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.bars.gt, fp + 1e5)
 ```
@@ -109,7 +109,7 @@ plot(coverage.bars.gt, fp + 1e5)
 Finally, we will plot these data as a line plot, by setting `lines` to `TRUE`.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-coverage.lines.gt = gTrack(coverage.gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
+coverage.lines.gt <- gTrack(coverage.gr, y.field = "cn", lines = TRUE, y0 = 0, y1 = 12)
 
 plot(coverage.lines.gt, fp + 1e5)
 ```
@@ -119,7 +119,7 @@ plot(coverage.lines.gt, fp + 1e5)
 A useful feature of `gTrack` objects is that multiple tracks can be concatenated to produce stacked subplots, as shown in the following example. The direction of concatenation is from the bottom up (so the first `gTrack` corresponds with the bottom-most subplot and the final `gTrack` corresponds with the top-most subplot).
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-concatenated.gt = c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
+concatenated.gt <- c(coverage.gt, coverage.bars.gt, coverage.lines.gt)
 
 plot(concatenated.gt, fp + 1e5)
 ```
@@ -137,8 +137,8 @@ The alignments associated with each read pair are represented by a single entry 
 You can see that there are many junction-supporting reads associated with read depth change points in the coverage `gTrack` which makes sense because aberrant adjacencies can produce copy number variants.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-reads = readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
-reads.gt = gTrack(reads)
+reads <- readRDS(system.file("extdata", "ovcar.subgraph.reads.rds", package = "gTrack"))
+reads.gt <- gTrack(reads)
 
 plot(c(coverage.gt, reads.gt), fp + 1e5)
 ```
@@ -150,9 +150,9 @@ Sometimes it is desirable to preserve the ordering of segments within each GRang
 ```{r include = TRUE, message = FALSE, warning = FALSE}
 ## create GRangesList for plotting
 wks.grl <- readRDS(file.path(project_path, "inst/extdata/ovcar.subgraph.walks.rds"))$grl
-fp = parse.gr("1:6043576-7172800")
-paths.gt = gTrack(wks.grl, draw.paths = TRUE, stack.gap = 1e7, name = "paths")
-nopaths.gt = gTrack(wks.grl, draw.paths = FALSE, stack.gap = 1e7, name = "no paths")
+fp <- parse.gr("1:6043576-7172800")
+paths.gt <- gTrack(wks.grl, draw.paths = TRUE, stack.gap = 1e7, name = "paths")
+nopaths.gt <- gTrack(wks.grl, draw.paths = FALSE, stack.gap = 1e7, name = "no paths")
 
 plot(c(nopaths.gt, paths.gt), fp + 5e4)
 ```
@@ -168,10 +168,10 @@ In this example, we will create a heatmap of the number of shared read `qname`s 
 As you can see, the off-diagonal elements correspond with copy number change points in the coverage!
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-mdata.mat = readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
-mdata.gr = readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
+mdata.mat <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.mat.rds", package = "gTrack"))
+mdata.gr <- readRDS(system.file("extdata", "ovcar.subgraph.mdata.gr.rds", package = "gTrack"))
 
-heatmap.gt = gTrack(mdata.gr, mdata = mdata.mat, cmap.max = 10)
+heatmap.gt <- gTrack(mdata.gr, mdata = mdata.mat, cmap.max = 10)
 
 plot(c(coverage.gt, heatmap.gt), fp + 1e5)
 ```
@@ -181,10 +181,10 @@ plot(c(coverage.gt, heatmap.gt), fp + 1e5)
 Instead of a heatmap, it is also possible to plot the edges between genomic intervals by supplying an adjacency list. In this next example, we will plot edges associated with the off-diagonal squares in the previous heatmap.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-edges.dat = readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
-edges.gr = readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
+edges.dat <- readRDS(system.file("extdata", "ovcar.subgraph.edges.dat.rds", package = "gTrack"))
+edges.gr <- readRDS(system.file("extdata", "ovcar.subgraph.edges.gr.rds", package = "gTrack"))
 
-edges.gt = gTrack(edges.gr, edges = edges.dat)
+edges.gt <- gTrack(edges.gr, edges = edges.dat)
 
 plot(c(coverage.gt, edges.gt), fp + 1e5)
 ```
@@ -196,7 +196,7 @@ plot(c(coverage.gt, edges.gt), fp + 1e5)
 A `gTrack` can be created from a `gGraph` using either the `$gt` active field or `$gtrack` method, as shown below. In this example, we will create a plot of a tumor `gGraph` and the associated coverage profile.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-gg = readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
+gg <- readRDS(system.file("extdata", "ovcar.subgraph.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt), fp + 1e5)
 ```
 
@@ -207,7 +207,7 @@ plot(c(coverage.gt, gg$gt), fp + 1e5)
 The following example plots a set of `gWalk`s associated with the `gGraph` plotted above.
 
 ```{r include = TRUE, message = FALSE, warning = FALSE}
-wks = readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
+wks <- readRDS(system.file("extdata", "ovcar.subgraph.walks.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 ```
 
@@ -218,6 +218,28 @@ plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 Again, similar to `gWalk` and `gGraph`, a `gTrack` can be created for a `gMatrix` with the active field `$gt` or method `$gtrack`. Here we will use the `$gtrack` method to set a parameter for coloring the heatmap (`cmap.max`).
 
 ```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
-gm = readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
+gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, gm$gtrack(cmap.max = 1000)), fp + 1e5)
+```
+
+# Karyogram
+
+You can plot karyograms in gTrack. If no file is passed to the `karyogram` method as an argument, it will use the karyogram datafiles (hg18 or hg19, depending on if the `r hg19` parameter is set to `r FALSE`) included with the package. You can specify if you colored giemsa bands by setting the `r bands` parameter to `r TRUE` or `r FALSE` (enabled by default). You can also return the chromosome arms with different colors, and with centromeres and telemeres marked, by setting `r arms = TRUE` (also enabled by default) 
+
+Here we are plotting the default assembly, hg18, with the bands and arms.
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
+fp <- parse.gr("1:1-200000000")
+karyogram_gt_hg18 <- karyogram(hg19 = FALSE)
+plot(karyogram_gt_hg18, fp)
+```
+
+# Gencode Tracks
+
+gTrack can also plot a gencode gene track using the `track.gencode` method. This method will download the specified build (indicated by the `build` parameter) from [mskilab.com](mskilab.com). You can filter genes by supplying a character vector to the `grep` parameter, the `grepe` parameter (to exclude genes), or the `genes` paramter (to limit the gTrack to only those genes).
+
+```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
+fp <- parse.gr("1:6000000-6000100")
+gencode_gt <- track.gencode(grep = "NPH", grepe = "S2")
+expect_error(plot(gencode_gt, fp + 1e5), NA)
 ```
