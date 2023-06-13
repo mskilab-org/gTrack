@@ -138,6 +138,7 @@ test_that("gTrack plot function works as expected", {
   reads_gt <- gTrack(test_data$reads)
   concatenated_gt <- c(test_data$coverage_gt_rd, reads_gt)
   expect_error(plot(concatenated_gt, test_data$fp + 1e5, max.ranges=2), NA)
+  
 })
 
 test_that("gTrack scatter plot function works as expected", {
@@ -401,4 +402,14 @@ test_that('extract_data_from_tmp_dat method works as expected', {
   expect_error(plot(bed_gt, test_data$fp), NA)
   # expect_error(plot(gff_gt, test_data$fp), NA)
   expect_error(plot(rds_gt, test_data$fp), NA)
+})
+
+test_that('smoothing works as expected', {
+  # Prepare dummy y.field
+  copy_coverage_gr <- test_data$coverage_gr
+  dummy_data <- rnorm(length(copy_coverage_gr))
+  mcols(copy_coverage_gr)$test_y_field <- dummy_data
+  
+  test_gt <- gTrack(copy_coverage_gr, y.field = 'test_y_field', smooth = 2)
+  expect_error(plot(test_gt), NA)
 })
