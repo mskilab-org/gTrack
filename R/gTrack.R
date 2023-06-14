@@ -2116,7 +2116,7 @@ track.gencode = function(gencode = NULL,
     }
 
     if (is.null(gencode))
-      gencode = skidb::read_gencode()
+      gencode = readRDS(gzcon(url('http://mskilab.com/gTrack/hg19/gencode.v19.annotation.gtf.gr.rds')))
 
     if (is.character(gencode))
     {

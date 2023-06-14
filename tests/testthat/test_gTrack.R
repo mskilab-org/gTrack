@@ -69,7 +69,7 @@ create_test_data <- function() {
   )
 }
 
-options(timeout = 60)
+options(timeout = 120)
 test_data <- create_test_data()
 
 test_that("GRanges and gTrack constructors work as expected", {
