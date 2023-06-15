@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r include = FALSE, message = FALSE, warning = FALSE}
-devtools::load_all("~/git/gTrack")
+devtools::load_all("~/projects/gTrack")
 library(gTrack)
 library(gUtils)
 knitr::opts_chunk$set(fig.height=10)

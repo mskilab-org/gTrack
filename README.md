@@ -11,18 +11,18 @@ R package for plotting tracks of 1D and 2D genomic data stored in GenomicRanges,
 
 Installation
 -----------
-```{r}
+```r
 ## allows dependencies that throw warnings to install
 Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = TRUE) 
 
 ## install with devtools
-devtools::install_github('mskilab/gTrack)
+devtools::install_github('mskilab-org/gTrack')
 ```
 
 See documentation
-
-[Read the docs](http://gtrack.readthedocs.org/en/latest/)
-[R Documentation](https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf)
+[Quickstart](http://mskilab-org.github.io/gTrack/articles/quickstart.html)
+[Read the docs](http://mskilab-org.github.io/gTrack/index.html)
+[R Documentation](http://mskilab-org.github.io/gTrack/reference/index.html)
 
 Tutorial 
 --------

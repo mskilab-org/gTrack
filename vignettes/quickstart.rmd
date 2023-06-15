@@ -217,29 +217,29 @@ plot(c(coverage.gt, gg$gt, wks$gt), fp + 1e5)
 
 Again, similar to `gWalk` and `gGraph`, a `gTrack` can be created for a `gMatrix` with the active field `$gt` or method `$gtrack`. Here we will use the `$gtrack` method to set a parameter for coloring the heatmap (`cmap.max`).
 
-```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
+```{r include = TRUE, message = FALSE, warning = FALSE}
 gm <- readRDS(system.file("extdata", "ovcar.subgraph.hic.rds", package = "gTrack"))
 plot(c(coverage.gt, gg$gt, gm$gtrack(cmap.max = 1000)), fp + 1e5)
 ```
 
 # Karyogram
 
-You can plot karyograms in gTrack. If no file is passed to the `karyogram` method as an argument, it will use the karyogram datafiles (hg18 or hg19, depending on if the `r hg19` parameter is set to `r FALSE`) included with the package. You can specify if you colored giemsa bands by setting the `r bands` parameter to `r TRUE` or `r FALSE` (enabled by default). You can also return the chromosome arms with different colors, and with centromeres and telemeres marked, by setting `r arms = TRUE` (also enabled by default) 
+You can plot karyograms in gTrack. If no file is passed to the `karyogram` method as an argument, it will use the karyogram datafiles (hg18 or hg19, depending on if the `hg19` parameter is set to `FALSE`) included with the package. You can specify if you colored giemsa bands by setting the `bands` parameter to `TRUE` or `FALSE` (enabled by default). You can also return the chromosome arms with different colors, and with centromeres and telemeres marked, by setting `arms = TRUE` (also enabled by default) 
 
 Here we are plotting the default assembly, hg18, with the bands and arms.
 
-```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
-fp <- parse.gr("1:1-200000000")
+```{r include = TRUE, message = FALSE, warning = FALSE}
+karyogram_fp <- parse.gr("1:1-200000000")
 karyogram_gt_hg18 <- karyogram(hg19 = FALSE)
-plot(karyogram_gt_hg18, fp)
+plot(karyogram_gt_hg18, karyogram_fp)
 ```
 
 # Gencode Tracks
 
 gTrack can also plot a gencode gene track using the `track.gencode` method. This method will download the specified build (indicated by the `build` parameter) from [mskilab.com](mskilab.com). You can filter genes by supplying a character vector to the `grep` parameter, the `grepe` parameter (to exclude genes), or the `genes` paramter (to limit the gTrack to only those genes).
 
-```{r include = TRUE, message = FALSE, warning = FALSE, fig.height = 20}
-fp <- parse.gr("1:6000000-6000100")
+```{r include = TRUE, message = FALSE, warning = FALSE}
+gencode_fp <- parse.gr("1:6000000-6000100")
 gencode_gt <- track.gencode(grep = "NPH", grepe = "S2")
-expect_error(plot(gencode_gt, fp + 1e5), NA)
+expect_error(plot(gencode_gt, gencode_fp + 1e5), NA)
 ```

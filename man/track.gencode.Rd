@@ -22,8 +22,7 @@ track.gencode(
   cached = T,
   cached.dir = Sys.getenv("GENCODE_DIR"),
   cached.path = paste(cached.dir, "gencode.composite.rds", sep = "/"),
-  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep =
-    "/"),
+  cached.path.collapsed = paste(cached.dir, "gencode.composite.collapsed.rds", sep = "/"),
   gr.srt.label = 0,
   gr.cex.label = 0.3,
   cex.label = 0.5,

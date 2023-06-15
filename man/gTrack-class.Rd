@@ -262,6 +262,4 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
 
 \author{
 Marcin Imielinski
-
-Marcin Imielinski
 }

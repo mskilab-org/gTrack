@@ -53,6 +53,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/gtrackparams.html">Overview of gTrack parameters</a>
+    </li>
+    <li>
       <a href="articles/quickstart.html">Creating and plotting gTracks</a>
     </li>
   </ul>
@@ -90,21 +93,27 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<pre class="{r}"><code>## allows dependencies that throw warnings to install
-Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = TRUE) 
-
-## install with devtools
-devtools::install_github('mskilab/gTrack)</code></pre>
-<p>See documentation</p>
-<p><a href="http://gtrack.readthedocs.org/en/latest/" class="external-link">Read the docs</a> <a href="https://raw.githubusercontent.com/mskilab/gTrack/master/gTrack.pdf" class="external-link">R Documentation</a></p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## allows dependencies that throw warnings to install</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>R_REMOTES_NO_ERRORS_FROM_WARNINGS <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co">## install with devtools</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'mskilab-org/gTrack'</span><span class="op">)</span></span></code></pre></div>
+<p>See documentation <a href="http://mskilab-org.github.io/gTrack/articles/quickstart.html" class="external-link">Quickstart</a> <a href="http://mskilab-org.github.io/gTrack/index.html" class="external-link">Read the docs</a> <a href="http://mskilab-org.github.io/gTrack/reference/index.html" class="external-link">R Documentation</a></p>
 </div>
-<div class="section level2"><h2 id="tutorial">Tutorial<a class="anchor" aria-label="anchor" href="#tutorial"></a>
-</h2></div>
+<div class="section level2">
+<h2 id="tutorial">Tutorial<a class="anchor" aria-label="anchor" href="#tutorial"></a>
+</h2>
+</div>
 <div class="section level2">
 <h2 id="attributions">Attributions<a class="anchor" aria-label="anchor" href="#attributions"></a>
 </h2>
-<blockquote><p>Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College. Developed while a fellow in the Matthew Meyerson Lab, Dana Farber Cancer Institute, Broad Institute</p></blockquote>
-<blockquote><p>Jeremiah Wala - Harvard MD-PhD candidate, Bioinformatics and Integrative Genomics, Rameen Beroukhim Lab, Dana Farber Cancer Institute</p></blockquote>
+<blockquote>
+<p>Marcin Imielinski - Assistant Professor, Weill-Cornell Medical College. Developed while a fellow in the Matthew Meyerson Lab, Dana Farber Cancer Institute, Broad Institute</p>
+</blockquote>
+<blockquote>
+<p>Jeremiah Wala - Harvard MD-PhD candidate, Bioinformatics and Integrative Genomics, Rameen Beroukhim Lab, Dana Farber Cancer Institute</p>
+</blockquote>
 </div>
 </div>
 
@@ -162,7 +171,7 @@ devtools::install_github('mskilab/gTrack)</code></pre>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
