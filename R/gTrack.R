@@ -3151,8 +3151,8 @@ draw.grl = function(grl,
         {
           if (is.null(y) | !is.null(ylim.subplot))
           {
-            pos1  = aggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-            pos2  = aggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
+            pos1  = aggregate(formula = pos1 ~ group, data = grl.segs, FUN = min);
+            pos2  = aggregate(formula = pos2 ~ group, data = grl.segs, FUN = max);
             pos1 = structure(pos1[,2], names = pos1[,1]) - round(stack.gap/2);
             pos2 = structure(pos2[,2]-1, names = pos2[,1]) + round(stack.gap/2);
 
@@ -3235,10 +3235,10 @@ draw.grl = function(grl,
           }))
 
           contig.lim = data.frame(
-            group = names(vaggregate(x = y.relbin ~ group, data = grl.segs, FUN = max)),
-            pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,
-            pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max) + round(stack.gap)/2,
-            height = vaggregate(x = y.relbin ~ group, data = grl.segs, FUN = max)
+            group = names(vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)),
+            pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,
+            pos2  = vaggregate(formula = pos2 ~ group, data = grl.segs, FUN = max) + round(stack.gap)/2,
+            height = vaggregate(formula = y.relbin ~ group, data = grl.segs, FUN = max)
           );
           contig.lim$width = contig.lim$pos2 - contig.lim$pos1
           contig.lim$y.bin = 0;
@@ -3962,10 +3962,10 @@ draw.grl = function(grl,
     {
       if (!draw.paths)
      {
-        pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-        pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
-        ywid  = vaggregate(x = ywid ~ group, data = grl.segs, FUN = max);
-        y  = vaggregate(x = y ~ group, data = grl.segs, FUN = mean);
+        pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min);
+        pos2  = vaggregate(formula = pos2 ~ group, data = grl.segs, FUN = max);
+        ywid  = vaggregate(formula = ywid ~ group, data = grl.segs, FUN = max);
+        y  = vaggregate(formula = y ~ group, data = grl.segs, FUN = mean);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y, ywid);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
         grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
@@ -3984,10 +3984,10 @@ draw.grl = function(grl,
       }
       else
       {
-        pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-        pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
-        y0  = vaggregate(x = y ~ group, data = grl.segs, FUN = min);
-        y1  = vaggregate(x = y ~ group, data = grl.segs, FUN = max);
+        pos1  = vaggregate(formula = pos1 ~ group, data = grl.segs, FUN = min);
+        pos2  = vaggregate(formula = pos2 ~ group, data = grl.segs, FUN = max);
+        y0  = vaggregate(formula = y ~ group, data = grl.segs, FUN = min);
+        y1  = vaggregate(formula = y ~ group, data = grl.segs, FUN = max);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y0, y1);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
         grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
