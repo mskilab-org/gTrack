@@ -340,6 +340,7 @@ gTrack = function(data = NULL, ##
     labels.suppress.grl = labels.suppress,
     labels.suppress.gr = labels.suppress,
                   bg.col = 'white', ## background color of whole thing
+                  draw.backbone=FALSE,
     formatting = NA) {
 
     ## TODO: FIX THIS USING formals() and some eval / do.call syntax or something similar
@@ -363,7 +364,7 @@ gTrack = function(data = NULL, ##
       xaxis.label.angle = xaxis.label.angle, xaxis.ticklen = xaxis.ticklen,
       xaxis.cex.tick = xaxis.cex.tick, sep.lty = sep.lty, sep.lwd = sep.lwd, sep.bg.col = sep.bg.col,
       sep.draw = sep.draw, y0 = y0, y1 = y1, m.sep.lwd = m.sep.lwd, #m.bg.col = m.bg.col,
-      cmap.min = cmap.min, cmap.max = cmap.max, bg.col = bg.col)
+      cmap.min = cmap.min, cmap.max = cmap.max, bg.col = bg.col, draw.backbone=draw.backbone)
 }
 
 
