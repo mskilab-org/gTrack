@@ -404,7 +404,8 @@ setValidity('gTrack', function(object)
         else T)))
         problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
-      if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field))
+#  browser()
+      if (!is.null(formatting(object)$y.field) && !all(is.na(formatting(object)$y.field)))
       {
         nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
         if (any(nix))
