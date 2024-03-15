@@ -404,7 +404,6 @@ setValidity('gTrack', function(object)
         else T)))
         problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
-#  browser()
       if (!is.null(formatting(object)$y.field) && !all(is.na(formatting(object)$y.field)))
       {
         nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
@@ -3963,10 +3962,10 @@ draw.grl = function(grl,
     {
       if (!draw.paths)
      {
-        pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-        pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
-        ywid  = vaggregate(x = ywid ~ group, data = grl.segs, FUN = max);
-        y  = vaggregate(x = y ~ group, data = grl.segs, FUN = mean);
+        pos1  = vaggregate(pos1 ~ group, data = grl.segs, FUN = min);
+        pos2  = vaggregate(pos2 ~ group, data = grl.segs, FUN = max);
+        ywid  = vaggregate(ywid ~ group, data = grl.segs, FUN = max);
+        y  = vaggregate(y ~ group, data = grl.segs, FUN = mean);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y, ywid);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
         grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
