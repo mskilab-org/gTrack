@@ -404,7 +404,7 @@ setValidity('gTrack', function(object)
         else T)))
         problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
-      if (!is.null(formatting(object)$y.field) && !is.na(formatting(object)$y.field))
+      if (!is.null(formatting(object)$y.field) && !all(is.na(formatting(object)$y.field)))
       {
         nix = !is.na(object$y.field) & sapply(dat(object), inherits, 'GRanges')
         if (any(nix))
@@ -1959,7 +1959,7 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
 
     if (arms) ## draw arms with slightly different hues of the same color and black ranges for telomere / centromere
     {
-      tmp.tel = aggregate(formula = end ~ as.character(seqnames), data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
+      tmp.tel = aggregate(end ~ as.character(seqnames), data = GenomicRanges::as.data.frame(ucsc.bands), FUN = max)
       tmp.tel = structure(tmp.tel[,2], names = as.character(tmp.tel[,1]))+1
       telomeres = c(GRanges(names(tmp.tel), IRanges::IRanges(start = rep(1, length(tmp.tel)), end = rep(tel.width, length(tmp.tel))),
                             seqlengths = GenomeInfoDb::seqlengths(seqinfo(ucsc.bands))),
@@ -2496,9 +2496,9 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 
       if (nrow(x2)>0)
       {
-        b.st = aggregate(formula = pos1 ~ group, data = x2, FUN = min)
-        b.en = aggregate(formula = pos2 ~ group, data = x2, FUN = max)
-        b.y = aggregate(formula = y ~ group, data = x2, FUN = function(x) x[1])
+        b.st = aggregate(pos1 ~ group, data = x2, FUN = min)
+        b.en = aggregate(pos2 ~ group, data = x2, FUN = max)
+        b.y = aggregate(y ~ group, data = x2, FUN = function(x) x[1])
 
         seg.coord = data.frame(x0 = b.st[,2], x1 = b.en[,2], y = b.y[,2]);
 
@@ -3151,8 +3151,8 @@ draw.grl = function(grl,
         {
           if (is.null(y) | !is.null(ylim.subplot))
           {
-            pos1  = aggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-            pos2  = aggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
+            pos1  = aggregate(pos1 ~ group, data = grl.segs, FUN = min);
+            pos2  = aggregate(pos2 ~ group, data = grl.segs, FUN = max);
             pos1 = structure(pos1[,2], names = pos1[,1]) - round(stack.gap/2);
             pos2 = structure(pos2[,2]-1, names = pos2[,1]) + round(stack.gap/2);
 
@@ -3235,10 +3235,10 @@ draw.grl = function(grl,
           }))
 
           contig.lim = data.frame(
-            group = names(vaggregate(x = y.relbin ~ group, data = grl.segs, FUN = max)),
-            pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,
-            pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max) + round(stack.gap)/2,
-            height = vaggregate(x = y.relbin ~ group, data = grl.segs, FUN = max)
+            group = names(vaggregate(y.relbin ~ group, data = grl.segs, FUN = max)),
+            pos1  = vaggregate(pos1 ~ group, data = grl.segs, FUN = min) - round(stack.gap)/2,
+            pos2  = vaggregate(pos2 ~ group, data = grl.segs, FUN = max) + round(stack.gap)/2,
+            height = vaggregate(y.relbin ~ group, data = grl.segs, FUN = max)
           );
           contig.lim$width = contig.lim$pos2 - contig.lim$pos1
           contig.lim$y.bin = 0;
@@ -3962,10 +3962,10 @@ draw.grl = function(grl,
     {
       if (!draw.paths)
      {
-        pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-        pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
-        ywid  = vaggregate(x = ywid ~ group, data = grl.segs, FUN = max);
-        y  = vaggregate(x = y ~ group, data = grl.segs, FUN = mean);
+        pos1  = vaggregate(pos1 ~ group, data = grl.segs, FUN = min);
+        pos2  = vaggregate(pos2 ~ group, data = grl.segs, FUN = max);
+        ywid  = vaggregate(ywid ~ group, data = grl.segs, FUN = max);
+        y  = vaggregate(y ~ group, data = grl.segs, FUN = mean);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y, ywid);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
         grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
@@ -3984,10 +3984,10 @@ draw.grl = function(grl,
       }
       else
       {
-        pos1  = vaggregate(x = pos1 ~ group, data = grl.segs, FUN = min);
-        pos2  = vaggregate(x = pos2 ~ group, data = grl.segs, FUN = max);
-        y0  = vaggregate(x = y ~ group, data = grl.segs, FUN = min);
-        y1  = vaggregate(x = y ~ group, data = grl.segs, FUN = max);
+        pos1  = vaggregate(pos1 ~ group, data = grl.segs, FUN = min);
+        pos2  = vaggregate(pos2 ~ group, data = grl.segs, FUN = max);
+        y0  = vaggregate(y ~ group, data = grl.segs, FUN = min);
+        y1  = vaggregate(y ~ group, data = grl.segs, FUN = max);
         grl.segs.u = data.frame(group = names(pos1), pos1, pos2, y0, y1);
         grl.segs.u$grl.labels = grl.props$grl.labels[match(grl.segs.u$group, grl.props$group)]
         grl.segs.u$grl.cols = grl.props$grl.cols[match(grl.segs.u$group, grl.props$group)]
