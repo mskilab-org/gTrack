@@ -2092,7 +2092,7 @@ track.gencode = function(gencode = NULL,
 
   if (nchar(cached.dir)==0)
   {
-    url <- sprintf("http://mskilab.com/gTrack/%s/", build)
+    url <- sprintf("http://mskilab.com/gTrack/%s", build)
     cached.path <- file.path(url, "gencode.composite.rds")
     cached.path.collapsed <- file.path(url, "gencode.composite.collapsed.rds")
 
