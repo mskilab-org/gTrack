@@ -1,7 +1,3 @@
-#' @exportMethod with
-#' @exportMethod within
-
-#' @importFrom data.table data.table
 #'
 #' @section Slots:
 #' \describe{
@@ -25,9 +21,6 @@
 #'
 #' @exportClass gTrack
 #' @author Marcin Imielinski
-#' @importFrom methods setClass setGeneric setMethod setRefClass
-#' @import rtracklayer
-#' @importFrom gUtils grl.unlist si2gr grbind gr.string gr.fix grl.pivot gr.findoverlaps gr.flatten gr.chr gr.match
 setClass('gTrack', representation(data = 'list', mdata= 'list', seqinfo = 'Seqinfo', formatting = 'data.frame', colormap = 'list', edges = 'list', vars = 'list'))
 
 #setClass('trackData', contains = "gTrack") ## for legacy, backwards compatibility with old trackData class
@@ -224,6 +217,14 @@ setMethod('initialize', 'gTrack', function(.Object, data, mdata, edges, vars, co
 #' @param circles vector or scalar logical specifying whether to scatter plot range data (formatting)
 #' @param lines vector or scalar logical specifying whether to line plot range data (formatting)
 #' @param bars vector or scalar logical specifying whether to bar plot range data (formatting)
+#' @param sashimi vector or scalar logical specifying whether to render this track as a sashimi plot (bars for coverage plus arcs for splice junctions). When TRUE, \code{bars} is forced on; arc endpoints are snapped to the top of the coverage bar at each junction terminus. The interpretation of \code{edges$from}/\code{edges$to} is controlled by \code{sashimi.coords}. (formatting)
+#' @param sashimi.coords scalar character, one of \code{'bp'} or \code{'index'}. When \code{'bp'} (default) \code{edges$from}/\code{edges$to} are genomic positions (1-based bp, same coord space as the input GRanges) and an optional \code{edges$seqnames} column is used (auto-filled when the plot has a single chromosome). When \code{'index'}, they are 1-based integer indices into the track's data GRanges - matching the convention of the default (non-sashimi) edges slot. (formatting)
+#' @param sashimi.label scalar character naming the edges column to draw as the junction label (default \code{'count'}; set to \code{NA} to suppress). Falls back to \code{edges$label} when present. (formatting)
+#' @param sashimi.label.pos scalar character controlling label placement: \code{'mid'} (default, single label above arc midpoint), \code{'ends'} (small labels at donor and acceptor), \code{'both'} (midpoint plus ends), or \code{'none'}. (formatting)
+#' @param sashimi.bar.labels scalar logical; when TRUE, draws the coverage value above the bar at each junction endpoint (donor and acceptor). Useful for reading exon-level expression off the sashimi plot. (formatting)
+#' @param sashimi.lwd.scale vector or scalar logical; when TRUE and \code{sashimi=TRUE}, arc \code{lwd} is scaled by \code{log1p(count)} unless \code{edges$lwd} is explicitly provided. (formatting)
+#' @param sashimi.arc.col vector or scalar character specifying a global arc color override; \code{NA} (default) uses \code{edges$col} or black. (formatting)
+#' @param sashimi.baseline vector or scalar numeric specifying the coverage baseline (y0) for bars; \code{NA} (default) uses 0. (formatting)
 #' @param y0.bar vector or scalar numeric specifying where to draw the lower boundary of a bar in a bar plot (only applicable if bars == T) (formatting)
 #' @param source.file.chrsub vector or scalar logical specifying whether or not sub "chr" out of any external files (e.g. UCSC style files) (formatting)
 #' @param y.grid.col vector or scalar character specifying color of "gridlines" used to specify numeric track data (formatting)
@@ -297,6 +298,14 @@ gTrack = function(data = NULL, ##
                   circles = FALSE,
                   lines = FALSE,
                   bars = FALSE,
+                  sashimi = FALSE,
+                  sashimi.coords = 'bp',
+                  sashimi.label = 'count',
+                  sashimi.label.pos = 'mid',
+                  sashimi.bar.labels = FALSE,
+                  sashimi.lwd.scale = TRUE,
+                  sashimi.arc.col = NA,
+                  sashimi.baseline = NA,
                   draw.paths = FALSE,
                   path.col = 'black',
                   path.lwd = 1, 
@@ -353,7 +362,12 @@ gTrack = function(data = NULL, ##
       cex.label = cex.label, gr.cex.label.gr = gr.cex.label, gr.srt.label = gr.srt.label,
       y.cap = y.cap, lwd.border = lwd.border, hadj.label = hadj.label, vadj.label = vadj.label, smooth = smooth,
       round = round, ywid = ywid, ypad = ypad, seqinfo = seqinfo, circles = circles, lines = lines,
-      bars = bars, triangle = triangle, ylab = ylab, max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
+      bars = bars, sashimi = sashimi, sashimi.coords = sashimi.coords,
+      sashimi.label = sashimi.label,
+      sashimi.label.pos = sashimi.label.pos, sashimi.bar.labels = sashimi.bar.labels,
+      sashimi.lwd.scale = sashimi.lwd.scale, sashimi.arc.col = sashimi.arc.col,
+      sashimi.baseline = sashimi.baseline, triangle = triangle, ylab = ylab,
+      max.ranges = max.ranges, source.file.chrsub = source.file.chrsub,
       y0.bar = y0.bar, yaxis = yaxis, yaxis.pretty = yaxis.pretty, yaxis.cex = yaxis.cex,
       chr.sub = chr.sub, edgevars = edgevars, gr.labelfield = gr.labelfield,
       grl.labelfield = grl.labelfield, grl.colorfield = gr.colorfield, grl.cexfield, xaxis.prefix = xaxis.prefix, xaxis.unit = xaxis.unit,
@@ -399,10 +413,16 @@ setValidity('gTrack', function(object)
         problems = c(problems, 'Some trackdata edges attributes are not data.frames')
       else if (any(!sapply(object@edges, function(x) if (nrow(x)>0) all(c('from', 'to') %in% colnames(x)) else T)))
         problems = c(problems, 'Some nonempty trackdata edges attributes are missing $to and $from fields')
-      else if (any(!sapply(1:length(object@data), function(x)
-        if (nrow(object@edges[[x]])>0)
+      else if (any(!sapply(1:length(object@data), function(x) {
+        ## skip bounds check for bp-coord sashimi edges (from/to are genomic positions, not indices)
+        coords = formatting(object)$sashimi.coords
+        coords.x = if (!is.null(coords)) coords[x] else NA_character_
+        sash.bp = isTRUE(formatting(object)$sashimi[x]) &&
+                  (is.na(coords.x) || coords.x == 'bp')
+        if (nrow(object@edges[[x]])>0 && !sash.bp)
           all(object@edges[[x]]$from <= length(object@data[[x]])) & all(object@edges[[x]]$to <= length(object@data[[x]]))
-        else T)))
+        else T
+      })))
         problems = c(problems, 'Some nonempty trackdata edges $to and $from fields are out of bounds (ie exceed the length of the data field of the corresponding gTrack item')
 
       if (!is.null(formatting(object)$y.field) && !all(is.na(formatting(object)$y.field)))
@@ -660,8 +680,6 @@ setMethod('length', 'gTrack', function(x)
 #' @param x \code{gTrack} object to retrieve reduced \code{GRanges} from
 #' @param ... additional arguments to GRanges reduce function
 #' @return \code{GRanges} with the minimal footprint of the \code{gTrack} data
-#' @importFrom GenomicRanges reduce
-#' @importFrom gUtils gr.sub
 #' @docType methods
 #' @rdname reduce-methods
 #' @aliases reduce,gTrack-method
@@ -705,7 +723,6 @@ setMethod('reduce', 'gTrack', function(x, ... )
 #' @docType methods
 #' @param x \code{gTrack} object
 #' @return \code{seqinfo}
-#' @importFrom GenomicRanges seqinfo
 #' @export
 #' @author Marcin Imielinski
 setMethod("seqinfo", signature(x = "gTrack"), function(x)
@@ -1127,7 +1144,6 @@ setMethod('show', 'gTrack', function(object)
 #' @param union Take union of columns (and put NA's for columns of df1 not in df2 and vice versa). \code{[TRUE]}
 #' @param as.data.table Return the binded data as a \code{data.table}. \code{[FALSE]}
 #' @return \code{data.frame} or \code{data.table} of the \code{rbind} operation
-#' @importFrom data.table data.table rbindlist
 #' @author Marcin Imielinski
 rrbind = function (..., union = TRUE, as.data.table = FALSE)
 {
@@ -2017,7 +2033,6 @@ karyogram = function(file = NULL, hg19 = TRUE, bands = TRUE, arms = TRUE, tel.wi
 #' @title Check if a file or url exists
 #' @param f File or url
 #' @return TRUE or FALSE
-#' @importFrom RCurl url.exists
 #' @noRd
 file.url.exists <- function(f) {
   return(file.exists(f) || RCurl::url.exists(f))
@@ -2227,155 +2242,154 @@ track.gencode = function(gencode = NULL,
   }
 
 
-# @name track.splice
-# @title track.splice
-#
-# Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object
-# of splicing graph
-#
-# @param ex GRanges of candidate exons
-# @param bam path to indexed RNA seq bam
-# @param verbose
-# @import Rsamtools
-# @export
-# @author Marcin Imielinski
-# track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
-#     infer.exons = FALSE,
-#     min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
-#     min.exon.width = 10,
-#     max.exon.width = 1000 ## only relevant if ex is null
-#     )
-#     {
-#         if (!is.null(ex))
-#             {
-#                 ex = gr.stripstrand(ex)
-#                 ex.ov = gr.findoverlaps(ex, ex)
-#             }
-#
-#         if (is.null(region))
-#             reads = read.bam(bam, intervals = ex, pairs.grl = FALSE, verbose = verbose)
-#         else
-#             reads = read.bam(bam, intervals = region, pairs.grl = FALSE, verbose = verbose)
-#
-#         if (verbose)
-#             cat(length(reads), 'reads\n')
-#
-#         if (length(reads)==0)
-#             {
-#                 if (!is.null(ex))
-#                     {
-#                         ex$expr = 0
-#                         ex$log.expr = log(ex$expr)
-#                         return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
-#                     }
-#                 else
-#                     return(gTrack(region[c()]))
-#             }
-#
-#         sp.reads = splice.cigar(reads, return.grl = FALSE)
-#
-#         if (verbose)
-#             cat(length(sp.reads), 'spliced fragments\n')
-#
-#         if (is.null(ex))
-#             infer.exons = TRUE
-#
-#         if (infer.exons)
-#             {
-#                 sp.reads = sp.reads[seqnames(sp.reads)==seqnames(region) & ranges(sp.reads) %over% ranges(region), ]
-#                 tmp = grdt(sp.reads)
-#                 m.reads = tmp[type != 'N']
-#                 n.reads = tmp[type == 'N']
-#                 ustart = c(min(start(sp.reads)), n.reads[, length(seqnames), by = end][V1>=min.reads, end]+1)
-#                 uend = c(n.reads[, length(seqnames), by = start][V1>=min.reads, start]-1, max(end(sp.reads))) ## 1 after N ends are starts of exons
-#
-#                 ustart.maxwidth = m.reads[, max(end-start), keyby = start]
-#                 uend.maxwidth = m.reads[, max(end-start), keyby = end]
-#
-#                 new.ex = data.table(seqnames = n.reads$seqnames[1], start = rep(ustart, length(uend)), end = rep(uend, each = length(ustart)))[ (end-start) <= max.exon.width & (end-start) >= min.exon.width, ]
-#
-#                 ## we will get exon overload unless we cull a bit
-#                 ## to be parsimonious we only keep enough exons for all the matching parts of reads to "land on"
-#                 ## ie if they start in an exon they will end up in the same one
-                                        #                 ## rather than comp
-## uting all the overlaps necessary for this
-#                 ## we just approximate by removing exons for which a smaller one exists that accomodates all of the
-#                 ## reads that start on its start or end on its end
-#                 new.ex[ , maxwidth.start := (end-start) > ustart.maxwidth[list(new.ex$start), V1]]
-#                 new.ex[ , maxwidth.end := (end-start) > uend.maxwidth[list(new.ex$end), V1]]
-#
-#                 new.ex[ , shorter.start.exists := !(1:length(seqnames) %in% which.min(end-start)), by = start]
-#                 new.ex[ , shorter.end.exists := !(1:length(seqnames) %in% which.min(end-start)), by = end]
-#
-#                 new.ex = seg2gr(new.ex[!shorter.start.exists | !shorter.end.exists, ], seqlengths = seqlengths(sp.reads))[, c()]
-#
-#                 new.ex$type = 'inferred'
-#                 if (verbose)
-#                     cat(sprintf('inferred %s total unique exons with min.reads %s, min.exon.width %s, and max.exon.width %s\n', length(new.ex), min.reads, min.exon.width, max.exon.width))
-#                 if (!is.null(ex))
-#                     {
-#                         old.ex = ex;
-#                         ex = sort(unique(gUtils::grbind(ex, new.ex)))
-#                         if (verbose)
-#                             cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
-#                     }
-#                 else
-#                    ex = sort(new.ex)
-#
-#                 ex.ov = gr.findoverlaps(ex, ex)
-#             }
-#
-#         sp.reads = sort(sp.reads[sp.reads$type != 'N'])
-#         sp.reads = sp.reads[order(sp.reads$rid), ]
-#
-#         tmp =  grdt(sp.reads)
-#         tmp[, spid := 1:length(sp.reads)]
-#         tmp[, riid := 1:length(seqnames), by = rid]
-#         setkey(tmp, spid)
-#         sp.reads$riid = tmp[list(1:length(sp.reads)), riid]
-#
-#         ov = gr.findoverlaps(ex, sp.reads, scol = c('rid', 'riid'), verbose = verbose, return.type = 'data.table')
-#         if (length(ov)==0)
-#             {
-#                 ex$expr = 0
-#                 ex$log.expr = log(ex$expr)
-#                 return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
-#             }
-#         ov[, width := end-start]
-#         ov[, match.left.exon := as.numeric(start == start(ex)[query.id])]
-#         ov[, match.right.exon := as.numeric(end == end(ex)[query.id])]
-#         ov[, match.left.read := as.numeric(start == start(sp.reads)[subject.id])]
-#         ov[, match.right.read := as.numeric(end == end(sp.reads)[subject.id])]
-#         ov = ov[(match.left.read | match.left.exon) & (match.right.read | match.right.exon), ]
-#         setkeyv(ov, c('rid', 'riid'))
-#
-#         sp.rid = unique(ov$rid[ov$riid>1])
-#         ij = ov[list(sp.rid), list(from = rep(query.id, each = length(query.id)), to = rep(query.id, length(query.id)),
-#             val = width[rep(1:length(query.id), each = length(query.id))] + width[rep(1:length(query.id), length(query.id))],
-#             from.riid = rep(riid*match.right.exon*match.right.read, each = length(query.id)),
-#             to.riid = rep(riid*match.left.exon*match.left.read, length(query.id))), by = rid]
-#
-#         ij = ij[(ij$to.riid - ij$from.riid) == 1 & ij$to.riid !=0 & ij$from.riid != 0, ]
-#         setkeyv(ij, c('from', 'to'))
-#         ij = ij[!list(ex.ov$query.id, ex.ov$subject.id), ]
-#
-# #        edges = ij[, list(val = sum(val)/(width(ex)[from] + width(ex)[to])), keyby = list(from, to)]
-#         edges = ij[, list(val = sum(val)), keyby = list(from, to)]
-#                                         #edges = edges[, val := 0]
-#         edges = edges[, lwd := affine.map(log(val+1), c(0, 6), cap = TRUE)]
-#         edges = edges[, v := 5]
-#         edges = edges[, h := 2]
-#         edges = edges[, col := alpha('gray10', affine.map(log(val+1), c(0.1,0.8), cap = TRUE))]
-#         edges = edges[, cex.arrow := 0]
-#         ex$expr = ov[(match.right.exon*match.right.read + match.left.exon*match.right.read) | (match.left.read==1 & match.right.read==1), sum(width), keyby = query.id][list(1:length(ex)), V1]/width(ex)
-#
-#         ex$log.expr = round(log10(ex$expr), 1)
-#         ex$ywid = 0.8
-#         ex$border = 'black'
-#         ex$col = alpha('blue', 0.4)
-#         td.ex = gTrack(ex, y.field = 'log.expr', edges = edges, name = 'Log Read Density', height = 30)
-#         return(td.ex)
-#     }
+#' @name track.splice
+#' @title track.splice
+#'
+#' Given set of exons and rna bam (eg from tophat) determines junction and exon read density and returns a gTrack object
+#' of splicing graph
+#'
+#' @param ex GRanges of candidate exons
+#' @param bam path to indexed RNA seq bam
+#' @param verbose
+#' @export
+#' @author Marcin Imielinski
+track.splice = function(ex = NULL, region = NULL, bam, verbose = TRUE,
+    infer.exons = FALSE,
+    min.reads = 0, ## only relevant if ex is null or infer.exons = TRUE, here exons are inferred from "N" intervals
+    min.exon.width = 10,
+    max.exon.width = 1000 ## only relevant if ex is null
+    )
+    {
+        if (!is.null(ex))
+            {
+                ex = gr.stripstrand(ex)
+                ex.ov = gr.findoverlaps(ex, ex)
+            }
+
+        if (is.null(region))
+            reads = read.bam(bam, intervals = ex, pairs.grl = FALSE, verbose = verbose)
+        else
+            reads = read.bam(bam, intervals = region, pairs.grl = FALSE, verbose = verbose)
+
+        if (verbose)
+            cat(length(reads), 'reads\n')
+
+        if (length(reads)==0)
+            {
+                if (!is.null(ex))
+                    {
+                        ex$expr = 0
+                        ex$log.expr = log(ex$expr)
+                        return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
+                    }
+                else
+                    return(gTrack(region[c()]))
+            }
+
+        sp.reads = splice.cigar(reads, return.grl = FALSE)
+
+        if (verbose)
+            cat(length(sp.reads), 'spliced fragments\n')
+
+        if (is.null(ex))
+            infer.exons = TRUE
+
+        if (infer.exons)
+            {
+                sp.reads = sp.reads[seqnames(sp.reads)==seqnames(region) & ranges(sp.reads) %over% ranges(region), ]
+                tmp = gUtils::gr2dt(sp.reads)
+                m.reads = tmp[type != 'N']
+                n.reads = tmp[type == 'N']
+                ustart = c(min(start(sp.reads)), n.reads[, length(seqnames), by = end][V1>=min.reads, end]+1)
+                uend = c(n.reads[, length(seqnames), by = start][V1>=min.reads, start]-1, max(end(sp.reads))) ## 1 after N ends are starts of exons
+
+                ustart.maxwidth = m.reads[, max(end-start), keyby = start]
+                uend.maxwidth = m.reads[, max(end-start), keyby = end]
+
+                new.ex = data.table(seqnames = n.reads$seqnames[1], start = rep(ustart, length(uend)), end = rep(uend, each = length(ustart)))[ (end-start) <= max.exon.width & (end-start) >= min.exon.width, ]
+
+                ## we will get exon overload unless we cull a bit
+                ## to be parsimonious we only keep enough exons for all the matching parts of reads to "land on"
+                ## ie if they start in an exon they will end up in the same one
+                                                        ## rather than comp
+# uting all the overlaps necessary for this
+                ## we just approximate by removing exons for which a smaller one exists that accomodates all of the
+                ## reads that start on its start or end on its end
+                new.ex[ , maxwidth.start := (end-start) > ustart.maxwidth[list(new.ex$start), V1]]
+                new.ex[ , maxwidth.end := (end-start) > uend.maxwidth[list(new.ex$end), V1]]
+
+                new.ex[ , shorter.start.exists := !(1:length(seqnames) %in% which.min(end-start)), by = start]
+                new.ex[ , shorter.end.exists := !(1:length(seqnames) %in% which.min(end-start)), by = end]
+
+                new.ex = seg2gr(new.ex[!shorter.start.exists | !shorter.end.exists, ], seqlengths = seqlengths(sp.reads))[, c()]
+
+                new.ex$type = 'inferred'
+                if (verbose)
+                    cat(sprintf('inferred %s total unique exons with min.reads %s, min.exon.width %s, and max.exon.width %s\n', length(new.ex), min.reads, min.exon.width, max.exon.width))
+                if (!is.null(ex))
+                    {
+                        old.ex = ex;
+                        ex = sort(unique(gUtils::grbind(ex, new.ex)))
+                        if (verbose)
+                            cat(sprintf('Added %s additional exons to yield %s total\n', length(ex)-length(old.ex), length(ex)))
+                    }
+                else
+                   ex = sort(new.ex)
+
+                ex.ov = gr.findoverlaps(ex, ex)
+            }
+
+        sp.reads = sort(sp.reads[sp.reads$type != 'N'])
+        sp.reads = sp.reads[order(sp.reads$rid), ]
+
+        tmp =  gUtils::gr2dt(sp.reads)
+        tmp[, spid := 1:length(sp.reads)]
+        tmp[, riid := 1:length(seqnames), by = rid]
+        setkey(tmp, spid)
+        sp.reads$riid = tmp[list(1:length(sp.reads)), riid]
+
+        ov = gr.findoverlaps(ex, sp.reads, scol = c('rid', 'riid'), verbose = verbose, return.type = 'data.table')
+        if (length(ov)==0)
+            {
+                ex$expr = 0
+                ex$log.expr = log(ex$expr)
+                return(gTrack(ex, y.field = 'log.expr', name = 'Log Read Density', height = 30))
+            }
+        ov[, width := end-start]
+        ov[, match.left.exon := as.numeric(start == start(ex)[query.id])]
+        ov[, match.right.exon := as.numeric(end == end(ex)[query.id])]
+        ov[, match.left.read := as.numeric(start == start(sp.reads)[subject.id])]
+        ov[, match.right.read := as.numeric(end == end(sp.reads)[subject.id])]
+        ov = ov[(match.left.read | match.left.exon) & (match.right.read | match.right.exon), ]
+        setkeyv(ov, c('rid', 'riid'))
+
+        sp.rid = unique(ov$rid[ov$riid>1])
+        ij = ov[list(sp.rid), list(from = rep(query.id, each = length(query.id)), to = rep(query.id, length(query.id)),
+            val = width[rep(1:length(query.id), each = length(query.id))] + width[rep(1:length(query.id), length(query.id))],
+            from.riid = rep(riid*match.right.exon*match.right.read, each = length(query.id)),
+            to.riid = rep(riid*match.left.exon*match.left.read, length(query.id))), by = rid]
+
+        ij = ij[(ij$to.riid - ij$from.riid) == 1 & ij$to.riid !=0 & ij$from.riid != 0, ]
+        setkeyv(ij, c('from', 'to'))
+        ij = ij[!list(ex.ov$query.id, ex.ov$subject.id), ]
+
+#        edges = ij[, list(val = sum(val)/(width(ex)[from] + width(ex)[to])), keyby = list(from, to)]
+        edges = ij[, list(val = sum(val)), keyby = list(from, to)]
+                                        #edges = edges[, val := 0]
+        edges = edges[, lwd := affine.map(log(val+1), c(0, 6), cap = TRUE)]
+        edges = edges[, v := 5]
+        edges = edges[, h := 2]
+        edges = edges[, col := alpha('gray10', affine.map(log(val+1), c(0.1,0.8), cap = TRUE))]
+        edges = edges[, cex.arrow := 0]
+        ex$expr = ov[(match.right.exon*match.right.read + match.left.exon*match.right.read) | (match.left.read==1 & match.right.read==1), sum(width), keyby = query.id][list(1:length(ex)), V1]/width(ex)
+
+        ex$log.expr = round(log10(ex$expr), 1)
+        ex$ywid = 0.8
+        ex$border = 'black'
+        ex$col = alpha('blue', 0.4)
+        td.ex = gTrack(ex, y.field = 'log.expr', edges = edges, name = 'Log Read Density', height = 30)
+        return(td.ex)
+    }
 
 ##########################
 #' @name draw.ranges
@@ -2658,9 +2672,6 @@ draw.ranges = function(x, y = NULL, lwd = 0.5, col = "black", border = col, labe
 #'
 #' @keywords internal
 #' @author Marcin IMielinski
-#' @importFrom GenomicRanges GRanges values ranges width strand values<- strand<- seqnames coverage ranges<-
-#' @importFrom data.table := setkeyv
-#' @importFrom GenomeInfoDb Seqinfo seqinfo keepSeqlevels seqlevels seqlengths seqlevels<- seqlengths<- genome<- seqnames
 draw.grl = function(grl,
                     y = NULL,  # can be either vector of length grl, or data.frame row / list with fields $start and $end
                     # specifying y coordinates to "pack" the granges into (or just length 2 list)
@@ -2737,6 +2748,14 @@ draw.grl = function(grl,
                     points = NA, ## if non NA then will draw a given point with pch style
                     circles = FALSE, ## only one of these should be true, however if multiple are true then they will be interpreted in this order
                     bars = FALSE,
+                    sashimi = FALSE,
+                    sashimi.coords = 'bp',
+                    sashimi.label = 'count',
+                    sashimi.label.pos = 'mid',
+                    sashimi.bar.labels = FALSE,
+                    sashimi.lwd.scale = TRUE,
+                    sashimi.arc.col = NA,
+                    sashimi.baseline = NA,
                     y0.bar = NULL,
                     lines = F,
                     angle, # angle of barbs to indicate directionality of ranges
@@ -2751,6 +2770,15 @@ draw.grl = function(grl,
     ## PATCH: we are forgetting about any ylim.subplot settings done above .. WHY?
 #    ylim.subplot = NULL
     empty.plot = FALSE
+
+  ## sashimi mode: force bars on, baseline to 0, suppress default edge drawing
+  ## (we take over the edges block below to render position-anchored arcs)
+  if (isTRUE(sashimi))
+  {
+    bars = TRUE
+    if (is.null(y0.bar) || all(is.na(y0.bar)))
+      y0.bar = ifelse(!is.na(sashimi.baseline), sashimi.baseline, 0)
+  }
 
   ## PATCH: last minute defaults
   if (is.na(xaxis.width))
@@ -2804,7 +2832,12 @@ draw.grl = function(grl,
             if (length(labels)!=1)
               labels = labels[ix]
 
-        if (!is.null(edges))
+        ## in sashimi 'bp' mode, from/to are genomic positions (not indices) -
+        ## skip this remap so the sashimi block below can use them directly.
+        ## sashimi 'index' mode needs the remap, same as the default edges path.
+        sashimi.bp = isTRUE(sashimi) &&
+                     (is.null(sashimi.coords) || is.na(sashimi.coords) || sashimi.coords == 'bp')
+        if (!is.null(edges) && !sashimi.bp)
           if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
           {
             if (data.table::is.data.table(edges))
@@ -3768,7 +3801,7 @@ draw.grl = function(grl,
       }
     }
 
-    if (!is.null(edges))
+    if (!is.null(edges) && !isTRUE(sashimi))
       if (nrow(edges)>0 & all(c('from', 'to') %in% colnames(edges)))
       {
         if (data.table::is.data.table(edges))
@@ -3949,6 +3982,239 @@ draw.grl = function(grl,
             {
               text((edges$x.pos.from + edges$x.pos.to)/2, edges$y.pos.from + 0.5*edges$v*sign(edges$y.pos.to - edges$y.pos.from + 0.01),
                    edges$label, adj = c(0.5, 0.5), col = 'black')
+            }
+          }
+        }
+      }
+
+    ## sashimi arcs. edges$from/$to are resolved per sashimi.coords:
+    ##   'bp'    = genomic positions (default); snap to coverage bin by chrom+pos
+    ##   'index' = 1-based indices into the track's input GRanges (gTrack edge convention)
+    if (isTRUE(sashimi) && !is.null(edges))
+      if (is.data.frame(edges) && nrow(edges) > 0 && all(c('from','to') %in% colnames(edges)))
+      {
+        if (data.table::is.data.table(edges))
+          edges = as.data.frame(edges)
+
+        ## numeric coerce (STAR SJ files may have char)
+        edges$from = suppressWarnings(as.numeric(edges$from))
+        edges$to   = suppressWarnings(as.numeric(edges$to))
+        sash = edges[!is.na(edges$from) & !is.na(edges$to), , drop = FALSE]
+
+        coords.mode = if (is.null(sashimi.coords) || is.na(sashimi.coords)) 'bp' else sashimi.coords
+        if (!coords.mode %in% c('bp','index'))
+          stop("sashimi.coords must be 'bp' or 'index', got: ", coords.mode)
+
+        if (coords.mode == 'bp' && nrow(sash) > 0 && nrow(grl.segs) > 0)
+        {
+          ## normalize chr prefixes on both sides so "chr1" vs "1" match
+          ## (gTrack's chr.sub default strips "chr" from grl.segs$seqnames)
+          chr.strip = function(x) sub('^chr', '', as.character(x))
+          segs.seq = chr.strip(grl.segs$seqnames)
+          unique.seq = unique(segs.seq)
+          if (is.null(sash$seqnames))
+          {
+            if (length(unique.seq) == 1)
+              sash$seqnames = unique.seq
+            else
+              stop("sashimi edges span multiple chromosomes in this window (",
+                   paste(unique.seq, collapse = ", "),
+                   ") but edges data.frame has no $seqnames column to disambiguate")
+          }
+          sash$seqnames = chr.strip(sash$seqnames)
+          sash = sash[sash$seqnames %in% unique.seq, , drop = FALSE]
+        }
+
+        if (nrow(sash) > 0)
+        {
+          if (coords.mode == 'bp')
+          {
+            ## snap each edge endpoint (chrom, bp) to the coverage bin whose
+            ## genomic span contains it. grl.segs has both genomic ($start,$end,
+            ## $seqnames) and plot-space ($pos1,$pos2) coordinates, which can
+            ## differ when flatmapping across multiple windows.
+            snap = function(p, chr)
+            {
+              idx = integer(length(p))
+              for (i in seq_along(p))
+              {
+                hit = which(segs.seq == chr[i] &
+                            grl.segs$start <= p[i] &
+                            grl.segs$end   >= p[i])
+                if (length(hit) == 0)
+                  idx[i] = NA_integer_
+                else if (length(hit) == 1)
+                  idx[i] = hit
+                else ## ambiguous (overlapping bins): pick the tallest bar
+                  idx[i] = hit[which.max(grl.segs$y[hit])]
+              }
+              idx
+            }
+            i.from = snap(sash$from, sash$seqnames)
+            i.to   = snap(sash$to,   sash$seqnames)
+          }
+          else ## 'index': from/to are 1-based indices into the original input GRanges
+          {    ## grl.segs$query.id carries the original pre-flatmap index
+            i.from = match(as.integer(sash$from), grl.segs$query.id)
+            i.to   = match(as.integer(sash$to),   grl.segs$query.id)
+          }
+
+          good = !is.na(i.from) & !is.na(i.to)
+          sash   = sash[good, , drop = FALSE]
+          i.from = i.from[good]
+          i.to   = i.to[good]
+
+          if (nrow(sash) > 0)
+          {
+            y0.base = if (!is.na(sashimi.baseline)) sashimi.baseline else
+                      if (!is.null(y0.bar)) y0.bar[1] else 0
+
+            x0.arc = grl.segs$pos2[i.from]   ## right edge of donor bar (exon end)
+            x1.arc = grl.segs$pos1[i.to]     ## left  edge of acceptor bar (exon start)
+            y0.arc = grl.segs$y[i.from]      ## bar top = coverage at donor
+            y1.arc = grl.segs$y[i.to]        ## bar top = coverage at acceptor
+            donor.x.orig = x0.arc           ## preserve original donor x for label-nudge
+            acc.x.orig   = x1.arc
+
+            ## swap donor/acceptor if user supplied them reversed (common: to < from)
+            flip = x0.arc > x1.arc
+            if (any(flip))
+            {
+              tx = x0.arc[flip]; x0.arc[flip] = x1.arc[flip]; x1.arc[flip] = tx
+              ty = y0.arc[flip]; y0.arc[flip] = y1.arc[flip]; y1.arc[flip] = ty
+            }
+
+            ## per-arc formatting
+            n.arc = nrow(sash)
+            arc.col = if (!is.null(sash$col)) sash$col else rep(NA, n.arc)
+            if (!is.na(sashimi.arc.col))
+              arc.col = rep(sashimi.arc.col, n.arc)
+            arc.col[is.na(arc.col)] = alpha('black', 0.7)
+
+            ## lwd: user override > log-scaled count > default 1
+            count = if (!is.null(sash$count)) suppressWarnings(as.numeric(sash$count)) else NULL
+            arc.lwd = if (!is.null(sash$lwd)) sash$lwd else rep(NA_real_, n.arc)
+            if (any(is.na(arc.lwd)))
+            {
+              if (isTRUE(sashimi.lwd.scale) && !is.null(count) && any(!is.na(count)))
+              {
+                cmax = max(count, na.rm = TRUE)
+                cmin = min(count, na.rm = TRUE)
+                if (cmax > cmin)
+                  scaled = 0.5 + 4 * (log1p(count) - log1p(cmin)) / (log1p(cmax) - log1p(cmin))
+                else
+                  scaled = rep(1.5, n.arc)
+                arc.lwd[is.na(arc.lwd)] = scaled[is.na(arc.lwd)]
+              } else {
+                arc.lwd[is.na(arc.lwd)] = 1
+              }
+            }
+
+            arc.lty = if (!is.null(sash$lty)) sash$lty else rep(1, n.arc)
+            arc.lty[is.na(arc.lty)] = 1
+
+            ## arc bulge v: scale with max(coverage) so arcs clear the bars,
+            ## plus a touch of extra height proportional to the x-span
+            usr = par('usr')
+            cov.top = max(grl.segs$y, na.rm = TRUE)
+            if (!is.finite(cov.top)) cov.top = 1
+            span.x = abs(x1.arc - x0.arc)
+            xrange = diff(usr[1:2])
+            if (!is.finite(xrange) || xrange <= 0) xrange = 1
+            cov.range = cov.top - y0.base
+            v.base = 0.25 * cov.range
+            v.span = 0.35 * cov.range * (span.x / xrange)
+            arc.v = pmax(v.base + v.span, 1e-6)
+            if (!is.null(sash$v) && any(!is.na(sash$v)))
+              arc.v[!is.na(sash$v)] = sash$v[!is.na(sash$v)]
+
+            arc.h = if (!is.null(sash$h)) sash$h else rep(xrange/100, n.arc)
+            arc.h[is.na(arc.h)] = xrange/100
+
+            ## 'U' gives a smooth upward arch between two points at similar y
+            connectors(x0 = x0.arc, y0 = y0.arc, s0 = rep('+', n.arc),
+                       x1 = x1.arc, y1 = y1.arc, s1 = rep('-', n.arc),
+                       v = arc.v, h = arc.h, type = rep('U', n.arc),
+                       f.arrow = FALSE, b.arrow = FALSE,
+                       cex.arrow = 0,
+                       col.arrow = arc.col,
+                       lwd = arc.lwd, lty = arc.lty, col = arc.col)
+
+            ## labels: prefer explicit $label, else the column named by sashimi.label
+            lab = NULL
+            if (!is.null(sash$label))
+              lab = sash$label
+            else if (!is.na(sashimi.label) && !is.null(sash[[sashimi.label]]))
+              lab = sash[[sashimi.label]]
+
+            lab.pos = if (is.null(sashimi.label.pos) || is.na(sashimi.label.pos)) 'mid' else sashimi.label.pos
+            if (!lab.pos %in% c('mid','ends','both','none'))
+              stop("sashimi.label.pos must be one of 'mid','ends','both','none', got: ", lab.pos)
+
+            if (!is.null(lab) && any(!is.na(lab)) && lab.pos != 'none')
+            {
+              ix = !is.na(lab)
+              lab.txt = as.character(lab[ix])
+              ## estimate the true Bezier apex (empirically sampled from the U-connector):
+              ##  - symmetric (y0==y1): apex at x-midpoint, y = mean + 0.625*v
+              ##  - asymmetric: apex shifts toward the TALLER endpoint, and dy/v shrinks
+              ## blend smoothly between the two regimes via the ratio |y1-y0|/v.
+              y0.sub = y0.arc[ix]; y1.sub = y1.arc[ix]
+              arc.v.sub = arc.v[ix]
+              asym  = abs(y1.sub - y0.sub)
+              blend = exp(-asym / pmax(arc.v.sub, 1e-9))
+              ## push dy.frac a little above the true-apex sample so the label
+              ## anchor is AT the visual peak (rather than slightly below it).
+              dy.frac = 0.4 + 0.375 * blend
+              apex.y = pmax(y0.sub, y1.sub) + dy.frac * arc.v.sub
+              ## y-asymmetry nudge: true Bezier apex-x shifts toward taller end
+              dx.frac = 0.4 * sign(y1.sub - y0.sub) * (1 - blend)
+              ## donor-bias: additionally nudge label away from its own donor
+              ## along the arc (so arcs sharing a donor don't bunch near it)
+              span.sub = x1.arc[ix] - x0.arc[ix]
+              dir.from.donor = sign(acc.x.orig[ix] - donor.x.orig[ix])
+              dir.from.donor[dir.from.donor == 0] = 1
+              donor.bias = 0.08 * span.sub * dir.from.donor
+              apex.x = (x0.arc[ix] + x1.arc[ix])/2 + dx.frac * span.sub + donor.bias
+              lab.gap = 0.005 * (cov.top - y0.base)
+              if (lab.pos %in% c('mid','both'))
+                text(apex.x, apex.y + lab.gap,
+                     labels = lab.txt,
+                     adj = c(0.5, 0), col = 'black', cex = 0.7)
+              if (lab.pos %in% c('ends','both'))
+              {
+                ## endpoint labels: just above each bar top, nudged slightly
+                ## toward the arc midpoint so they don't collide with the bar edge
+                x.nudge = 0.008 * xrange
+                y.nudge = 0.04 * (cov.top - y0.base)
+                text(x0.arc[ix] + x.nudge, y0.arc[ix] + y.nudge,
+                     labels = lab.txt,
+                     adj = c(0, 0), col = 'black', cex = 0.6)
+                text(x1.arc[ix] - x.nudge, y1.arc[ix] + y.nudge,
+                     labels = lab.txt,
+                     adj = c(1, 0), col = 'black', cex = 0.6)
+              }
+            }
+
+            ## bar-value labels at each junction endpoint (donor + acceptor bar tops).
+            ## grl.segs$y is rescaled to plot-space; the raw value lives in the
+            ## y.field metadata column carried through from the input GRanges.
+            if (isTRUE(sashimi.bar.labels))
+            {
+              bar.ix = unique(c(i.from, i.to))
+              bar.ix = bar.ix[!is.na(bar.ix)]
+              if (length(bar.ix) > 0)
+              {
+                dotargs = list(...)
+                yf = dotargs$y.field
+                raw = if (!is.null(yf) && !is.na(yf) && !is.null(grl.segs[[yf]]))
+                        grl.segs[[yf]][bar.ix] else grl.segs$y[bar.ix]
+                bx = (grl.segs$pos1[bar.ix] + grl.segs$pos2[bar.ix]) / 2
+                by = grl.segs$y[bar.ix]
+                text(bx, by + 0.03 * (cov.top - y0.base),
+                     labels = format(raw, digits = 3),
+                     adj = c(0.5, 0), col = 'gray20', cex = 0.6, font = 2)
+              }
             }
           }
         }
@@ -5841,13 +6107,17 @@ alpha = function(col, alpha)
 ##########
 ##########
 
+
+
+#' @exportMethod with
 setGeneric('with')
 setMethod("with", signature(data = "gTrack"), NULL)
 setMethod("with", signature(data = "gTrack"), function(data, expr) {
     df = as.data.frame(formatting(data))
     eval(substitute(expr, parent.frame()), df, parent.frame())
-p})
+})
 
+#' @exportMethod within
 setGeneric('within')
 setMethod("within", signature(data = "gTrack"), NULL)
 setMethod("within", signature(data = "gTrack"), function(data, expr) {

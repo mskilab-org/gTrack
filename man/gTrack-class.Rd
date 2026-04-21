@@ -38,6 +38,14 @@ gTrack(
   circles = FALSE,
   lines = FALSE,
   bars = FALSE,
+  sashimi = FALSE,
+  sashimi.coords = "bp",
+  sashimi.label = "count",
+  sashimi.label.pos = "mid",
+  sashimi.bar.labels = FALSE,
+  sashimi.lwd.scale = TRUE,
+  sashimi.arc.col = NA,
+  sashimi.baseline = NA,
   draw.paths = FALSE,
   path.col = "black",
   path.lwd = 1,
@@ -80,7 +88,8 @@ gTrack(
   labels.suppress.grl = labels.suppress,
   labels.suppress.gr = labels.suppress,
   bg.col = "white",
-  formatting = NA
+  formatting = NA,
+  if.flip = FALSE
 )
 }
 \arguments{
@@ -137,6 +146,22 @@ items (only relevant if used within chainedTracks object)}
 \item{lines}{vector or scalar logical specifying whether to line plot range data (formatting)}
 
 \item{bars}{vector or scalar logical specifying whether to bar plot range data (formatting)}
+
+\item{sashimi}{vector or scalar logical specifying whether to render this track as a sashimi plot (bars for coverage plus arcs for splice junctions). When TRUE, \code{bars} is forced on; arc endpoints are snapped to the top of the coverage bar at each junction terminus. The interpretation of \code{edges$from}/\code{edges$to} is controlled by \code{sashimi.coords}. (formatting)}
+
+\item{sashimi.coords}{scalar character, one of \code{'bp'} or \code{'index'}. When \code{'bp'} (default) \code{edges$from}/\code{edges$to} are genomic positions (1-based bp, same coord space as the input GRanges) and an optional \code{edges$seqnames} column is used (auto-filled when the plot has a single chromosome). When \code{'index'}, they are 1-based integer indices into the track's data GRanges - matching the convention of the default (non-sashimi) edges slot. (formatting)}
+
+\item{sashimi.label}{scalar character naming the edges column to draw as the junction label (default \code{'count'}; set to \code{NA} to suppress). Falls back to \code{edges$label} when present. (formatting)}
+
+\item{sashimi.label.pos}{scalar character controlling label placement: \code{'mid'} (default, single label above arc midpoint), \code{'ends'} (small labels at donor and acceptor), \code{'both'} (midpoint plus ends), or \code{'none'}. (formatting)}
+
+\item{sashimi.bar.labels}{scalar logical; when TRUE, draws the coverage value above the bar at each junction endpoint (donor and acceptor). Useful for reading exon-level expression off the sashimi plot. (formatting)}
+
+\item{sashimi.lwd.scale}{vector or scalar logical; when TRUE and \code{sashimi=TRUE}, arc \code{lwd} is scaled by \code{log1p(count)} unless \code{edges$lwd} is explicitly provided. (formatting)}
+
+\item{sashimi.arc.col}{vector or scalar character specifying a global arc color override; \code{NA} (default) uses \code{edges$col} or black. (formatting)}
+
+\item{sashimi.baseline}{vector or scalar numeric specifying the coverage baseline (y0) for bars; \code{NA} (default) uses 0. (formatting)}
 
 \item{draw.paths}{vector or scalar logical specifying whether to interpret GRangesLists as "paths" and connect them with a
 a set of spline curves.  (formatting)}
@@ -252,7 +277,7 @@ Arguments described as "formatting" are vectors.  They are replicated (if necess
 \describe{
   \item{data}{length(.Object) length list containing genomic data (e.g. GRanges, GrangesLists, RleLists, path to ucsc file or ffTrack file on disk)}
   \item{seqinfo}{Seqinfo object}
-  \item{colormap}{length(.Object) length named list of named vectors whose entry i specifies the colormap for the meta data field of object entry i (specified by the name) and maps unique value of that data field to colors (specified by the named vector)}
+  \item{colormap}{length(.Object) length named list of named vectors whose entry i specifies the colormap for the meta data field of object entry i (specified by the name) and maps unique value of that data field to colors (specified by the named vector),"if.flip"}
   \item{edges}{list of data.frames of length length(.Object) which has columns $from, $to, and optional fields $col, $lwd, and $lty to specify splined edges joining data items in the corresponding track}
   \item{formatting}{\code{data.frame} holding all of the formatting options}
   \item{mdata}{\code{matrix} holding interaction data between genomic loci (e.g. hiC)}

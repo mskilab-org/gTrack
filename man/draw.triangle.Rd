@@ -11,6 +11,7 @@ draw.triangle(
   ylim.parent = NULL,
   windows = NULL,
   win.gap = NULL,
+  m.bg.col = NA,
   sigma = NA,
   col.min = "white",
   col.max = "red",
@@ -22,7 +23,8 @@ draw.triangle(
   max.ranges = Inf,
   leg.params = list(),
   min.gapwidth = 1,
-  islog = FALSE
+  islog = FALSE,
+  if.flip = FALSE
 )
 }
 \description{

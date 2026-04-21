@@ -34,12 +34,13 @@ Imports:
     Rcpp,
     RCurl,
     rtracklayer,
-    BiocGenerics
+    BiocGenerics,
+    bamUtils
 LinkingTo: Rcpp
 License: GPL-2
 LazyData: true
 BugReports: http://github.com/mskilab/gTrack/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests:
     testthat (>= 2.0),
     covr,
