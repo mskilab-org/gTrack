@@ -4469,7 +4469,12 @@ connectors = function(x0, y0, s0 = 1, x1, y1, s1 = 1, v = 0.1, h = 0.1,
     x = as.vector(t(as.matrix(dat[lev.ix, c('x0', cpoints.names['x', ], 'x1')])))
     y = as.vector(t(as.matrix(dat[lev.ix, c('y0', cpoints.names['y', ], 'y1')])))
     ix = seq(1, length(x), ncol(B))
-    XY = do.call('rbind', lapply(ix, function(i) B %*% cbind(x[i:(i+ncol(B)-1)], y[i:(i+ncol(B)-1)])))
+    XY = do.call('rbind', lapply(
+      X = ix, 
+      FUN = function(i) {
+        base::`%*%`(B, cbind(x[i:(i+ncol(B)-1)], y[i:(i+ncol(B)-1)]))
+      }
+    ))
     lines(XY, lwd = dat$lwd[lev.ix], lty = dat$lty[lev.ix], col = as.character(dat$col)[lev.ix])
   })
 
